@@ -1,0 +1,20 @@
+{
+	"menu": {
+		"overview": "Overview",
+		"mapAnalyze": "Map",
+		"burntArea": "Analysis of Hotspots and Burnt Scar in the Area",
+		"cultivationArea": "Analysis of Sugarcane Cultivation Areas",
+		"about": "About Us",
+		"glossary": "Glossary",
+		"setting": "Setting",
+		"userManagement": "User Management"
+	},
+
+	"login": "Login",
+	"logout": "Logout",
+	"back": "Back",
+
+	"error": {
+		"somethingWrong": "Something went wrong. Please check the information again."
+	}
+}
