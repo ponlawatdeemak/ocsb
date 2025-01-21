@@ -10,9 +10,23 @@
 		"userManagement": "User Management"
 	},
 
+	"areaUnit": "Area Unit",
+	"areaRai": "Rai",
+	"areaPlot": "LandPlot",
+
+	"quantityUnit": "Quantity Unit",
+	"ton": "Ton",
+	"kilogram": "Kilogram",
+	"gram": "Gram",
+
+	"languages": "Languages",
+	"languagesTh": "ไทย",
+	"languagesEn": "English",
+
 	"login": "Login",
 	"logout": "Logout",
 	"back": "Back",
+	"save": "Save",
 
 	"error": {
 		"somethingWrong": "Something went wrong. Please check the information again."
