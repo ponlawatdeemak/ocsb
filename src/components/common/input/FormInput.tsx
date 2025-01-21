@@ -1,4 +1,5 @@
 import { FormControl, FormHelperText, FormLabel, OutlinedInput, OutlinedInputProps } from '@mui/material'
+import classNames from 'classnames'
 import { FormikProps } from 'formik'
 import React from 'react'
 
@@ -20,13 +21,20 @@ const FormInput: React.FC<FormInputProps> = ({
 }) => {
 	const errorMessage = formik?.touched[name] && formik?.errors[name]
 	return (
-		<FormControl fullWidth={fullWidth} required={required} className={className}>
-			<FormLabel id={`${name}-label`} className='mb-2 [&_.MuiFormLabel-asterisk]:text-error'>
-				{label}
-			</FormLabel>
+		<FormControl
+			fullWidth={fullWidth}
+			required={required}
+			className={classNames('[&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white', className)}
+		>
+			{label && (
+				<FormLabel id={`${name}-label`} className='mb-2 [&_.MuiFormLabel-asterisk]:text-error'>
+					{label}
+				</FormLabel>
+			)}
 			<OutlinedInput
 				{...props}
 				id={`${name}-input`}
+				className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
 				name={name}
 				size='small'
 				value={formik?.values[name] || value}

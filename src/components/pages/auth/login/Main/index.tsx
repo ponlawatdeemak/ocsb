@@ -1,4 +1,3 @@
-// import { ErrorResponse } from '@/api/interface'
 import { LoginDtoIn } from '@/api/login/dto-in.dto'
 import FormInput from '@/components/common/input/FormInput'
 import PasswordInput from '@/components/common/input/PasswordInput'
@@ -91,22 +90,20 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 					<form onSubmit={formik.handleSubmit} className='flex w-[250px] flex-col items-center'>
 						<Box className='flex w-full flex-col items-center gap-3'>
 							<FormInput
-								className='[&_.MuiFormLabel-root]:hidden [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white [&_input]:box-border [&_input]:h-10 [&_input]:text-sm'
 								disabled={busy}
 								name='username'
 								value={''}
-								label={''}
 								formik={formik}
 								placeholder={t('auth:userName')}
+								required
 							/>
 							<PasswordInput
-								className='[&_.MuiFormLabel-root]:hidden [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white [&_input]:box-border [&_input]:h-10 [&_input]:text-sm'
 								disabled={busy}
 								name='password'
 								value={''}
-								label={''}
 								formik={formik}
 								placeholder={t('auth:password')}
+								required
 							/>
 						</Box>
 						<Link

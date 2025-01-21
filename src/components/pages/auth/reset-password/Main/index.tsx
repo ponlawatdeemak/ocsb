@@ -114,31 +114,28 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 					<form onSubmit={formik.handleSubmit} className='flex w-[250px] flex-col items-center gap-5'>
 						<Box className='flex w-full flex-col items-center gap-3'>
 							<PasswordInput
-								className='[&_.MuiFormLabel-root]:hidden [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white [&_input]:box-border [&_input]:h-10 [&_input]:text-sm'
 								disabled={isPending || busy}
 								name='password'
 								value={''}
-								label={''}
 								formik={formik}
 								placeholder={t('auth:specifyPassword')}
+								required
 							/>
 							<PasswordInput
-								className='[&_.MuiFormLabel-root]:hidden [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white [&_input]:box-border [&_input]:h-10 [&_input]:text-sm'
 								disabled={isPending || busy}
 								name='confirmPassword'
 								value={''}
-								label={''}
 								formik={formik}
 								placeholder={t('auth:specifyConfirmPassword')}
+								required
 							/>
 							<FormInput
-								className='[&_.MuiFormLabel-root]:hidden [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white [&_input]:box-border [&_input]:h-10 [&_input]:text-sm'
 								disabled={isPending || busy}
 								name='confirmationCode'
 								value={''}
-								label={''}
 								formik={formik}
 								placeholder={t('auth:specifyVerificationCode')}
+								required
 							/>
 						</Box>
 						<ActionButton

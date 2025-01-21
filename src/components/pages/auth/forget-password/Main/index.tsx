@@ -94,13 +94,12 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 					<Typography className='!text-lg text-white'>{t('auth:forgotPassword')}</Typography>
 					<form onSubmit={formik.handleSubmit} className='flex w-[250px] flex-col items-center gap-4'>
 						<FormInput
-							className='[&_.MuiFormLabel-root]:hidden [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white [&_input]:box-border [&_input]:h-10 [&_input]:text-sm'
 							disabled={isPending || busy}
 							name='email'
 							value={''}
-							label={''}
 							formik={formik}
 							placeholder={t('auth:specifyEmail')}
+							required
 						/>
 						<ActionButton
 							className='h-10 !rounded-[5px] !bg-secondary [&_.MuiBox-root]:text-sm [&_.MuiBox-root]:font-normal'
