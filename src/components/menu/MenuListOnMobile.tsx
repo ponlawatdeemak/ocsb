@@ -7,16 +7,37 @@ import { useSession } from 'next-auth/react'
 import { usePathname, useRouter } from 'next/navigation'
 import classNames from 'classnames'
 import { ExpandLess, ExpandMore } from '@mui/icons-material'
+import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
+import useAreaUnit from '@/store/area-unit'
+import useQuantityUnit from '@/store/quantity-unit'
+import { ResponseLanguage } from '@/api/interface'
 
 interface MenuListOnMobileProps {
+	selectedAreaUnit: AreaUnitKey
+	selectedQuantityUnit: QuantityUnitKey
+	currentLanguage: 'th' | 'en'
+	setSelectedAreaUnit: React.Dispatch<React.SetStateAction<AreaUnitKey>>
+	setSelectedQuantityUnit: React.Dispatch<React.SetStateAction<QuantityUnitKey>>
+	setCurrentLanguage: React.Dispatch<React.SetStateAction<'th' | 'en'>>
 	onCloseMenuDrawer: () => void
 }
 
-const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({ onCloseMenuDrawer }) => {
+const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({
+	selectedAreaUnit,
+	selectedQuantityUnit,
+	currentLanguage,
+	setSelectedAreaUnit,
+	setSelectedQuantityUnit,
+	setCurrentLanguage,
+	onCloseMenuDrawer,
+}) => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const { data: session } = useSession()
-	const { t } = useTranslation('common')
+	const { areaUnit } = useAreaUnit()
+	const { quantityUnit } = useQuantityUnit()
+	const { t, i18n } = useTranslation('common')
+	const language = i18n.language as keyof ResponseLanguage
 	const splitedPathname = useMemo(() => pathname.split('/').filter((item) => item !== ''), [pathname])
 
 	const [tabValue, setTabValue] = useState<string>(`/${splitedPathname.shift()}`)
@@ -108,6 +129,9 @@ const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({ onCloseMenuDrawer }
 							className='cursor-pointer !border-0 !border-b !border-solid !border-gray !p-2'
 							onClick={() => {
 								if (menu.id === 'Setting') {
+									setSelectedAreaUnit(areaUnit || AreaUnitKey.Rai)
+									setSelectedQuantityUnit(quantityUnit || QuantityUnitKey.Ton)
+									setCurrentLanguage(language || Languages.TH)
 									setOpenSettingDialog(true)
 									setMapAnalyzeListOpen(false)
 								} else {
@@ -131,7 +155,16 @@ const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({ onCloseMenuDrawer }
 				)}
 			</List>
 
-			<SettingDialog open={openSettingDialog} onClose={() => handleCloseDialog()} />
+			<SettingDialog
+				open={openSettingDialog}
+				selectedAreaUnit={selectedAreaUnit}
+				selectedQuantityUnit={selectedQuantityUnit}
+				currentLanguage={currentLanguage}
+				setSelectedAreaUnit={setSelectedAreaUnit}
+				setSelectedQuantityUnit={setSelectedQuantityUnit}
+				setCurrentLanguage={setCurrentLanguage}
+				onClose={() => handleCloseDialog()}
+			/>
 		</React.Fragment>
 	)
 }

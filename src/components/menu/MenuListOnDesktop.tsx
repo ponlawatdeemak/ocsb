@@ -7,14 +7,35 @@ import { useSession } from 'next-auth/react'
 import { usePathname, useRouter } from 'next/navigation'
 import classNames from 'classnames'
 import { ExpandLess, ExpandMore } from '@mui/icons-material'
+import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
+import useAreaUnit from '@/store/area-unit'
+import useQuantityUnit from '@/store/quantity-unit'
+import { ResponseLanguage } from '@/api/interface'
 
-interface MenuListOnDesktopProps {}
+interface MenuListOnDesktopProps {
+	selectedAreaUnit: AreaUnitKey
+	selectedQuantityUnit: QuantityUnitKey
+	currentLanguage: 'th' | 'en'
+	setSelectedAreaUnit: React.Dispatch<React.SetStateAction<AreaUnitKey>>
+	setSelectedQuantityUnit: React.Dispatch<React.SetStateAction<QuantityUnitKey>>
+	setCurrentLanguage: React.Dispatch<React.SetStateAction<'th' | 'en'>>
+}
 
-const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = () => {
+const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = ({
+	selectedAreaUnit,
+	selectedQuantityUnit,
+	currentLanguage,
+	setSelectedAreaUnit,
+	setSelectedQuantityUnit,
+	setCurrentLanguage,
+}) => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const { data: session } = useSession()
-	const { t } = useTranslation('common')
+	const { areaUnit } = useAreaUnit()
+	const { quantityUnit } = useQuantityUnit()
+	const { t, i18n } = useTranslation('common')
+	const language = i18n.language as keyof ResponseLanguage
 	const splitedPathname = useMemo(() => pathname.split('/').filter((item) => item !== ''), [pathname])
 
 	const [tabValue, setTabValue] = useState<string>(`/${splitedPathname.shift()}`)
@@ -40,7 +61,7 @@ const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = () => {
 
 	return (
 		<React.Fragment>
-			<Box className='gap-responsive-menu-gap flex min-h-[38px] items-center p-1'>
+			<Box className='flex min-h-[38px] items-center gap-responsive-menu-gap p-1'>
 				{appMenuConfig.map((menu) =>
 					(menu.access?.length || 0) > 0 ? (
 						menu.access?.includes(session?.user.role ?? '') && (
@@ -128,6 +149,9 @@ const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = () => {
 							className='min-h-[30px] min-w-0 cursor-pointer !p-1'
 							onClick={() => {
 								if (menu.id === 'Setting') {
+									setSelectedAreaUnit(areaUnit || AreaUnitKey.Rai)
+									setSelectedQuantityUnit(quantityUnit || QuantityUnitKey.Ton)
+									setCurrentLanguage(language || Languages.TH)
 									setOpenSettingDialog(true)
 								} else {
 									handleChangeTabValue(menu.path)
@@ -152,7 +176,16 @@ const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = () => {
 				)}
 			</Box>
 
-			<SettingDialog open={openSettingDialog} onClose={() => handleCloseDialog()} />
+			<SettingDialog
+				open={openSettingDialog}
+				selectedAreaUnit={selectedAreaUnit}
+				selectedQuantityUnit={selectedQuantityUnit}
+				currentLanguage={currentLanguage}
+				setSelectedAreaUnit={setSelectedAreaUnit}
+				setSelectedQuantityUnit={setSelectedQuantityUnit}
+				setCurrentLanguage={setCurrentLanguage}
+				onClose={() => handleCloseDialog()}
+			/>
 		</React.Fragment>
 	)
 }
