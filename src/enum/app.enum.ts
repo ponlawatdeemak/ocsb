@@ -1,13 +1,12 @@
-export enum AreaUnit {
-	Rai = 'rai',
-	Sqkm = 'sqkm',
-	Hectare = 'hectare',
+export enum AreaUnitKey {
+	Rai = 'areaRai',
+	LandPlot = 'areaPlot',
 }
 
-export enum AreaUnitText {
-	rai = 'unitRai',
-	sqkm = 'unitSqkm',
-	hectare = 'unitHectare',
+export enum QuantityUnitKey {
+	Ton = 'ton',
+	Kilogram = 'kilogram',
+	Gram = 'gram',
 }
 
 export enum Languages {
