@@ -3,13 +3,18 @@ import { FormControl, MenuItem, Select, SelectChangeEvent } from '@mui/material'
 import classNames from 'classnames'
 import React from 'react'
 
+export interface FilterSelectOptionType {
+	id: string
+	name: string
+}
+
 interface FilterSelectProps {
 	className?: string
 	id: string
 	required?: boolean
 	fullWidth?: boolean
 	value: any
-	data: any[]
+	data: FilterSelectOptionType[]
 	placeholder?: string
 	disabled?: boolean
 	onChange: (event: SelectChangeEvent) => void
@@ -57,8 +62,8 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
 					</MenuItem>
 				)}
 				{data.map((item) => (
-					<MenuItem key={item} className='px-3 py-2 text-sm text-black sm:text-base' value={item}>
-						{item}
+					<MenuItem key={item.id} className='px-3 py-2 text-sm text-black sm:text-base' value={item.id}>
+						{item.name}
 					</MenuItem>
 				))}
 			</Select>
