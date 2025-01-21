@@ -119,7 +119,6 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 								value={''}
 								formik={formik}
 								placeholder={t('auth:specifyPassword')}
-								required
 							/>
 							<PasswordInput
 								disabled={isPending || busy}
@@ -127,7 +126,6 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 								value={''}
 								formik={formik}
 								placeholder={t('auth:specifyConfirmPassword')}
-								required
 							/>
 							<FormInput
 								disabled={isPending || busy}
@@ -135,7 +133,6 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 								value={''}
 								formik={formik}
 								placeholder={t('auth:specifyVerificationCode')}
-								required
 							/>
 						</Box>
 						<ActionButton

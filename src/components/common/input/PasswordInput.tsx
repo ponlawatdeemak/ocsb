@@ -12,7 +12,6 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
 	name,
 	disabled,
 	className,
-	required,
 	value,
 	placeholder,
 }) => {
@@ -32,7 +31,6 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
 			className={className}
 			type={showPassword ? 'text' : 'password'}
 			disabled={disabled}
-			required={required}
 			endAdornment={
 				<InputAdornment position='end'>
 					<IconButton

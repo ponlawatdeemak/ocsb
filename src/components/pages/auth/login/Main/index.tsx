@@ -95,7 +95,6 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 								value={''}
 								formik={formik}
 								placeholder={t('auth:userName')}
-								required
 							/>
 							<PasswordInput
 								disabled={busy}
@@ -103,7 +102,6 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 								value={''}
 								formik={formik}
 								placeholder={t('auth:password')}
-								required
 							/>
 						</Box>
 						<Link

@@ -6,24 +6,13 @@ import React from 'react'
 export interface FormInputProps extends OutlinedInputProps {
 	name: string
 	formik?: FormikProps<any>
-	required?: boolean
 }
 
-const FormInput: React.FC<FormInputProps> = ({
-	formik,
-	name,
-	label,
-	className,
-	required = false,
-	fullWidth = true,
-	value,
-	...props
-}) => {
+const FormInput: React.FC<FormInputProps> = ({ formik, name, label, className, fullWidth = true, value, ...props }) => {
 	const errorMessage = formik?.touched[name] && formik?.errors[name]
 	return (
 		<FormControl
 			fullWidth={fullWidth}
-			required={required}
 			className={classNames('[&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white', className)}
 		>
 			{label && (

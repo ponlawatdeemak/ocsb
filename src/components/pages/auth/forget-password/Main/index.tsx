@@ -99,7 +99,6 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 							value={''}
 							formik={formik}
 							placeholder={t('auth:specifyEmail')}
-							required
 						/>
 						<ActionButton
 							className='h-10 !rounded-[5px] !bg-secondary [&_.MuiBox-root]:text-sm [&_.MuiBox-root]:font-normal'
