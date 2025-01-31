@@ -16,3 +16,19 @@ export const DefaultAvatarIcon: React.FC<SVGProps> = ({ width = 24, height = 24,
 		</svg>
 	)
 }
+
+export const BackIcon: React.FC<SVGProps> = ({ width = 26, height = 26, fill = 'black' }) => {
+	return (
+		<svg width={width} height={height} viewBox='0 0 26 26' fill='none' xmlns='http://www.w3.org/2000/svg'>
+			<circle cx='13' cy='13' r='13' fill='white' />
+			<path
+				d='M13.1667 17.375L9 13M9 13L13.1667 8.625M9 13L19 13'
+				stroke='black'
+				stroke-width='2'
+				stroke-linecap='round'
+				stroke-linejoin='round'
+				fill={fill}
+			/>
+		</svg>
+	)
+}

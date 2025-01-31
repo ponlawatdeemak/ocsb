@@ -13,7 +13,7 @@ import React from 'react'
 export interface AutocompleteInputProps extends Omit<AutocompleteProps<any, false, false, false>, 'renderInput'> {
 	name: string
 	formik?: FormikProps<any>
-	label: string
+	label?: string
 	placeholder?: string
 	required?: boolean
 }
@@ -32,15 +32,17 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
 	const errorMessage = formik?.touched[name] && formik?.errors[name]
 	return (
 		<FormControl className={className} required={required}>
-			<FormLabel id={`${name}-label`} className='mb-2 [&_.MuiFormLabel-asterisk]:text-error'>
-				{label}
-			</FormLabel>
+			{label && (
+				<FormLabel id={`${name}-label`} className='mb-2 [&_.MuiFormLabel-asterisk]:text-error'>
+					{label}
+				</FormLabel>
+			)}
 			<Autocomplete
 				{...props}
 				options={options}
 				size={size}
 				PaperComponent={({ children }) => (
-					<Paper className='border-[1px] border-solid border-gray py-2'>{children}</Paper>
+					<Paper className='border-[1px] border-solid border-gray'>{children}</Paper>
 				)}
 				value={options.find((option) => option.value === formik?.values[name]) || null}
 				onChange={(event, newValue) => {
