@@ -1,26 +1,15 @@
 'use client'
-import { useCallback, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GetSearchUMDtoIn } from '@/api/um/dto-in.dto'
 import { SortType } from '@/enum'
+import UserManagementSearchForm from './SearchForm'
+import UserManagementTable from './Table'
 import useResponsive from '@/hook/responsive'
 import { useTranslation } from 'next-i18next'
-import { useFormik } from 'formik'
-import * as yup from 'yup'
-import ProfileForm from '@/components/shared/ProfileForm'
-
-interface UMFormValues {
-	image: string
-	firstName: string
-	lastName: string
-	position: string
-	region: string
-	province: string
-	phone: string
-	email: string
-	role: string
-	regions: string[]
-	isActive: boolean
-}
+import { Box, Typography } from '@mui/material'
+import Icon from '@mdi/react'
+import { mdiAccountMultiple } from '@mdi/js'
+// import { UserManagementIcon } from '@/components/svg/MenuIcon'
 
 export const UserManagementMain = () => {
 	const { t, i18n } = useTranslation(['common', 'um'])
@@ -37,48 +26,28 @@ export const UserManagementMain = () => {
 	const [page, setPage] = useState<number>(1)
 	const { isDesktop } = useResponsive()
 
-	const defaultFormValues: UMFormValues = {
-		image: '',
-		firstName: '',
-		lastName: '',
-		position: '',
-		region: '',
-		province: '',
-		phone: '',
-		email: '',
-		role: '',
-		regions: [],
-		isActive: true,
-	}
-
-	const validationSchema = yup.object({
-		username: yup.string().required(t('warning.inputUserName')),
-		firstName: yup.string().required(t('warning.inputFirstName')),
-		lastName: yup.string().required(t('warning.inputLastName')),
-		email: yup.string().email(t('warning.invalidEmailFormat')).required(t('warning.inputEmail')),
-		responsibleProvinceCode: yup.string().required(t('warning.inputProvince')),
-		orgCode: yup.string().required(t('warning.inputOrgCode')),
-		posistion: yup.string().required(t('warning.inputRole')),
-	})
-
-	const onSubmit = useCallback(async (values: UMFormValues) => {
-		try {
-			console.log(values)
-		} catch (error: any) {
-			console.error(error)
-		}
-	}, [])
-
-	const formik = useFormik<UMFormValues>({
-		enableReinitialize: true,
-		initialValues: defaultFormValues,
-		validationSchema: validationSchema,
-		onSubmit,
-	})
-
 	return (
-		<div className='flex h-[600px] w-full p-4'>
-			<ProfileForm title='หัวข้อ' formik={formik} loading={false} />
+		<div
+			className={`flex flex-col ${isDesktop ? 'pl-[24px] pr-[24px] pt-[16px]' : 'pl-[0px] pr-[0px] pt-[16px]'} ${isDesktop ? 'w-[calc(100vw-0px)]' : 'w-[calc(100vw-50px)]'} self-center`}
+		>
+			<Box className='flex flex-row items-center gap-[16px] pb-[16px]'>
+				{/* <div className='[&>svg]:fill-green-dark'><UserManagementIcon width={24} height={24} /></div> */}
+				<Typography className='!text-[18px] !font-normal'>{t('userManagement', { ns: 'um' })}</Typography>
+			</Box>
+			<UserManagementSearchForm
+				searchParams={searchParams}
+				setSearchParams={setSearchParams}
+				setIsSearch={setIsSearch}
+				setPage={setPage}
+			/>
+			<UserManagementTable
+				searchParams={searchParams}
+				setSearchParams={setSearchParams}
+				isSearch={isSearch}
+				setIsSearch={setIsSearch}
+				page={page}
+				setPage={setPage}
+			/>
 		</div>
 	)
 }
