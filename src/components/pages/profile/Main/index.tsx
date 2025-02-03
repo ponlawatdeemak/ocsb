@@ -1,12 +1,29 @@
+import ProfileForm from '@/components/shared/ProfileForm'
 import { AppPath } from '@/config/app.config'
 import { Box, Button, Typography } from '@mui/material'
 import { signOut } from 'next-auth/react'
 import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/navigation'
 import React, { useCallback } from 'react'
+import * as yup from 'yup'
+import { useFormik } from 'formik'
 
 interface ProfileMainProps {
 	className?: string
+}
+
+interface UMFormValues {
+	image: string
+	firstName: string
+	lastName: string
+	position: string
+	region: string
+	province: string
+	phone: string
+	email: string
+	role: string
+	regions: string[]
+	isActive: boolean
 }
 
 export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
@@ -15,23 +32,48 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 
 	const logout = useCallback(() => signOut({ callbackUrl: AppPath.Overview }), [])
 
+	const defaultFormValues: UMFormValues = {
+		image: '',
+		firstName: '',
+		lastName: '',
+		position: '',
+		region: '',
+		province: '',
+		phone: '',
+		email: '',
+		role: '',
+		regions: [],
+		isActive: true,
+	}
+
+	const validationSchema = yup.object({
+		username: yup.string().required(t('warning.inputUserName')),
+		firstName: yup.string().required(t('warning.inputFirstName')),
+		lastName: yup.string().required(t('warning.inputLastName')),
+		email: yup.string().email(t('warning.invalidEmailFormat')).required(t('warning.inputEmail')),
+		responsibleProvinceCode: yup.string().required(t('warning.inputProvince')),
+		orgCode: yup.string().required(t('warning.inputOrgCode')),
+		posistion: yup.string().required(t('warning.inputRole')),
+	})
+
+	const onSubmit = useCallback(async (values: UMFormValues) => {
+		try {
+			console.log(values)
+		} catch (error: any) {
+			console.error(error)
+		}
+	}, [])
+
+	const formik = useFormik<UMFormValues>({
+		enableReinitialize: true,
+		initialValues: defaultFormValues,
+		validationSchema: validationSchema,
+		onSubmit,
+	})
+
 	return (
 		<Box className='flex h-full flex-col justify-between gap-6 p-6'>
-			<Typography className='flex-1 !text-xl !font-semibold' color='primary'>
-				{'ข้อมูลผู้ใช้งาน'}
-			</Typography>
-			<Box className='flex flex-row items-center justify-between'>
-				<Button
-					variant='contained'
-					className='h-[45px] w-[140px] !rounded-[10px] !bg-gray'
-					onClick={() => router.back()}
-				>
-					<Typography className='!text-md !normal-case !text-black'>{t('back')}</Typography>
-				</Button>
-				<Button variant='contained' className='h-[45px] w-[140px] !rounded-[10px] !bg-error' onClick={logout}>
-					<Typography className='!text-md !normal-case !text-white'>{t('logout')}</Typography>
-				</Button>
-			</Box>
+			<ProfileForm title='หัวข้อ' formik={formik} loading={false} />
 		</Box>
 	)
 }
