@@ -1,68 +1,28 @@
-import { SortType } from '@/enum'
-import { TablePagination } from '../interface'
-
-export interface GetUmDtoIn {
+export interface GetUMDtoIn {
 	userId: string
 }
 
-export interface PostUploadFilesDtoIn {
+export interface PostUMDtoIn {
+	firstName: string
+	lastName: string
+	position: number
+	region: number
+	province: number
+	phone: string
+	email: string
+	role: number
+	regions: number[]
+	isActive: boolean
+}
+
+export interface PutUMDtoIn extends GetUMDtoIn, PostUMDtoIn {}
+
+export interface DeleteUMDtoIn extends GetUMDtoIn {}
+
+export interface GetImageDtoIn extends GetUMDtoIn {}
+
+export interface PostImageDtoIn extends GetUMDtoIn {
 	file: File
 }
 
-export interface PutProfileDtoIn {
-	id: string
-	username: string
-	firstName: string
-	lastName: string
-	email: string
-	image: string
-	responsibleProvinceCode: string
-	responsibleDistrictCode: string
-}
-
-export interface GetSearchUMDtoIn extends TablePagination {
-	keyword: string
-	firstName: string
-	respLang: string
-}
-
-export interface PatchStatusDtoIn {
-	id: string
-	flagStatus: string
-}
-
-export interface DeleteProfileDtoIn {
-	id: string
-}
-
-export interface PutProfileUMDtoIn {
-	id: string
-	username: string
-	firstName: string
-	lastName: string
-	email: string
-	image: string | File
-	orgCode: string
-	role: string
-	responsibleProvinceCode: string
-	responsibleDistrictCode: string
-	flagStatus?: string
-}
-export interface PostProfileUMDtoIn {
-	username: string
-	firstName: string
-	lastName: string
-	email: string
-	image: string | File
-	orgCode: string
-	role: string
-	responsibleProvinceCode: string
-	responsibleDistrictCode: string
-	flagStatus?: string
-}
-
-export interface PostImportCSVUMDtoIn {
-	data: FormData
-}
-
-export interface PostImportXLSXUMDtoIn extends PostImportCSVUMDtoIn {}
+export interface DeleteImageDtoIn extends GetUMDtoIn {}

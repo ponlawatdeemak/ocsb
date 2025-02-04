@@ -1,5 +1,28 @@
 import NextAuth from 'next-auth'
 
+interface Role {
+	roleId: number
+	roleName: string
+	description?: string | null
+}
+
+interface Region {
+	regionId: number
+	regionName: string
+	description?: string | null
+}
+
+interface Position {
+	positionId: number
+	positionName: string
+}
+
+interface Province {
+	adm1Code: number
+	provinceName: string
+	description?: string | null
+}
+
 interface Tokens {
 	idToken: string
 	accessToken: string
@@ -9,24 +32,18 @@ interface Tokens {
 
 interface UserSession {
 	id: string
-	username: string
 	firstName: string
 	lastName: string
 	email: string
 	image: string
-	picture: string
-	sub: string
-	orgCode: string
-	role: string
-	responsibleProvinceCode: string
-	responsibleDistrictCode: string
-	flagStatus: string
-	createdAt: string
-	updatedAt: string
+	phone: string
+	isActive: boolean
+	role: Role
+	regions: Region[]
+	posiion: Position
+	region: Region
+	province: Province
 	tokens: Tokens
-	iat: number
-	exp: number
-	jti: string
 }
 
 declare module 'next-auth' {

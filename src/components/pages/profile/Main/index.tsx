@@ -1,5 +1,7 @@
+import service from '@/api'
 import { AppPath } from '@/config/app.config'
 import { Box, Button, Typography } from '@mui/material'
+import { useQuery } from '@tanstack/react-query'
 import { signOut } from 'next-auth/react'
 import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/navigation'
@@ -14,6 +16,11 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 	const { t } = useTranslation('common')
 
 	const logout = useCallback(() => signOut({ callbackUrl: AppPath.Overview }), [])
+
+	const { data: profileData, isLoading: isProfileDataLoading } = useQuery({
+		queryKey: ['getProfile'],
+		queryFn: async () => await service.profile.getProfile(),
+	})
 
 	return (
 		<Box className='flex h-full flex-col justify-between gap-6 p-6'>

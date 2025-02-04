@@ -1,11 +1,13 @@
 import auth from '@/api/auth'
-import um from './um'
-import login from './login'
+import lookup from '@/api/lookup'
+import profile from '@/api/profile'
+import um from '@/api/um'
 
 const service = {
 	auth,
+	lookup,
+	profile,
 	um,
-	login,
 }
 
 export default service

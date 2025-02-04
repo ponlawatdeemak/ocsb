@@ -1,4 +1,3 @@
-import { LoginDtoIn } from '@/api/login/dto-in.dto'
 import FormInput from '@/components/common/input/FormInput'
 import PasswordInput from '@/components/common/input/PasswordInput'
 import AppLogo from '@/components/svg/AppLogo'
@@ -14,6 +13,7 @@ import { useFormik } from 'formik'
 import { APP_TITLE_EN, APP_TITLE_TH } from '../../../../../../webapp.config'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 import ActionButton from '@/components/common/button/ActionButton'
+import { LoginDtoIn } from '@/api/auth/dto-in.dto'
 
 interface LoginMainProps {
 	className?: string
@@ -34,7 +34,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 	const validationSchema = useMemo(
 		() =>
 			yup.object({
-				username: yup.string().required(t('auth:warning.inputEmail')),
+				email: yup.string().required(t('auth:warning.inputEmail')),
 				password: yup.string().required(t('auth:warning.inputPassword')),
 			}),
 		[t],
@@ -45,7 +45,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 			try {
 				setBusy(true)
 				const res = await signIn('credentials', {
-					username: values.username,
+					email: values.email,
 					password: values.password,
 					redirect: false,
 				})
@@ -68,7 +68,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 
 	const formik = useFormik<LoginDtoIn>({
 		initialValues: {
-			username: '',
+			email: '',
 			password: '',
 		},
 		validationSchema: validationSchema,
@@ -91,7 +91,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 						<Box className='flex w-full flex-col items-center gap-3'>
 							<FormInput
 								disabled={busy}
-								name='username'
+								name='email'
 								value={''}
 								formik={formik}
 								placeholder={t('auth:userName')}

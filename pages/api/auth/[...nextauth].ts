@@ -20,14 +20,18 @@ export const authOptions: NextAuthOptions = {
 		CredentialsProvider({
 			name: 'Credentials',
 			credentials: {
-				username: { label: 'Username', type: 'text', placeholder: 'jsmith' },
+				email: { label: 'Email', type: 'email' },
 				password: { label: 'Password', type: 'password' },
 			},
 			async authorize(credentials) {
 				try {
-					const { username, password } = credentials as any
-					const res = await service.login.login({ username, password })
-					if (res.data?.id) return { ...res.data, tokens: res.tokens }
+					const { email, password } = credentials as any
+					const res = await service.auth.login({ email, password })
+					if (res.data?.id)
+						return {
+							...res.data,
+							tokens: { accessToken: res.data.accessToken, refreshToken: res.data.refreshToken },
+						}
 					return null
 				} catch (error: any) {
 					throw new Error(JSON.stringify(error))

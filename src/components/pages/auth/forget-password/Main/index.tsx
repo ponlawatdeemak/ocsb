@@ -7,9 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslation } from 'next-i18next'
 import { useMutation } from '@tanstack/react-query'
 import { ResponseDto } from '@/api/interface'
-import { ForgotPasswordDtoOut } from '@/api/login/dto-out.dto'
 import { AxiosError } from 'axios'
-import { ForgotPasswordDtoIn } from '@/api/login/dto-in.dto'
 import service from '@/api'
 import * as yup from 'yup'
 import { useFormik } from 'formik'
@@ -17,6 +15,8 @@ import { AppPath } from '@/config/app.config'
 import FormInput from '@/components/common/input/FormInput'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 import ActionButton from '@/components/common/button/ActionButton'
+import { ForgetPasswordDtoIn } from '@/api/auth/dto-in.dto'
+import { ForgetPasswordDtoOut } from '@/api/auth/dto-out.dto'
 
 interface ForgetPasswordMainProps {
 	className?: string
@@ -33,12 +33,12 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 	})
 
 	const { isPending, mutateAsync: mutateForgotPassword } = useMutation<
-		ResponseDto<ForgotPasswordDtoOut>,
+		ResponseDto<ForgetPasswordDtoOut>,
 		AxiosError,
-		ForgotPasswordDtoIn,
+		ForgetPasswordDtoIn,
 		unknown
 	>({
-		mutationFn: service.login.forgotPassword,
+		mutationFn: service.auth.forgetPassword,
 	})
 
 	const validationSchema = yup.object({
@@ -46,7 +46,7 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 	})
 
 	const onSubmit = useCallback(
-		async (values: ForgotPasswordDtoIn) => {
+		async (values: ForgetPasswordDtoIn) => {
 			try {
 				setBusy(true)
 				await mutateForgotPassword(values)
@@ -72,7 +72,7 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 		[mutateForgotPassword, router, t],
 	)
 
-	const formik = useFormik<ForgotPasswordDtoIn>({
+	const formik = useFormik<ForgetPasswordDtoIn>({
 		initialValues: {
 			email: '',
 		},

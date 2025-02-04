@@ -21,7 +21,7 @@ interface Province {
 	description?: string | null
 }
 
-export interface GetUMDtoOut {
+export interface GetProfileDtoOut {
 	userId: string
 	firstName: string
 	lastName: string
@@ -35,19 +35,6 @@ export interface GetUMDtoOut {
 	province: Province
 }
 
-export interface PostUMDtoOut {
-	id: string
-}
-
-export interface PutUMDtoOut {
+export interface ChangePasswordProfileDtoOut {
 	success: boolean
-	id: number
 }
-
-export interface DeleteUMDtoOut extends PutUMDtoOut {}
-
-export interface GetImageDtoOut {}
-
-export interface PostImageDtoOut extends PostUMDtoOut {}
-
-export interface DeleteImageDtoOut extends PostUMDtoOut {}

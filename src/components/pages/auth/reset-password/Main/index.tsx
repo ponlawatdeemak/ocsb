@@ -12,12 +12,12 @@ import * as yup from 'yup'
 import { useFormik } from 'formik'
 import { useMutation } from '@tanstack/react-query'
 import { ResponseDto } from '@/api/interface'
-import { ResetPasswordDtoOut } from '@/api/login/dto-out.dto'
 import { AxiosError } from 'axios'
-import { ResetPasswordDtoIn } from '@/api/login/dto-in.dto'
 import service from '@/api'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 import ActionButton from '@/components/common/button/ActionButton'
+import { ResetPasswordDtoIn } from '@/api/auth/dto-in.dto'
+import { ResetPasswordDtoOut } from '@/api/auth/dto-out.dto'
 
 interface ResetPasswordMainProps {
 	className?: string
@@ -66,14 +66,14 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 		ResetPasswordDtoIn,
 		unknown
 	>({
-		mutationFn: service.login.resetPassword,
+		mutationFn: service.auth.resetPassword,
 	})
 
 	const onSubmit = useCallback(
 		async (values: ResetPasswordFormType) => {
 			try {
 				setBusy(true)
-				await mutateResetPassword(values)
+				await mutateResetPassword({ token: '', newPassword: values.password })
 				setAlertResetPasswordInfo({ open: true, severity: 'success', message: t('auth:success.resetPassword') })
 				setTimeout(() => {
 					router.push(AppPath.Login)
