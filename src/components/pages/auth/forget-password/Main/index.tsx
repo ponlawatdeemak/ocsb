@@ -15,8 +15,9 @@ import { AppPath } from '@/config/app.config'
 import FormInput from '@/components/common/input/FormInput'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 import ActionButton from '@/components/common/button/ActionButton'
-import { ForgetPasswordDtoIn } from '@/api/auth/dto-in.dto'
-import { ForgetPasswordDtoOut } from '@/api/auth/dto-out.dto'
+import { passwordStore } from '../../context'
+import { ForgotPasswordAuthDtoOut } from '@interface/dto/auth/auth.dto-out'
+import { ForgotPasswordAuthDtoIn } from '@interface/dto/auth/auth.dto-in'
 
 interface ForgetPasswordMainProps {
 	className?: string
@@ -25,6 +26,7 @@ interface ForgetPasswordMainProps {
 export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ className = '' }) => {
 	const router = useRouter()
 	const { t } = useTranslation(['common', 'auth'])
+	const setDataForgetPassword = passwordStore((state) => state.setDataForgetPassword)
 	const [busy, setBusy] = useState<boolean>(false)
 	const [alertForgetPasswordInfo, setAlertForgetPasswordInfo] = useState<AlertInfoType>({
 		open: false,
@@ -33,20 +35,24 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 	})
 
 	const { isPending, mutateAsync: mutateForgotPassword } = useMutation<
-		ResponseDto<ForgetPasswordDtoOut>,
+		ResponseDto<ForgotPasswordAuthDtoOut>,
 		AxiosError,
-		ForgetPasswordDtoIn,
+		ForgotPasswordAuthDtoIn,
 		unknown
 	>({
 		mutationFn: service.auth.forgetPassword,
 	})
 
 	const validationSchema = yup.object({
-		email: yup.string().email(t('auth:warning.invalidEmailFormat')).required(t('auth:warning.inputEmail')),
+		email: yup
+			.string()
+			.email(t('auth:warning.invalidEmailFormat'))
+			.required(t('auth:warning.inputEmail'))
+			.max(255, t('auth:warning.maxInputEmail')),
 	})
 
 	const onSubmit = useCallback(
-		async (values: ForgetPasswordDtoIn) => {
+		async (values: ForgotPasswordAuthDtoIn) => {
 			try {
 				setBusy(true)
 				await mutateForgotPassword(values)
@@ -56,7 +62,8 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 					message: t('auth:success.forgotPassword'),
 				})
 				setTimeout(() => {
-					router.push(`${AppPath.ResetPassword}?email=${values?.email}`)
+					setDataForgetPassword({ isSuccess: true, email: values.email, type: 'email' })
+					router.push(AppPath.AuthStatus)
 					setBusy(false)
 				}, 3000)
 			} catch (error) {
@@ -69,10 +76,10 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 				setBusy(false)
 			}
 		},
-		[mutateForgotPassword, router, t],
+		[mutateForgotPassword, setDataForgetPassword, router, t],
 	)
 
-	const formik = useFormik<ForgetPasswordDtoIn>({
+	const formik = useFormik<ForgotPasswordAuthDtoIn>({
 		initialValues: {
 			email: '',
 		},
@@ -81,7 +88,7 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 	})
 
 	return (
-		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5]', className)}>
+		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5] px-6', className)}>
 			<Box className='flex min-h-[412px] w-[466px] flex-col items-center gap-[18px] rounded-[20px] bg-white pt-6 shadow-[0_3px_6px_0_rgba(0,0,0,0.25)]'>
 				<Box className='flex items-center'>
 					<AppLogo />
@@ -99,6 +106,7 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 							value={''}
 							formik={formik}
 							placeholder={t('auth:specifyEmail')}
+							inputProps={{ maxLength: 255 }}
 						/>
 						<ActionButton
 							className='h-10 !rounded-[5px] !bg-secondary [&_.MuiBox-root]:text-sm [&_.MuiBox-root]:font-normal'

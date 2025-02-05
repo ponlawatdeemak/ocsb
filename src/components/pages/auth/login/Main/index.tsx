@@ -13,7 +13,7 @@ import { useFormik } from 'formik'
 import { APP_TITLE_EN, APP_TITLE_TH } from '../../../../../../webapp.config'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 import ActionButton from '@/components/common/button/ActionButton'
-import { LoginDtoIn } from '@/api/auth/dto-in.dto'
+import { LoginAuthDtoIn } from '@interface/dto/auth/auth.dto-in'
 
 interface LoginMainProps {
 	className?: string
@@ -34,14 +34,14 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 	const validationSchema = useMemo(
 		() =>
 			yup.object({
-				email: yup.string().required(t('auth:warning.inputEmail')),
+				email: yup.string().required(t('auth:warning.inputEmail')).max(255, t('auth:warning.maxInputEmail')),
 				password: yup.string().required(t('auth:warning.inputPassword')),
 			}),
 		[t],
 	)
 
 	const onSubmit = useCallback(
-		async (values: LoginDtoIn) => {
+		async (values: LoginAuthDtoIn) => {
 			try {
 				setBusy(true)
 				const res = await signIn('credentials', {
@@ -66,7 +66,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 		[callbackUrl, router, t],
 	)
 
-	const formik = useFormik<LoginDtoIn>({
+	const formik = useFormik<LoginAuthDtoIn>({
 		initialValues: {
 			email: '',
 			password: '',
@@ -76,7 +76,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 	})
 
 	return (
-		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5]', className)}>
+		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5] px-6', className)}>
 			<Box className='flex min-h-[412px] w-[466px] flex-col items-center gap-[18px] rounded-[20px] bg-white pt-6 shadow-[0_3px_6px_0_rgba(0,0,0,0.25)]'>
 				<Box className='flex items-center'>
 					<AppLogo />
@@ -95,6 +95,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 								value={''}
 								formik={formik}
 								placeholder={t('auth:userName')}
+								inputProps={{ maxLength: 255 }}
 							/>
 							<PasswordInput
 								disabled={busy}
