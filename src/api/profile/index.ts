@@ -1,7 +1,7 @@
 import { api } from '@/api/core'
 import { ResponseDto } from '@/api/interface'
-import { ChangePasswordProfileDtoOut, GetProfileDtoOut } from './dto-out.dto'
-import { ChangePasswordProfileDtoIn } from './dto-in.dto'
+import { ChangePasswordProfileDtoIn } from '@interface/dto/profile/profile.dto-in'
+import { ChangePasswordProfileDtoOut, GetProfileDtoOut } from '@interface/dto/profile/profile.dto-out'
 
 const profile = {
 	getProfile: async (): Promise<ResponseDto<GetProfileDtoOut>> => await api.get('/profile'),
