@@ -1,9 +1,8 @@
 import AppLogo from '@/components/svg/AppLogo'
-import { Box, Link, Typography } from '@mui/material'
+import { Box, FormControl, IconButton, InputAdornment, Link, OutlinedInput, Typography } from '@mui/material'
 import classNames from 'classnames'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { APP_TITLE_EN, APP_TITLE_TH } from '../../../../../../webapp.config'
-import PasswordInput from '@/components/common/input/PasswordInput'
 import { AppPath } from '@/config/app.config'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'next-i18next'
@@ -19,6 +18,9 @@ import { useSession } from 'next-auth/react'
 import { passwordStore } from '../../context'
 import { ResetPasswordAuthDtoOut } from '@interface/dto/auth/auth.dto-out'
 import { ResetPasswordAuthDtoIn } from '@interface/dto/auth/auth.dto-in'
+import { CheckCircle } from '@mui/icons-material'
+import Icon from '@mdi/react'
+import { mdiEyeOffOutline, mdiEyeOutline } from '@mdi/js'
 
 interface ResetPasswordMainProps {
 	className?: string
@@ -36,6 +38,9 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 		severity: 'success',
 		message: '',
 	})
+
+	const [showNewPassword, setShowNewPassword] = useState<boolean>(false)
+	const [showConfirmNewPassword, setShowConfirmNewPassword] = useState<boolean>(false)
 
 	const verifyTokenChangePassword = useCallback(async () => {
 		try {
@@ -72,14 +77,11 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 			.string()
 			.required(t('auth:warning.inputNewPassword'))
 			.min(8, t('auth:warning.minPasswordCharacters'))
-			.matches(/^(?=.*\d)/, t('auth:warning.minPasswordNumber'))
-			.matches(/^(?=.*[a-z])/, t('auth:warning.minPasswordLowercaseLetter'))
 			.matches(/^(?=.*[A-Z])/, t('auth:warning.minPasswordUppercaseLetter'))
+			.matches(/^(?=.*[a-z])/, t('auth:warning.minPasswordLowercaseLetter'))
+			.matches(/^(?=.*\d)/, t('auth:warning.minPasswordNumber'))
 			.matches(/^(?=.*[!@#$%^&*()_+\-=[\]{};:\\|,.<>~/?])/, t('auth:warning.minPasswordSymbol')),
-		confirmNewPassword: yup
-			.string()
-			.required(t('auth:warning.inputConfirmPassword'))
-			.oneOf([yup.ref('newPassword')], t('auth:warning.invalidPasswordMatch')),
+		confirmNewPassword: yup.string(),
 	})
 
 	type ResetPasswordFormType = yup.InferType<typeof validationSchema>
@@ -97,6 +99,18 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 		async (values: ResetPasswordFormType) => {
 			try {
 				setBusy(true)
+				if (values.newPassword !== values.confirmNewPassword) {
+					setAlertResetPasswordInfo({
+						open: true,
+						severity: 'error',
+						message: t('auth:error.invalidPasswordMatch'),
+					})
+					setTimeout(() => {
+						router.push(AppPath.Login)
+						setBusy(false)
+					}, 3000)
+					return
+				}
 				await mutateResetPassword({ token: token ?? '', newPassword: values.newPassword })
 				setAlertResetPasswordInfo({ open: true, severity: 'success', message: t('auth:success.resetPassword') })
 				setTimeout(() => {
@@ -122,7 +136,35 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 		},
 		validationSchema: validationSchema,
 		onSubmit,
+		validateOnChange: true,
 	})
+
+	const passwordValidationRules = useMemo(() => {
+		return [
+			{ test: (value: string) => value.length >= 8, message: t('auth:warning.minPasswordCharacters') },
+			{
+				test: (value: string) => /^(?=.*[A-Z])/.test(value),
+				message: t('auth:warning.minPasswordUppercaseLetter'),
+			},
+			{
+				test: (value: string) => /^(?=.*[a-z])/.test(value),
+				message: t('auth:warning.minPasswordLowercaseLetter'),
+			},
+			{ test: (value: string) => /^(?=.*\d)/.test(value), message: t('auth:warning.minPasswordNumber') },
+			{
+				test: (value: string) => /^(?=.*[!@#$%^&*()_+\-=[\]{};:\\|,.<>~/?])/.test(value),
+				message: t('auth:warning.minPasswordSymbol'),
+			},
+		]
+	}, [t])
+
+	const handleClickShowNewPassword = useCallback(() => setShowNewPassword((show) => !show), [])
+
+	const handleClickShowConfirmNewPassword = useCallback(() => setShowConfirmNewPassword((show) => !show), [])
+
+	const handleMouseDownPassword = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault()
+	}, [])
 
 	return (
 		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5] px-6', className)}>
@@ -138,20 +180,97 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 					<Typography className='!text-lg text-white'>{t('auth:resetPassword')}</Typography>
 					<form onSubmit={formik.handleSubmit} className='flex w-[250px] flex-col items-center gap-5'>
 						<Box className='flex w-full flex-col items-center gap-3'>
-							<PasswordInput
-								disabled={isPending || busy}
-								name='newPassword'
-								value={''}
-								formik={formik}
-								placeholder={t('auth:specifyPassword')}
-							/>
-							<PasswordInput
-								disabled={isPending || busy}
-								name='confirmNewPassword'
-								value={''}
-								formik={formik}
-								placeholder={t('auth:specifyConfirmPassword')}
-							/>
+							<FormControl
+								fullWidth={true}
+								className={classNames(
+									'[&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white',
+									className,
+								)}
+							>
+								<OutlinedInput
+									id='newPassword-input'
+									className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
+									endAdornment={
+										<InputAdornment position='end'>
+											<IconButton
+												aria-label='toggle password visibility'
+												onClick={handleClickShowNewPassword}
+												onMouseDown={handleMouseDownPassword}
+												edge='end'
+											>
+												{showNewPassword ? (
+													<Icon path={mdiEyeOffOutline} size={1} />
+												) : (
+													<Icon path={mdiEyeOutline} size={1} />
+												)}
+											</IconButton>
+										</InputAdornment>
+									}
+									type={showNewPassword ? 'text' : 'password'}
+									name='newPassword'
+									size='small'
+									value={formik?.values['newPassword'] || ''}
+									onChange={formik?.handleChange}
+									error={formik?.touched['newPassword'] && Boolean(formik?.errors['newPassword'])}
+									disabled={isPending || busy}
+									placeholder={t('auth:specifyPassword')}
+								/>
+							</FormControl>
+							<FormControl
+								fullWidth={true}
+								className={classNames(
+									'[&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white',
+									className,
+								)}
+							>
+								<OutlinedInput
+									id='confirmNewPassword-input'
+									className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
+									endAdornment={
+										<InputAdornment position='end'>
+											<IconButton
+												aria-label='toggle password visibility'
+												onClick={handleClickShowConfirmNewPassword}
+												onMouseDown={handleMouseDownPassword}
+												edge='end'
+											>
+												{showConfirmNewPassword ? (
+													<Icon path={mdiEyeOffOutline} size={1} />
+												) : (
+													<Icon path={mdiEyeOutline} size={1} />
+												)}
+											</IconButton>
+										</InputAdornment>
+									}
+									type={showConfirmNewPassword ? 'text' : 'password'}
+									name='confirmNewPassword'
+									size='small'
+									value={formik?.values['confirmNewPassword'] ?? ''}
+									onChange={formik?.handleChange}
+									error={
+										formik?.touched['confirmNewPassword'] &&
+										Boolean(formik?.errors['confirmNewPassword'])
+									}
+									disabled={isPending || busy}
+									placeholder={t('auth:specifyConfirmPassword')}
+								/>
+							</FormControl>
+						</Box>
+						<Box className='flex w-full flex-col gap-1'>
+							{passwordValidationRules.map((rule) => {
+								const isValid = rule.test(formik.values.newPassword)
+								return (
+									<Box
+										key={rule.message}
+										className={classNames('flex items-center gap-[5px] text-white', {
+											'!text-[#C5E71E]': isValid,
+										})}
+									>
+										<CheckCircle className='!h-[15px] !w-[15px]' />
+										<Typography className='!text-xs'>{rule.message}</Typography>
+									</Box>
+								)
+							})}
 						</Box>
 						<ActionButton
 							className='h-10 !rounded-[5px] !bg-secondary [&_.MuiBox-root]:text-sm [&_.MuiBox-root]:font-normal'
