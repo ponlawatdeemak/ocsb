@@ -21,7 +21,7 @@ export const AuthStatusMain: React.FC<AuthStatusMainProps> = ({ className = '' }
 
 	useEffect(() => {
 		if (!forgetPassword) {
-			router.push(AppPath.Overview)
+			router.replace(AppPath.Login)
 		}
 	}, [forgetPassword, router])
 
