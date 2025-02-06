@@ -2,7 +2,6 @@ import ProfileForm from '@/components/shared/ProfileForm'
 import service from '@/api'
 import { AppPath } from '@/config/app.config'
 import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material'
-import { Box, Button, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { signOut } from 'next-auth/react'
 import { useTranslation } from 'next-i18next'
@@ -134,46 +133,48 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 	return (
 		<Box className='relative flex h-full flex-col items-center'>
 			<div className='h-[80px] min-h-[80px] w-full bg-primary'></div>
-			<ProfileForm
-				title='ข้อมูลผู้ใช้งาน'
-				formik={formik}
-				// loading={false}
-				lineNotiButtonElement={lineNotiButtonElement}
-				changePasswordButtonElement={changePasswordButtonElement}
-				className='relative top-[-60px] h-max lg:max-w-[80%]'
-			/>
-			<div className='mt-[-36px] flex flex-col justify-between pb-[20px] max-lg:w-full max-lg:gap-[16px] max-lg:px-[16px] lg:w-[80%] lg:flex-row'>
-				<div className='flex flex-col gap-[16px] lg:flex-row'>
+			<div className='lg:max-w-[850px]'>
+				<ProfileForm
+					title='ข้อมูลผู้ใช้งาน'
+					formik={formik}
+					// loading={false}
+					lineNotiButtonElement={lineNotiButtonElement}
+					changePasswordButtonElement={changePasswordButtonElement}
+					className='relative top-[-60px] h-max'
+				/>
+				<div className='mt-[-36px] flex flex-col justify-between pb-[20px] max-lg:w-full max-lg:gap-[16px] max-lg:px-[16px] lg:flex-row'>
+					<div className='flex flex-col gap-[16px] lg:flex-row'>
+						<Button
+							className='text-nowrap rounded-[5px] !border-none !bg-[#E6E6E6] !px-[30px] !py-[10px] text-sm !text-black !shadow-none'
+							variant='outlined'
+							onClick={() => {
+								router.back()
+							}}
+						>
+							ย้อนกลับ
+						</Button>
+						<Button
+							className='text-nowrap rounded-[5px] !border-none !bg-white !px-[30px] !py-[10px] text-sm !text-black !shadow-none'
+							variant='outlined'
+							onClick={() => {
+								formik.resetForm()
+								formik.setFieldValue('regions', [])
+							}}
+						>
+							ล้างข้อมูล
+						</Button>
+					</div>
 					<Button
-						className='text-nowrap rounded-[5px] !border-none !bg-[#E6E6E6] !px-[30px] !py-[10px] text-sm !text-black !shadow-none'
-						variant='outlined'
+						className='text-nowrap rounded-[5px] !border-none !px-[30px] !py-[10px] text-sm !text-white !shadow-none'
+						variant='contained'
+						color='secondary'
 						onClick={() => {
-							router.back()
+							formik.submitForm()
 						}}
 					>
-						ย้อนกลับ
-					</Button>
-					<Button
-						className='text-nowrap rounded-[5px] !border-none !bg-white !px-[30px] !py-[10px] text-sm !text-black !shadow-none'
-						variant='outlined'
-						onClick={() => {
-							formik.resetForm()
-							formik.setFieldValue('regions', [])
-						}}
-					>
-						ล้างข้อมูล
+						บันทึก
 					</Button>
 				</div>
-				<Button
-					className='text-nowrap rounded-[5px] !border-none !px-[30px] !py-[10px] text-sm !text-white !shadow-none'
-					variant='contained'
-					color='secondary'
-					onClick={() => {
-						formik.submitForm()
-					}}
-				>
-					บันทึก
-				</Button>
 			</div>
 
 			<Dialog

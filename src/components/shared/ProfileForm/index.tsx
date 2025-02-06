@@ -61,7 +61,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
 	return (
 		<div className={classNames('flex h-full w-full flex-col', className)}>
-			<div className='bg-primary-light flex h-[60px] min-h-[60px] w-full justify-between gap-[16px] rounded-[15px_15px_0px_0px] py-4 pl-[31px] pr-[40px]'>
+			<div className='flex h-[60px] min-h-[60px] w-full justify-between gap-[16px] rounded-[15px_15px_0px_0px] bg-primary-light py-4 pl-[31px] pr-[40px]'>
 				<div className='flex items-center'>
 					<Button onClick={() => router.back()} className='!ml-[-19px] !p-0'>
 						<BackIcon />
@@ -75,7 +75,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 					control={
 						<div className='pointer-events-auto'>
 							<IOSSwitch
-								className='[&_.MuiSwitch-thumb]:bg-primary-light m-0 ml-2 [&_.Mui-checked+.MuiSwitch-track]:!bg-white [&_.MuiSwitch-track]:!bg-gray-400'
+								className='m-0 ml-2 [&_.Mui-checked+.MuiSwitch-track]:!bg-white [&_.MuiSwitch-thumb]:bg-primary-light [&_.MuiSwitch-track]:!bg-gray-400'
 								checked={formik.values.isActive || false}
 								onChange={(event) => {
 									formik.setFieldValue('isActive', event.target.checked)
