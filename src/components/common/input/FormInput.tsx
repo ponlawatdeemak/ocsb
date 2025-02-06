@@ -26,7 +26,7 @@ const FormInput: React.FC<FormInputProps> = ({ formik, name, label, className, f
 				className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
 				name={name}
 				size='small'
-				value={formik?.values[name] || value}
+				value={formik?.values[name] ?? value}
 				onChange={formik?.handleChange}
 				error={formik?.touched[name] && Boolean(formik?.errors[name])}
 			/>
