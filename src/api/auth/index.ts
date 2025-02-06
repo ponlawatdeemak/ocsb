@@ -1,24 +1,30 @@
 import { api } from '@/api/core'
 import { ResponseDto } from '@/api/interface'
 import {
-	ForgetPasswordDtoOut,
-	LoginDtoOut,
-	RefreshTokenDtoOut,
-	ResetPasswordDtoOut,
-	VerifyTokenDtoOut,
-} from './dto-out.dto'
-import { ForgetPasswordDtoIn, LoginDtoIn, RefreshTokenDtoIn, ResetPasswordDtoIn, VerifyTokenDtoIn } from './dto-in.dto'
+	ForgotPasswordAuthDtoIn,
+	LoginAuthDtoIn,
+	RefreshTokenAuthDtoIn,
+	ResetPasswordAuthDtoIn,
+	VerifyTokenAuthDtoIn,
+} from '@interface/dto/auth/auth.dto-in'
+import {
+	ForgotPasswordAuthDtoOut,
+	LoginAuthDtoOut,
+	RefreshTokenAuthDtoOut,
+	ResetPasswordAuthDtoOut,
+	VerifyTokenAuthDtoOut,
+} from '@interface/dto/auth/auth.dto-out'
 
 const auth = {
-	login: async (payload: LoginDtoIn): Promise<ResponseDto<LoginDtoOut>> =>
+	login: async (payload: LoginAuthDtoIn): Promise<ResponseDto<LoginAuthDtoOut>> =>
 		(await api.post('/auth/login', payload))?.data,
-	refreshToken: async (payload: RefreshTokenDtoIn): Promise<ResponseDto<RefreshTokenDtoOut>> =>
+	refreshToken: async (payload: RefreshTokenAuthDtoIn): Promise<ResponseDto<RefreshTokenAuthDtoOut>> =>
 		(await api.post('/auth/refresh-token', payload))?.data,
-	forgetPassword: async (payload: ForgetPasswordDtoIn): Promise<ResponseDto<ForgetPasswordDtoOut>> =>
+	forgetPassword: async (payload: ForgotPasswordAuthDtoIn): Promise<ResponseDto<ForgotPasswordAuthDtoOut>> =>
 		(await api.post('/auth/forget-password', payload))?.data,
-	verifyToken: async (payload: VerifyTokenDtoIn): Promise<ResponseDto<VerifyTokenDtoOut>> =>
+	verifyToken: async (payload: VerifyTokenAuthDtoIn): Promise<ResponseDto<VerifyTokenAuthDtoOut>> =>
 		(await api.post('/auth/verify-token', payload))?.data,
-	resetPassword: async (payload: ResetPasswordDtoIn): Promise<ResponseDto<ResetPasswordDtoOut>> =>
+	resetPassword: async (payload: ResetPasswordAuthDtoIn): Promise<ResponseDto<ResetPasswordAuthDtoOut>> =>
 		(await api.put('/auth/reset-password', payload))?.data,
 }
 

@@ -5,6 +5,7 @@ export enum AuthPath {
 	Login = '/auth/login',
 	ForgetPassword = '/auth/forget-password',
 	ResetPassword = '/auth/reset-password',
+	AuthStatus = '/auth/status',
 }
 
 export const authPathPrefix = '/auth'
@@ -34,6 +35,7 @@ export const allowGuestPages = [
 	AppPath.Login,
 	AppPath.ForgetPassword,
 	AppPath.ResetPassword,
+	AppPath.AuthStatus,
 ]
 
 export const mapAnalyzeMenuConfig: {

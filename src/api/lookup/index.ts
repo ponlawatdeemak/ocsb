@@ -1,10 +1,11 @@
 import { api } from '@/api/core'
 import { ResponseDto } from '@/api/interface'
-import { GetLookupOutDto } from '@/api/lookup/dto-out.dto'
+import { GetLookupDtoIn } from '@interface/dto/lookup/lookup.dto-in'
+import { GetLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
 
 const lookup = {
-	get: async (lookupName: string): Promise<ResponseDto<GetLookupOutDto[]>> => {
-		return await api.get(`/lookup/${lookupName}`)
+	get: async (payload: GetLookupDtoIn): Promise<ResponseDto<GetLookupDtoOut[]>> => {
+		return await api.get(`/lookup/${payload.name}`)
 	},
 }
 

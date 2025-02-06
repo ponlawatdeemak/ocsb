@@ -1,37 +1,37 @@
 import { api } from '@/api/core'
 import { APIService, ResponseDto } from '@/api/interface'
 import {
-	DeleteImageDtoIn,
-	DeleteUMDtoIn,
-	GetImageDtoIn,
-	GetUMDtoIn,
-	PostImageDtoIn,
-	PostUMDtoIn,
-	PutUMDtoIn,
-} from './dto-in.dto'
-import {
-	DeleteImageDtoOut,
+	DeleteImageUserDtoOut,
 	DeleteUMDtoOut,
-	GetImageDtoOut,
+	GetImageUserDtoOut,
 	GetUMDtoOut,
-	PostImageDtoOut,
+	PostImageUserDtoOut,
 	PostUMDtoOut,
 	PutUMDtoOut,
-} from './dto-out.dto'
+} from '@interface/dto/um/um.dto-out'
+import {
+	DeleteImageUserDtoIn,
+	DeleteUMDtoIn,
+	GetImageUserDtoIn,
+	GetUMDtoIn,
+	PostImageUserDtoIn,
+	PostUMDtoIn,
+	PutUMDtoIn,
+} from '@interface/dto/um/um.dto.in'
 
 const um = {
 	getUM: async (payload: GetUMDtoIn): Promise<ResponseDto<GetUMDtoOut>> => await api.get(`/um/${payload.userId}`),
 	postUM: async (payload: PostUMDtoIn): Promise<ResponseDto<PostUMDtoOut>> => await api.post('/um', payload),
-	putUM: async (payload: PutUMDtoIn): Promise<ResponseDto<PutUMDtoOut>> =>
-		await api.put(`/um/${payload.userId}`, payload),
+	putUM: async (userId: string, payload: PutUMDtoIn): Promise<ResponseDto<PutUMDtoOut>> =>
+		await api.put(`/um/${userId}`, payload),
 	deleteUM: async (payload: DeleteUMDtoIn): Promise<ResponseDto<DeleteUMDtoOut>> =>
 		await api.delete(`/um/${payload.userId}`),
 
-	getImage: async (payload: GetImageDtoIn): Promise<ResponseDto<GetImageDtoOut>> =>
+	getImage: async (payload: GetImageUserDtoIn): Promise<ResponseDto<GetImageUserDtoOut>> =>
 		await api.get(`/um/img/${payload.userId}`),
-	postImage: async (payload: PostImageDtoIn): Promise<ResponseDto<PostImageDtoOut>> => {
+	postImage: async (file: File, payload: PostImageUserDtoIn): Promise<ResponseDto<PostImageUserDtoOut>> => {
 		const formData = new FormData()
-		formData.append('file', payload.file)
+		formData.append('file', file)
 
 		return await api.post(`/um/img/${payload.userId}`, formData, APIService.WebAPI, {
 			headers: {
@@ -39,7 +39,7 @@ const um = {
 			},
 		})
 	},
-	deleteImage: async (payload: DeleteImageDtoIn): Promise<ResponseDto<DeleteImageDtoOut>> =>
+	deleteImage: async (payload: DeleteImageUserDtoIn): Promise<ResponseDto<DeleteImageUserDtoOut>> =>
 		await api.delete(`/um/img/${payload.userId}`),
 }
 
