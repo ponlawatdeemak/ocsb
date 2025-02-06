@@ -5,7 +5,6 @@ export enum APIService {
 	WebAPI,
 	DataAPI,
 	TilesAPI,
-	AuthAPI,
 }
 
 export interface APIConfigType {

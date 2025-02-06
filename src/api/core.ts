@@ -16,10 +16,6 @@ const APIConfigs: { [key: string]: APIConfigType } = {
 		baseURL: process.env.NEXT_PUBLIC_API_HOSTNAME_TILE ?? '',
 		apiKey: process.env.NEXT_PUBLIC_API_KEY_TILE ?? '',
 	},
-	[APIService.AuthAPI]: {
-		baseURL: process.env.NEXT_PUBLIC_API_HOSTNAME_AUTH ?? '',
-		apiKey: process.env.NEXT_PUBLIC_API_KEY_AUTH ?? '',
-	},
 }
 
 let _apiAccessToken: string | null = null
@@ -76,9 +72,9 @@ const getConfig = (service: APIService, config: AxiosRequestConfig<any> | undefi
 })
 
 export const refreshAccessToken = async () => {
-	const res = await service.login.refreshToken({ userId: apiUserId ?? '', refreshToken: apiRefreshToken ?? '' })
-	const newAccessToken = res?.tokens?.accessToken === '' ? undefined : res?.tokens?.accessToken
-	const newRefreshToken = res?.tokens?.refreshToken === '' ? undefined : res?.tokens?.refreshToken
+	const res = await service.auth.refreshToken({ refreshToken: apiRefreshToken ?? '' })
+	const newAccessToken = res?.data?.accessToken === '' ? undefined : res?.data?.accessToken
+	const newRefreshToken = res?.data?.refreshToken === '' ? undefined : res?.data?.refreshToken
 	updateAccessToken({ accessToken: newAccessToken, refreshToken: newRefreshToken, accessType: 'Login' })
 	return { accessToken: newAccessToken, refreshToken: newRefreshToken }
 }
@@ -96,9 +92,7 @@ axiosInstance.interceptors.response.use(
 					originalRequest._retry = true
 					let newAccessToken = ''
 					if (_apiAccessType === 'Guest') {
-						const { data } = await service.auth.loginGuest()
-						newAccessToken = defaultText(data?.tokens?.idToken)
-						updateAccessToken({ accessToken: newAccessToken, accessType: 'Guest' })
+						updateAccessToken({ accessToken: '', accessType: 'Guest' })
 					} else {
 						const { accessToken } = await refreshAccessToken()
 						newAccessToken = defaultText(accessToken)

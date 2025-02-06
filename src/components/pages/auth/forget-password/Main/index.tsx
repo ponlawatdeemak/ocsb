@@ -7,9 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslation } from 'next-i18next'
 import { useMutation } from '@tanstack/react-query'
 import { ResponseDto } from '@/api/interface'
-import { ForgotPasswordDtoOut } from '@/api/login/dto-out.dto'
 import { AxiosError } from 'axios'
-import { ForgotPasswordDtoIn } from '@/api/login/dto-in.dto'
 import service from '@/api'
 import * as yup from 'yup'
 import { useFormik } from 'formik'
@@ -17,6 +15,9 @@ import { AppPath } from '@/config/app.config'
 import FormInput from '@/components/common/input/FormInput'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 import ActionButton from '@/components/common/button/ActionButton'
+import { passwordStore } from '../../context'
+import { ForgotPasswordAuthDtoOut } from '@interface/dto/auth/auth.dto-out'
+import { ForgotPasswordAuthDtoIn } from '@interface/dto/auth/auth.dto-in'
 
 interface ForgetPasswordMainProps {
 	className?: string
@@ -25,6 +26,7 @@ interface ForgetPasswordMainProps {
 export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ className = '' }) => {
 	const router = useRouter()
 	const { t } = useTranslation(['common', 'auth'])
+	const setDataForgetPassword = passwordStore((state) => state.setDataForgetPassword)
 	const [busy, setBusy] = useState<boolean>(false)
 	const [alertForgetPasswordInfo, setAlertForgetPasswordInfo] = useState<AlertInfoType>({
 		open: false,
@@ -33,20 +35,24 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 	})
 
 	const { isPending, mutateAsync: mutateForgotPassword } = useMutation<
-		ResponseDto<ForgotPasswordDtoOut>,
+		ResponseDto<ForgotPasswordAuthDtoOut>,
 		AxiosError,
-		ForgotPasswordDtoIn,
+		ForgotPasswordAuthDtoIn,
 		unknown
 	>({
-		mutationFn: service.login.forgotPassword,
+		mutationFn: service.auth.forgetPassword,
 	})
 
 	const validationSchema = yup.object({
-		email: yup.string().email(t('auth:warning.invalidEmailFormat')).required(t('auth:warning.inputEmail')),
+		email: yup.string().email(t('auth:warning.invalidEmailFormat')).max(255, t('auth:warning.maxInputEmail')),
 	})
 
 	const onSubmit = useCallback(
-		async (values: ForgotPasswordDtoIn) => {
+		async (values: ForgotPasswordAuthDtoIn) => {
+			if (!values.email) {
+				setAlertForgetPasswordInfo({ open: true, severity: 'error', message: t('auth:warning.inputEmail') })
+				return
+			}
 			try {
 				setBusy(true)
 				await mutateForgotPassword(values)
@@ -56,7 +62,8 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 					message: t('auth:success.forgotPassword'),
 				})
 				setTimeout(() => {
-					router.push(`${AppPath.ResetPassword}?email=${values?.email}`)
+					setDataForgetPassword({ isSuccess: true, email: values.email, type: 'email' })
+					router.push(AppPath.AuthStatus)
 					setBusy(false)
 				}, 3000)
 			} catch (error) {
@@ -69,10 +76,10 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 				setBusy(false)
 			}
 		},
-		[mutateForgotPassword, router, t],
+		[mutateForgotPassword, setDataForgetPassword, router, t],
 	)
 
-	const formik = useFormik<ForgotPasswordDtoIn>({
+	const formik = useFormik<ForgotPasswordAuthDtoIn>({
 		initialValues: {
 			email: '',
 		},
@@ -81,7 +88,7 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 	})
 
 	return (
-		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5]', className)}>
+		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5] px-6', className)}>
 			<Box className='flex min-h-[412px] w-[466px] flex-col items-center gap-[18px] rounded-[20px] bg-white pt-6 shadow-[0_3px_6px_0_rgba(0,0,0,0.25)]'>
 				<Box className='flex items-center'>
 					<AppLogo />
@@ -99,6 +106,7 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 							value={''}
 							formik={formik}
 							placeholder={t('auth:specifyEmail')}
+							inputProps={{ maxLength: 255 }}
 						/>
 						<ActionButton
 							className='h-10 !rounded-[5px] !bg-secondary [&_.MuiBox-root]:text-sm [&_.MuiBox-root]:font-normal'
@@ -108,7 +116,7 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 							loading={isPending || busy}
 						/>
 					</form>
-					<Link className='!text-sm !text-white' onClick={() => router.back()}>
+					<Link className='!text-sm !text-white hover:cursor-pointer' onClick={() => router.back()}>
 						{t('back')}
 					</Link>
 				</Box>

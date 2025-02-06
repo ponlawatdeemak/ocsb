@@ -10,12 +10,15 @@
 		"esModuleInterop": true,
 		"module": "esnext",
 		"moduleResolution": "node",
+		"experimentalDecorators": true,
+		"strictPropertyInitialization": false,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"jsx": "preserve",
 		"incremental": true,
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@interface/*": ["./ocsb-interface/src/*"]
 		},
 		"plugins": [{ "name": "next" }]
 	},

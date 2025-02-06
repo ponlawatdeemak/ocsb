@@ -64,7 +64,7 @@ const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = ({
 			<Box className='flex min-h-[38px] items-center gap-responsive-menu-gap p-1'>
 				{appMenuConfig.map((menu) =>
 					(menu.access?.length || 0) > 0 ? (
-						menu.access?.includes(session?.user.role ?? '') && (
+						menu.access?.includes(session?.user.role?.roleName ?? '') && (
 							<React.Fragment key={menu.id}>
 								{(menu.children?.length || 0) > 0 ? (
 									<React.Fragment>

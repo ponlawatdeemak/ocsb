@@ -1,6 +1,9 @@
 import ProfileForm from '@/components/shared/ProfileForm'
+import service from '@/api'
 import { AppPath } from '@/config/app.config'
 import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
+import { useQuery } from '@tanstack/react-query'
 import { signOut } from 'next-auth/react'
 import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/navigation'
@@ -122,6 +125,11 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 			เปลี่ยนรหัสผ่าน
 		</Button>
 	)
+
+	const { data: profileData, isLoading: isProfileDataLoading } = useQuery({
+		queryKey: ['getProfile'],
+		queryFn: async () => await service.profile.getProfile(),
+	})
 
 	return (
 		<Box className='relative flex h-full flex-col items-center'>
