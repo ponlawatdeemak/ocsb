@@ -279,7 +279,10 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 							type='submit'
 							loading={isPending || busy}
 						/>
-						<Link className='!text-sm !text-white' onClick={() => router.push(AppPath.Login)}>
+						<Link
+							className='!text-sm !text-white hover:cursor-pointer'
+							onClick={() => router.push(AppPath.Login)}
+						>
 							{t('auth:returnLogin')}
 						</Link>
 					</form>

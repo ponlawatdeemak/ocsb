@@ -34,14 +34,22 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 	const validationSchema = useMemo(
 		() =>
 			yup.object({
-				email: yup.string().required(t('auth:warning.inputEmail')).max(255, t('auth:warning.maxInputEmail')),
-				password: yup.string().required(t('auth:warning.inputPassword')),
+				email: yup.string().max(255, t('auth:warning.maxInputEmail')),
+				password: yup.string(),
 			}),
 		[t],
 	)
 
 	const onSubmit = useCallback(
 		async (values: LoginAuthDtoIn) => {
+			if (!values.email) {
+				setAlertLoginInfo({ open: true, severity: 'error', message: t('auth:warning.inputEmail') })
+				return
+			}
+			if (!values.password) {
+				setAlertLoginInfo({ open: true, severity: 'error', message: t('auth:warning.inputPassword') })
+				return
+			}
 			try {
 				setBusy(true)
 				const res = await signIn('credentials', {
@@ -106,7 +114,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 							/>
 						</Box>
 						<Link
-							className='!mt-2 self-end !text-xs !text-white'
+							className='!mt-2 self-end !text-xs !text-white hover:cursor-pointer'
 							onClick={() => router.push(AppPath.ForgetPassword)}
 						>
 							{t('auth:forgotPassword')}
@@ -119,9 +127,6 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 							loading={busy}
 						/>
 					</form>
-					<Link className='!text-sm !text-white' onClick={() => router.push(AppPath.Overview)}>
-						{t('back')}
-					</Link>
 				</Box>
 			</Box>
 

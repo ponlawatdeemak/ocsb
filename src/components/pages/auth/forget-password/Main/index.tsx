@@ -44,15 +44,15 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 	})
 
 	const validationSchema = yup.object({
-		email: yup
-			.string()
-			.email(t('auth:warning.invalidEmailFormat'))
-			.required(t('auth:warning.inputEmail'))
-			.max(255, t('auth:warning.maxInputEmail')),
+		email: yup.string().email(t('auth:warning.invalidEmailFormat')).max(255, t('auth:warning.maxInputEmail')),
 	})
 
 	const onSubmit = useCallback(
 		async (values: ForgotPasswordAuthDtoIn) => {
+			if (!values.email) {
+				setAlertForgetPasswordInfo({ open: true, severity: 'error', message: t('auth:warning.inputEmail') })
+				return
+			}
 			try {
 				setBusy(true)
 				await mutateForgotPassword(values)
@@ -116,7 +116,7 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 							loading={isPending || busy}
 						/>
 					</form>
-					<Link className='!text-sm !text-white' onClick={() => router.back()}>
+					<Link className='!text-sm !text-white hover:cursor-pointer' onClick={() => router.back()}>
 						{t('back')}
 					</Link>
 				</Box>
