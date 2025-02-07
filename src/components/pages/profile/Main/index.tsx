@@ -1,9 +1,7 @@
 import ProfileForm from '@/components/shared/ProfileForm'
 import service from '@/api'
-import { AppPath } from '@/config/app.config'
 import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
-import { signOut } from 'next-auth/react'
 import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useState } from 'react'
@@ -40,8 +38,6 @@ interface ResetPwFormValues {
 export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 	const router = useRouter()
 	const { t } = useTranslation('common')
-
-	const logout = useCallback(() => signOut({ callbackUrl: AppPath.Overview }), [])
 
 	const [openResetPw, setOpenResetPw] = useState(false)
 
