@@ -11,6 +11,9 @@ import clsx from 'clsx'
 import IOSSwitch from '@/components/common/switch/IOSSwitch'
 import { BackIcon } from '@/components/svg/AppIcon'
 import { useRouter } from 'next/navigation'
+import service from '@/api'
+import { useQuery } from '@tanstack/react-query'
+import { Languages } from '@/enum'
 
 interface ResponseLanguage {
 	en: string
@@ -58,6 +61,37 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 	const roleOptions = [{ value: '1', name: { th: 'แอดมิน', en: 'admin' } }]
 
 	const checkBoxerrorMessage = formik?.touched.regions && formik?.errors.regions
+
+	const { data: provinceLookupData, isLoading: isProvinceDataLoading } = useQuery({
+		queryKey: ['getProvince'],
+		queryFn: () => service.lookup.get({ name: 'provinces' }),
+	})
+
+	const { data: regionsLookupData, isLoading: isRegionsDataLoading } = useQuery({
+		queryKey: ['getRegions'],
+		queryFn: () => service.lookup.get({ name: 'regions' }),
+	})
+
+	const { data: positionLookupData, isLoading: isPositionDataLoading } = useQuery({
+		queryKey: ['getPosition'],
+		queryFn: () => service.lookup.get({ name: 'position' }),
+	})
+
+	const { data: rolesLookupData, isLoading: isRolesDataLoading } = useQuery({
+		queryKey: ['getRoles'],
+		queryFn: () => service.lookup.get({ name: 'roles' }),
+	})
+
+	const handleClickResetPassword = () => {
+		setIsResetPasswordOpen((prev) => !prev)
+	}
+
+	console.log('i18n ', i18n)
+
+	console.log('provinceLookupData ', provinceLookupData)
+	console.log('regionsLookupData ', regionsLookupData)
+	console.log('positionLookupData ', positionLookupData)
+	console.log('rolesLookupData ', rolesLookupData)
 
 	return (
 		<div className={classNames('flex h-full w-full flex-col', className)}>
@@ -143,8 +177,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 						</Typography>
 						<AutocompleteInput
 							className='w-full bg-white [&_::placeholder]:text-sm [&_input]:!text-sm'
-							options={positionOptions}
-							getOptionLabel={(option) => option.name[i18n.language]}
+							getOptionLabel={(option) => {
+								return option[`positionName${Languages.TH === i18n.language ? '' : 'En'}`]
+							}}
+							options={
+								positionLookupData?.map((item: any) => ({
+									...item,
+									value: String(item[`positionName${Languages.TH === i18n.language ? '' : 'En'}`]),
+								})) || []
+							}
 							name='position'
 							formik={formik}
 							disabled={false}
@@ -161,8 +202,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							</Typography>
 							<AutocompleteInput
 								className='w-full bg-white [&_::placeholder]:text-sm [&_input]:text-sm'
-								options={regionOptions}
-								getOptionLabel={(option) => option.name[i18n.language]}
+								getOptionLabel={(option) => {
+									return option[`regionName${Languages.TH === i18n.language ? '' : 'En'}`]
+								}}
+								options={
+									regionsLookupData?.map((item: any) => ({
+										...item,
+										value: String(item[`regionName${Languages.TH === i18n.language ? '' : 'En'}`]),
+									})) || []
+								}
 								name='region'
 								formik={formik}
 								disabled={false}
@@ -174,8 +222,17 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							</Typography>
 							<AutocompleteInput
 								className='w-full bg-white [&_::placeholder]:text-sm [&_input]:text-sm'
-								options={provinceOptions}
-								getOptionLabel={(option) => option.name[i18n.language]}
+								getOptionLabel={(option) => {
+									return option[`provinceName${Languages.TH === i18n.language ? '' : 'En'}`]
+								}}
+								options={
+									provinceLookupData?.map((item: any) => ({
+										...item,
+										value: String(
+											item[`provinceName${Languages.TH === i18n.language ? '' : 'En'}`],
+										),
+									})) || []
+								}
 								name='province'
 								formik={formik}
 								disabled={false}
@@ -214,8 +271,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 						</Typography>
 						<AutocompleteInput
 							className='w-full bg-background [&_.MuiAutocomplete-root]:bg-white [&_::placeholder]:text-sm [&_input]:text-sm'
-							options={roleOptions}
-							getOptionLabel={(option) => option.name[i18n.language]}
+							getOptionLabel={(option) => {
+								return option[`roleName`]
+							}}
+							options={
+								rolesLookupData?.map((item: any) => ({
+									...item,
+									value: String(item[`roleName`]),
+								})) || []
+							}
 							name='role'
 							formik={formik}
 							disabled={false}
