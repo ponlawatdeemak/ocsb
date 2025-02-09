@@ -15,6 +15,8 @@ import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
 import { Languages } from '@/enum'
 
+import * as _ from 'lodash'
+
 interface ResponseLanguage {
 	en: string
 	th: string
@@ -62,15 +64,22 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
 	const checkBoxerrorMessage = formik?.touched.regions && formik?.errors.regions
 
-	const { data: provinceLookupData, isLoading: isProvinceDataLoading } = useQuery({
-		queryKey: ['getProvince'],
-		queryFn: () => service.lookup.get({ name: 'provinces' }),
-	})
-
 	const { data: regionsLookupData, isLoading: isRegionsDataLoading } = useQuery({
 		queryKey: ['getRegions'],
 		queryFn: () => service.lookup.get({ name: 'regions' }),
 	})
+
+	const { data: provinceLookupData, isLoading: isProvinceDataLoading } = useQuery({
+		queryKey: ['getProvince'],
+		queryFn: () => service.lookup.get({ name: 'provinces', where: formik.values.region }),
+		enabled: !!formik.values.province,
+	})
+
+	// const { data: districtLookupData, isLoading: isDistricDataLoading } = useQuery({
+	// 	queryKey: ['getDistrict', formik?.values.responsibleProvinceCode],
+	// 	queryFn: () => service.lookup.get(`districts/${formik.values.responsibleProvinceCode}`),
+	// 	enabled: !!formik.values.responsibleProvinceCode,
+	// })
 
 	const { data: positionLookupData, isLoading: isPositionDataLoading } = useQuery({
 		queryKey: ['getPosition'],
@@ -81,10 +90,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 		queryKey: ['getRoles'],
 		queryFn: () => service.lookup.get({ name: 'roles' }),
 	})
-
-	const handleClickResetPassword = () => {
-		setIsResetPasswordOpen((prev) => !prev)
-	}
 
 	console.log('i18n ', i18n)
 
@@ -136,9 +141,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 									: 'ชื่อ - นามสกุล'}
 								<br />
 								{formik.values.position
-									? `${positionOptions.find((item) => item.value === formik.values.position)?.name[i18n.language as keyof ResponseLanguage]}`
+									? `${positionOptions.find((item) => item.value === formik.values.position)?.name[i18n.language as keyof ResponseLanguage]}` ||
+										''
 									: 'ตำแหน่ง'}
 							</Typography>
+
+							{/* [`positionName${Languages.TH === i18n.language ? '' : i18n.language }`] */}
 							{lineNotiButtonElement}
 						</Box>
 						{changePasswordButtonElement}
@@ -173,24 +181,26 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							inputProps={{ maxLength: 100 }}
 						/>
 						<Typography className='content-center justify-center !text-sm !font-light max-lg:pb-[6px] max-lg:pt-[24px]'>
-							{'ตำแหน่ง'}
+							{t('um:position')}
 						</Typography>
 						<AutocompleteInput
 							className='w-full bg-white [&_::placeholder]:text-sm [&_input]:!text-sm'
 							getOptionLabel={(option) => {
-								return option[`positionName${Languages.TH === i18n.language ? '' : 'En'}`]
+								return option[`${_.camelCase(`positionName-${i18n.language ? '' : i18n.language}`)}`]
 							}}
 							options={
 								positionLookupData?.map((item: any) => ({
 									...item,
-									value: String(item[`positionName${Languages.TH === i18n.language ? '' : 'En'}`]),
+									value: String(
+										item[`${_.camelCase(`positionName-${i18n.language ? '' : i18n.language}`)}`],
+									),
 								})) || []
 							}
 							name='position'
 							formik={formik}
 							disabled={false}
 							required={true}
-							placeholder={t('เลือกตำแหน่ง')}
+							placeholder={t('um:selectPosition')}
 						/>
 						<Typography className='content-center justify-center !text-sm !font-light max-lg:hidden'>
 							{'ภาค / จังหวัด'}
