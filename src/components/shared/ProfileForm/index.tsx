@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo } from 'react'
+import React, { ReactNode } from 'react'
 import AutocompleteInput from '@/components/common/input/AutocompleteInput'
 import FormInput from '@/components/common/input/FormInput'
 import UploadImage from '@/components/shared/ProfileForm/UploadImage'
@@ -7,7 +7,6 @@ import { FormikProps } from 'formik'
 import { useTranslation } from 'next-i18next'
 import classNames from 'classnames'
 import useResponsive from '@/hook/responsive'
-import clsx from 'clsx'
 import IOSSwitch from '@/components/common/switch/IOSSwitch'
 import { BackIcon } from '@/components/svg/AppIcon'
 import { useRouter } from 'next/navigation'
@@ -22,16 +21,16 @@ interface ResponseLanguage {
 	th: string
 }
 interface UMFormValues {
-	image: string
+	image: File | string
 	firstName: string
 	lastName: string
-	position: string
-	region: string
-	province: string
+	position: number | null
+	region: number | null
+	province: number | null
 	phone: string
 	email: string
-	role: string
-	regions: string[]
+	role: number | null
+	regions: number[]
 	isActive: boolean
 }
 
@@ -40,6 +39,7 @@ export interface ProfileFormProps {
 	formik: FormikProps<UMFormValues>
 	lineNotiButtonElement?: ReactNode
 	changePasswordButtonElement?: ReactNode
+	isShowActiveButton?: boolean
 	loading?: boolean
 	className?: string
 }
@@ -49,6 +49,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 	formik,
 	lineNotiButtonElement,
 	changePasswordButtonElement,
+	isShowActiveButton = false,
 	loading = false,
 	className,
 }) => {
@@ -56,11 +57,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 	const { t, i18n } = useTranslation(['um', 'common'])
 	// const { i18n: i18nWithCookie } = useSwitchLanguage(i18n.language as Languages, 'appbar')
 	const { isDesktop } = useResponsive()
-
-	const positionOptions = [{ value: '1', name: { th: 'เมฆ', en: 'make' } }]
-	const regionOptions = [{ value: '1', name: { th: 'กลาง', en: 'middle' } }]
-	const provinceOptions = [{ value: '1', name: { th: 'กทม', en: 'bangkok' } }]
-	const roleOptions = [{ value: '1', name: { th: 'แอดมิน', en: 'admin' } }]
 
 	const checkBoxerrorMessage = formik?.touched.regions && formik?.errors.regions
 
@@ -71,15 +67,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
 	const { data: provinceLookupData, isLoading: isProvinceDataLoading } = useQuery({
 		queryKey: ['getProvince'],
-		queryFn: () => service.lookup.get({ name: 'provinces', where: formik.values.region }),
-		enabled: !!formik.values.province,
+		queryFn: () => service.lookup.get({ name: 'provinces' }),
+		enabled: !!formik.values.region,
 	})
-
-	// const { data: districtLookupData, isLoading: isDistricDataLoading } = useQuery({
-	// 	queryKey: ['getDistrict', formik?.values.responsibleProvinceCode],
-	// 	queryFn: () => service.lookup.get(`districts/${formik.values.responsibleProvinceCode}`),
-	// 	enabled: !!formik.values.responsibleProvinceCode,
-	// })
 
 	const { data: positionLookupData, isLoading: isPositionDataLoading } = useQuery({
 		queryKey: ['getPosition'],
@@ -91,13 +81,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 		queryFn: () => service.lookup.get({ name: 'roles' }),
 	})
 
-	console.log('i18n ', i18n)
-
-	console.log('provinceLookupData ', provinceLookupData)
-	console.log('regionsLookupData ', regionsLookupData)
-	console.log('positionLookupData ', positionLookupData)
-	console.log('rolesLookupData ', rolesLookupData)
-
 	return (
 		<div className={classNames('flex h-full w-full flex-col', className)}>
 			<div className='flex h-[60px] min-h-[60px] w-full justify-between gap-[16px] rounded-[15px_15px_0px_0px] bg-primary-light py-4 pl-[31px] pr-[40px]'>
@@ -108,22 +91,24 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 					<Typography className='!text-[18px] font-normal text-white'>{title}</Typography>
 				</div>
 
-				<FormControlLabel
-					labelPlacement='start'
-					className='pointer-events-none !font-normal text-white [&_span]:text-sm'
-					control={
-						<div className='pointer-events-auto'>
-							<IOSSwitch
-								className='m-0 ml-2 [&_.Mui-checked+.MuiSwitch-track]:!bg-white [&_.MuiSwitch-thumb]:bg-primary-light [&_.MuiSwitch-track]:!bg-gray-400'
-								checked={formik.values.isActive || false}
-								onChange={(event) => {
-									formik.setFieldValue('isActive', event.target.checked)
-								}}
-							/>
-						</div>
-					}
-					label={`${t('การเปิดใช้งาน')}:`}
-				/>
+				{isShowActiveButton && (
+					<FormControlLabel
+						labelPlacement='start'
+						className='pointer-events-none !font-normal text-white [&_span]:text-sm'
+						control={
+							<div className='pointer-events-auto'>
+								<IOSSwitch
+									className='m-0 ml-2 [&_.Mui-checked+.MuiSwitch-track]:!bg-white [&_.MuiSwitch-thumb]:bg-primary-light [&_.MuiSwitch-track]:!bg-gray-400'
+									checked={formik.values.isActive || false}
+									onChange={(event) => {
+										formik.setFieldValue('isActive', event.target.checked)
+									}}
+								/>
+							</div>
+						}
+						label={`${t('การเปิดใช้งาน')}:`}
+					/>
+				)}
 			</div>
 			<div className={'flex w-full flex-col rounded-[0px_0px_15px_15px] bg-white py-6 lg:flex-row'}>
 				<div className='flex flex-col gap-[16px] px-10 lg:w-[25%]'>
@@ -134,19 +119,18 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 						disabled={loading}
 					/>
 					<Box className='flex h-full flex-col items-center justify-between max-lg:gap-[16px]'>
-						<Box className='flex flex-col items-center gap-[16px]'>
+						<Box className='flex w-full flex-col items-center gap-[16px]'>
 							<Typography className='w-full !overflow-hidden !text-ellipsis !whitespace-nowrap text-center !text-sm'>
 								{formik.values.firstName || formik.values.lastName
 									? `${formik.values.firstName} ${formik.values.lastName}`
 									: 'ชื่อ - นามสกุล'}
 								<br />
 								{formik.values.position
-									? `${positionOptions.find((item) => item.value === formik.values.position)?.name[i18n.language as keyof ResponseLanguage]}` ||
+									? `${(positionLookupData as any[])?.find((item) => item.positionId === formik.values.position)?.[`${_.camelCase(`positionName-${i18n.language ? '' : i18n.language}`)}`]}` ||
 										''
 									: 'ตำแหน่ง'}
 							</Typography>
 
-							{/* [`positionName${Languages.TH === i18n.language ? '' : i18n.language }`] */}
 							{lineNotiButtonElement}
 						</Box>
 						{changePasswordButtonElement}
@@ -186,19 +170,19 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 						<AutocompleteInput
 							className='w-full bg-white [&_::placeholder]:text-sm [&_input]:!text-sm'
 							getOptionLabel={(option) => {
-								return option[`${_.camelCase(`positionName-${i18n.language ? '' : i18n.language}`)}`]
+								return option.name
 							}}
 							options={
 								positionLookupData?.map((item: any) => ({
-									...item,
-									value: String(
+									value: item.positionId,
+									name: String(
 										item[`${_.camelCase(`positionName-${i18n.language ? '' : i18n.language}`)}`],
 									),
 								})) || []
 							}
 							name='position'
 							formik={formik}
-							disabled={false}
+							disabled={isPositionDataLoading || loading}
 							required={true}
 							placeholder={t('um:selectPosition')}
 						/>
@@ -213,17 +197,17 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							<AutocompleteInput
 								className='w-full bg-white [&_::placeholder]:text-sm [&_input]:text-sm'
 								getOptionLabel={(option) => {
-									return option[`regionName${Languages.TH === i18n.language ? '' : 'En'}`]
+									return option.name
 								}}
 								options={
 									regionsLookupData?.map((item: any) => ({
-										...item,
-										value: String(item[`regionName${Languages.TH === i18n.language ? '' : 'En'}`]),
+										value: item.regionId,
+										name: String(item[`regionName${Languages.TH === i18n.language ? '' : 'En'}`]),
 									})) || []
 								}
 								name='region'
 								formik={formik}
-								disabled={false}
+								disabled={isRegionsDataLoading || loading}
 								required={true}
 								placeholder={t('เลือกภาค')}
 							/>
@@ -233,19 +217,19 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							<AutocompleteInput
 								className='w-full bg-white [&_::placeholder]:text-sm [&_input]:text-sm'
 								getOptionLabel={(option) => {
-									return option[`provinceName${Languages.TH === i18n.language ? '' : 'En'}`]
+									return option.name
 								}}
 								options={
 									provinceLookupData?.map((item: any) => ({
-										...item,
-										value: String(
-											item[`provinceName${Languages.TH === i18n.language ? '' : 'En'}`],
-										),
+										value: item[`adm1Code`],
+										name: String(item[`provinceName${Languages.TH === i18n.language ? '' : 'En'}`]),
 									})) || []
 								}
 								name='province'
 								formik={formik}
-								disabled={false}
+								disabled={
+									isProvinceDataLoading || isRegionsDataLoading || !formik.values.region || loading
+								}
 								required={true}
 								placeholder={t('เลือกจังหวัด')}
 							/>
@@ -258,7 +242,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							name='phone'
 							formik={formik}
 							required
-							disabled={false}
+							disabled={loading}
 							placeholder={t('ระบุเบอร์โทรศัพท์')}
 							inputProps={{ maxLength: 10 }}
 						/>
@@ -270,7 +254,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							name='email'
 							formik={formik}
 							required
-							disabled={false}
+							disabled={loading}
 							placeholder={t('ระบุอีเมล')}
 							inputProps={{ maxLength: 255 }}
 						/>
@@ -282,17 +266,17 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 						<AutocompleteInput
 							className='w-full bg-background [&_.MuiAutocomplete-root]:bg-white [&_::placeholder]:text-sm [&_input]:text-sm'
 							getOptionLabel={(option) => {
-								return option[`roleName`]
+								return option.name
 							}}
 							options={
 								rolesLookupData?.map((item: any) => ({
-									...item,
-									value: String(item[`roleName`]),
+									value: item.roleId,
+									name: String(item[`roleName`]),
 								})) || []
 							}
 							name='role'
 							formik={formik}
-							disabled={false}
+							disabled={isRolesDataLoading || loading}
 							required={true}
 							placeholder={t('เลือกสิทธิ์การเข้าถึง')}
 						/>
@@ -301,114 +285,49 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 						</Typography>
 						<div className='flex flex-col max-lg:pl-[24px] max-lg:pt-[10px]'>
 							<div className='flex flex-col lg:flex-row lg:items-center lg:gap-12'>
-								<FormControlLabel
-									control={
-										<Checkbox
-											value='ภาค1'
-											onChange={(event) => {
-												if (formik.values.regions.includes(event.target.value)) {
-													const toDelIndex = formik.values.regions.findIndex(
-														(item) => item === event.target.value,
-													)
-													const newValue = [...formik.values.regions]
-													newValue.splice(toDelIndex, 1)
-													formik.setFieldValue('regions', newValue)
-												} else {
-													const newValue = [...formik.values.regions]
-													newValue.push(event.target.value)
-													formik.setFieldValue('regions', newValue)
-												}
-											}}
-											size='small'
-											checked={
-												formik.values.regions.find((item) => item === 'ภาค1') ? true : false
-											}
-										/>
-									}
-									label='ภาค 1'
-									className='!mr-0 [&_.MuiFormControlLabel-label]:text-sm'
-								/>
-								<FormControlLabel
-									control={
-										<Checkbox
-											value='ภาค2'
-											onChange={(event) => {
-												if (formik.values.regions.includes(event.target.value)) {
-													const toDelIndex = formik.values.regions.findIndex(
-														(item) => item === event.target.value,
-													)
-													const newValue = [...formik.values.regions]
-													newValue.splice(toDelIndex, 1)
-													formik.setFieldValue('regions', newValue)
-												} else {
-													const newValue = [...formik.values.regions]
-													newValue.push(event.target.value)
-													formik.setFieldValue('regions', newValue)
-												}
-											}}
-											size='small'
-											checked={
-												formik.values.regions.find((item) => item === 'ภาค2') ? true : false
-											}
-										/>
-									}
-									label='ภาค 2'
-									className='!mr-0 [&_.MuiFormControlLabel-label]:text-sm'
-								/>
-								<FormControlLabel
-									control={
-										<Checkbox
-											value='ภาค3'
-											onChange={(event) => {
-												if (formik.values.regions.includes(event.target.value)) {
-													const toDelIndex = formik.values.regions.findIndex(
-														(item) => item === event.target.value,
-													)
-													const newValue = [...formik.values.regions]
-													newValue.splice(toDelIndex, 1)
-													formik.setFieldValue('regions', newValue)
-												} else {
-													const newValue = [...formik.values.regions]
-													newValue.push(event.target.value)
-													formik.setFieldValue('regions', newValue)
-												}
-											}}
-											size='small'
-											checked={
-												formik.values.regions.find((item) => item === 'ภาค3') ? true : false
-											}
-										/>
-									}
-									label='ภาค 3'
-									className='!mr-0 [&_.MuiFormControlLabel-label]:text-sm'
-								/>
-								<FormControlLabel
-									control={
-										<Checkbox
-											value='ภาค4'
-											onChange={(event) => {
-												if (formik.values.regions.includes(event.target.value)) {
-													const toDelIndex = formik.values.regions.findIndex(
-														(item) => item === event.target.value,
-													)
-													const newValue = [...formik.values.regions]
-													newValue.splice(toDelIndex, 1)
-													formik.setFieldValue('regions', newValue)
-												} else {
-													const newValue = [...formik.values.regions]
-													newValue.push(event.target.value)
-													formik.setFieldValue('regions', newValue)
-												}
-											}}
-											size='small'
-											checked={
-												formik.values.regions.find((item) => item === 'ภาค4') ? true : false
-											}
-										/>
-									}
-									label='ภาค 4'
-									className='!mr-0 [&_.MuiFormControlLabel-label]:text-sm'
-								/>
+								{regionsLookupData &&
+									regionsLookupData.map((item: any) => {
+										if (item.regionName !== 'ส่วนกลาง')
+											return (
+												<FormControlLabel
+													key={item.regionId}
+													control={
+														<Checkbox
+															value={Number(item.regionId)}
+															onChange={(event) => {
+																if (
+																	formik.values.regions.includes(
+																		Number(event.target.value),
+																	)
+																) {
+																	const toDelIndex = formik.values.regions.findIndex(
+																		(item) => item === Number(event.target.value),
+																	)
+																	const newValue = [...formik.values.regions]
+																	newValue.splice(toDelIndex, 1)
+																	formik.setFieldValue('regions', newValue)
+																} else {
+																	const newValue = [...formik.values.regions]
+																	newValue.push(Number(event.target.value))
+																	formik.setFieldValue('regions', newValue)
+																}
+															}}
+															size='small'
+															checked={
+																formik.values.regions.includes(item.regionId)
+																	? true
+																	: false
+															}
+															disabled={loading}
+														/>
+													}
+													label={String(
+														item[`regionName${Languages.TH === i18n.language ? '' : 'En'}`],
+													)}
+													className='!mr-0 [&_.MuiFormControlLabel-label]:text-sm'
+												/>
+											)
+									})}
 							</div>
 							{typeof checkBoxerrorMessage === 'string' && (
 								<FormHelperText error className='max-lg:!ml-[-10px] lg:!mx-[14px] lg:!mt-[0px]'>

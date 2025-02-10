@@ -15,8 +15,8 @@ export enum Languages {
 }
 
 export enum SortType {
-	ASC = 'asc',
-	DESC = 'desc',
+	ASC = 'ASC',
+	DESC = 'DESC',
 }
 
 export enum UserDialogMode {
