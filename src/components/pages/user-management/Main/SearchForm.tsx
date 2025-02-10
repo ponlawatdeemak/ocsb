@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, FormControl, Input, InputAdornment, Paper, Box } from '@mui/material'
-// import { FormMain } from '../Form'
+import { FormMain } from '../Form'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined'
 import GroupAddOutlinedIcon from '@mui/icons-material/GroupAddOutlined'
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt'
@@ -10,7 +10,7 @@ import { GetSearchUMDtoIn } from '@/api/um/dto-in.dto'
 import { useTranslation } from 'next-i18next'
 import useResponsive from '@/hook/responsive'
 import { FormImport } from '../Import'
-// import { UserDialogMode } from '@/enum'
+import { UserDialogMode } from '@/enum'
 import clsx from 'clsx'
 
 export interface UserManagementSearchFormProps {
@@ -127,13 +127,13 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 				setOpen={setOpenForm}
 				setIsSearch={setIsSearch}
 				userDialogMode={UserDialogMode.UserAdd}
-			/> */}
+			/>
 			<FormImport
 				open={openImport}
 				onClose={() => setOpenImport(false)}
 				setOpen={setOpenImport}
 				setIsSearch={setIsSearch}
-			/>
+			/> */}
 		</>
 	)
 }

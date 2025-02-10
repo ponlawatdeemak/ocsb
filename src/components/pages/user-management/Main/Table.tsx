@@ -24,7 +24,7 @@ import {
 	CircularProgress,
 } from '@mui/material'
 import { visuallyHidden } from '@mui/utils'
-import { SortType, UserRole } from '@/enum'
+import { SortType, UserDialogMode, UserRole } from '@/enum'
 import um from '@/api/um'
 import { DeleteProfileDtoIn, GetSearchUMDtoIn, PatchStatusDtoIn } from '@/api/um/dto-in.dto'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -45,7 +45,7 @@ import { mdiAccountOutline } from '@mdi/js'
 
 import { mdiAccountOff } from '@mdi/js'
 import { mdiAccountOffOutline } from '@mdi/js'
-// import { FormMain } from '../Form'
+import { FormMain } from '../Form'
 import { mdiFolderOffOutline } from '@mdi/js' // no data bottom
 import clsx from 'clsx'
 import AlertDialog from '@/components/common/dialog/AlertDialog'
@@ -1043,7 +1043,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 				</Alert>
 			</Snackbar>
 
-			{/* <FormMain
+			<FormMain
 				open={isEditOpen}
 				onClose={() => setIsEditOpen(false)}
 				userId={currentEditId}
@@ -1051,7 +1051,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 				setOpen={setIsEditOpen}
 				setIsSearch={setIsSearch}
 				userDialogMode={UserDialogMode.UserEdit}
-			/> */}
+			/>
 		</div>
 	)
 }

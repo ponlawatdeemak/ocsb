@@ -18,3 +18,9 @@ export enum SortType {
 	ASC = 'asc',
 	DESC = 'desc',
 }
+
+export enum UserDialogMode {
+	UserProfile,
+	UserAdd,
+	UserEdit,
+}

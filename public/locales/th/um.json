@@ -1,4 +1,4 @@
 {
-	"position": "Position",
-	"selectPosition": "Select Position"
+    "userManagement": "การจัดการสืิทธ์ผู้ใช้งาน",
+    "noData": "ไม่พบข้อมูล"
 }

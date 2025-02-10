@@ -22,11 +22,11 @@ import Icon from '@mdi/react'
 import { mdiTrayArrowDown, mdiTrayArrowUp, mdiCloseCircleOutline } from '@mdi/js'
 import { useQueryClient } from '@tanstack/react-query'
 // import LoadingButton from '@mui/lab/LoadingButton'
-// import { AlertInfoType } from '@/components/shared/ProfileForm/interface'
+import { AlertInfoType } from '@/components/shared/ProfileForm/interface'
 import { PostImportCSVErrorDtoOut, PostImportXLSXErrorDtoOut } from '@/api/um/dto-out.dto'
-// import AlertConfirm from '@/components/common/dialog/AlertConfirm'
-// import CloseIcon from '@mui/icons-material/Close'
-// import LoadingButton from '@mui/lab/LoadingButton'
+import AlertConfirm from '@/components/common/dialog/AlertConfirm'
+import CloseIcon from '@mui/icons-material/Close'
+import LoadingButton from '@mui/lab/LoadingButton'
 import classNames from 'classnames'
 
 const maxFileSize = 1.5e7
@@ -44,8 +44,7 @@ export const FormImport: React.FC<FormImportProps> = ({ ...props }) => {
 	const { open, onClose, setIsSearch } = props
 	const [isLoading, setIsLoading] = React.useState<boolean>(false)
 	const [isOpenConfirmModal, setIsOpenConfirmModal] = React.useState<boolean>(false)
-	const [alertInfo, setAlertInfo] = React.useState<any>({
-		//type
+	const [alertInfo, setAlertInfo] = React.useState<AlertInfoType>({
 		open: false,
 		severity: 'success',
 		message: '',
@@ -224,7 +223,7 @@ export const FormImport: React.FC<FormImportProps> = ({ ...props }) => {
 						}}
 						className='mr-2 p-2'
 					>
-						{/* <CloseIcon /> */}X
+						<CloseIcon />
 					</IconButton>
 				</Box>
 				<DialogContent
@@ -363,7 +362,7 @@ export const FormImport: React.FC<FormImportProps> = ({ ...props }) => {
 							>
 								{t('cancel')}
 							</Button>
-							{/* <LoadingButton
+							<LoadingButton
 								fullWidth
 								loading={isLoading}
 								loadingPosition='start'
@@ -377,7 +376,7 @@ export const FormImport: React.FC<FormImportProps> = ({ ...props }) => {
 								disabled={isLoading}
 							>
 								<span> {t('confirm')}</span>
-							</LoadingButton> */}
+							</LoadingButton>
 						</div>
 					</DialogActions>
 				)}
@@ -397,7 +396,7 @@ export const FormImport: React.FC<FormImportProps> = ({ ...props }) => {
 					{alertInfo.message}
 				</Alert>
 			</Snackbar>
-			{/* <AlertConfirm
+			<AlertConfirm
 				open={isOpenConfirmModal}
 				title={t('alert.importUserFile', { ns: 'um' })} // t('confirmImport', { ns : 'um'})
 				content={t('alert.confirmImportUserFile', { ns: 'um' })} //t('confirmImport', {ns : 'um'})
@@ -408,7 +407,7 @@ export const FormImport: React.FC<FormImportProps> = ({ ...props }) => {
 					handleConfirmImport()
 					setIsOpenConfirmModal(false)
 				}}
-			/> */}
+			/>
 		</div>
 	)
 }
