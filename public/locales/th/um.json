@@ -1,4 +1,10 @@
 {
     "userManagement": "การจัดการสืิทธ์ผู้ใช้งาน",
-    "noData": "ไม่พบข้อมูล"
+    "noData": "ไม่พบข้อมูล",
+    "warning": {
+        "invalidPhoneFormat": "",
+        "invalidEmailFormat": ""
+    },
+    "changePassword": "เปลี่ยนรหัสผ่าน",
+    "lineNoti": "การแจ้งเตือนผ่านไลน์"
 }

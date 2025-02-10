@@ -1,4 +1,19 @@
 {
     "userManagement": "User Management",
-    "noData": "No Data"
+    "noData": "No Data",
+    "warning": {
+        "inputFirstName": "",
+        "inputLastName": "",
+        "inputPosition": "",
+        "inputRegion": "",
+        "inputProvince": "",
+        "invalidPhoneFormat": "",
+        "inputPhone": "",
+        "invalidEmailFormat": "",
+        "inputEmail": "",
+        "inputRole": "",
+        "inputRegions": ""
+    },
+    "changePassword": "Change Password",
+    "lineNoti": "Line Notification"
 }
