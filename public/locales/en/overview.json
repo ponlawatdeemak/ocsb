@@ -1,1 +1,14 @@
-{}
+{
+    "productOverview": "Production Overview",
+    "productYear": "Production Year",
+    "hotspot": "Hotspot",
+    "burntScarArea": "Burnt Scar Area",
+    "SugarCaneArea": "Sugar Cane Area",
+    "SugarCaneQuantity": "Sugar Cane Quantity",
+    "totalHotspot": "Total Hotspot",
+    "hotspotInArea": "Hotspot In Sugar Cane Area",
+    "burntScar": "Burnt Scar",
+    "sugarCaneYield":"Sugar Cane Yield",
+    "sugarCanePredict": "Sugar Cane Quantity Prediction",
+    "threeYearPlant": "Replanting Sugar Cane in last 3 years"
+}
