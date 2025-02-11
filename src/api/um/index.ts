@@ -40,21 +40,23 @@ const um = {
 	getUM: async (payload: GetUMDtoIn): Promise<ResponseDto<GetUMDtoOut>> => await api.get(`/um/${payload.userId}`),
 	postUM: async (payload: PostUMDtoIn): Promise<ResponseDto<PostUMDtoOut>> => await api.post('/um', payload),
 	putUM: async (userId: string, payload: PutUMDtoIn): Promise<ResponseDto<PutUMDtoOut>> =>
-		await api.put(`/um/${userId}`, payload),
+		(await api.put(`/um/${userId}`, payload)).data,
 	deleteUM: async (payload: DeleteUMDtoIn): Promise<ResponseDto<DeleteUMDtoOut>> =>
 		await api.delete(`/um/${payload.userId}`),
 
 	getImage: async (payload: GetImageUserDtoIn): Promise<ResponseDto<GetImageUserDtoOut>> =>
-		await api.get(`/um/img/${payload.userId}`),
+		(await api.get(`/um/img/${payload.userId}`)).data,
 	postImage: async (file: File, payload: PostImageUserDtoIn): Promise<ResponseDto<PostImageUserDtoOut>> => {
 		const formData = new FormData()
 		formData.append('file', file)
 
-		return await api.post(`/um/img/${payload.userId}`, formData, APIService.WebAPI, {
-			headers: {
-				'Content-Type': 'multipart/form-data',
-			},
-		})
+		return (
+			await api.post(`/um/img/${payload.userId}`, formData, APIService.WebAPI, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			})
+		).data
 	},
 	deleteImage: async (payload: DeleteImageUserDtoIn): Promise<ResponseDto<DeleteImageUserDtoOut>> =>
 		await api.delete(`/um/img/${payload.userId}`),

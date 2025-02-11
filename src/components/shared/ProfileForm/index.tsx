@@ -20,6 +20,7 @@ interface ResponseLanguage {
 	en: string
 	th: string
 }
+
 interface UMFormValues {
 	image: File | string
 	firstName: string
@@ -33,7 +34,6 @@ interface UMFormValues {
 	regions: number[]
 	isActive: boolean
 }
-
 export interface ProfileFormProps {
 	title: string
 	formik: FormikProps<UMFormValues>
