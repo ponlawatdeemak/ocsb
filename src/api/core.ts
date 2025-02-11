@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 import { APIConfigType, APIService, AppAPI } from './interface'
 import service from '@/api'
 import { defaultText } from '@/utils/text'
+import { getSession } from 'next-auth/react'
 
 const APIConfigs: { [key: string]: APIConfigType } = {
 	[APIService.WebAPI]: {
@@ -78,6 +79,19 @@ export const refreshAccessToken = async () => {
 	updateAccessToken({ accessToken: newAccessToken, refreshToken: newRefreshToken, accessType: 'Login' })
 	return { accessToken: newAccessToken, refreshToken: newRefreshToken }
 }
+
+axiosInstance.interceptors.request.use(
+	async (config) => {
+		const session = await getSession()
+		if (session && session.user) {
+			config.headers['Authorization'] = `Bearer ${session.user.tokens.accessToken}`
+		}
+		return config
+	},
+	(error) => {
+		return Promise.reject(error)
+	},
+)
 
 axiosInstance.interceptors.response.use(
 	(response) => {

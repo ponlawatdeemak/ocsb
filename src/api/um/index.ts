@@ -8,6 +8,7 @@ import {
 	PostImageUserDtoOut,
 	PostUMDtoOut,
 	PutUMDtoOut,
+	SearchUMDtoOut,
 } from '@interface/dto/um/um.dto-out'
 import {
 	DeleteImageUserDtoIn,
@@ -17,9 +18,25 @@ import {
 	PostImageUserDtoIn,
 	PostUMDtoIn,
 	PutUMDtoIn,
+	SearchUMDtoIn,
 } from '@interface/dto/um/um.dto.in'
 
 const um = {
+	getSearchUM: async (payload: SearchUMDtoIn): Promise<ResponseDto<SearchUMDtoOut[]>> => {
+		const params = new URLSearchParams()
+
+		if (payload.region?.length !== 0) payload.region?.forEach((item) => params.append('region', item))
+		if (payload.role?.length !== 0) payload.role?.forEach((item) => params.append('role', item))
+		if (payload.position?.length !== 0) payload.position?.forEach((item) => params.append('position', item))
+		if (payload.keyword) params.append('keyword', payload.keyword)
+		if (payload.page !== undefined) params.append('page', payload.page.toString())
+		if (payload.limit !== undefined) params.append('limit', payload.limit.toString())
+		if (payload.orderBy) params.append('orderBy', payload.orderBy)
+		if (payload.order) params.append('order', payload.order)
+
+		return await api.get(`/um/search?${params}`)
+	},
+
 	getUM: async (payload: GetUMDtoIn): Promise<ResponseDto<GetUMDtoOut>> => await api.get(`/um/${payload.userId}`),
 	postUM: async (payload: PostUMDtoIn): Promise<ResponseDto<PostUMDtoOut>> => await api.post('/um', payload),
 	putUM: async (userId: string, payload: PutUMDtoIn): Promise<ResponseDto<PutUMDtoOut>> =>

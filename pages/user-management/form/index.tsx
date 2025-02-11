@@ -4,7 +4,7 @@ import { UserConfig } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import nextI18NextConfig from '../../../next-i18next.config'
 import MainLayout from '@/components/layout/MainLayout'
-import { UserManagementMain } from '@/components/pages/user-management'
+import { UserManagementFormMain } from '@/components/pages/user-management'
 
 export const getServerSideProps: GetServerSideProps = async (context) => ({
 	props: {
@@ -19,7 +19,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => ({
 const UserManagementFormPage = () => {
 	return (
 		<MainLayout>
-			<UserManagementMain />
+			<UserManagementFormMain />
 		</MainLayout>
 	)
 }

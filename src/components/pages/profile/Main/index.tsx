@@ -16,16 +16,16 @@ interface ProfileMainProps {
 }
 
 interface UMFormValues {
-	image: string
+	image: File | string
 	firstName: string
 	lastName: string
-	position: string
-	region: string
-	province: string
+	position: number | null
+	region: number | null
+	province: number | null
 	phone: string
 	email: string
-	role: string
-	regions: string[]
+	role: number | null
+	regions: number[]
 	isActive: boolean
 }
 
@@ -45,12 +45,12 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		image: '',
 		firstName: '',
 		lastName: '',
-		position: '',
-		region: '',
-		province: '',
+		position: null,
+		region: null,
+		province: null,
 		phone: '',
 		email: '',
-		role: '',
+		role: null,
 		regions: [],
 		isActive: true,
 	}
