@@ -31,5 +31,8 @@
 
 	"error": {
 		"somethingWrong": "Something went wrong. Please check the information again."
-	}
+	},
+
+    "required": "Please fill in",
+    "clear": "Clear"
 }

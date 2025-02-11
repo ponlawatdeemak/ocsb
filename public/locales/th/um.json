@@ -1,4 +1,20 @@
 {
-    "userManagement": "การจัดการสืิทธ์ผู้ใช้งาน",
-    "noData": "ไม่พบข้อมูล"
+	"userManagement": "การจัดการสืิทธ์ผู้ใช้งาน",
+	"noData": "ไม่พบข้อมูล",
+	"warning": {
+		"invalidPhoneFormat": "",
+		"invalidEmailFormat": ""
+	},
+	"changePassword": "เปลี่ยนรหัสผ่าน",
+	"lineNoti": "การแจ้งเตือนผ่านไลน์",
+	"profile": {
+		"firstName": "ชื่อ",
+		"lastName": "นามสกุล",
+		"position": "ตำแหน่ง",
+		"regionProvince": "ภาค/จังหวัด",
+		"tel": "เบอร์โทรศัพท์",
+		"email": "อีเมล",
+		"role": "สิทธิ์การเข้าถึง",
+		"region": "ภูมิภาคที่ดูแล"
+	}
 }
