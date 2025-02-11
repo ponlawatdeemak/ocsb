@@ -22,7 +22,7 @@ interface ResponseLanguage {
 }
 
 interface UMFormValues {
-	image: File | null
+	image: File | string
 	firstName: string
 	lastName: string
 	position: number | null
@@ -130,6 +130,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 										''
 									: 'ตำแหน่ง'}
 							</Typography>
+
 							{lineNotiButtonElement}
 						</Box>
 						{changePasswordButtonElement}

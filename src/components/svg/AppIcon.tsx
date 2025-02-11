@@ -24,9 +24,9 @@ export const BackIcon: React.FC<SVGProps> = ({ width = 26, height = 26, fill = '
 			<path
 				d='M13.1667 17.375L9 13M9 13L13.1667 8.625M9 13L19 13'
 				stroke='black'
-				stroke-width='2'
-				stroke-linecap='round'
-				stroke-linejoin='round'
+				strokeWidth='2'
+				strokeLinecap='round'
+				strokeLinejoin='round'
 				fill={fill}
 			/>
 		</svg>

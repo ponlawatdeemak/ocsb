@@ -36,7 +36,7 @@ interface ProfileMainProps {
 }
 
 interface UMFormValues {
-	image: File | null
+	image: File | string
 	firstName: string
 	lastName: string
 	position: number | null
@@ -98,7 +98,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 	})
 
 	const defaultFormValues: UMFormValues = {
-		image: null,
+		image: '',
 		firstName: '',
 		lastName: '',
 		position: null,
@@ -147,7 +147,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 				if (values.image) {
 					let formData = new FormData()
 					formData.append('file', values.image)
-					await service.um.postImage(values.image, {
+					await service.um.postImage(values.image as File, {
 						userId: profileData?.data.userId ?? '',
 					})
 				}
