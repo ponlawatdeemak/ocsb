@@ -97,6 +97,7 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 			setSearchParams((prevSearch) => ({
 				...prevSearch,
 				region: typeof value === 'string' ? value.split(',') : value,
+				page: 1,
 			}))
 		},
 		[searchParams, setSearchParams],
@@ -108,6 +109,7 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 			setSearchParams((prevSearch) => ({
 				...prevSearch,
 				role: typeof value === 'string' ? value.split(',') : value,
+				page: 1,
 			}))
 		},
 		[searchParams, setSearchParams],
@@ -119,6 +121,7 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 			setSearchParams((prevSearch) => ({
 				...prevSearch,
 				position: typeof value === 'string' ? value.split(',') : value,
+				page: 1,
 			}))
 		},
 		[searchParams, setSearchParams],
@@ -129,41 +132,45 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 			setSearchParams((prevSearch) => ({
 				...prevSearch,
 				keyword: event.target.value,
+				page: 1,
 			}))
 		},
 		[setSearchParams],
 	)
 
 	return (
-		<Box className={classNames('mb-[30px] flex items-center gap-4', className)}>
+		<Box className={classNames('mb-[30px] flex items-center gap-6 max-lg:flex-col lg:gap-4', className)}>
 			<MultipleSelectCheckmarks
-				className='w-[206px]'
+				className='w-full lg:w-[206px]'
 				label='ภูมิภาค'
 				options={regionOptions}
 				multipleSelected={searchParams.region ?? []}
 				onChange={handleRegionChange}
 				fixedRenderValue='เลือกภูมิภาค'
+				disabled={isRegionsDataLoading}
 			/>
 
 			<MultipleSelectCheckmarks
-				className='w-[206px]'
+				className='w-full lg:w-[206px]'
 				label='ตำแหน่งงาน'
 				options={roleOptions}
 				multipleSelected={searchParams.role ?? []}
 				onChange={handleRoleChange}
 				fixedRenderValue='เลือกตำแหน่งงาน'
+				disabled={isRolesDataLoading}
 			/>
 
 			<MultipleSelectCheckmarks
-				className='w-[206px]'
+				className='w-full lg:w-[206px]'
 				label='สิทธิ์การเข้าถึง'
 				options={positionOptions}
 				multipleSelected={searchParams.position ?? []}
 				onChange={handlePositionChange}
 				fixedRenderValue='เลือกสิทธิ์การเข้าถึง'
+				disabled={isPositionDataLoading}
 			/>
 
-			<FormControl className='w-[206px] [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white'>
+			<FormControl className='w-full lg:w-[206px] [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white'>
 				<FormLabel className='mb-1.5 !text-xs !text-white'>{'คำค้นหา'}</FormLabel>
 				<OutlinedInput
 					id='keyword-search'
