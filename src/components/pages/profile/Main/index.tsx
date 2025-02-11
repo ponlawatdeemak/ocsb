@@ -304,7 +304,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 	return (
 		<Box className='relative flex h-full flex-col items-center'>
 			<div className='h-[80px] min-h-[80px] w-full bg-primary'></div>
-			<div className='lg:min-w-[850px]'>
+			<div className='lg:w-[850px]'>
 				<ProfileForm
 					title='ข้อมูลผู้ใช้งาน'
 					formik={formik}

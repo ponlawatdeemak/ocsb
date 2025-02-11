@@ -1,19 +1,29 @@
 {
-    "userManagement": "User Management",
-    "noData": "No Data",
-    "warning": {
-        "inputFirstName": "",
-        "inputLastName": "",
-        "inputPosition": "",
-        "inputRegion": "",
-        "inputProvince": "",
-        "invalidPhoneFormat": "",
-        "inputPhone": "",
-        "invalidEmailFormat": "",
-        "inputEmail": "",
-        "inputRole": "",
-        "inputRegions": ""
-    },
-    "changePassword": "Change Password",
-    "lineNoti": "Line Notification"
+	"userManagement": "User Management",
+	"noData": "No Data",
+	"warning": {
+		"inputFirstName": "",
+		"inputLastName": "",
+		"inputPosition": "",
+		"inputRegion": "",
+		"inputProvince": "",
+		"invalidPhoneFormat": "",
+		"inputPhone": "",
+		"invalidEmailFormat": "",
+		"inputEmail": "",
+		"inputRole": "",
+		"inputRegions": ""
+	},
+	"changePassword": "Change Password",
+	"lineNoti": "Line Notification",
+	"profile": {
+		"firstName": "ชื่อ",
+		"lastName": "นามสกุล",
+		"position": "ตำแหน่ง",
+		"regionProvince": "ภาค/จังหวัด",
+		"tel": "เบอร์โทรศัพท์",
+		"email": "อีเมล",
+		"role": "สิทธิ์การเข้าถึง",
+		"region": "ภูมิภาคที่ดูแล"
+	}
 }
