@@ -13,3 +13,5 @@ export const MAX_PITCH: number = 85
 export const SHOW_BOUNDARY: boolean = true
 export const ENABLE_TOP_APPBAR = false
 export const DEFAULT_LOCALE = 'th'
+
+export const IMG_PATH = `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/um/img`

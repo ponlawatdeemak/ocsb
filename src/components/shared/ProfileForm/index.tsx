@@ -65,9 +65,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 		queryFn: () => service.lookup.get({ name: 'regions' }),
 	})
 
-	const { data: provinceLookupData, isLoading: isProvinceDataLoading } = useQuery({
-		queryKey: ['getProvince'],
-		queryFn: () => service.lookup.get({ name: 'provinces' }),
+	const { data: provinceLookupData, isPending: isProvinceDataLoading } = useQuery({
+		queryKey: ['getProvince', formik.values.region],
+		queryFn: () => service.lookup.get({ name: 'provinces', where: `region_id=${formik.values.region}` }),
 		enabled: !!formik.values.region,
 	})
 
