@@ -61,12 +61,13 @@ export const appMenuConfig: {
 	label: string
 	path: string
 	children?: typeof mapAnalyzeMenuConfig
-	access?: UserRole[]
+	access: UserRole[]
 }[] = [
 	{
 		id: 'Overview',
 		label: 'menu.overview',
 		path: AppPath.Overview,
+		access: [],
 	},
 	{
 		id: 'MapAnalyze',
@@ -87,16 +88,19 @@ export const appMenuConfig: {
 		id: 'About',
 		label: 'menu.about',
 		path: AppPath.About,
+		access: [],
 	},
 	{
 		id: 'Glossary',
 		label: 'menu.glossary',
 		path: AppPath.Glossary,
+		access: [],
 	},
 	{
 		id: 'Setting',
 		label: 'menu.setting',
 		path: AppPath.Setting,
+		access: [],
 	},
 	{
 		id: 'UserManagement',

@@ -275,6 +275,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		if (!openChangePw) {
 			changePwFormik.resetForm()
 		}
+		// eslint-disable-next-line
 	}, [openChangePw])
 
 	const handleClickShowCurrentPassword = useCallback(() => setShowCurrentPassword((show) => !show), [])
