@@ -9,6 +9,7 @@ interface Role {
 interface Region {
 	regionId: number
 	regionName: string
+	regionNameEn: string
 	description?: string | null
 }
 
@@ -32,6 +33,7 @@ interface Tokens {
 
 interface UserSession {
 	id: string
+	userId: string
 	firstName: string
 	lastName: string
 	email: string
@@ -44,6 +46,7 @@ interface UserSession {
 	region: Region
 	province: Province
 	tokens: Tokens
+	hasImage: boolean
 }
 
 declare module 'next-auth' {

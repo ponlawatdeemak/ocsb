@@ -25,7 +25,7 @@ import React, { Dispatch, SetStateAction, useCallback, useMemo, useState } from 
 import Icon from '@mdi/react'
 import { ArrowBack, ArrowForward } from '@mui/icons-material'
 import { mdiFolderOffOutline, mdiPencilOutline, mdiTrashCanOutline } from '@mdi/js'
-import { SortType, UserRole } from '@/enum'
+import { SortType } from '@/enum'
 import { visuallyHidden } from '@mui/utils'
 import { useSession } from 'next-auth/react'
 import { useTranslation } from 'next-i18next'
@@ -39,6 +39,7 @@ import service from '@/api'
 import { getUserImage } from '@/utils/image'
 import { ResponseDto } from '@/api/interface'
 import AlertDialog from '@/components/common/dialog/AlertDialog'
+import { UserRole } from '@interface/config/um.config'
 
 interface HeadCell {
 	disablePadding: boolean
@@ -225,10 +226,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 			if (event.target.checked) {
 				const newSelected = tableData
 					.filter((n) => {
-						return (
-							n.users_user_id !== session?.user.id &&
-							n.role_role_name?.toLowerCase() !== session?.user.role.roleName.toLowerCase()
-						)
+						return n.users_user_id !== session?.user.id && n.role_role_id !== session?.user.role.roleId
 					})
 					.map((n) => n.users_user_id)
 				setSelected(newSelected)
@@ -244,7 +242,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 			const selectedIndex = selected.indexOf(id)
 
 			let newSelected: readonly string[] = []
-			if (id === session?.user.id || session?.user.role.roleName.toLowerCase() === role) {
+			if (id === session?.user.id || session?.user.role.roleId === role) {
 				return
 			}
 			if (selectedIndex === -1) {
@@ -395,7 +393,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 														handleClick(
 															event,
 															row.users_user_id,
-															row.role_role_name?.toLowerCase() as UserRole,
+															row.role_role_id as UserRole,
 														)
 													}
 													role='checkbox'
@@ -414,8 +412,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 															}}
 															disabled={
 																session?.user.id === row.users_user_id ||
-																session?.user.role.roleName.toLowerCase() ===
-																	row.role_role_name?.toLowerCase()
+																session?.user.role.roleId === row.role_role_id
 															}
 														/>
 													</TableCell>
@@ -456,8 +453,8 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 																		)
 																	}}
 																	disabled={
-																		session?.user.role.roleName.toLowerCase() ===
-																			row.role_role_name?.toLowerCase() &&
+																		session?.user.role.roleId ===
+																			row.role_role_id &&
 																		session?.user.id !== row.users_user_id
 																	}
 																>
@@ -465,8 +462,8 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 																		path={mdiPencilOutline}
 																		size={1}
 																		color={
-																			session?.user.role.roleName.toLowerCase() ===
-																				row.role_role_name?.toLowerCase() &&
+																			session?.user.role.roleId ===
+																				row.role_role_id &&
 																			session?.user.id !== row.users_user_id
 																				? '#c2c5cc'
 																				: 'var(--black-color)'
@@ -482,8 +479,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 																	}}
 																	disabled={
 																		session?.user.id === row.users_user_id ||
-																		session?.user.role.roleName.toLowerCase() ===
-																			row.role_role_name?.toLowerCase()
+																		session?.user.role.roleId === row.role_role_id
 																	}
 																>
 																	<Icon
@@ -491,8 +487,8 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 																		size={1}
 																		color={
 																			session?.user.id === row.users_user_id ||
-																			session?.user.role.roleName.toLowerCase() ===
-																				row.role_role_name?.toLowerCase()
+																			session?.user.role.roleId ===
+																				row.role_role_id
 																				? '#c2c5cc'
 																				: 'var(--error-color-1)'
 																		}

@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useCallback, useMemo } from 'react'
 import AutocompleteInput from '@/components/common/input/AutocompleteInput'
 import FormInput from '@/components/common/input/FormInput'
 import UploadImage from '@/components/shared/ProfileForm/UploadImage'
@@ -14,26 +14,26 @@ import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
 import { Languages } from '@/enum'
 
-import * as _ from 'lodash'
+import _ from 'lodash'
+import { RegionsEntity } from '@interface/entities'
+import { enSuffix } from '@/config/app.config'
+import { useSession } from 'next-auth/react'
+import { UserRole } from '@interface/config/um.config'
 
-interface ResponseLanguage {
-	en: string
-	th: string
-}
-
-interface UMFormValues {
+export interface UMFormValues {
 	image: File | string
-	firstName: string
-	lastName: string
-	position: number | null
-	region: number | null
-	province: number | null
-	phone: string
-	email: string
-	role: number | null
-	regions: number[]
-	isActive: boolean
+	firstName: string | undefined
+	lastName: string | undefined
+	position: number | null | undefined
+	region: number | null | undefined
+	province: number | null | undefined
+	phone: string | undefined
+	email: string | undefined
+	role: number | null | undefined
+	regions: number[] | undefined
+	isActive?: boolean
 }
+
 export interface ProfileFormProps {
 	title: string
 	formik: FormikProps<UMFormValues>
@@ -55,14 +55,22 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 }) => {
 	const router = useRouter()
 	const { t, i18n } = useTranslation(['um', 'common'])
-	// const { i18n: i18nWithCookie } = useSwitchLanguage(i18n.language as Languages, 'appbar')
 	const { isDesktop } = useResponsive()
-
 	const checkBoxerrorMessage = formik?.touched.regions && formik?.errors.regions
+	const { data: session } = useSession()
+
+	const isEditRole = useMemo(() => {
+		if (session?.user) {
+			return session.user.role.roleId === UserRole.SuperAdmin || session.user.role.roleId === UserRole.Admin
+		}
+	}, [session?.user])
 
 	const { data: regionsLookupData, isLoading: isRegionsDataLoading } = useQuery({
 		queryKey: ['getRegions'],
-		queryFn: () => service.lookup.get({ name: 'regions' }),
+		queryFn: () =>
+			service.lookup.get({ name: 'regions' }).then((res) => {
+				return res.filter((item: RegionsEntity) => item.regionName !== 'ส่วนกลาง')
+			}),
 	})
 
 	const { data: provinceLookupData, isPending: isProvinceDataLoading } = useQuery({
@@ -80,6 +88,24 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 		queryKey: ['getRoles'],
 		queryFn: () => service.lookup.get({ name: 'roles' }),
 	})
+
+	const onRegionCheck = useCallback(
+		(event: React.ChangeEvent<HTMLInputElement>) => {
+			if (formik.values.regions?.includes(Number(event.target.value))) {
+				const toDelIndex = formik.values.regions.findIndex((item) => item === Number(event.target.value))
+				const newValue = [...formik.values.regions]
+				newValue.splice(toDelIndex, 1)
+				formik.setFieldValue('regions', newValue)
+			} else {
+				if (formik.values.regions) {
+					const newValue = [...formik.values.regions]
+					newValue.push(Number(event.target.value))
+					formik.setFieldValue('regions', newValue)
+				}
+			}
+		},
+		[formik],
+	)
 
 	return (
 		<div className={classNames('flex h-full w-full flex-col', className)}>
@@ -123,12 +149,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							<Typography className='w-full !overflow-hidden !text-ellipsis !whitespace-nowrap text-center !text-sm'>
 								{formik.values.firstName || formik.values.lastName
 									? `${formik.values.firstName} ${formik.values.lastName}`
-									: 'ชื่อ - นามสกุล'}
+									: `${t('um:profile.firstName')} - ${t('um:profile.lastName')}`}
 								<br />
 								{formik.values.position
 									? `${(positionLookupData as any[])?.find((item) => item.positionId === formik.values.position)?.[`${_.camelCase(`positionName-${i18n.language ? '' : i18n.language}`)}`]}` ||
 										''
-									: 'ตำแหน่ง'}
+									: t('um:profile.position')}
 							</Typography>
 
 							{lineNotiButtonElement}
@@ -138,10 +164,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 				</div>
 				{isDesktop && <Divider orientation='vertical' flexItem />}
 				{!isDesktop && <Divider className='w-full pt-[22px]' />}
-				<div className='flex flex-col lg:grow lg:gap-[8px] lg:px-5'>
+				<div className='flex flex-col lg:w-[75%] lg:grow lg:gap-[8px] lg:px-5'>
 					<Box className='grid grid-cols-[1fr] text-nowrap px-[16px] py-[24px] lg:grid-cols-[100px_1fr] lg:gap-x-[20px] lg:gap-y-[22px] lg:p-[22px] [&_.MuiInputBase-input]:!h-[35px] [&_.MuiInputBase-root]:h-[35px]'>
 						<Typography className='content-center justify-center !text-sm !font-light max-lg:pb-[6px] max-lg:pt-[8px]'>
-							{'ชื่อ'}
+							{t('um:profile.firstName')}
 						</Typography>
 						<FormInput
 							className='w-full'
@@ -149,11 +175,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							formik={formik}
 							required
 							disabled={loading}
-							placeholder={t('ระบุชื่อ - นามสกุล')}
+							placeholder={`${t('common:placeholder.input')}${t('um:profile.firstName')}`}
 							inputProps={{ maxLength: 100 }}
 						/>
 						<Typography className='content-center justify-center !text-sm !font-light max-lg:pb-[6px] max-lg:pt-[24px]'>
-							{'นามสกุล'}
+							{t('um:profile.lastName')}
 						</Typography>
 						<FormInput
 							className='w-full'
@@ -161,11 +187,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							formik={formik}
 							required
 							disabled={loading}
-							placeholder={t('ระบุชื่อ - นามสกุล')}
+							placeholder={`${t('common:placeholder.input')}${t('um:profile.lastName')}`}
 							inputProps={{ maxLength: 100 }}
 						/>
 						<Typography className='content-center justify-center !text-sm !font-light max-lg:pb-[6px] max-lg:pt-[24px]'>
-							{t('um:position')}
+							{t('um:profile.position')}
 						</Typography>
 						<AutocompleteInput
 							className='w-full bg-white [&_::placeholder]:text-sm [&_input]:!text-sm'
@@ -175,24 +201,22 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							options={
 								positionLookupData?.map((item: any) => ({
 									value: item.positionId,
-									name: String(
-										item[`${_.camelCase(`positionName-${i18n.language ? '' : i18n.language}`)}`],
-									),
+									name: String(item[`positionName${Languages.TH === i18n.language ? '' : enSuffix}`]),
 								})) || []
 							}
 							name='position'
 							formik={formik}
 							disabled={isPositionDataLoading || loading}
 							required={true}
-							placeholder={t('um:selectPosition')}
+							placeholder={`${t('common:placeholder.autocomplete')}${t('um:profile.position')}`}
 						/>
 						<Typography className='content-center justify-center !text-sm !font-light max-lg:hidden'>
-							{'ภาค / จังหวัด'}
+							{t('um:profile.regionProvince')}
 						</Typography>
 
 						<div className='flex flex-col lg:flex-row lg:gap-4'>
 							<Typography className='content-center justify-center !text-sm !font-light max-lg:pb-[6px] max-lg:pt-[24px] lg:hidden'>
-								{'ภาค'}
+								{t('um:profile.region')}
 							</Typography>
 							<AutocompleteInput
 								className='w-full bg-white [&_::placeholder]:text-sm [&_input]:text-sm'
@@ -202,17 +226,19 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 								options={
 									regionsLookupData?.map((item: any) => ({
 										value: item.regionId,
-										name: String(item[`regionName${Languages.TH === i18n.language ? '' : 'En'}`]),
+										name: String(
+											item[`regionName${Languages.TH === i18n.language ? '' : enSuffix}`],
+										),
 									})) || []
 								}
 								name='region'
 								formik={formik}
 								disabled={isRegionsDataLoading || loading}
 								required={true}
-								placeholder={t('เลือกภาค')}
+								placeholder={`${t('common:placeholder.autocomplete')}${t('um:profile.region')}`}
 							/>
 							<Typography className='content-center justify-center !text-sm !font-light max-lg:pb-[6px] max-lg:pt-[24px] lg:hidden'>
-								{'จังหวัด'}
+								{t('um:profile.province')}
 							</Typography>
 							<AutocompleteInput
 								className='w-full bg-white [&_::placeholder]:text-sm [&_input]:text-sm'
@@ -222,7 +248,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 								options={
 									provinceLookupData?.map((item: any) => ({
 										value: item[`adm1Code`],
-										name: String(item[`provinceName${Languages.TH === i18n.language ? '' : 'En'}`]),
+										name: String(
+											item[`provinceName${Languages.TH === i18n.language ? '' : enSuffix}`],
+										),
 									})) || []
 								}
 								name='province'
@@ -231,11 +259,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 									isProvinceDataLoading || isRegionsDataLoading || !formik.values.region || loading
 								}
 								required={true}
-								placeholder={t('เลือกจังหวัด')}
+								placeholder={`${t('common:placeholder.autocomplete')}${t('um:profile.province')}`}
 							/>
 						</div>
 						<Typography className='content-center justify-center !text-sm !font-light max-lg:pb-[6px] max-lg:pt-[24px]'>
-							{'เบอร์โทรศัพท์'}
+							{t('um:profile.phone')}
 						</Typography>
 						<FormInput
 							className='w-full'
@@ -243,11 +271,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							formik={formik}
 							required
 							disabled={loading}
-							placeholder={t('ระบุเบอร์โทรศัพท์')}
+							placeholder={`${t('common:placeholder.input')}${t('um:profile.phone')}`}
 							inputProps={{ maxLength: 10 }}
 						/>
 						<Typography className='content-center justify-center !text-sm !font-light max-lg:pb-[6px] max-lg:pt-[24px]'>
-							{'อีเมล'}
+							{t('um:profile.email')}
 						</Typography>
 						<FormInput
 							className='w-full'
@@ -255,13 +283,13 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							formik={formik}
 							required
 							disabled={loading}
-							placeholder={t('ระบุอีเมล')}
+							placeholder={`${t('common:placeholder.input')}${t('um:profile.email')}`}
 							inputProps={{ maxLength: 255 }}
 						/>
 					</Box>
 					<Box className='grid grid-cols-[1fr] gap-x-[20px] text-nowrap bg-background max-lg:px-[16px] max-lg:py-[22px] lg:grid-cols-[100px_1fr] lg:gap-y-[22px] lg:rounded-[15px] lg:p-[22px] [&_.MuiInputBase-input]:!h-[35px] [&_.MuiInputBase-root]:h-[35px]'>
 						<Typography className='content-center justify-center !text-sm !font-light max-lg:pb-[6px]'>
-							{'สิทธิ์การเข้าถึง'}
+							{t('um:profile.role')}
 						</Typography>
 						<AutocompleteInput
 							className='w-full bg-background [&_.MuiAutocomplete-root]:bg-white [&_::placeholder]:text-sm [&_input]:text-sm'
@@ -276,58 +304,33 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							}
 							name='role'
 							formik={formik}
-							disabled={isRolesDataLoading || loading}
+							disabled={isRolesDataLoading || loading || !isEditRole}
 							required={true}
-							placeholder={t('เลือกสิทธิ์การเข้าถึง')}
+							placeholder={`${t('common:placeholder.autocomplete')}${t('um:profile.role')}`}
 						/>
 						<Typography className='content-center justify-center !text-sm !font-light max-lg:pt-[24px]'>
-							{'ภูมิภาคที่ดูแล'}
+							{t('um:profile.regions')}
 						</Typography>
 						<div className='flex flex-col max-lg:pl-[24px] max-lg:pt-[10px]'>
-							<div className='flex flex-col lg:flex-row lg:items-center lg:gap-12'>
-								{regionsLookupData &&
-									regionsLookupData.map((item: any) => {
-										if (item.regionName !== 'ส่วนกลาง')
-											return (
-												<FormControlLabel
-													key={item.regionId}
-													control={
-														<Checkbox
-															value={Number(item.regionId)}
-															onChange={(event) => {
-																if (
-																	formik.values.regions.includes(
-																		Number(event.target.value),
-																	)
-																) {
-																	const toDelIndex = formik.values.regions.findIndex(
-																		(item) => item === Number(event.target.value),
-																	)
-																	const newValue = [...formik.values.regions]
-																	newValue.splice(toDelIndex, 1)
-																	formik.setFieldValue('regions', newValue)
-																} else {
-																	const newValue = [...formik.values.regions]
-																	newValue.push(Number(event.target.value))
-																	formik.setFieldValue('regions', newValue)
-																}
-															}}
-															size='small'
-															checked={
-																formik.values.regions.includes(item.regionId)
-																	? true
-																	: false
-															}
-															disabled={loading}
-														/>
-													}
-													label={String(
-														item[`regionName${Languages.TH === i18n.language ? '' : 'En'}`],
-													)}
-													className='!mr-0 [&_.MuiFormControlLabel-label]:text-sm'
-												/>
-											)
-									})}
+							<div className='flex flex-col lg:flex-row lg:items-center lg:gap-6'>
+								{regionsLookupData?.map((item: RegionsEntity) => (
+									<FormControlLabel
+										key={item.regionId}
+										control={
+											<Checkbox
+												value={Number(item.regionId)}
+												onChange={onRegionCheck}
+												size='small'
+												checked={formik.values.regions?.includes(item.regionId!) ? true : false}
+												disabled={loading || !isEditRole}
+											/>
+										}
+										label={String(
+											item[`regionName${Languages.TH === i18n.language ? '' : enSuffix}`],
+										)}
+										className='!mr-0 [&_.MuiFormControlLabel-label]:text-sm'
+									/>
+								))}
 							</div>
 							{typeof checkBoxerrorMessage === 'string' && (
 								<FormHelperText error className='max-lg:!ml-[-10px] lg:!mx-[14px] lg:!mt-[0px]'>
