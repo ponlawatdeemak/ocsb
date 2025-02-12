@@ -1,29 +1,17 @@
-import ProfileForm from '@/components/shared/ProfileForm'
+import ProfileForm, { UMFormValues } from '@/components/shared/ProfileForm'
 import service from '@/api'
-import { Box, Button } from '@mui/material'
+import { Box, Button, CircularProgress } from '@mui/material'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'next-i18next'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import * as yup from 'yup'
 import { useFormik } from 'formik'
-import { PostUMDtoIn, PutUMDtoIn } from '@interface/dto/um/um.dto.in'
+import { DeleteImageUserDtoIn, PostImageUserDtoIn, PostUMDtoIn, PutUMDtoIn } from '@interface/dto/um/um.dto.in'
 import { PositionEntity, ProvincesEntity, RegionsEntity, RolesEntity } from '@interface/entities'
 import { AppPath } from '@/config/app.config'
-
-interface UMFormValues {
-	image: File | string
-	firstName: string
-	lastName: string
-	position: number | null
-	region: number | null
-	province: number | null
-	phone: string
-	email: string
-	role: number | null
-	regions: number[]
-	isActive: boolean
-}
+import { getUserImage } from '@/utils/image'
+import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 
 interface UserManagementFormMainProps {
 	className?: string
@@ -33,15 +21,15 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const { t } = useTranslation('common')
+	const [alertUMFormInfo, setAlertUMFormInfo] = useState<AlertInfoType>({
+		open: false,
+		severity: 'success',
+		message: '',
+	})
 
 	const userId = useMemo(() => searchParams.get('userId') ?? '', [searchParams])
 	const isEditForm = useMemo(() => !!userId || false, [userId])
-
-	// const { data: imageData, isPending: isImageDataPending } = useQuery({
-	// 	queryKey: ['getImageUM'],
-	// 	queryFn: async () => await service.um.getImage({ userId }),
-	// 	enabled: !!userId,
-	// })
+	const [busy, setBusy] = useState<boolean>(false)
 
 	const { data: userManagementData, isPending: isUserManagementDataPending } = useQuery({
 		queryKey: ['getUM'],
@@ -50,8 +38,8 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 	})
 
 	const {
-		data: _putProfileUMData,
-		error: _putProfileUMError,
+		data: _putUMData,
+		error: _putUMError,
 		mutateAsync: mutatePutUM,
 		isPending: isPutUMPending,
 	} = useMutation({
@@ -61,8 +49,8 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 	})
 
 	const {
-		data: _postProfileUMData,
-		error: _postProfileUMError,
+		data: _postUMData,
+		error: _postUMError,
 		mutateAsync: mutatePostUM,
 		isPending: isPostUMPending,
 	} = useMutation({
@@ -73,7 +61,7 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 
 	const defaultFormValues: UMFormValues = useMemo(
 		() => ({
-			image: '',
+			image: userId ? getUserImage(userId) : '',
 			firstName: userManagementData?.data?.firstName ?? '',
 			lastName: userManagementData?.data?.lastName ?? '',
 			position: userManagementData?.data?.position?.positionId ?? null,
@@ -85,7 +73,7 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 			regions: userManagementData?.data?.regions?.map((region) => region.regionId ?? 0) ?? [],
 			isActive: userManagementData?.data?.isActive ?? true,
 		}),
-		[userManagementData],
+		[userId, userManagementData],
 	)
 
 	const validationSchema = yup.object({
@@ -104,16 +92,10 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 	const onSubmit = useCallback(
 		async (values: UMFormValues) => {
 			try {
-				// // images is newly added
-				// if (values.image instanceof File) {
-				// 	// New image uploaded
-				// 	const imagePayload: PostUploadFilesDtoIn = {
-				// 		file: values.image,
-				// 	}
-				// 	const res = await um.postUploadFiles(imagePayload)
-				// 	values.image = res.data?.download_file_url ?? ''
-				// 	// response does not have image signature
-				// }
+				// images is added
+				setBusy(true)
+				let userIdParam = userId
+
 				if (isEditForm) {
 					// put method edit existing user
 					const payload: PutUMDtoIn = {
@@ -128,8 +110,11 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 						regions: values.regions as RegionsEntity[],
 						isActive: values.isActive,
 					}
-					await mutatePutUM({ userId, payload })
-					router.push(AppPath.UserManagement)
+					const response = await mutatePutUM({ userId: userIdParam, payload })
+
+					if (response?.data) {
+						userIdParam = response.data?.id
+					}
 				} else {
 					// post method add new user
 					const payload: PostUMDtoIn = {
@@ -144,11 +129,56 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 						regions: values.regions as RegionsEntity[],
 						isActive: values.isActive,
 					}
-					await mutatePostUM(payload)
-					router.push(AppPath.UserManagement)
+					const response = await mutatePostUM(payload)
+
+					if (response?.data) {
+						userIdParam = response.data?.id
+					}
 				}
+
+				if (values.image instanceof File) {
+					const imagePayload: { file: File; payload: PostImageUserDtoIn } = {
+						file: values.image,
+						payload: { userId: userIdParam },
+					}
+					await service.um.postImage(imagePayload.file, imagePayload.payload)
+				} else if (userId && !values.image) {
+					const imagePayload: DeleteImageUserDtoIn = { userId: userIdParam }
+					await service.um.deleteImage(imagePayload)
+				}
+
+				if (isEditForm) {
+					setAlertUMFormInfo({
+						open: true,
+						severity: 'success',
+						message: 'Updated Form Successfully!',
+					})
+				} else {
+					setAlertUMFormInfo({
+						open: true,
+						severity: 'success',
+						message: 'Created Form SuccessFully',
+					})
+				}
+
+				router.push(AppPath.UserManagement)
 			} catch (error: any) {
 				console.error(error)
+				if (isEditForm) {
+					setAlertUMFormInfo({
+						open: true,
+						severity: 'error',
+						message: 'Updated Form Fail!',
+					})
+				} else {
+					setAlertUMFormInfo({
+						open: true,
+						severity: 'error',
+						message: 'Created Form Fail!',
+					})
+				}
+			} finally {
+				setBusy(false)
 			}
 		},
 		[isEditForm, mutatePostUM, mutatePutUM, router, userId],
@@ -163,13 +193,14 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 
 	return (
 		<Box className='relative flex h-full flex-col items-center'>
-			<div className='h-[80px] min-h-[80px] w-full bg-primary'></div>
-			<div className='lg:max-w-[850px]'>
+			<div className='h-[110px] min-h-[110px] w-full bg-primary'></div>
+			<div className='lg:w-[850px]'>
 				<ProfileForm
 					title='เพิ่มผู้ใช้งาน'
 					formik={formik}
 					className='relative top-[-60px] h-max'
 					isShowActiveButton
+					loading={busy || (userId && isUserManagementDataPending) || isPostUMPending || isPutUMPending}
 				/>
 				<div className='mt-[-36px] flex flex-col justify-between pb-[20px] max-lg:w-full max-lg:gap-[16px] max-lg:px-[16px] lg:flex-row'>
 					<div className='flex flex-col gap-[16px] lg:flex-row'>
@@ -179,6 +210,20 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 							onClick={() => {
 								router.back()
 							}}
+							startIcon={
+								(busy ||
+									(userId && isUserManagementDataPending) ||
+									isPostUMPending ||
+									isPutUMPending) && (
+									<CircularProgress
+										className='[&_.MuiCircularProgress-circle]:text-white'
+										size={16}
+									/>
+								)
+							}
+							disabled={
+								busy || (userId && isUserManagementDataPending) || isPostUMPending || isPutUMPending
+							}
 						>
 							ย้อนกลับ
 						</Button>
@@ -189,6 +234,20 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 								formik.resetForm()
 								formik.setFieldValue('regions', [])
 							}}
+							startIcon={
+								(busy ||
+									(userId && isUserManagementDataPending) ||
+									isPostUMPending ||
+									isPutUMPending) && (
+									<CircularProgress
+										className='[&_.MuiCircularProgress-circle]:text-white'
+										size={16}
+									/>
+								)
+							}
+							disabled={
+								busy || (userId && isUserManagementDataPending) || isPostUMPending || isPutUMPending
+							}
 						>
 							ล้างข้อมูล
 						</Button>
@@ -200,11 +259,22 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = ({ 
 						onClick={() => {
 							formik.submitForm()
 						}}
+						startIcon={
+							(busy || (userId && isUserManagementDataPending) || isPostUMPending || isPutUMPending) && (
+								<CircularProgress className='[&_.MuiCircularProgress-circle]:text-white' size={16} />
+							)
+						}
+						disabled={busy || (userId && isUserManagementDataPending) || isPostUMPending || isPutUMPending}
 					>
 						บันทึก
 					</Button>
 				</div>
 			</div>
+
+			<AlertSnackbar
+				alertInfo={alertUMFormInfo}
+				onClose={() => setAlertUMFormInfo({ ...alertUMFormInfo, open: false })}
+			/>
 		</Box>
 	)
 }

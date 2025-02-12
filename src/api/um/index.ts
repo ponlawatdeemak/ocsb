@@ -15,6 +15,7 @@ import {
 	DeleteUMDtoIn,
 	GetImageUserDtoIn,
 	GetUMDtoIn,
+	PostActiveUMDtoIn,
 	PostImageUserDtoIn,
 	PostUMDtoIn,
 	PutUMDtoIn,
@@ -38,7 +39,7 @@ const um = {
 	},
 
 	getUM: async (payload: GetUMDtoIn): Promise<ResponseDto<GetUMDtoOut>> => await api.get(`/um/${payload.userId}`),
-	postUM: async (payload: PostUMDtoIn): Promise<ResponseDto<PostUMDtoOut>> => await api.post('/um', payload),
+	postUM: async (payload: PostUMDtoIn): Promise<ResponseDto<PostUMDtoOut>> => (await api.post('/um', payload)).data,
 	putUM: async (userId: string, payload: PutUMDtoIn): Promise<ResponseDto<PutUMDtoOut>> =>
 		(await api.put(`/um/${userId}`, payload)).data,
 	deleteUM: async (payload: DeleteUMDtoIn): Promise<ResponseDto<DeleteUMDtoOut>> =>
@@ -60,6 +61,9 @@ const um = {
 	},
 	deleteImage: async (payload: DeleteImageUserDtoIn): Promise<ResponseDto<DeleteImageUserDtoOut>> =>
 		await api.delete(`/um/img/${payload.userId}`),
+
+	postActiveUM: async (payload: PostActiveUMDtoIn): Promise<ResponseDto<{}>> =>
+		(await api.post('/um/active', payload)).data,
 }
 
 export default um
