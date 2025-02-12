@@ -17,13 +17,15 @@
 	"changePassword": "Change Password",
 	"lineNoti": "Line Notification",
 	"profile": {
-		"firstName": "ชื่อ",
-		"lastName": "นามสกุล",
-		"position": "ตำแหน่ง",
-		"regionProvince": "ภาค/จังหวัด",
-		"tel": "เบอร์โทรศัพท์",
-		"email": "อีเมล",
-		"role": "สิทธิ์การเข้าถึง",
-		"region": "ภูมิภาคที่ดูแล"
+		"firstName": "First Name",
+		"lastName": "Last Name",
+		"position": "Position",
+		"regionProvince": "Region/Province",
+		"region": "Region",
+		"province": "Province",
+		"phone": "Phone",
+		"email": "E-Mail",
+		"role": "Role",
+		"regions": "Region Cover"
 	}
 }

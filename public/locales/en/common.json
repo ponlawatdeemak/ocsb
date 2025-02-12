@@ -33,6 +33,10 @@
 		"somethingWrong": "Something went wrong. Please check the information again."
 	},
 
-    "required": "Please fill in",
-    "clear": "Clear"
+	"required": "Please Enter ",
+	"clear": "Clear",
+	"placeholder": {
+		"input": "Enter ",
+		"autocomplete": "Enter "
+	}
 }

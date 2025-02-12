@@ -1,5 +1,5 @@
 {
-	"userManagement": "การจัดการสืิทธ์ผู้ใช้งาน",
+	"userManagement": "การจัดการสิทธ์ผู้ใช้งาน",
 	"noData": "ไม่พบข้อมูล",
 	"warning": {
 		"invalidPhoneFormat": "",
@@ -12,9 +12,11 @@
 		"lastName": "นามสกุล",
 		"position": "ตำแหน่ง",
 		"regionProvince": "ภาค/จังหวัด",
-		"tel": "เบอร์โทรศัพท์",
+		"region": "ภาค",
+		"province": "จังหวัด",
+		"phone": "เบอร์โทรศัพท์",
 		"email": "อีเมล",
 		"role": "สิทธิ์การเข้าถึง",
-		"region": "ภูมิภาคที่ดูแล"
+		"regions": "ภูมิภาคที่ดูแล"
 	}
 }

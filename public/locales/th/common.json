@@ -33,6 +33,10 @@
 		"somethingWrong": "เกิดข้อผิดพลาด กรุณาตรวจสอบข้อมูลอีกครั้ง"
 	},
 
-    "required": "กรุณาระบุ",
-    "clear": "ล้างข้อมูล"
+	"required": "กรุณาระบุ",
+	"clear": "ล้างข้อมูล",
+	"placeholder": {
+		"input": "ระบุ",
+		"autocomplete": "เลือก"
+	}
 }

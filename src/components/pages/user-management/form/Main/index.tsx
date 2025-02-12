@@ -1,4 +1,4 @@
-import ProfileForm from '@/components/shared/ProfileForm'
+import ProfileForm, { UMFormValues } from '@/components/shared/ProfileForm'
 import service from '@/api'
 import { Box, Button, CircularProgress } from '@mui/material'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -12,20 +12,6 @@ import { PositionEntity, ProvincesEntity, RegionsEntity, RolesEntity } from '@in
 import { AppPath } from '@/config/app.config'
 import { getUserImage } from '@/utils/image'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
-
-interface UMFormValues {
-	image: File | string
-	firstName: string
-	lastName: string
-	position: number | null
-	region: number | null
-	province: number | null
-	phone: string
-	email: string
-	role: number | null
-	regions: number[]
-	isActive: boolean
-}
 
 interface UserManagementFormMainProps {
 	className?: string

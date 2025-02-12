@@ -112,3 +112,5 @@ export const layerIdConfig = {
 }
 
 export const thaiExtent: LngLatBoundsLike = [97.3758964376, 5.69138418215, 105.589038527, 20.4178496363]
+
+export const enSuffix = 'En'
