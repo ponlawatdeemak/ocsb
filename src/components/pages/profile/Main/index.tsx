@@ -15,7 +15,7 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import * as yup from 'yup'
 import { useFormik } from 'formik'
 import CloseIcon from '@mui/icons-material/Close'
@@ -174,16 +174,6 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		[formik],
 	)
 
-	/// how to display img ?
-	const { data: imgData, isLoading: isimgLoading } = useQuery({
-		queryKey: ['getImgProfile'],
-		queryFn: async () => {
-			const response = await service.um.getImage({ userId: profileData?.userId ?? '' })
-			return response
-		},
-		enabled: !!profileData,
-	})
-
 	const changePwValidationSchema = yup.object({
 		currentPw: yup.string(),
 		newPw: yup
@@ -250,6 +240,8 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 						severity: 'success',
 						message: t('auth:success.resetPassword'),
 					})
+
+					setOpenChangePw(false)
 				} else {
 					setAlertInfo({
 						open: true,
@@ -278,6 +270,12 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		validateOnChange: true,
 		onSubmit: onSubmitChangePw,
 	})
+
+	useEffect(() => {
+		if (!openChangePw) {
+			changePwFormik.resetForm()
+		}
+	}, [openChangePw])
 
 	const handleClickShowCurrentPassword = useCallback(() => setShowCurrentPassword((show) => !show), [])
 
