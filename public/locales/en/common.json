@@ -2,8 +2,8 @@
 	"menu": {
 		"overview": "Overview",
 		"mapAnalyze": "Map",
-		"burntArea": "Analysis of Hotspots and Burnt Scar in the Area",
-		"cultivationArea": "Analysis of Sugarcane Cultivation Areas",
+		"burntArea": "Hotspot",
+		"cultivationArea": "Cultivation",
 		"about": "About Us",
 		"glossary": "Glossary",
 		"setting": "Setting",
