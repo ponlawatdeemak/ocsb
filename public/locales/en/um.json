@@ -1,21 +1,35 @@
 {
-	"userManagement": "User Management",
+	"titleMain": "User Management",
+	"titleCreate": "Create User",
+	"titleEdit": "Edit User",
 	"noData": "No Data",
 	"warning": {
-		"inputFirstName": "",
-		"inputLastName": "",
-		"inputPosition": "",
-		"inputRegion": "",
-		"inputProvince": "",
-		"invalidPhoneFormat": "",
-		"inputPhone": "",
-		"invalidEmailFormat": "",
-		"inputEmail": "",
-		"inputRole": "",
-		"inputRegions": ""
+		"invalidPhoneFormat": "Invalid Phone",
+		"invalidEmailFormat": "Invalid Email"
 	},
 	"changePassword": "Change Password",
-	"lineNoti": "Line Notification",
+	"button": {
+		"lineNoti": "Line Notification",
+		"import": "Import",
+		"create": "Add",
+		"delete": "Delete"
+	},
+	"search": {
+		"region": "Region",
+		"position": "Position",
+		"role": "Role",
+		"keyword": "Keyword",
+		"keywordPlaceholder": "Name, Phone or Email"
+	},
+	"table": {
+		"fullName": "Full Name",
+		"region": "Region",
+		"position": "Position",
+		"phone": "Phone",
+		"email": "Email",
+		"role": "Role",
+		"status": "Status"
+	},
 	"profile": {
 		"firstName": "First Name",
 		"lastName": "Last Name",
@@ -24,7 +38,7 @@
 		"region": "Region",
 		"province": "Province",
 		"phone": "Phone",
-		"email": "E-Mail",
+		"email": "Email",
 		"role": "Role",
 		"regions": "Region Cover"
 	}

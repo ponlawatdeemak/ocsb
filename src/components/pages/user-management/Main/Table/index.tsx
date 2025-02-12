@@ -2,7 +2,6 @@
 
 import { DeleteUMDtoIn, SearchUMDtoIn } from '@interface/dto/um/um.dto.in'
 import {
-	Avatar,
 	Box,
 	Checkbox,
 	CircularProgress,
@@ -36,10 +35,10 @@ import { useRouter } from 'next/navigation'
 import { AppPath } from '@/config/app.config'
 import { QueryObserverResult, RefetchOptions, useMutation } from '@tanstack/react-query'
 import service from '@/api'
-import { getUserImage } from '@/utils/image'
 import { ResponseDto } from '@/api/interface'
 import AlertDialog from '@/components/common/dialog/AlertDialog'
 import { UserRole } from '@interface/config/um.config'
+import ImgProfile from './ImgProfile'
 
 interface HeadCell {
 	disablePadding: boolean
@@ -98,7 +97,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 			id: 'fullName',
 			numeric: false,
 			disablePadding: true,
-			label: 'ชื่อ-นามสุกล',
+			label: t('um:table.fullName'),
 			align: 'left',
 			maxWidth: '',
 			minWidth: '292px',
@@ -107,7 +106,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 			id: 'region',
 			numeric: false,
 			disablePadding: false,
-			label: 'ภูมิภาค',
+			label: t('um:table.region'),
 			align: 'left',
 			maxWidth: '220px',
 			minWidth: '220px',
@@ -116,7 +115,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 			id: 'position',
 			numeric: false,
 			disablePadding: false,
-			label: 'ตำแหน่งงาน',
+			label: t('um:table.position'),
 			align: 'left',
 			maxWidth: '150px',
 			minWidth: '150px',
@@ -125,7 +124,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 			id: 'phone',
 			numeric: false,
 			disablePadding: false,
-			label: 'เบอร์โทร',
+			label: t('um:table.phone'),
 			align: 'left',
 			maxWidth: '120px',
 			minWidth: '140px',
@@ -134,7 +133,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 			id: 'email',
 			numeric: false,
 			disablePadding: false,
-			label: 'อีเมล์',
+			label: t('um:table.email'),
 			align: 'left',
 			maxWidth: '120px',
 			minWidth: '160px',
@@ -143,16 +142,16 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 			id: 'role',
 			numeric: false,
 			disablePadding: false,
-			label: 'สิทธิ์การเข้าถึง',
+			label: t('um:table.role'),
 			align: 'left',
 			maxWidth: '120px',
 			minWidth: '160px',
 		},
 		{
-			id: 'isActive',
+			id: 'users.isActive',
 			numeric: false,
 			disablePadding: false,
-			label: 'การใช้งาน',
+			label: t('um:table.status'),
 			align: 'center',
 			maxWidth: '176px',
 			minWidth: '150px',
@@ -203,11 +202,13 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 	const handleRequestSort = useCallback(
 		(event: React.MouseEvent<unknown>, property: string) => {
 			const isAsc = orderBy === property && order === SortType.ASC
-			setSearchParams((prevSearch) => ({
-				...prevSearch,
-				order: isAsc ? SortType.DESC : SortType.ASC,
-				orderBy: property,
-			}))
+			setSearchParams((prevSearch) => {
+				return {
+					...prevSearch,
+					order: isAsc ? SortType.DESC : SortType.ASC,
+					orderBy: property,
+				}
+			})
 			setOrder(isAsc ? SortType.DESC : SortType.ASC)
 			setOrderBy(property)
 		},
@@ -346,6 +347,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 													}}
 												/>
 											</TableCell>
+											<TableCell sx={{ minWidth: 100 }}></TableCell>
 											{headCells.map((headCell) => (
 												<TableCell
 													key={headCell.id}
@@ -416,16 +418,19 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 															}
 														/>
 													</TableCell>
-													<TableCell component='th' id={labelId} scope='row' padding='none'>
-														<Box className='flex items-center'>
-															{
-																<Avatar
-																	className='mr-[4px] h-[24px] w-[24px] bg-primary'
-																	src={getUserImage(row.users_user_id)}
-																/>
-															}{' '}
-															{row.fullname}
+													<TableCell
+														align='center'
+														component='th'
+														id={labelId}
+														scope='row'
+														padding='none'
+													>
+														<Box className='flex justify-center'>
+															<ImgProfile userId={row.users_user_id} />
 														</Box>
+													</TableCell>
+													<TableCell component='th' id={labelId} scope='row' padding='none'>
+														<Box className='flex items-center'>{row.fullname}</Box>
 													</TableCell>
 													<TableCell>{row.region_region_name}</TableCell>
 													<TableCell>{row.position_position_name}</TableCell>

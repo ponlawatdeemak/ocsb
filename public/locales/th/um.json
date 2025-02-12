@@ -1,12 +1,35 @@
 {
-	"userManagement": "การจัดการสิทธ์ผู้ใช้งาน",
+	"titleMain": "การจัดการสิทธ์ผู้ใช้งาน",
+	"titleCreate": "เพิ่มผู้ใช้งาน",
+	"titleEdit": "แก้ไขผู้ใช้งาน",
 	"noData": "ไม่พบข้อมูล",
 	"warning": {
-		"invalidPhoneFormat": "",
-		"invalidEmailFormat": ""
+		"invalidPhoneFormat": "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง",
+		"invalidEmailFormat": "รูปแบบอีเมลไม่ถูกต้อง"
 	},
 	"changePassword": "เปลี่ยนรหัสผ่าน",
-	"lineNoti": "การแจ้งเตือนผ่านไลน์",
+	"button": {
+		"lineNoti": "การแจ้งเตือนผ่านไลน์",
+		"import": "นำเข้าผู้ใช้งาน",
+		"create": "เพิ่มผู้ใช้งาน",
+		"delete": "ลบผู้ใช้งาน"
+	},
+	"search": {
+		"region": "ภูมิภาค",
+		"position": "ตำแหน่งงาน",
+		"role": "สิทธิ์การเข้าถึง",
+		"keyword": "คำค้นหา",
+		"keywordPlaceholder": "ชื่อ เบอร์โทรหรืออีเมล"
+	},
+	"table": {
+		"fullName": "ชื่อ-นามสุกล",
+		"region": "ภูมิภาค",
+		"position": "ตำแหน่งงาน",
+		"phone": "เบอร์โทรศัพท์",
+		"email": "อีเมล",
+		"role": "สิทธิ์การเข้าถึง",
+		"status": "การใช้งาน"
+	},
 	"profile": {
 		"firstName": "ชื่อ",
 		"lastName": "นามสกุล",

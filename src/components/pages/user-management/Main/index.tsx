@@ -179,7 +179,7 @@ export const UserManagementMain = () => {
 
 			<Box className='z-1 relative'>
 				<Box className='pb-4'>
-					<Typography className='!text-md !font-normal text-white'>{'การจัดการสิทธ์ผู้ใช้งาน'}</Typography>
+					<Typography className='!text-md !font-normal text-white'>{t('um:titleMain')}</Typography>
 				</Box>
 
 				<UserManagementSearchForm searchParams={searchParams} setSearchParams={setSearchParams} />
@@ -192,7 +192,7 @@ export const UserManagementMain = () => {
 							startIcon={<FileUploadOutlined className='!h-4 !w-4 !fill-white' />}
 							onClick={() => console.log('Import!!!')}
 						>
-							{isDesktop && <Box className='!text-xs text-white'>{'นำเข้าผู้ใช้งาน'}</Box>}
+							{isDesktop && <Box className='!text-xs text-white'>{t('um:button.import')}</Box>}
 						</Button>
 						<Button
 							className='flex h-[38px] items-center gap-1.5 !rounded-[5px] !bg-white/10 !px-3 !py-2.5 shadow-none hover:shadow-none max-lg:!min-w-[38px] [&_.MuiButton-icon]:m-0'
@@ -200,7 +200,7 @@ export const UserManagementMain = () => {
 							startIcon={<PersonAddAltOutlined className='!h-4 !w-4 !fill-white' />}
 							onClick={() => router.push(AppPath.UserManagementForm)}
 						>
-							{isDesktop && <Box className='!text-xs text-white'>{'เพิ่มผู้ใช้งาน'}</Box>}
+							{isDesktop && <Box className='!text-xs text-white'>{t('um:button.create')}</Box>}
 						</Button>
 					</Box>
 
@@ -287,7 +287,7 @@ export const UserManagementMain = () => {
 								startIcon={<DeleteOutline className='!h-4 !w-4 !fill-white' />}
 								onClick={() => setIsConfirmDeleteAllDialogOpen(true)}
 							>
-								{isDesktop && <Box className='!text-xs text-white'>{'ลบผู้ใช้งาน'}</Box>}
+								{isDesktop && <Box className='!text-xs text-white'>{t('um:button.delete')}</Box>}
 							</Button>
 						</Box>
 					)}
@@ -322,7 +322,7 @@ export const UserManagementMain = () => {
 			{/* Active All Users Dialog */}
 			<AlertDialog
 				open={isConfirmActiveAllDialogOpen}
-				title={'คุณต้องการลบรายการนี้หรือไม่'}
+				title={'คุณต้องการ Active ลบรายการนี้หรือไม่'}
 				content={'คุณต้องการลบรายการนี้หรือไม่'}
 				onClose={() => {
 					setSelected([])

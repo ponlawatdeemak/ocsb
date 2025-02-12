@@ -76,7 +76,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		province: yup.number().required(`${t('required')}${t('um:profile.province')}`),
 		phone: yup
 			.number()
-			.typeError(' warning.invalidPhoneFormat')
+			.typeError('warning.invalidPhoneFormat')
 			.required(`${t('required')}${t('um:profile.phone')}`),
 		email: yup
 			.string()
@@ -293,7 +293,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 			className='text-nowrap rounded-[5px] !bg-[#FBBF07] !px-[12px] !py-[5px] text-sm !font-normal !shadow-none'
 			variant='contained'
 		>
-			{t('um:lineNoti')}
+			{t('um:button.lineNoti')}
 		</Button>
 	)
 
