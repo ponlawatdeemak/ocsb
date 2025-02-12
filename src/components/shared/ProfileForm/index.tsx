@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback } from 'react'
+import React, { ReactNode, useCallback, useMemo } from 'react'
 import AutocompleteInput from '@/components/common/input/AutocompleteInput'
 import FormInput from '@/components/common/input/FormInput'
 import UploadImage from '@/components/shared/ProfileForm/UploadImage'
@@ -17,6 +17,8 @@ import { Languages } from '@/enum'
 import _ from 'lodash'
 import { RegionsEntity } from '@interface/entities'
 import { enSuffix } from '@/config/app.config'
+import { useSession } from 'next-auth/react'
+import { UserRole } from '@interface/config/um.config'
 
 export interface UMFormValues {
 	image: File | string
@@ -55,6 +57,13 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 	const { t, i18n } = useTranslation(['um', 'common'])
 	const { isDesktop } = useResponsive()
 	const checkBoxerrorMessage = formik?.touched.regions && formik?.errors.regions
+	const { data: session } = useSession()
+
+	const isEditRole = useMemo(() => {
+		if (session?.user) {
+			return session.user.role.roleId === UserRole.SuperAdmin || session.user.role.roleId === UserRole.Admin
+		}
+	}, [session?.user])
 
 	const { data: regionsLookupData, isLoading: isRegionsDataLoading } = useQuery({
 		queryKey: ['getRegions'],
@@ -295,7 +304,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							}
 							name='role'
 							formik={formik}
-							disabled={isRolesDataLoading || loading}
+							disabled={isRolesDataLoading || loading || !isEditRole}
 							required={true}
 							placeholder={`${t('common:placeholder.autocomplete')}${t('um:profile.role')}`}
 						/>
@@ -313,7 +322,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 												onChange={onRegionCheck}
 												size='small'
 												checked={formik.values.regions?.includes(item.regionId!) ? true : false}
-												disabled={loading}
+												disabled={loading || !isEditRole}
 											/>
 										}
 										label={String(

@@ -1,4 +1,4 @@
-import { UserRole } from '@/enum'
+import { UserRole } from '@interface/config/um.config'
 import { LngLatBoundsLike } from 'maplibre-gl'
 
 export enum AuthPath {
@@ -61,7 +61,7 @@ export const appMenuConfig: {
 	label: string
 	path: string
 	children?: typeof mapAnalyzeMenuConfig
-	access?: string[]
+	access?: UserRole[]
 }[] = [
 	{
 		id: 'Overview',
@@ -74,13 +74,13 @@ export const appMenuConfig: {
 		path: AppPath.MapAnalyze,
 		children: mapAnalyzeMenuConfig,
 		access: [
-			UserRole.Root,
+			UserRole.SuperAdmin,
 			UserRole.Admin,
-			UserRole.Special_Staff,
-			UserRole.Staff_Region_1,
-			UserRole.Staff_Region_2,
-			UserRole.Staff_Region_3,
-			UserRole.Staff_Region_4,
+			UserRole.StaffSpecial,
+			UserRole.StaffReg1,
+			UserRole.StaffReg2,
+			UserRole.StaffReg3,
+			UserRole.StaffReg4,
 		],
 	},
 	{
@@ -102,7 +102,7 @@ export const appMenuConfig: {
 		id: 'UserManagement',
 		label: 'menu.userManagement',
 		path: AppPath.UserManagement,
-		access: [UserRole.Root, UserRole.Admin],
+		access: [UserRole.SuperAdmin, UserRole.Admin],
 	},
 ]
 

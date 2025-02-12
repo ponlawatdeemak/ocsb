@@ -27,7 +27,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({ user }) => {
 
 	const userImageUrl = useMemo(() => {
 		if (user?.hasImage) {
-			return getUserImage(`${user.userId}`)
+			return getUserImage(`${user.id}`)
 		}
 	}, [user])
 

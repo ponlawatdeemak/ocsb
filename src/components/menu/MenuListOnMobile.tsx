@@ -62,7 +62,7 @@ const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({
 			<List className='w-full !p-0' component='nav'>
 				{appMenuConfig.map((menu) =>
 					(menu.access?.length || 0) > 0 ? (
-						menu.access?.includes(session?.user.role?.roleName.toLowerCase() ?? '') && (
+						menu.access?.includes(session?.user.role?.roleId) && (
 							<React.Fragment key={menu.id}>
 								{(menu.children?.length || 0) > 0 ? (
 									<React.Fragment>
