@@ -299,7 +299,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 							options={
 								rolesLookupData?.map((item: any) => ({
 									value: item.roleId,
-									name: String(item[`roleName`]),
+									name: item.roleName,
 								})) || []
 							}
 							name='role'
