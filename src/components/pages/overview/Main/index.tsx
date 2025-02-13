@@ -1,13 +1,17 @@
 import FilterSelect from '@/components/common/select/FilterSelect'
-import { InfoIcon } from '@/components/svg/MenuIcon'
+import { ArrowBackIcon, ArrowForwardIcon, InfoIcon } from '@/components/svg/MenuIcon'
 import { Divider, IconButton, Tooltip, TooltipProps, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useTranslation } from 'next-i18next'
 import React from 'react'
-import DonutChart from '../DonutChart'
-import InfoTooltip from '../InfoTooltip'
-import LinearProgressBar from '../LinearProgressBar'
-import SplineChart from '../SplineChart'
+import DonutChart from '../Chart/DonutChart'
+import InfoTooltip from '../Tooltip/InfoTooltip'
+import LinearProgressBar from '../Chart/LinearProgressBar'
+import SplineChart from '../Chart/SplineChart'
+import StackedAreaChart from '../Chart/StackedAreaChart'
+import { area } from 'billboard.js'
+import BarChart from '../Chart/BarChart'
+import { regionColor } from '@interface/config/app.config'
 
 interface OverviewMainProps {
 	className?: string
@@ -56,7 +60,7 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 					</div>
 				</div>
 
-				<div className='flex w-full flex-col items-center gap-6 lg:flex-row lg:gap-4'>
+				<div className='flex w-full flex-col items-center gap-6 lg:max-h-[245px] lg:flex-row lg:gap-4'>
 					<div className='flex h-full w-full flex-col items-start rounded-[10px] bg-white p-4 shadow max-lg:gap-6 lg:flex-row'>
 						<div className='flex w-full flex-col gap-4 lg:mr-4'>
 							<div className='flex w-full items-center justify-between'>
@@ -76,8 +80,8 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 									['test3']: '#AC3C5E',
 									['test4']: '#440C53',
 								}}
-								width={194}
-								height={194}
+								width={170}
+								height={170}
 							/>
 						</div>
 						<Divider orientation='vertical' className='max-lg:hidden' />
@@ -115,34 +119,145 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 							</div>
 						</div>
 					</div>
-					<div className='flex h-full w-full items-start gap-4 rounded-[10px] bg-white p-4 shadow'>
-						<div className='flex h-full w-full flex-col'>
-							<Typography className='text-primary'>{t('burntScar')}</Typography>
-							<SplineChart
-								legendId='splineOverview'
-								columns={[
-									['x', '1jan', '1feb', '1march', '1april'],
-									['test1', 20, 30, 150, 1000],
-									['test2', 1, 50, 400, 700],
-									['test3', 4, 900, 500, 425],
-									['test4', 3, 70, 60, 50],
-								]}
-								colors={{
-									['test1']: '#F9B936',
-									['test2']: '#D3655A',
-									['test3']: '#AC3C5E',
-									['test4']: '#440C53',
-								}}
-							/>
-						</div>
+					<div className='flex h-full w-full flex-col items-start gap-6 rounded-[10px] bg-white p-4 shadow'>
+						<Typography className='text-primary'>{t('burntScar')}</Typography>
+						<SplineChart
+							legendId='splineOverview'
+							columns={[
+								['x', '1jan', '1feb', '1march', '1april'],
+								['test1', 20, 30, 150, 1000],
+								['test2', 1, 50, 400, 700],
+								['test3', 4, 900, 500, 425],
+								['test4', 3, 70, 60, 50],
+							]}
+							colors={{
+								['test1']: regionColor[1].color,
+								['test2']: regionColor[2].color,
+								['test3']: regionColor[3].color,
+								['test4']: regionColor[4].color,
+							}}
+						/>
 					</div>
 				</div>
 
 				<div className='flex w-full flex-col items-center gap-6 lg:flex-row lg:gap-4'>
-					<div className='flex h-full justify-start rounded-[10px] bg-primary p-4 text-white shadow max-lg:w-full lg:flex-[1]'></div>
-					<div className='flex h-full justify-start rounded-[10px] bg-primary p-4 text-white shadow max-lg:w-full lg:flex-[1]'></div>
-					<div className='flex h-full justify-start rounded-[10px] bg-white p-4 shadow max-lg:w-full lg:flex-[2]'></div>
-					<div className='flex h-full justify-start rounded-[10px] bg-white p-4 shadow max-lg:w-full lg:flex-[2]'></div>
+					<div className='flex h-full flex-col justify-start gap-4 rounded-[10px] bg-primary p-4 shadow max-lg:w-full lg:flex-[1]'>
+						<div className='flex w-full items-center justify-between'>
+							<Typography>{t('SugarCaneArea')}</Typography>
+							<InfoTooltip title={t('SugarCaneArea')} placement='bottom' />
+						</div>
+						<div className='flex flex-col gap-3'>
+							<div className='flex flex-col'>
+								<div className='flex items-center justify-between'>
+									<Typography className='!text-xs'>test1</Typography>
+									<Typography className='!text-sm'>120</Typography>
+								</div>
+								<LinearProgressBar value={20} color='#40C4FF' />
+							</div>
+							<div className='flex flex-col'>
+								<div className='flex items-center justify-between'>
+									<Typography className='!text-xs'>test2</Typography>
+									<Typography className='!text-sm'>80</Typography>
+								</div>
+								<LinearProgressBar value={20} color='#40C4FF' />
+							</div>
+							<div className='flex flex-col'>
+								<div className='flex items-center justify-between'>
+									<Typography className='!text-xs'>test3</Typography>
+									<Typography className='!text-sm'>10</Typography>
+								</div>
+								<LinearProgressBar value={20} color='#40C4FF' />
+							</div>
+							<div className='flex flex-col'>
+								<div className='flex items-center justify-between'>
+									<Typography className='!text-xs'>test4</Typography>
+									<Typography className='!text-sm'>5</Typography>
+								</div>
+								<LinearProgressBar value={20} color='#40C4FF' />
+							</div>
+						</div>
+					</div>
+					<div className='flex h-full flex-col justify-start gap-4 rounded-[10px] bg-primary p-4 text-white shadow max-lg:w-full lg:flex-[1]'>
+						<Typography>{t('sugarCaneYield')}</Typography>
+						<div className='flex flex-col gap-4'>
+							<div className='flex flex-col gap-2'>
+								<div className='flex items-center justify-between'>
+									<Typography className='!text-xs'>test1</Typography>
+									<Typography className='!text-sm'>120</Typography>
+								</div>
+								<Divider className='!border-white !border-opacity-25' />
+							</div>
+							<div className='flex flex-col gap-2'>
+								<div className='flex items-center justify-between'>
+									<Typography className='!text-xs'>test2</Typography>
+									<Typography className='!text-sm'>80</Typography>
+								</div>
+								<Divider className='!border-white !border-opacity-25' />
+							</div>
+							<div className='flex flex-col gap-2'>
+								<div className='flex items-center justify-between'>
+									<Typography className='!text-xs'>test3</Typography>
+									<Typography className='!text-sm'>10</Typography>
+								</div>
+								<Divider className='!border-white !border-opacity-25' />
+							</div>
+							<div className='flex flex-col gap-2'>
+								<div className='flex items-center justify-between'>
+									<Typography className='!text-xs'>test4</Typography>
+									<Typography className='!text-sm'>5</Typography>
+								</div>
+								<Divider className='!border-white !border-opacity-25' />
+							</div>
+						</div>
+					</div>
+					<div className='flex h-full flex-col justify-start gap-6 rounded-[10px] bg-white p-4 shadow max-lg:w-full lg:flex-[2]'>
+						<div className='flex w-full items-center justify-between'>
+							<Typography className='text-primary'>{t('sugarCanePredict')}</Typography>
+							<div className='flex items-center gap-4'>
+								<IconButton className='!p-0'>
+									<ArrowBackIcon />
+								</IconButton>
+								<IconButton className='!p-0'>
+									<ArrowForwardIcon fill='#000000' />
+								</IconButton>
+							</div>
+						</div>
+						<StackedAreaChart
+							legendId='StackedAreaOverview'
+							columns={[
+								['x', 'test1', 'test2', 'test3', 'test4'],
+								['data1', 30, 35, 30, 0],
+								['data2', 13, 10, 14, 20],
+								['data3', 30, 10, 14, 20],
+								['data4', 10, 10, 10, 20],
+							]}
+							groups={[['data1', 'data2', 'data3', 'data4']]}
+							colors={{ data1: '#6CE5E8', data2: '#41B8D5', data3: '#2D8BBA', data4: '#2F5F98' }}
+						/>
+					</div>
+					<div className='flex h-full flex-col justify-start gap-6 rounded-[10px] bg-white p-4 shadow max-lg:w-full lg:flex-[2]'>
+						<div className='flex w-full items-center justify-between'>
+							<Typography className='text-primary'>{t('threeYearPlant')}</Typography>
+							<div className='flex items-center gap-4'>
+								<IconButton className='!p-0'>
+									<ArrowBackIcon />
+								</IconButton>
+								<IconButton className='!p-0'>
+									<ArrowForwardIcon fill='#000000' />
+								</IconButton>
+							</div>
+						</div>
+						<BarChart
+							legendId='BarOverview'
+							columns={[
+								['x', 'test1', 'test2', 'test3', 'test4'],
+								['data1', 30, 35, 30, null],
+								['data2', 13, 10, 14, 20],
+								['data3', 30, 10, 14, 20],
+							]}
+							colors={{ data1: '#C5E71E', data2: '#34A9A0', data3: '#2F5F98' }}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>

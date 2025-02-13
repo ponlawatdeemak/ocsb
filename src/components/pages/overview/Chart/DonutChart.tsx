@@ -11,13 +11,11 @@ const DonutChart = ({
 	colors,
 	height = 168,
 	width = 168,
-	isHideLabel = false,
 }: {
 	columns: [string, number][]
 	colors: { [key: string]: string }
 	height?: number
 	width?: number
-	isHideLabel?: boolean
 }) => {
 	const { i18n } = useTranslation(['common'])
 	const language = i18n.language as keyof ResponseLanguage
@@ -70,15 +68,6 @@ const DonutChart = ({
 
 	return (
 		<div className='flex w-full items-center justify-center'>
-			{/* <div
-				className={classNames(
-					"absolute flex flex-col items-center justify-center gap-1 px-8 font-['Prompt','Montserrat']",
-				)}
-				style={{ height: height, width: width }}
-			>
-				{!isHideLabel && <span className='text-center text-sm'>{donutColumns[0][0]}</span>}
-				<span className='text-xl font-semibold'>{donutColumns[0][1]}%</span>
-			</div> */}
 			<BillboardJS
 				bb={bb}
 				options={options}
