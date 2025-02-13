@@ -11,6 +11,7 @@ import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
 import { ResponseLanguage } from '@/api/interface'
+import { UserRole } from '@interface/config/um.config'
 
 interface MenuListOnMobileProps {
 	selectedAreaUnit: AreaUnitKey
@@ -57,12 +58,19 @@ const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({
 		setOpenSettingDialog(false)
 	}, [])
 
+	const canAccess = useCallback(
+		(accessList: UserRole[]) => {
+			return session?.user?.role?.roleId ? accessList.includes(session.user.role.roleId) : false
+		},
+		[session?.user],
+	)
+
 	return (
 		<React.Fragment>
 			<List className='w-full !p-0' component='nav'>
 				{appMenuConfig.map((menu) =>
-					(menu.access?.length || 0) > 0 ? (
-						menu.access?.includes(session?.user.role?.roleId) && (
+					!!menu.access?.length ? (
+						canAccess(menu.access) && (
 							<React.Fragment key={menu.id}>
 								{(menu.children?.length || 0) > 0 ? (
 									<React.Fragment>

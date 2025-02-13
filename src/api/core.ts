@@ -98,7 +98,8 @@ axiosInstance.interceptors.response.use(
 		return response
 	},
 	async function (error) {
-		const errorData = error.response.data
+		const errorData = error.response.data?.error || error.response.data
+
 		if (error instanceof AxiosError && error.config && error.response?.status === 401) {
 			try {
 				const originalRequest = error.config as any
@@ -132,11 +133,12 @@ axiosInstance.interceptors.response.use(
 		}
 
 		return Promise.reject({
-			title: errorData.title || errorData.message,
-			status: errorData.status || errorData.success,
-			detail: errorData.detail,
-			countImported: errorData?.countImported,
-			data: errorData?.data,
+			// title: errorData.title || errorData.message,
+			// status: errorData.status || errorData.success,
+			// detail: errorData.detail,
+			// countImported: errorData?.countImported,
+			// data: errorData?.data,
+			...errorData,
 		})
 	},
 )

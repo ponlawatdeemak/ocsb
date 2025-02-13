@@ -104,7 +104,7 @@ export const UserManagementMain = () => {
 			const promises = requestMap.map((request) => mutateDeleteAllUM(request))
 			Promise.all(promises)
 				.then((res) => {
-					setAlertInfo({ open: true, severity: 'success', message: 'Deleted All Users Successfully!' })
+					setAlertInfo({ open: true, severity: 'success', message: t('um:alert.saveComplete') })
 					refetchSearchUM()
 				})
 				.catch((error) => {
@@ -112,7 +112,7 @@ export const UserManagementMain = () => {
 					setAlertInfo({
 						open: true,
 						severity: 'error',
-						message: 'Deleted All Users Failed!',
+						message: t('um:alert.saveError'),
 					})
 				})
 		} catch (error: any) {
@@ -122,7 +122,7 @@ export const UserManagementMain = () => {
 			setSelected([])
 			setIsConfirmDeleteAllDialogOpen(false)
 		}
-	}, [mutateDeleteAllUM, selected, session, refetchSearchUM])
+	}, [mutateDeleteAllUM, selected, session, refetchSearchUM, t])
 
 	//Case Active All
 	const handleActiveAllUsers = useCallback(async () => {
@@ -131,13 +131,13 @@ export const UserManagementMain = () => {
 			// filter out current session userid
 			const payload: PostActiveUMDtoIn = { userIds: selected.join(','), isActive: true }
 			await mutatePostActiveUM(payload)
-			setAlertInfo({ open: true, severity: 'success', message: 'Updated Active All Users Successfully!' })
+			setAlertInfo({ open: true, severity: 'success', message: t('um:alert.saveComplete') })
 		} catch (error: any) {
 			console.error(error)
 			setAlertInfo({
 				open: true,
 				severity: 'error',
-				message: 'Updated Active User Failed!',
+				message: t('um:alert.saveError'),
 			})
 		} finally {
 			setBusy(false)
@@ -146,7 +146,7 @@ export const UserManagementMain = () => {
 			handleActiveMenuClose()
 			refetchSearchUM()
 		}
-	}, [mutatePostActiveUM, selected, handleActiveMenuClose, refetchSearchUM])
+	}, [mutatePostActiveUM, selected, handleActiveMenuClose, refetchSearchUM, t])
 
 	//Case Inactive All
 	const handleInactiveAllUsers = useCallback(async () => {
@@ -155,13 +155,13 @@ export const UserManagementMain = () => {
 			// filter out current session userid
 			const payload: PostActiveUMDtoIn = { userIds: selected.join(','), isActive: false }
 			await mutatePostActiveUM(payload)
-			setAlertInfo({ open: true, severity: 'success', message: 'Updated Inactive All All sUsers Successfully!' })
+			setAlertInfo({ open: true, severity: 'success', message: t('um:alert.saveComplete') })
 		} catch (error: any) {
 			console.error(error)
 			setAlertInfo({
 				open: true,
 				severity: 'error',
-				message: 'Updated Inactive All Users Failed!',
+				message: t('um:alert.saveError'),
 			})
 		} finally {
 			setBusy(false)
@@ -170,7 +170,7 @@ export const UserManagementMain = () => {
 			handleActiveMenuClose()
 			refetchSearchUM()
 		}
-	}, [mutatePostActiveUM, selected, handleActiveMenuClose, refetchSearchUM])
+	}, [mutatePostActiveUM, selected, handleActiveMenuClose, refetchSearchUM, t])
 
 	return (
 		<div className='relative flex w-[calc(100vw-0px)] flex-col self-center px-4 py-5 lg:px-6'>
@@ -179,7 +179,7 @@ export const UserManagementMain = () => {
 
 			<Box className='z-1 relative'>
 				<Box className='pb-4'>
-					<Typography className='!text-md !font-normal text-white'>{'การจัดการสิทธ์ผู้ใช้งาน'}</Typography>
+					<Typography className='!text-md !font-normal text-white'>{t('um:titleMain')}</Typography>
 				</Box>
 
 				<UserManagementSearchForm searchParams={searchParams} setSearchParams={setSearchParams} />
@@ -192,7 +192,7 @@ export const UserManagementMain = () => {
 							startIcon={<FileUploadOutlined className='!h-4 !w-4 !fill-white' />}
 							onClick={() => console.log('Import!!!')}
 						>
-							{isDesktop && <Box className='!text-xs text-white'>{'นำเข้าผู้ใช้งาน'}</Box>}
+							{isDesktop && <Box className='!text-xs text-white'>{t('um:button.import')}</Box>}
 						</Button>
 						<Button
 							className='flex h-[38px] items-center gap-1.5 !rounded-[5px] !bg-white/10 !px-3 !py-2.5 shadow-none hover:shadow-none max-lg:!min-w-[38px] [&_.MuiButton-icon]:m-0'
@@ -200,7 +200,7 @@ export const UserManagementMain = () => {
 							startIcon={<PersonAddAltOutlined className='!h-4 !w-4 !fill-white' />}
 							onClick={() => router.push(AppPath.UserManagementForm)}
 						>
-							{isDesktop && <Box className='!text-xs text-white'>{'เพิ่มผู้ใช้งาน'}</Box>}
+							{isDesktop && <Box className='!text-xs text-white'>{t('um:button.create')}</Box>}
 						</Button>
 					</Box>
 
@@ -213,14 +213,18 @@ export const UserManagementMain = () => {
 										variant='contained'
 										onClick={() => setIsConfirmActiveAllDialogOpen(true)}
 									>
-										<Box className='!text-xs normal-case text-white'>{'Active'}</Box>
+										<Box className='!text-xs normal-case text-white'>
+											{t('um:userStatus.active')}
+										</Box>
 									</Button>
 									<Button
 										className='flex h-[38px] !min-w-[105px] items-center gap-1.5 !rounded-[5px] !bg-white/10 !px-3 !py-2.5 shadow-none hover:shadow-none [&_.MuiButton-icon]:m-0'
 										variant='contained'
 										onClick={() => setIsConfirmInactiveAllDialogOpen(true)}
 									>
-										<Box className='!text-xs normal-case text-white'>{'Inactive'}</Box>
+										<Box className='!text-xs normal-case text-white'>
+											{t('um:userStatus.inactive')}
+										</Box>
 									</Button>
 								</>
 							)}
@@ -269,13 +273,13 @@ export const UserManagementMain = () => {
 											className='rounded-t-lg border-0 border-b border-solid border-gray'
 											onClick={() => setIsConfirmActiveAllDialogOpen(true)}
 										>
-											{'Active'}
+											{t('um:userStatus.active')}
 										</MenuItem>
 										<MenuItem
 											className='rounded-b-lg'
 											onClick={() => setIsConfirmInactiveAllDialogOpen(true)}
 										>
-											{'Inactive'}
+											{t('um:userStatus.inactive')}
 										</MenuItem>
 									</Menu>
 								</>
@@ -287,7 +291,7 @@ export const UserManagementMain = () => {
 								startIcon={<DeleteOutline className='!h-4 !w-4 !fill-white' />}
 								onClick={() => setIsConfirmDeleteAllDialogOpen(true)}
 							>
-								{isDesktop && <Box className='!text-xs text-white'>{'ลบผู้ใช้งาน'}</Box>}
+								{isDesktop && <Box className='!text-xs text-white'>{t('um:button.delete')}</Box>}
 							</Button>
 						</Box>
 					)}
@@ -308,8 +312,8 @@ export const UserManagementMain = () => {
 			{/* Delete All Users Dialog */}
 			<AlertDialog
 				open={isConfirmDeleteAllDialogOpen}
-				title={'คุณต้องการลบรายการนี้หรือไม่'}
-				content={'คุณต้องการลบรายการนี้หรือไม่'}
+				title={t('um:confirm.delete.title')}
+				content={t('um:confirm.delete.content')}
 				onClose={() => {
 					setSelected([])
 					setIsConfirmDeleteAllDialogOpen(false)
@@ -322,8 +326,8 @@ export const UserManagementMain = () => {
 			{/* Active All Users Dialog */}
 			<AlertDialog
 				open={isConfirmActiveAllDialogOpen}
-				title={'คุณต้องการลบรายการนี้หรือไม่'}
-				content={'คุณต้องการลบรายการนี้หรือไม่'}
+				title={t('um:confirm.active.title')}
+				content={t('um:confirm.active.content')}
 				onClose={() => {
 					setSelected([])
 					setIsConfirmActiveAllDialogOpen(false)
@@ -337,8 +341,8 @@ export const UserManagementMain = () => {
 			{/* Inactive All Users Dialog */}
 			<AlertDialog
 				open={isConfirmInactiveAllDialogOpen}
-				title={'คุณต้องการลบรายการนี้หรือไม่'}
-				content={'คุณต้องการลบรายการนี้หรือไม่'}
+				title={t('um:confirm.inactive.title')}
+				content={t('um:confirm.inactive.content')}
 				onClose={() => {
 					setSelected([])
 					setIsConfirmInactiveAllDialogOpen(false)

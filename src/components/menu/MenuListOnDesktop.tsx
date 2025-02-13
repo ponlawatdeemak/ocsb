@@ -11,6 +11,7 @@ import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
 import { ResponseLanguage } from '@/api/interface'
+import { UserRole } from '@interface/config/um.config'
 
 interface MenuListOnDesktopProps {
 	selectedAreaUnit: AreaUnitKey
@@ -59,14 +60,21 @@ const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = ({
 		setOpenSettingDialog(false)
 	}, [])
 
+	const canAccess = useCallback(
+		(accessList: UserRole[]) => {
+			return session?.user?.role?.roleId ? accessList.includes(session.user.role.roleId) : false
+		},
+		[session?.user],
+	)
+
 	return (
 		<React.Fragment>
 			<Box className='flex min-h-[38px] items-center gap-responsive-menu-gap p-1'>
 				{appMenuConfig.map((menu) =>
 					(menu.access?.length || 0) > 0 ? (
-						menu.access?.includes(session?.user.role?.roleId) && (
+						canAccess(menu.access) && (
 							<React.Fragment key={menu.id}>
-								{(menu.children?.length || 0) > 0 ? (
+								{menu.children?.length ? (
 									<React.Fragment>
 										<Box
 											className='flex min-h-[30px] min-w-0 cursor-pointer items-center gap-1 !p-1'
