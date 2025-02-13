@@ -13,6 +13,7 @@ import { AppPath } from '@/config/app.config'
 import { getUserImage } from '@/utils/image'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 import { useSession } from 'next-auth/react'
+import { errorResponse } from '@interface/config/error.config'
 
 interface UserManagementFormMainProps {
 	className?: string
@@ -56,8 +57,8 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = () 
 		mutateAsync: mutatePostUM,
 		isPending: isPostUMPending,
 	} = useMutation({
-		mutationFn: async (payload: PostUMDtoIn) => {
-			return await service.um.postUM(payload)
+		mutationFn: (payload: PostUMDtoIn) => {
+			return service.um.postUM(payload)
 		},
 	})
 
@@ -154,36 +155,21 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = () 
 					await service.um.deleteImage(imagePayload)
 				}
 
-				if (isEdit) {
-					setAlertUMFormInfo({
-						open: true,
-						severity: 'success',
-						message: 'Updated Form Successfully!',
-					})
-				} else {
-					setAlertUMFormInfo({
-						open: true,
-						severity: 'success',
-						message: 'Created Form SuccessFully',
-					})
-				}
+				setAlertUMFormInfo({
+					open: true,
+					severity: 'success',
+					message: 'บันทึกข้อมูลสำเร็จ',
+				})
 
 				router.push(AppPath.UserManagement)
 			} catch (error: any) {
-				console.log(error.message)
-				if (isEdit) {
-					setAlertUMFormInfo({
-						open: true,
-						severity: 'error',
-						message: 'Updated Form Fail!',
-					})
-				} else {
-					setAlertUMFormInfo({
-						open: true,
-						severity: 'error',
-						message: 'Created Form Fail!',
-					})
+				let message = ''
+				if (error?.message === errorResponse.USER_EMAIL_DUPLICATED) {
+					message = 'ไม่สามารถใช้อีเมลซ้ำกับในระบบ กรุณาลองใหม่อีกครั้ง'
+				} else if (error?.message === errorResponse.USER_PHONE_DUPLICATED) {
+					message = 'ไม่สามารถใช้เบอร์โทรศัพท์ซ้ำกับในระบบ กรุณาลองใหม่อีกครั้ง'
 				}
+				setAlertUMFormInfo({ open: true, severity: 'error', message })
 			} finally {
 				setBusy(false)
 			}
@@ -243,7 +229,6 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = () 
 							variant='outlined'
 							onClick={() => {
 								formik.resetForm()
-								formik.setFieldValue('regions', [])
 							}}
 							startIcon={
 								(busy ||

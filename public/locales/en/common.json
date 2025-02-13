@@ -28,6 +28,9 @@
 	"profile": "Profile",
 	"back": "Back",
 	"save": "Save",
+	"confirm": "Confirm",
+	"cancel": "Cancel",
+	"close": "Close",
 
 	"error": {
 		"somethingWrong": "Something went wrong. Please check the information again."

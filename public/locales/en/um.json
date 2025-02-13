@@ -3,6 +3,20 @@
 	"titleCreate": "Create User",
 	"titleEdit": "Edit User",
 	"noData": "No Data",
+	"confirm": {
+		"delete": {
+			"title": "Delete User",
+			"content": "Are you sure you want to delete this user account ?"
+		},
+		"active": {
+			"title": "Active User",
+			"content": "Are you sure you want to active this user account ?"
+		},
+		"inactive": {
+			"title": "Inactive User",
+			"content": "Are you sure you want to inactive this user account ?"
+		}
+	},
 	"warning": {
 		"invalidPhoneFormat": "Invalid Phone",
 		"invalidEmailFormat": "Invalid Email"
@@ -41,5 +55,13 @@
 		"email": "Email",
 		"role": "Role",
 		"regions": "Region Cover"
+	},
+	"userStatus": {
+		"active": "Active",
+		"inactive": "Inactive"
+	},
+	"alert": {
+		"saveComplete": "Save data complete.",
+		"saveError": "Save data error."
 	}
 }

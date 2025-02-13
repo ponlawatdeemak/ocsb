@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Languages } from '@/enum'
 
 import _ from 'lodash'
-import { RegionsEntity } from '@interface/entities'
+import { RegionsEntity, RolesEntity } from '@interface/entities'
 import { enSuffix } from '@/config/app.config'
 import { useSession } from 'next-auth/react'
 import { UserRole } from '@interface/config/um.config'
@@ -86,7 +86,14 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
 	const { data: rolesLookupData, isLoading: isRolesDataLoading } = useQuery({
 		queryKey: ['getRoles'],
-		queryFn: () => service.lookup.get({ name: 'roles' }),
+		queryFn: () =>
+			service.lookup.get({ name: 'roles' }).then((res) => {
+				if (session?.user.role.roleId === UserRole.Admin) {
+					return res.filter((item: RolesEntity) => item.roleId !== UserRole.SuperAdmin)
+				} else {
+					return res
+				}
+			}),
 	})
 
 	const onRegionCheck = useCallback(

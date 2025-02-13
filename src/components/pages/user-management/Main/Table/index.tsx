@@ -181,13 +181,13 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 				}
 				const payload: DeleteUMDtoIn = { userId: id }
 				await mutateDeleteUM(payload)
-				setAlertInfo({ open: true, severity: 'success', message: 'Deleted User Successfully!' })
+				setAlertInfo({ open: true, severity: 'success', message: t('um:alert.saveComplete') })
 			} catch (error: any) {
 				console.error(error)
 				setAlertInfo({
 					open: true,
 					severity: 'error',
-					message: 'Deleted User Failed!',
+					message: t('um:alert.saveError'),
 				})
 			} finally {
 				setBusy(false)
@@ -444,7 +444,9 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 																{ '!text-success': row.users_is_active },
 															)}
 														>
-															{row.users_is_active ? 'Active' : 'Inactive'}
+															{row.users_is_active
+																? t('um:userStatus.active')
+																: t('um:userStatus.inactive')}
 														</Typography>
 													</TableCell>
 													<TableCell>
