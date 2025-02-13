@@ -196,7 +196,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 				refetchSearchUM()
 			}
 		},
-		[mutateDeleteUM, session, refetchSearchUM],
+		[mutateDeleteUM, session, refetchSearchUM, t],
 	)
 
 	const handleRequestSort = useCallback(
