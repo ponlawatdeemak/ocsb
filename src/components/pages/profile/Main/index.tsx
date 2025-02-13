@@ -1,83 +1,141 @@
-import ProfileForm from '@/components/shared/ProfileForm'
+import ProfileForm, { UMFormValues } from '@/components/shared/ProfileForm'
 import service from '@/api'
-import { AppPath } from '@/config/app.config'
-import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material'
-import { useQuery } from '@tanstack/react-query'
-import { signOut } from 'next-auth/react'
+import {
+	Box,
+	Button,
+	Dialog,
+	DialogContent,
+	DialogTitle,
+	FormControl,
+	IconButton,
+	InputAdornment,
+	OutlinedInput,
+	Typography,
+} from '@mui/material'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import * as yup from 'yup'
 import { useFormik } from 'formik'
 import CloseIcon from '@mui/icons-material/Close'
-import FormInput from '@/components/common/input/FormInput'
-import { MapLayerIcon } from '@/components/svg/MenuIcon'
+import classNames from 'classnames'
+import Icon from '@mdi/react'
+import { mdiEyeOffOutline, mdiEyeOutline } from '@mdi/js'
+import { AxiosError } from 'axios'
+import { AlertInfoType } from '@/components/shared/ProfileForm/interface'
+import { ChangePasswordProfileDtoOut, GetProfileDtoOut } from '@interface/dto/profile/profile.dto-out'
+import { ChangePasswordProfileDtoIn } from '@interface/dto/profile/profile.dto-in'
+import { CheckCircle } from '@mui/icons-material'
+import AlertSnackbar from '@/components/common/snackbar/AlertSnackbar'
+import { PositionEntity, ProvincesEntity, RegionsEntity, RolesEntity } from '@interface/entities'
+import { ResponseDto } from '@interface/config/app.config'
+import { useSession } from 'next-auth/react'
+import { getUserImage } from '@/utils/image'
 
 interface ProfileMainProps {
 	className?: string
 }
 
-interface UMFormValues {
-	image: string
-	firstName: string
-	lastName: string
-	position: string
-	region: string
-	province: string
-	phone: string
-	email: string
-	role: string
-	regions: string[]
-	isActive: boolean
-}
-
-interface ResetPwFormValues {
-	currentPw: string
-	newPw: string
-	confirmPw: string
+const defaultFormValues: UMFormValues = {
+	image: '',
+	firstName: '',
+	lastName: '',
+	position: null,
+	region: null,
+	province: null,
+	phone: '',
+	email: '',
+	role: null,
+	regions: [],
+	isActive: true,
 }
 
 export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 	const router = useRouter()
-	const { t } = useTranslation('common')
+	const { t } = useTranslation(['common', 'auth', 'um'])
+	const { update } = useSession()
 
-	const logout = useCallback(() => signOut({ callbackUrl: AppPath.Overview }), [])
+	const [openChangePw, setOpenChangePw] = useState(false)
+	const [showCurrentPassword, setShowCurrentPassword] = useState<boolean>(false)
+	const [showNewPassword, setShowNewPassword] = useState<boolean>(false)
+	const [showConfirmNewPassword, setShowConfirmNewPassword] = useState<boolean>(false)
 
-	const [openResetPw, setOpenResetPw] = useState(false)
-
-	const defaultFormValues: UMFormValues = {
-		image: '',
-		firstName: '',
-		lastName: '',
-		position: '',
-		region: '',
-		province: '',
-		phone: '',
-		email: '',
-		role: '',
-		regions: [],
-		isActive: true,
-	}
-
-	const validationSchema = yup.object({
-		firstName: yup.string().required(t('warning.inputFirstName')),
-		lastName: yup.string().required(t('warning.inputLastName')),
-		position: yup.string().required(t('warning.inputPosition')),
-		region: yup.string().required(t('warning.inputRegion')),
-		province: yup.string().required(t('warning.inputProvince')),
-		phone: yup.number().typeError(' warning.invalidPhoneFormat').required(t('warning.inputPhone')),
-		email: yup.string().email(t('warning.invalidEmailFormat')).required(t('warning.inputEmail')),
-		role: yup.string().required(t('warning.inputRole')),
-		regions: yup.array().min(1, t('warning.inputRegions')),
+	const [busy, setBusy] = useState<boolean>(false)
+	const [alertInfo, setAlertInfo] = useState<AlertInfoType>({
+		open: false,
+		severity: 'success',
+		message: '',
 	})
 
-	const onSubmit = useCallback(async (values: UMFormValues) => {
-		try {
-			console.log(values)
-		} catch (error: any) {
-			console.error(error)
-		}
-	}, [])
+	const validationSchema = yup.object({
+		firstName: yup.string().required(`${t('required')}${t('um:profile.firstName')}`),
+		lastName: yup.string().required(`${t('required')}${t('um:profile.lastName')}`),
+		position: yup.number().required(`${t('required')}${t('um:profile.position')}`),
+		region: yup.number().required(`${t('required')}${t('um:profile.region')}`),
+		province: yup.number().required(`${t('required')}${t('um:profile.province')}`),
+		phone: yup
+			.number()
+			.typeError('warning.invalidPhoneFormat')
+			.required(`${t('required')}${t('um:profile.phone')}`),
+		email: yup
+			.string()
+			.email(t('warning.invalidEmailFormat'))
+			.required(`${t('required')}${t('um:profile.email')}`),
+		role: yup.number().required(`${t('required')}${t('um:profile.role')}`),
+		regions: yup.array().min(1, `${t('required')}${t('um:profile.regions')}`),
+	})
+
+	const { data: profileData, isLoading: isProfileDataLoading } = useQuery({
+		queryKey: ['getProfile'],
+		queryFn: async () => {
+			const response = await service.profile.getProfile()
+			if (response.data) {
+				setProfile(response.data)
+			}
+			return response.data
+		},
+	})
+
+	const onSubmit = useCallback(
+		async (values: UMFormValues) => {
+			try {
+				await service.um.putUM(profileData?.userId ?? '', {
+					firstName: values.firstName,
+					lastName: values.lastName,
+					position: values.position as PositionEntity,
+					region: values.region as RegionsEntity,
+					province: values.province as ProvincesEntity,
+					phone: values.phone,
+					email: values.email,
+					role: values.role as RolesEntity,
+					regions: values.regions as RegionsEntity[],
+				})
+
+				if (values.image && typeof values.image !== 'string') {
+					let formData = new FormData()
+					formData.append('file', values.image)
+					await service.um.postImage(values.image as File, {
+						userId: profileData?.userId ?? '',
+					})
+				}
+
+				setAlertInfo({
+					open: true,
+					severity: 'success',
+					message: t('auth:success.saveProfile'),
+				})
+				const response = await service.profile.getProfile()
+				update(response.data)
+				setBusy(false)
+			} catch (error: any) {
+				console.error(error)
+				setAlertInfo({ open: true, severity: 'error', message: t('auth:error.saveProfile') })
+				setBusy(false)
+			}
+		},
+		[profileData?.userId, t, update],
+	)
 
 	const formik = useFormik<UMFormValues>({
 		enableReinitialize: true,
@@ -86,58 +144,185 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		onSubmit,
 	})
 
-	const resetPwFormik = useFormik<ResetPwFormValues>({
+	const setProfile = useCallback(
+		(profileData: GetProfileDtoOut) => {
+			formik.setValues({
+				image: profileData.userId ? getUserImage(profileData.userId) : '',
+				firstName: profileData?.firstName,
+				lastName: profileData?.lastName,
+				position: profileData?.position?.positionId,
+				region: profileData?.region?.regionId,
+				province: profileData?.province?.adm1Code,
+				phone: profileData?.phone,
+				email: profileData?.email,
+				role: profileData?.role?.roleId,
+				regions: profileData?.regions?.map((item) => item.regionId!),
+			})
+			formik.setFieldValue('firstName', profileData?.firstName)
+			formik.setFieldValue('lastName', profileData?.lastName)
+			formik.setFieldValue('position', profileData?.position?.positionId)
+			formik.setFieldValue('region', profileData?.region?.regionId)
+			formik.setFieldValue('province', profileData?.province?.adm1Code)
+			formik.setFieldValue('phone', profileData?.phone)
+			formik.setFieldValue('email', profileData?.email)
+			formik.setFieldValue('role', profileData?.role?.roleId)
+			formik.setFieldValue(
+				'regions',
+				profileData?.regions?.map((item) => item.regionId),
+			)
+		},
+		[formik],
+	)
+
+	const changePwValidationSchema = yup.object({
+		currentPw: yup.string(),
+		newPw: yup
+			.string()
+			.required(t('auth:warning.inputNewPassword'))
+			.min(8, t('auth:warning.minPasswordCharacters'))
+			.matches(/^(?=.*[A-Z])/, t('auth:warning.minPasswordUppercaseLetter'))
+			.matches(/^(?=.*[a-z])/, t('auth:warning.minPasswordLowercaseLetter'))
+			.matches(/^(?=.*\d)/, t('auth:warning.minPasswordNumber'))
+			.matches(/^(?=.*[!@#$%^&*()_+\-=[\]{};:\\|,.<>~/?])/, t('auth:warning.minPasswordSymbol')),
+		confirmPw: yup.string(),
+	})
+
+	const passwordValidationRules = useMemo(() => {
+		return [
+			{ test: (value: string) => value.length >= 8, message: t('auth:warning.minPasswordCharacters') },
+			{
+				test: (value: string) => /^(?=.*[A-Z])/.test(value),
+				message: t('auth:warning.minPasswordUppercaseLetter'),
+			},
+			{
+				test: (value: string) => /^(?=.*[a-z])/.test(value),
+				message: t('auth:warning.minPasswordLowercaseLetter'),
+			},
+			{ test: (value: string) => /^(?=.*\d)/.test(value), message: t('auth:warning.minPasswordNumber') },
+			{
+				test: (value: string) => /^(?=.*[!@#$%^&*()_+\-=[\]{};:\\|,.<>~/?])/.test(value),
+				message: t('auth:warning.minPasswordSymbol'),
+			},
+		]
+	}, [t])
+
+	type ChangePasswordFormType = yup.InferType<typeof changePwValidationSchema>
+
+	const { isPending, mutateAsync: mutateChangePassword } = useMutation<
+		ResponseDto<ChangePasswordProfileDtoOut>,
+		AxiosError,
+		ChangePasswordProfileDtoIn,
+		unknown
+	>({
+		mutationFn: service.profile.changePasswordProfile,
+	})
+
+	const onSubmitChangePw = useCallback(
+		async (values: ChangePasswordFormType) => {
+			try {
+				setBusy(true)
+				if (values.newPw !== values.confirmPw) {
+					setAlertInfo({
+						open: true,
+						severity: 'error',
+						message: t('auth:error.invalidPasswordMatch'),
+					})
+					setBusy(false)
+					return
+				}
+				const response = await mutateChangePassword({
+					oldPassword: values.currentPw ?? '',
+					newPassword: values.newPw,
+				})
+				if (response?.data?.success) {
+					setAlertInfo({
+						open: true,
+						severity: 'success',
+						message: t('auth:success.resetPassword'),
+					})
+
+					setOpenChangePw(false)
+				} else {
+					setAlertInfo({
+						open: true,
+						severity: 'error',
+						message: t('auth:error.resetPassword'),
+					})
+				}
+				setBusy(false)
+			} catch (error) {
+				console.error('Reset password failed', error)
+				setAlertInfo({ open: true, severity: 'error', message: t('auth:error.resetPassword') })
+				setBusy(false)
+			}
+		},
+		[mutateChangePassword, t],
+	)
+
+	const changePwFormik = useFormik<ChangePasswordFormType>({
 		enableReinitialize: true,
 		initialValues: {
 			currentPw: '',
 			newPw: '',
 			confirmPw: '',
 		},
-		validationSchema: yup.object({
-			currentPw: yup.string().required(t('warning.inputCurrentPwFirstName')),
-			newPw: yup.string().min(8, t('warning.minNewPw')).required(t('warning.inputNewPw')), // validate new password
-			confirmPw: yup.string().required(t('warning.inputConfirmPw')),
-		}),
-		// validateOnChange:true,
-		onSubmit: (values: ResetPwFormValues) => {
-			console.log(values)
-		},
+		validationSchema: changePwValidationSchema,
+		validateOnChange: true,
+		onSubmit: onSubmitChangePw,
 	})
+
+	useEffect(() => {
+		if (!openChangePw) {
+			changePwFormik.resetForm()
+		}
+		// eslint-disable-next-line
+	}, [openChangePw])
+
+	const handleClickShowCurrentPassword = useCallback(() => setShowCurrentPassword((show) => !show), [])
+
+	const handleClickShowNewPassword = useCallback(() => setShowNewPassword((show) => !show), [])
+
+	const handleClickShowConfirmNewPassword = useCallback(() => setShowConfirmNewPassword((show) => !show), [])
+
+	const handleMouseDownPassword = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault()
+	}, [])
 
 	const lineNotiButtonElement = (
 		<Button
 			className='text-nowrap rounded-[5px] !bg-[#FBBF07] !px-[12px] !py-[5px] text-sm !font-normal !shadow-none'
 			variant='contained'
 		>
-			การแจ้งเตือนผ่านไลน์
+			{t('um:button.lineNoti')}
 		</Button>
 	)
 
 	const changePasswordButtonElement = (
 		<Button
-			className='text-nowrap rounded-[5px] !border-[#D8D8D8] !px-[31px] !py-[8px] text-sm !shadow-none'
+			className='text-nowrap rounded-[5px] !border-[#D8D8D8] !py-[8px] text-sm !shadow-none'
 			variant='outlined'
 			onClick={() => {
-				setOpenResetPw(true)
+				setOpenChangePw(true)
 			}}
 		>
-			เปลี่ยนรหัสผ่าน
+			{t('um:changePassword')}
 		</Button>
 	)
 
-	const { data: profileData, isLoading: isProfileDataLoading } = useQuery({
-		queryKey: ['getProfile'],
-		queryFn: async () => await service.profile.getProfile(),
-	})
+	const onReset = useCallback(() => {
+		if (profileData) {
+			setProfile(profileData)
+		}
+	}, [profileData, setProfile])
 
 	return (
 		<Box className='relative flex h-full flex-col items-center'>
 			<div className='h-[80px] min-h-[80px] w-full bg-primary'></div>
-			<div className='lg:max-w-[850px]'>
+			<div className='w-full lg:w-[850px]'>
 				<ProfileForm
-					title='ข้อมูลผู้ใช้งาน'
+					title={t('common:profile')}
 					formik={formik}
-					// loading={false}
+					loading={isPending || busy || isProfileDataLoading}
 					lineNotiButtonElement={lineNotiButtonElement}
 					changePasswordButtonElement={changePasswordButtonElement}
 					className='relative top-[-60px] h-max'
@@ -151,17 +336,14 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 								router.back()
 							}}
 						>
-							ย้อนกลับ
+							{t('common:back')}
 						</Button>
 						<Button
 							className='text-nowrap rounded-[5px] !border-none !bg-white !px-[30px] !py-[10px] text-sm !text-black !shadow-none'
 							variant='outlined'
-							onClick={() => {
-								formik.resetForm()
-								formik.setFieldValue('regions', [])
-							}}
+							onClick={onReset}
 						>
-							ล้างข้อมูล
+							{t('common:clear')}
 						</Button>
 					</div>
 					<Button
@@ -172,16 +354,16 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 							formik.submitForm()
 						}}
 					>
-						บันทึก
+						{t('common:save')}
 					</Button>
 				</div>
 			</div>
 
 			<Dialog
-				open={openResetPw}
+				open={openChangePw}
 				onClose={(_event, reason) => {
 					if (reason !== 'backdropClick') {
-						setOpenResetPw(false)
+						setOpenChangePw(false)
 					}
 				}}
 				PaperProps={{
@@ -193,79 +375,157 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 					<IconButton
 						aria-label='close'
 						onClick={() => {
-							setOpenResetPw(false)
+							setOpenChangePw(false)
 						}}
 					>
 						<CloseIcon fontSize='small' className='!text-white' />
 					</IconButton>
 				</DialogTitle>
 				<DialogContent className='flex h-full w-auto flex-col items-center gap-[12px] rounded-[15px] text-white'>
-					<FormInput
-						className='lg:!min-w-[250px] lg:!max-w-[250px]'
-						name='currentPw'
-						formik={resetPwFormik}
-						required
-						// disabled={false}
-						placeholder={t('ระบุรหัสผ่านปัจจุบัน')}
-						inputProps={{ maxLength: 100 }}
-						type='password'
-					/>
-					<FormInput
-						className='lg:!min-w-[250px] lg:!max-w-[250px]'
-						name='newPw'
-						formik={resetPwFormik}
-						required
-						// disabled={false}
-						placeholder={t('ระบุรหัสผ่านใหม่')}
-						inputProps={{ maxLength: 100 }}
-						type='password'
-					/>
-					<FormInput
-						className='lg:!min-w-[250px] lg:!max-w-[250px]'
-						name='confirmPw'
-						formik={resetPwFormik}
-						required
-						// disabled={false}
-						placeholder={t('ระบุรหัสผ่านใหม่อีกครั้ง')}
-						inputProps={{ maxLength: 100 }}
-						type='password'
-					/>
-					<div className='grid grid-cols-[12px_1fr] gap-x-[9px] gap-y-[4px] pt-[6px] lg:!min-w-[250px] lg:!max-w-[250px] [&_.MuiTypography-root]:!text-xs'>
-						<div className='content-center'>
-							<MapLayerIcon fill='white' />
-						</div>
-						<Typography className='content-center'>ควรมีความยาวอย่างน้อย 8 ตัวอักษรขึ้นไป</Typography>
-						<div className='content-center'>
-							<MapLayerIcon fill='white' />
-						</div>
-						<Typography className='content-center'>มีตัวอักษรพิมพ์ใหญ่ (A-Z) อย่างน้อย 1 ตัว</Typography>
-						<div className='content-center'>
-							<MapLayerIcon fill='white' />
-						</div>
-						<Typography className='content-center'>มีตัวอักษรพิมพ์เล็ก (a-z) อย่างน้อย 1 ตัว</Typography>
-						<div className='content-center'>
-							<MapLayerIcon fill='white' />
-						</div>
-						<Typography className='content-center'>มีตัวเลข (0-9) อย่างน้อย 1 ตัว</Typography>
-						<div className='content-center'>
-							<MapLayerIcon fill='white' />
-						</div>
-						<Typography className='content-center'>
-							มีเครื่องหมายหรืออักขระพิเศษ (!@#$%^&*/) อย่างน้อย 1 ตัว
-						</Typography>
-					</div>
+					<Box className='flex w-full flex-col items-center gap-3'>
+						<FormControl
+							fullWidth={true}
+							className={classNames(
+								'[&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white',
+								className,
+							)}
+						>
+							<OutlinedInput
+								id='currentPassword-input'
+								className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
+								endAdornment={
+									<InputAdornment position='end'>
+										<IconButton
+											aria-label='toggle password visibility'
+											onClick={handleClickShowCurrentPassword}
+											onMouseDown={handleMouseDownPassword}
+											edge='end'
+										>
+											{showCurrentPassword ? (
+												<Icon path={mdiEyeOffOutline} size={1} />
+											) : (
+												<Icon path={mdiEyeOutline} size={1} />
+											)}
+										</IconButton>
+									</InputAdornment>
+								}
+								type={showCurrentPassword ? 'text' : 'password'}
+								name='currentPw'
+								size='small'
+								value={changePwFormik?.values['currentPw'] || ''}
+								onChange={changePwFormik?.handleChange}
+								error={
+									changePwFormik?.touched['currentPw'] && Boolean(changePwFormik?.errors['currentPw'])
+								}
+								disabled={isPending || busy || isProfileDataLoading}
+								placeholder={t('auth:specifyCurrentPassword')}
+							/>
+						</FormControl>
+						<FormControl
+							fullWidth={true}
+							className={classNames(
+								'[&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white',
+								className,
+							)}
+						>
+							<OutlinedInput
+								id='newPassword-input'
+								className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
+								endAdornment={
+									<InputAdornment position='end'>
+										<IconButton
+											aria-label='toggle password visibility'
+											onClick={handleClickShowNewPassword}
+											onMouseDown={handleMouseDownPassword}
+											edge='end'
+										>
+											{showNewPassword ? (
+												<Icon path={mdiEyeOffOutline} size={1} />
+											) : (
+												<Icon path={mdiEyeOutline} size={1} />
+											)}
+										</IconButton>
+									</InputAdornment>
+								}
+								type={showNewPassword ? 'text' : 'password'}
+								name='newPw'
+								size='small'
+								value={changePwFormik?.values['newPw'] || ''}
+								onChange={changePwFormik?.handleChange}
+								error={changePwFormik?.touched['newPw'] && Boolean(changePwFormik?.errors['newPw'])}
+								disabled={isPending || busy || isProfileDataLoading}
+								placeholder={t('auth:specifyPassword')}
+							/>
+						</FormControl>
+						<FormControl
+							fullWidth={true}
+							className={classNames(
+								'[&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white',
+								className,
+							)}
+						>
+							<OutlinedInput
+								id='confirmNewPassword-input'
+								className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
+								endAdornment={
+									<InputAdornment position='end'>
+										<IconButton
+											aria-label='toggle password visibility'
+											onClick={handleClickShowConfirmNewPassword}
+											onMouseDown={handleMouseDownPassword}
+											edge='end'
+										>
+											{showConfirmNewPassword ? (
+												<Icon path={mdiEyeOffOutline} size={1} />
+											) : (
+												<Icon path={mdiEyeOutline} size={1} />
+											)}
+										</IconButton>
+									</InputAdornment>
+								}
+								type={showConfirmNewPassword ? 'text' : 'password'}
+								name='confirmPw'
+								size='small'
+								value={changePwFormik?.values['confirmPw'] ?? ''}
+								onChange={changePwFormik?.handleChange}
+								error={
+									changePwFormik?.touched['confirmPw'] && Boolean(changePwFormik?.errors['confirmPw'])
+								}
+								disabled={isPending || busy || isProfileDataLoading}
+								placeholder={t('auth:specifyConfirmPassword')}
+							/>
+						</FormControl>
+					</Box>
+					<Box className='flex w-full flex-col gap-1'>
+						{passwordValidationRules.map((rule) => {
+							const isValid = rule.test(changePwFormik.values.newPw)
+							return (
+								<Box
+									key={rule.message}
+									className={classNames('flex items-center gap-[5px] text-white', {
+										'!text-[#C5E71E]': isValid,
+									})}
+								>
+									<CheckCircle className='!h-[15px] !w-[15px]' />
+									<Typography className='!text-xs'>{rule.message}</Typography>
+								</Box>
+							)
+						})}
+					</Box>
 					<Button
 						className='!mt-[12px] text-nowrap rounded-[5px] !border-none !px-[30px] !py-[10px] text-sm !text-white !shadow-none'
 						variant='contained'
 						color='secondary'
 						onClick={() => {
-							resetPwFormik.submitForm()
+							changePwFormik.submitForm()
 						}}
 					>
-						ตั้งรหัสผ่านใหม่
+						{t('um:changePassword')}
 					</Button>
 				</DialogContent>
 			</Dialog>
+
+			<AlertSnackbar alertInfo={alertInfo} onClose={() => setAlertInfo({ ...alertInfo, open: false })} />
 		</Box>
 	)
 }
