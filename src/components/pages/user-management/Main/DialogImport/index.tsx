@@ -11,12 +11,11 @@ import {
 	IconButton,
 	Typography,
 } from '@mui/material'
-import React, { useMemo } from 'react'
+import React, { memo, useMemo } from 'react'
 import { useTranslation } from 'next-i18next'
 import ClearIcon from '@mui/icons-material/Clear'
 import Icon from '@mdi/react'
 import { mdiDownloadOutline } from '@mdi/js'
-import { useQueryClient } from '@tanstack/react-query'
 import { AlertInfoType } from '@/components/shared/ProfileForm/interface'
 import CloseIcon from '@mui/icons-material/Close'
 import AlertSnackbar from '@/components/common/snackbar/AlertSnackbar'
@@ -274,3 +273,5 @@ export const DialogImport: React.FC<FormImportProps> = ({ ...props }) => {
 		</div>
 	)
 }
+
+export default memo(DialogImport)

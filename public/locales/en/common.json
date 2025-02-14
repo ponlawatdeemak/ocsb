@@ -31,6 +31,8 @@
 	"confirm": "Confirm",
 	"cancel": "Cancel",
 	"close": "Close",
+	"delete": "Delete",
+	"deleteMsg": "Are you sure you want to delete?",
 
 	"error": {
 		"somethingWrong": "Something went wrong. Please check the information again."
