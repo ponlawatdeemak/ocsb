@@ -2,8 +2,8 @@
 	"menu": {
 		"overview": "Overview",
 		"mapAnalyze": "Map",
-		"burntArea": "Analysis of Hotspots and Burnt Scar in the Area",
-		"cultivationArea": "Analysis of Sugarcane Cultivation Areas",
+		"burntArea": "Hotspot",
+		"cultivationArea": "Cultivation",
 		"about": "About Us",
 		"glossary": "Glossary",
 		"setting": "Setting",
@@ -28,11 +28,18 @@
 	"profile": "Profile",
 	"back": "Back",
 	"save": "Save",
+	"confirm": "Confirm",
+	"cancel": "Cancel",
+	"close": "Close",
 
 	"error": {
 		"somethingWrong": "Something went wrong. Please check the information again."
 	},
 
-    "required": "Please fill in",
-    "clear": "Clear"
+	"required": "Please Enter ",
+	"clear": "Clear",
+	"placeholder": {
+		"input": "Enter ",
+		"autocomplete": "Enter "
+	}
 }

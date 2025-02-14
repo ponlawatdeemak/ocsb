@@ -1,4 +1,4 @@
-import ProfileForm from '@/components/shared/ProfileForm'
+import ProfileForm, { UMFormValues } from '@/components/shared/ProfileForm'
 import service from '@/api'
 import {
 	Box,
@@ -15,7 +15,7 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import * as yup from 'yup'
 import { useFormik } from 'formik'
 import CloseIcon from '@mui/icons-material/Close'
@@ -24,34 +24,37 @@ import Icon from '@mdi/react'
 import { mdiEyeOffOutline, mdiEyeOutline } from '@mdi/js'
 import { AxiosError } from 'axios'
 import { AlertInfoType } from '@/components/shared/ProfileForm/interface'
-import { ChangePasswordProfileDtoOut } from '@interface/dto/profile/profile.dto-out'
+import { ChangePasswordProfileDtoOut, GetProfileDtoOut } from '@interface/dto/profile/profile.dto-out'
 import { ChangePasswordProfileDtoIn } from '@interface/dto/profile/profile.dto-in'
 import { CheckCircle } from '@mui/icons-material'
 import AlertSnackbar from '@/components/common/snackbar/AlertSnackbar'
 import { PositionEntity, ProvincesEntity, RegionsEntity, RolesEntity } from '@interface/entities'
 import { ResponseDto } from '@interface/config/app.config'
+import { useSession } from 'next-auth/react'
+import { getUserImage } from '@/utils/image'
 
 interface ProfileMainProps {
 	className?: string
 }
 
-interface UMFormValues {
-	image: File | string
-	firstName: string
-	lastName: string
-	position: number | null
-	region: number | null
-	province: number | null
-	phone: string
-	email: string
-	role: number | null
-	regions: number[]
-	isActive: boolean
+const defaultFormValues: UMFormValues = {
+	image: '',
+	firstName: '',
+	lastName: '',
+	position: null,
+	region: null,
+	province: null,
+	phone: '',
+	email: '',
+	role: null,
+	regions: [],
+	isActive: true,
 }
 
 export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 	const router = useRouter()
 	const { t } = useTranslation(['common', 'auth', 'um'])
+	const { update } = useSession()
 
 	const [openChangePw, setOpenChangePw] = useState(false)
 	const [showCurrentPassword, setShowCurrentPassword] = useState<boolean>(false)
@@ -65,74 +68,39 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		message: '',
 	})
 
+	const validationSchema = yup.object({
+		firstName: yup.string().required(`${t('required')}${t('um:profile.firstName')}`),
+		lastName: yup.string().required(`${t('required')}${t('um:profile.lastName')}`),
+		position: yup.number().required(`${t('required')}${t('um:profile.position')}`),
+		region: yup.number().required(`${t('required')}${t('um:profile.region')}`),
+		province: yup.number().required(`${t('required')}${t('um:profile.province')}`),
+		phone: yup
+			.number()
+			.typeError('warning.invalidPhoneFormat')
+			.required(`${t('required')}${t('um:profile.phone')}`),
+		email: yup
+			.string()
+			.email(t('warning.invalidEmailFormat'))
+			.required(`${t('required')}${t('um:profile.email')}`),
+		role: yup.number().required(`${t('required')}${t('um:profile.role')}`),
+		regions: yup.array().min(1, `${t('required')}${t('um:profile.regions')}`),
+	})
+
 	const { data: profileData, isLoading: isProfileDataLoading } = useQuery({
 		queryKey: ['getProfile'],
 		queryFn: async () => {
 			const response = await service.profile.getProfile()
 			if (response.data) {
-				formik.setFieldValue('firstName', response.data.firstName)
-				formik.setFieldValue('lastName', response.data.lastName)
-				formik.setFieldValue('position', response.data.position?.positionId)
-				formik.setFieldValue('region', response.data.region?.regionId)
-				formik.setFieldValue('province', response.data.province?.adm1Code)
-				formik.setFieldValue('phone', response.data.phone)
-				formik.setFieldValue('email', response.data.email)
-				formik.setFieldValue('role', response.data.role?.roleId)
-				formik.setFieldValue(
-					'regions',
-					response.data.regions?.flatMap((item) => item.regionId),
-				)
+				setProfile(response.data)
 			}
-			return response
+			return response.data
 		},
-	})
-
-	/// how to display img ?
-	const { data: imgData, isLoading: isimgLoading } = useQuery({
-		queryKey: ['getImgProfile'],
-		queryFn: async () => {
-			const response = await service.um.getImage({ userId: profileData?.data.userId ?? '' })
-			return response
-		},
-		enabled: !!profileData,
-	})
-
-	const defaultFormValues: UMFormValues = {
-		image: '',
-		firstName: '',
-		lastName: '',
-		position: null,
-		region: null,
-		province: null,
-		phone: '',
-		email: '',
-		role: null,
-		regions: [],
-		isActive: true,
-	}
-
-	const validationSchema = yup.object({
-		firstName: yup.string().required(`${t('required')} ${t('firstName')}`),
-		lastName: yup.string().required(`${t('required')} ${t('lastName')}`),
-		position: yup.number().required(`${t('required')} ${t('position')}`),
-		region: yup.number().required(`${t('required')} ${t('region')}`),
-		province: yup.number().required(`${t('required')} ${t('province')}`),
-		phone: yup
-			.number()
-			.typeError(' warning.invalidPhoneFormat')
-			.required(`${t('required')} ${t('phone')}`),
-		email: yup
-			.string()
-			.email(t('warning.invalidEmailFormat'))
-			.required(`${t('required')} ${t('email')}`),
-		role: yup.number().required(`${t('required')} ${t('role')}`),
-		regions: yup.array().min(1, `${t('required')} ${t('regions')}`),
 	})
 
 	const onSubmit = useCallback(
 		async (values: UMFormValues) => {
 			try {
-				await service.um.putUM(profileData?.data?.userId ?? '', {
+				await service.um.putUM(profileData?.userId ?? '', {
 					firstName: values.firstName,
 					lastName: values.lastName,
 					position: values.position as PositionEntity,
@@ -144,11 +112,11 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 					regions: values.regions as RegionsEntity[],
 				})
 
-				if (values.image) {
+				if (values.image && typeof values.image !== 'string') {
 					let formData = new FormData()
 					formData.append('file', values.image)
 					await service.um.postImage(values.image as File, {
-						userId: profileData?.data.userId ?? '',
+						userId: profileData?.userId ?? '',
 					})
 				}
 
@@ -157,7 +125,8 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 					severity: 'success',
 					message: t('auth:success.saveProfile'),
 				})
-
+				const response = await service.profile.getProfile()
+				update(response.data)
 				setBusy(false)
 			} catch (error: any) {
 				console.error(error)
@@ -165,7 +134,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 				setBusy(false)
 			}
 		},
-		[profileData?.data?.userId, t],
+		[profileData?.userId, t, update],
 	)
 
 	const formik = useFormik<UMFormValues>({
@@ -175,7 +144,37 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		onSubmit,
 	})
 
-	const ChangePwValidationSchema = yup.object({
+	const setProfile = useCallback(
+		(profileData: GetProfileDtoOut) => {
+			formik.setValues({
+				image: profileData.userId ? getUserImage(profileData.userId) : '',
+				firstName: profileData?.firstName,
+				lastName: profileData?.lastName,
+				position: profileData?.position?.positionId,
+				region: profileData?.region?.regionId,
+				province: profileData?.province?.adm1Code,
+				phone: profileData?.phone,
+				email: profileData?.email,
+				role: profileData?.role?.roleId,
+				regions: profileData?.regions?.map((item) => item.regionId!),
+			})
+			formik.setFieldValue('firstName', profileData?.firstName)
+			formik.setFieldValue('lastName', profileData?.lastName)
+			formik.setFieldValue('position', profileData?.position?.positionId)
+			formik.setFieldValue('region', profileData?.region?.regionId)
+			formik.setFieldValue('province', profileData?.province?.adm1Code)
+			formik.setFieldValue('phone', profileData?.phone)
+			formik.setFieldValue('email', profileData?.email)
+			formik.setFieldValue('role', profileData?.role?.roleId)
+			formik.setFieldValue(
+				'regions',
+				profileData?.regions?.map((item) => item.regionId),
+			)
+		},
+		[formik],
+	)
+
+	const changePwValidationSchema = yup.object({
 		currentPw: yup.string(),
 		newPw: yup
 			.string()
@@ -207,7 +206,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		]
 	}, [t])
 
-	type ChangePasswordFormType = yup.InferType<typeof ChangePwValidationSchema>
+	type ChangePasswordFormType = yup.InferType<typeof changePwValidationSchema>
 
 	const { isPending, mutateAsync: mutateChangePassword } = useMutation<
 		ResponseDto<ChangePasswordProfileDtoOut>,
@@ -241,6 +240,8 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 						severity: 'success',
 						message: t('auth:success.resetPassword'),
 					})
+
+					setOpenChangePw(false)
 				} else {
 					setAlertInfo({
 						open: true,
@@ -265,10 +266,17 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 			newPw: '',
 			confirmPw: '',
 		},
-		validationSchema: ChangePwValidationSchema,
+		validationSchema: changePwValidationSchema,
 		validateOnChange: true,
 		onSubmit: onSubmitChangePw,
 	})
+
+	useEffect(() => {
+		if (!openChangePw) {
+			changePwFormik.resetForm()
+		}
+		// eslint-disable-next-line
+	}, [openChangePw])
 
 	const handleClickShowCurrentPassword = useCallback(() => setShowCurrentPassword((show) => !show), [])
 
@@ -285,13 +293,13 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 			className='text-nowrap rounded-[5px] !bg-[#FBBF07] !px-[12px] !py-[5px] text-sm !font-normal !shadow-none'
 			variant='contained'
 		>
-			{t('um:lineNoti')}
+			{t('um:button.lineNoti')}
 		</Button>
 	)
 
 	const changePasswordButtonElement = (
 		<Button
-			className='text-nowrap rounded-[5px] !border-[#D8D8D8] !px-[31px] !py-[8px] text-sm !shadow-none'
+			className='text-nowrap rounded-[5px] !border-[#D8D8D8] !py-[8px] text-sm !shadow-none'
 			variant='outlined'
 			onClick={() => {
 				setOpenChangePw(true)
@@ -301,12 +309,18 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		</Button>
 	)
 
+	const onReset = useCallback(() => {
+		if (profileData) {
+			setProfile(profileData)
+		}
+	}, [profileData, setProfile])
+
 	return (
 		<Box className='relative flex h-full flex-col items-center'>
 			<div className='h-[80px] min-h-[80px] w-full bg-primary'></div>
-			<div className='lg:w-[850px]'>
+			<div className='w-full lg:w-[850px]'>
 				<ProfileForm
-					title='ข้อมูลผู้ใช้งาน'
+					title={t('common:profile')}
 					formik={formik}
 					loading={isPending || busy || isProfileDataLoading}
 					lineNotiButtonElement={lineNotiButtonElement}
@@ -322,17 +336,14 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 								router.back()
 							}}
 						>
-							{t('back')}
+							{t('common:back')}
 						</Button>
 						<Button
 							className='text-nowrap rounded-[5px] !border-none !bg-white !px-[30px] !py-[10px] text-sm !text-black !shadow-none'
 							variant='outlined'
-							onClick={() => {
-								formik.resetForm()
-								formik.setFieldValue('regions', [])
-							}}
+							onClick={onReset}
 						>
-							{t('clear')}
+							{t('common:clear')}
 						</Button>
 					</div>
 					<Button
@@ -343,7 +354,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 							formik.submitForm()
 						}}
 					>
-						{t('save')}
+						{t('common:save')}
 					</Button>
 				</div>
 			</div>

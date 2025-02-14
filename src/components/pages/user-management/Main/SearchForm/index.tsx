@@ -8,6 +8,7 @@ import { SearchUMDtoIn } from '@interface/dto/um/um.dto.in'
 import { Box, FormControl, FormLabel, OutlinedInput, SelectChangeEvent } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import classNames from 'classnames'
+import { debounce } from 'lodash'
 import { useTranslation } from 'next-i18next'
 import { ChangeEvent, Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 
@@ -97,6 +98,7 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 			setSearchParams((prevSearch) => ({
 				...prevSearch,
 				region: typeof value === 'string' ? value.split(',') : value,
+				page: 1,
 			}))
 		},
 		[searchParams, setSearchParams],
@@ -108,6 +110,7 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 			setSearchParams((prevSearch) => ({
 				...prevSearch,
 				role: typeof value === 'string' ? value.split(',') : value,
+				page: 1,
 			}))
 		},
 		[searchParams, setSearchParams],
@@ -119,6 +122,7 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 			setSearchParams((prevSearch) => ({
 				...prevSearch,
 				position: typeof value === 'string' ? value.split(',') : value,
+				page: 1,
 			}))
 		},
 		[searchParams, setSearchParams],
@@ -129,47 +133,51 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 			setSearchParams((prevSearch) => ({
 				...prevSearch,
 				keyword: event.target.value,
+				page: 1,
 			}))
 		},
 		[setSearchParams],
 	)
 
 	return (
-		<Box className={classNames('mb-[30px] flex items-center gap-4', className)}>
+		<Box className={classNames('mb-[30px] flex items-center gap-6 max-lg:flex-col lg:gap-4', className)}>
 			<MultipleSelectCheckmarks
-				className='w-[206px]'
-				label='ภูมิภาค'
+				className='w-full lg:w-[206px]'
+				label={t('um:search.region')}
 				options={regionOptions}
 				multipleSelected={searchParams.region ?? []}
 				onChange={handleRegionChange}
-				fixedRenderValue='เลือกภูมิภาค'
+				fixedRenderValue={`${t('common:placeholder.autocomplete')} ${t('um:search.region')}`}
+				disabled={isRegionsDataLoading}
 			/>
 
 			<MultipleSelectCheckmarks
-				className='w-[206px]'
-				label='ตำแหน่งงาน'
-				options={roleOptions}
-				multipleSelected={searchParams.role ?? []}
-				onChange={handleRoleChange}
-				fixedRenderValue='เลือกตำแหน่งงาน'
-			/>
-
-			<MultipleSelectCheckmarks
-				className='w-[206px]'
-				label='สิทธิ์การเข้าถึง'
+				className='w-full lg:w-[206px]'
+				label={t('um:search.position')}
 				options={positionOptions}
 				multipleSelected={searchParams.position ?? []}
 				onChange={handlePositionChange}
-				fixedRenderValue='เลือกสิทธิ์การเข้าถึง'
+				fixedRenderValue={`${t('common:placeholder.autocomplete')} ${t('um:search.position')}`}
+				disabled={isPositionDataLoading}
 			/>
 
-			<FormControl className='w-[206px] [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white'>
-				<FormLabel className='mb-1.5 !text-xs !text-white'>{'คำค้นหา'}</FormLabel>
+			<MultipleSelectCheckmarks
+				className='w-full lg:w-[206px]'
+				label={t('um:search.role')}
+				options={roleOptions}
+				multipleSelected={searchParams.role ?? []}
+				onChange={handleRoleChange}
+				fixedRenderValue={`${t('common:placeholder.autocomplete')} ${t('um:search.role')}`}
+				disabled={isRolesDataLoading}
+			/>
+
+			<FormControl className='w-full lg:w-[206px] [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white'>
+				<FormLabel className='mb-1.5 !text-xs !text-white'>{t('um:search.keyword')}</FormLabel>
 				<OutlinedInput
 					id='keyword-search'
 					className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
-					onChange={handleSearchChange}
-					placeholder='ระบุชื่อ เบอร์โทรศัพท์หรืออีเมล์'
+					onChange={debounce(handleSearchChange, 300)}
+					placeholder={`${t('common:placeholder.input')} ${t('um:search.keywordPlaceholder')}`}
 				/>
 			</FormControl>
 		</Box>

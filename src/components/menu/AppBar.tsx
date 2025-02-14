@@ -18,7 +18,7 @@ interface AppBarProps {
 	className?: string
 }
 
-const AppBar: React.FC<AppBarProps> = ({ className = '' }) => {
+const AppBar: React.FC<AppBarProps> = ({}) => {
 	const { data: session } = useSession()
 	const { isDesktop } = useResponsive()
 	const { areaUnit } = useAreaUnit()
@@ -78,7 +78,8 @@ const AppBar: React.FC<AppBarProps> = ({ className = '' }) => {
 			{!isDesktop && (
 				<Drawer anchor='right' open={drawerMenuOpen} onClose={toggleMenuDrawer(false)}>
 					<Box className='h-full w-[300px] p-4'>
-						<Box className='mb-8 mt-3 flex items-center justify-end'>
+						<Box className='mb-8 mt-3 flex justify-between'>
+							<UserAvatar user={session?.user} />
 							<IconButton onClick={toggleMenuDrawer(false)}>
 								<Close className='text-black' />
 							</IconButton>

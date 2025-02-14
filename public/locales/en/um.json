@@ -1,29 +1,67 @@
 {
-	"userManagement": "User Management",
+	"titleMain": "User Management",
+	"titleCreate": "Create User",
+	"titleEdit": "Edit User",
 	"noData": "No Data",
+	"confirm": {
+		"delete": {
+			"title": "Delete User",
+			"content": "Are you sure you want to delete this user account ?"
+		},
+		"active": {
+			"title": "Active User",
+			"content": "Are you sure you want to active this user account ?"
+		},
+		"inactive": {
+			"title": "Inactive User",
+			"content": "Are you sure you want to inactive this user account ?"
+		}
+	},
 	"warning": {
-		"inputFirstName": "",
-		"inputLastName": "",
-		"inputPosition": "",
-		"inputRegion": "",
-		"inputProvince": "",
-		"invalidPhoneFormat": "",
-		"inputPhone": "",
-		"invalidEmailFormat": "",
-		"inputEmail": "",
-		"inputRole": "",
-		"inputRegions": ""
+		"invalidPhoneFormat": "Invalid Phone",
+		"invalidEmailFormat": "Invalid Email"
 	},
 	"changePassword": "Change Password",
-	"lineNoti": "Line Notification",
+	"button": {
+		"lineNoti": "Line Notification",
+		"import": "Import",
+		"create": "Add",
+		"delete": "Delete"
+	},
+	"search": {
+		"region": "Region",
+		"position": "Position",
+		"role": "Role",
+		"keyword": "Keyword",
+		"keywordPlaceholder": "Name, Phone or Email"
+	},
+	"table": {
+		"fullName": "Full Name",
+		"region": "Region",
+		"position": "Position",
+		"phone": "Phone",
+		"email": "Email",
+		"role": "Role",
+		"status": "Status"
+	},
 	"profile": {
-		"firstName": "ชื่อ",
-		"lastName": "นามสกุล",
-		"position": "ตำแหน่ง",
-		"regionProvince": "ภาค/จังหวัด",
-		"tel": "เบอร์โทรศัพท์",
-		"email": "อีเมล",
-		"role": "สิทธิ์การเข้าถึง",
-		"region": "ภูมิภาคที่ดูแล"
+		"firstName": "First Name",
+		"lastName": "Last Name",
+		"position": "Position",
+		"regionProvince": "Region/Province",
+		"region": "Region",
+		"province": "Province",
+		"phone": "Phone",
+		"email": "Email",
+		"role": "Role",
+		"regions": "Region Cover"
+	},
+	"userStatus": {
+		"active": "Active",
+		"inactive": "Inactive"
+	},
+	"alert": {
+		"saveComplete": "Save data complete.",
+		"saveError": "Save data error."
 	}
 }
