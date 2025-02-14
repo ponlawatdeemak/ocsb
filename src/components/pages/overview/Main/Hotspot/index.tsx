@@ -1,5 +1,4 @@
 import { Divider } from '@mui/material'
-import { useTranslation } from 'next-i18next'
 import classNames from 'classnames'
 import {
 	GetHeatPointsOverviewDtoOut,
@@ -13,8 +12,8 @@ const OverviewHotSpotMain = ({
 	heatPointSugarcaneData,
 	className,
 }: {
-	heatPointsData: GetHeatPointsOverviewDtoOut | undefined
-	heatPointSugarcaneData: GetHeatPointsSugarcaneOverviewDtoOut | undefined
+	heatPointsData: GetHeatPointsOverviewDtoOut[] | undefined
+	heatPointSugarcaneData: GetHeatPointsSugarcaneOverviewDtoOut[] | undefined
 	className?: string
 }) => {
 	return (

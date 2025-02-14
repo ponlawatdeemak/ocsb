@@ -2,15 +2,22 @@ import { GetProductOverviewDtoOut } from '@interface/dto/overview/overview.dto-o
 import { Typography, Divider } from '@mui/material'
 import classNames from 'classnames'
 import { useTranslation } from 'next-i18next'
+import { Languages } from '@/enum'
+import * as _ from 'lodash'
+import useAreaUnit from '@/store/area-unit'
+import { defaultNumber } from '@/utils/text'
+import useQuantityUnit from '@/store/quantity-unit'
 
 const OverviewProductMain = ({
 	productData,
 	className,
 }: {
-	productData: GetProductOverviewDtoOut | undefined
+	productData: GetProductOverviewDtoOut[] | undefined
 	className?: string
 }) => {
-	const { t } = useTranslation(['overview', 'common'])
+	const { t, i18n } = useTranslation(['overview', 'common'])
+	const { areaUnit } = useAreaUnit()
+	const { quantityUnit } = useQuantityUnit()
 
 	return (
 		<div
@@ -19,36 +26,30 @@ const OverviewProductMain = ({
 				className,
 			)}
 		>
-			<Typography>{t('sugarCaneYield')}</Typography>
+			<Typography>{`${t('sugarCaneYield')} (${t(`common:${quantityUnit}`)}/${t(`common:${areaUnit}`)})`}</Typography>
 			<div className='flex flex-col gap-4'>
-				<div className='flex flex-col gap-2'>
-					<div className='flex items-center justify-between'>
-						<Typography className='!text-xs'>test1</Typography>
-						<Typography className='!text-sm'>120</Typography>
-					</div>
-					<Divider className='!border-white !border-opacity-25' />
-				</div>
-				<div className='flex flex-col gap-2'>
-					<div className='flex items-center justify-between'>
-						<Typography className='!text-xs'>test2</Typography>
-						<Typography className='!text-sm'>80</Typography>
-					</div>
-					<Divider className='!border-white !border-opacity-25' />
-				</div>
-				<div className='flex flex-col gap-2'>
-					<div className='flex items-center justify-between'>
-						<Typography className='!text-xs'>test3</Typography>
-						<Typography className='!text-sm'>10</Typography>
-					</div>
-					<Divider className='!border-white !border-opacity-25' />
-				</div>
-				<div className='flex flex-col gap-2'>
-					<div className='flex items-center justify-between'>
-						<Typography className='!text-xs'>test4</Typography>
-						<Typography className='!text-sm'>5</Typography>
-					</div>
-					<Divider className='!border-white !border-opacity-25' />
-				</div>
+				{productData &&
+					productData.map((item) => (
+						<div key={item.regionId} className='flex flex-col gap-2'>
+							<div className='flex items-center justify-between'>
+								<Typography className='!text-xs'>
+									{`${
+										item[
+											`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetProductOverviewDtoOut
+										] as string
+									} (${(
+										item[
+											`${_.camelCase(`provinces-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetProductOverviewDtoOut
+										] as string[]
+									).join(',')})`}
+								</Typography>
+								<Typography className='!text-sm'>
+									{defaultNumber(item[quantityUnit][areaUnit])}
+								</Typography>
+							</div>
+							<Divider className='!border-white !border-opacity-25' />
+						</div>
+					))}
 			</div>
 		</div>
 	)

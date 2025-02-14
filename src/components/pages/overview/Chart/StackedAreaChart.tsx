@@ -4,6 +4,7 @@ import { useEffect, useRef, useMemo } from 'react'
 import bb, { area } from 'billboard.js'
 import BillboardJS, { IChart } from '@billboard.js/react'
 import 'billboard.js/dist/billboard.css'
+import { defaultNumber } from '@/utils/text'
 
 const StackedAreaChart = ({
 	className = '',
@@ -39,7 +40,7 @@ const StackedAreaChart = ({
 					padding: 0,
 					tick: {
 						count: 4,
-						format: (value: number) => value,
+						format: (value: number) => defaultNumber(value, 0),
 					},
 				},
 			},
@@ -69,6 +70,22 @@ const StackedAreaChart = ({
 				bottom: 0,
 				left: 40,
 			},
+			tooltip: {
+				show: true,
+				format: {
+					value: function (value: any) {
+						return defaultNumber(value)
+					},
+				},
+				// contents: {
+				// 	bindto: '#tooltip',
+				// 	template:
+				// 		'<ul class={=CLASS_TOOLTIP}>{{' +
+				// 		'<li class="{=CLASS_TOOLTIP_NAME}"><span>{=VALUE}</span><br>' +
+				// 		'<span style=color:{=COLOR}>{=NAME}</span></li>' +
+				// 		'}}</ul>',
+				// },
+			},
 		}
 	}, [colors, columns, groups, legendId])
 
@@ -78,6 +95,7 @@ const StackedAreaChart = ({
 			chart.load({
 				columns: columns,
 				colors: colors,
+				unload: true,
 			})
 			chart.groups(groups)
 		}

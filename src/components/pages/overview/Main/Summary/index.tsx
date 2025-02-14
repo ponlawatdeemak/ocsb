@@ -1,3 +1,6 @@
+import useAreaUnit from '@/store/area-unit'
+import useQuantityUnit from '@/store/quantity-unit'
+import { defaultNumber } from '@/utils/text'
 import { GetSummaryOverviewDtoOut } from '@interface/dto/overview/overview.dto-out'
 import { Typography } from '@mui/material'
 import classNames from 'classnames'
@@ -11,6 +14,8 @@ const OverviewSummaryMain = ({
 	className?: string
 }) => {
 	const { t } = useTranslation(['overview', 'common'])
+	const { areaUnit } = useAreaUnit()
+	const { quantityUnit } = useQuantityUnit()
 
 	return (
 		<div
@@ -19,21 +24,21 @@ const OverviewSummaryMain = ({
 				className,
 			)}
 		>
-			<div className='bg-gray-400'>
+			<div className='bg-gradient-to-r from-[#F94187_0%] to-[#BB53A6_100%]'>
 				<Typography>{t('totalHotspot')}</Typography>
-				<Typography>560 จุด</Typography>
+				<Typography>{`${defaultNumber(summaryData?.hotspot ?? '-')} ${t('common:point')}`}</Typography>
 			</div>
-			<div className='bg-gray-400'>
+			<div className='bg-gradient-to-r from-[#875FBA_0%] to-[#5C4ABD_100%]'>
 				<Typography>{t('burntScarArea')}</Typography>
-				<Typography>1,300 ไร่</Typography>
+				<Typography>{`${defaultNumber(summaryData?.burnArea[areaUnit] ?? '-')} ${t(`common:${areaUnit}`)}`}</Typography>
 			</div>
-			<div className='bg-gray-400'>
+			<div className='bg-gradient-to-r from-[#FAB725_0%] to-[#F67F54_100%]'>
 				<Typography>{t('SugarCaneArea')}</Typography>
-				<Typography>13,000,000 ไร่</Typography>
+				<Typography>{`${defaultNumber(summaryData?.yieldPred[areaUnit] ?? '-')} ${t(`common:${areaUnit}`)}`}</Typography>
 			</div>
-			<div className='bg-gray-400'>
+			<div className='bg-gradient-to-r from-[#89E2E6_0%] to-[#488AB6_100%]'>
 				<Typography>{t('SugarCaneQuantity')}</Typography>
-				<Typography>7,000,000 ตัน</Typography>
+				<Typography>{`${defaultNumber(summaryData?.sugarcaneVolume[quantityUnit] ?? '-')} ${t(`common:${quantityUnit}`)}`}</Typography>
 			</div>
 		</div>
 	)

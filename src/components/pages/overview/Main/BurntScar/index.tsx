@@ -4,15 +4,57 @@ import { Typography } from '@mui/material'
 import { useTranslation } from 'next-i18next'
 import SplineChart from '../../Chart/SplineChart'
 import classNames from 'classnames'
+import { useMemo } from 'react'
+import * as _ from 'lodash'
+import { Languages } from '@/enum'
+import useAreaUnit from '@/store/area-unit'
 
 const OverviewBurntScarMain = ({
 	burntData,
 	className,
 }: {
-	burntData: GetBurntOverviewDtoOut | undefined
+	burntData: GetBurntOverviewDtoOut[] | undefined
 	className?: string
 }) => {
-	const { t } = useTranslation(['overview', 'common'])
+	const { t, i18n } = useTranslation(['overview', 'common'])
+	const { areaUnit } = useAreaUnit()
+
+	const columns = useMemo(() => {
+		const xLabel = ['x']
+		burntData?.[0].monthlyData.forEach((item) => {
+			xLabel.push(item.month)
+		})
+
+		const columnsData =
+			burntData?.map((item) => {
+				return [
+					item[
+						`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetBurntOverviewDtoOut
+					],
+					...item.monthlyData.map((data) => {
+						return data.area[areaUnit]
+					}),
+				]
+			}) ?? []
+
+		return [xLabel, ...columnsData]
+	}, [areaUnit, burntData, i18n.language])
+
+	const colors = useMemo(() => {
+		return burntData?.reduce(
+			(acc, item) => {
+				acc[
+					item[
+						`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetBurntOverviewDtoOut
+					] as string
+				] = regionColor[item.regionId as keyof typeof regionColor].color
+				return acc
+			},
+			{} as {
+				[key: string]: any
+			},
+		)
+	}, [burntData, i18n.language])
 
 	return (
 		<div
@@ -22,22 +64,9 @@ const OverviewBurntScarMain = ({
 			)}
 		>
 			<Typography className='text-primary'>{t('burntScar')}</Typography>
-			<SplineChart
-				legendId='splineOverview'
-				columns={[
-					['x', '1jan', '1feb', '1march', '1april'],
-					['test1', 20, 30, 150, 1000],
-					['test2', 1, 50, 400, 700],
-					['test3', 4, 900, 500, 425],
-					['test4', 3, 70, 60, 50],
-				]}
-				colors={{
-					['test1']: regionColor[1].color,
-					['test2']: regionColor[2].color,
-					['test3']: regionColor[3].color,
-					['test4']: regionColor[4].color,
-				}}
-			/>
+			{burntData && columns && colors && (
+				<SplineChart legendId='splineOverview' columns={columns} colors={colors} />
+			)}
 		</div>
 	)
 }

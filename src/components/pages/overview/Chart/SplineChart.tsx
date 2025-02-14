@@ -4,6 +4,7 @@ import bb, { spline } from 'billboard.js'
 import { useRef, useMemo, useEffect } from 'react'
 import { Box } from '@mui/material'
 import classNames from 'classnames'
+import { defaultNumber } from '@/utils/text'
 
 const SplineChart = ({
 	className = '',
@@ -16,7 +17,7 @@ const SplineChart = ({
 	columns: any[][]
 	colors: { [key: string]: string }
 }) => {
-	const SplineChartRef = useRef<IChart>(null)
+	const chartRef = useRef<IChart>(null)
 	const options = useMemo(() => {
 		return {
 			data: {
@@ -34,7 +35,7 @@ const SplineChart = ({
 					padding: 0,
 					tick: {
 						count: 8,
-						format: (value: number) => value,
+						format: (value: number) => defaultNumber(value, 0),
 					},
 				},
 			},
@@ -65,7 +66,7 @@ const SplineChart = ({
 				show: true,
 				format: {
 					value: function (value: any) {
-						return value
+						return defaultNumber(value)
 					},
 				},
 				// contents: {
@@ -81,11 +82,12 @@ const SplineChart = ({
 	}, [colors, columns, legendId])
 
 	useEffect(() => {
-		const chart = SplineChartRef.current?.instance
-		if (SplineChartRef.current && chart) {
+		const chart = chartRef.current?.instance
+		if (chartRef.current && chart) {
 			chart.load({
 				columns: columns,
 				colors: colors,
+				unload: true,
 			})
 		}
 	}, [columns, colors])
@@ -95,8 +97,8 @@ const SplineChart = ({
 			<BillboardJS
 				bb={bb}
 				options={options}
-				ref={SplineChartRef}
-				className='bb h-full w-full [&_.bb-tooltip-container]:text-black [&_.tick]:fill-black [&_svg]:lg:absolute'
+				ref={chartRef}
+				className='bb h-full w-full [&_.bb-tooltip-container]:text-black [&_.tick]:fill-black [&_svg]:!overflow-visible [&_svg]:lg:absolute'
 			/>
 			<div
 				id={legendId}

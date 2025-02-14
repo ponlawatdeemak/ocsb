@@ -5,6 +5,7 @@ import { useTranslation } from 'next-i18next'
 import { ResponseLanguage } from '@/api/interface'
 import BillboardJS, { IChart } from '@billboard.js/react'
 import classNames from 'classnames'
+import { defaultNumber } from '@/utils/text'
 
 const DonutChart = ({
 	columns,
@@ -12,67 +13,58 @@ const DonutChart = ({
 	height = 168,
 	width = 168,
 }: {
-	columns: [string, number][]
+	columns: any[][]
 	colors: { [key: string]: string }
 	height?: number
 	width?: number
 }) => {
 	const { i18n } = useTranslation(['common'])
 	const language = i18n.language as keyof ResponseLanguage
-	const historyBarChart = useRef<IChart>(null)
-
-	const donutColumns = useMemo(() => {
-		return [
-			...columns,
-			// , ['ไม่มีข้อมูล', 100 - columns[0][1]]
-		]
-	}, [columns])
-
-	const donutColors = useMemo(() => {
-		return {
-			...colors,
-			// , ['ไม่มีข้อมูล']: '#f5f5f6'
-		}
-	}, [colors])
+	const chartRef = useRef<IChart>(null)
 
 	const options = useMemo(() => {
 		return {
 			data: {
-				columns: donutColumns,
+				columns: columns,
 				type: donut(),
-				colors: donutColors ?? {},
+				colors: colors ?? {},
 			},
 			donut: {
 				label: {
-					show: false,
+					show: true,
+					format: function (value: any, ratio: any, id: any) {
+						return `${id}\n${defaultNumber(ratio * 100, 1)}%`
+					},
+					ratio: 1.5,
 				},
-				width: 35,
 			},
 			legend: {
 				show: false,
 			},
 			tooltip: { show: false },
 		}
-	}, [donutColors, donutColumns])
+	}, [colors, columns])
 
 	useEffect(() => {
-		const chart = historyBarChart.current?.instance
+		const chart = chartRef.current?.instance
 		if (chart) {
 			chart.load({
-				columns: donutColumns,
-				colors: donutColors ?? {},
+				columns: columns,
+				colors: colors ?? {},
 				unload: true,
 			})
 		}
-	}, [donutColumns, language, options, donutColors])
+	}, [language, options, columns, colors])
 
 	return (
 		<div className='flex w-full items-center justify-center'>
 			<BillboardJS
 				bb={bb}
 				options={options}
-				ref={historyBarChart}
-				className={'z-10'}
+				ref={chartRef}
+				className={
+					'z-10 [&_.bb-chart-arc_text]:!fill-[#3C0A6D] [&_.bb-chart-arc_text]:!text-2xs [&_svg]:!overflow-visible'
+				}
 				style={{ height: height, width: width }}
 			/>
 		</div>

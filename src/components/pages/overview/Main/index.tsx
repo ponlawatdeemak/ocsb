@@ -1,11 +1,12 @@
 import FilterSelect from '@/components/common/select/FilterSelect'
-import { Typography } from '@mui/material'
+import { CircularProgress, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useTranslation } from 'next-i18next'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import InfoTooltip from '../Tooltip/InfoTooltip'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
+import * as _ from 'lodash'
 import OverviewSummaryMain from './Summary'
 import OverviewHotSpotMain from './Hotspot'
 import OverviewBurntScarMain from './BurntScar'
@@ -13,23 +14,108 @@ import OverviewPlantMain from './Plant'
 import OverviewProductMain from './Product'
 import OverviewProductPredictMain from './ProductPredict'
 import OverviewReplantMain from './Replant'
+import { Languages } from '@/enum'
 
 interface OverviewMainProps {
 	className?: string
 }
 
 export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) => {
-	const { t } = useTranslation(['overview', 'common'])
+	const { t, i18n } = useTranslation(['overview', 'common'])
 	const [year, setYear] = useState('')
+	const [productPredictYear, setProductPredictYear] = useState('')
 
 	const { data: yearProductionLookupData, isLoading: isYearProductionDataLoading } = useQuery({
 		queryKey: ['yearProductionLookupData'],
 		queryFn: async () => {
 			const response = await service.lookup.get({ name: 'year_production', sort: 'id', order: 'ASC' })
-			setYear(response[response.length - 1].id)
+			setYear(String(response[response.length - 1].id))
 			return response
 		},
 	})
+
+	const { data: summaryData, isLoading: isSummaryDataLoading } = useQuery({
+		queryKey: ['summaryData', year],
+		queryFn: () => service.overview.getSummaryOverview({ id: year }),
+		enabled: !!year,
+	})
+
+	const { data: heatPointsData, isLoading: isHeatPointsDataLoading } = useQuery({
+		queryKey: ['heatPointsData', year],
+		queryFn: () => service.overview.getHeatPointsOverview({ id: year }),
+		enabled: !!year,
+	})
+
+	const { data: heatPointsSugarcaneData, isLoading: isHeatPointsSugarcaneDataLoading } = useQuery({
+		queryKey: ['heatPointsSugarcaneData', year],
+		queryFn: () => service.overview.getHeatPointsSugarcaneOverview({ id: year }),
+		enabled: !!year,
+	})
+
+	const { data: BurntData, isLoading: isBurntDataLoading } = useQuery({
+		queryKey: ['BurntData', year],
+		queryFn: () => service.overview.getBurntOverview({ id: year }),
+		enabled: !!year,
+	})
+
+	const { data: plantData, isLoading: isPlantDataLoading } = useQuery({
+		queryKey: ['plantData', year],
+		queryFn: () => service.overview.getPlantOverview({ id: year }),
+		enabled: !!year,
+	})
+
+	const { data: productData, isLoading: isProductDataLoading } = useQuery({
+		queryKey: ['productData', year],
+		queryFn: () => service.overview.getProductOverview({ id: year }),
+		enabled: !!year,
+	})
+
+	const { data: productPredictData, isLoading: isProductPredictDataLoading } = useQuery({
+		queryKey: ['productPredictData', year, productPredictYear],
+		queryFn: () =>
+			service.overview.getProductPredictOverview({ id: productPredictYear ? productPredictYear : year }),
+		enabled: !!year,
+	})
+
+	const handleSetProductPredictYear = (action: 'back' | 'forward') => {
+		if (action === 'back') {
+			setProductPredictYear((productPredictYear) =>
+				productPredictYear ? String(Number(productPredictYear) - 1) : String(Number(year) - 1),
+			)
+		} else if (action === 'forward') {
+			setProductPredictYear((productPredictYear) =>
+				productPredictYear ? String(Number(productPredictYear) + 1) : String(Number(year) + 1),
+			)
+		}
+	}
+
+	const yearLookupData = useMemo(() => {
+		return (
+			yearProductionLookupData?.map((item: any) => ({
+				id: item.id,
+				name: item[`${_.camelCase(`name-${i18n.language === Languages.TH ? '' : i18n.language}`)}`],
+			})) ?? []
+		)
+	}, [i18n.language, yearProductionLookupData])
+
+	const isDisabledBackproductPredict = useMemo(() => {
+		if ((productPredictYear ? productPredictYear : year) && productPredictData) {
+			return Number(productPredictYear ? productPredictYear : year) === yearProductionLookupData[0].id
+		} else {
+			return false
+		}
+	}, [productPredictData, productPredictYear, year, yearProductionLookupData])
+
+	const isDisabledForwardproductPredict = useMemo(() => {
+		if ((productPredictYear ? productPredictYear : year) && productPredictData) {
+			return (
+				Number(productPredictYear ? productPredictYear : year) ===
+				yearProductionLookupData[yearProductionLookupData.length - 1].id
+			)
+		} else {
+			return false
+		}
+	}, [productPredictData, productPredictYear, year, yearProductionLookupData])
 
 	return (
 		<div className={classNames('relative flex h-auto w-full flex-1 flex-col p-6 lg:px-6 lg:py-3', className)}>
@@ -46,28 +132,53 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 							className='lg:[&>.MuiInputBase-root]:min-w-[206px]'
 							id='year'
 							value={year}
-							data={yearProductionLookupData ?? []}
+							data={yearLookupData}
 							disabled={isYearProductionDataLoading}
 							onChange={(event) => {
+								setProductPredictYear('')
 								setYear(event.target.value)
 							}}
 						/>
 					</div>
 				</div>
+				{(isYearProductionDataLoading ||
+					isSummaryDataLoading ||
+					isHeatPointsDataLoading ||
+					isHeatPointsSugarcaneDataLoading ||
+					isBurntDataLoading ||
+					isPlantDataLoading ||
+					isProductDataLoading ||
+					isProductPredictDataLoading) &&
+				!productPredictYear ? (
+					<div className='flex h-full w-full items-center justify-center'>
+						<CircularProgress size={80} />
+					</div>
+				) : (
+					<>
+						<OverviewSummaryMain summaryData={summaryData?.data} />
 
-				<OverviewSummaryMain summaryData={undefined} />
+						<div className='flex w-full flex-col items-center gap-6 lg:max-h-[245px] lg:flex-row lg:gap-4'>
+							<OverviewHotSpotMain
+								heatPointsData={heatPointsData?.data}
+								heatPointSugarcaneData={heatPointsSugarcaneData?.data}
+							/>
+							<OverviewBurntScarMain burntData={BurntData?.data} />
+						</div>
 
-				<div className='flex w-full flex-col items-center gap-6 lg:max-h-[245px] lg:flex-row lg:gap-4'>
-					<OverviewHotSpotMain heatPointsData={undefined} heatPointSugarcaneData={undefined} />
-					<OverviewBurntScarMain burntData={undefined} />
-				</div>
-
-				<div className='flex w-full flex-col items-center gap-6 lg:flex-row lg:gap-4'>
-					<OverviewPlantMain plantData={undefined} />
-					<OverviewProductMain productData={undefined} />
-					<OverviewProductPredictMain productPredictData={undefined} />
-					<OverviewReplantMain replantData={undefined} />
-				</div>
+						<div className='flex w-full flex-col items-center gap-6 lg:flex-row lg:gap-4'>
+							<OverviewPlantMain plantData={plantData?.data} />
+							<OverviewProductMain productData={productData?.data} />
+							<OverviewProductPredictMain
+								productPredictData={productPredictData?.data}
+								isProductPredictDataLoading={isProductPredictDataLoading}
+								handleSetProductPredictYear={handleSetProductPredictYear}
+								isDisabledBack={isDisabledBackproductPredict}
+								isDisabledForward={isDisabledForwardproductPredict}
+							/>
+							<OverviewReplantMain replantData={undefined} />
+						</div>
+					</>
+				)}
 			</div>
 		</div>
 	)
