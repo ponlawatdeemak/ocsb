@@ -1,6 +1,5 @@
 import um from '@/api/um'
 import {
-	Alert,
 	Box,
 	Button,
 	CircularProgress,
@@ -10,23 +9,18 @@ import {
 	DialogTitle,
 	Divider,
 	IconButton,
-	Snackbar,
 	Typography,
 } from '@mui/material'
-import React, { useCallback, useMemo } from 'react'
+import React, { memo, useMemo } from 'react'
 import { useTranslation } from 'next-i18next'
 import ClearIcon from '@mui/icons-material/Clear'
 import Icon from '@mdi/react'
-import { mdiTrayArrowDown, mdiTrayArrowUp, mdiCloseCircleOutline, mdiDownloadOutline } from '@mdi/js'
-import { useQueryClient } from '@tanstack/react-query'
+import { mdiDownloadOutline } from '@mdi/js'
 import { AlertInfoType } from '@/components/shared/ProfileForm/interface'
-import AlertConfirm from '@/components/common/dialog/AlertConfirm'
 import CloseIcon from '@mui/icons-material/Close'
-import classNames from 'classnames'
 import AlertSnackbar from '@/components/common/snackbar/AlertSnackbar'
 import { useDropzone } from 'react-dropzone'
-import { FileDownloadOutlined, FileUploadOutlined } from '@mui/icons-material'
-import { relative } from 'path'
+import { FileUploadOutlined } from '@mui/icons-material'
 import { CsvIcon } from '@/components/svg/AppIcon'
 
 const maxFileSize = 1.5e7
@@ -38,18 +32,14 @@ export interface FormImportProps {
 
 export const DialogImport: React.FC<FormImportProps> = ({ ...props }) => {
 	const { t } = useTranslation(['common', 'um'])
-	// const { i18n: i18nWithCookie } = useSwitchLanguage(i18n.language as Language, 'appbar')
 	const [importFile, setImportFile] = React.useState<File>()
 	const { open, onClose } = props
 	const [loading, setLoading] = React.useState<boolean>(false)
-	const [isOpenConfirmModal, setIsOpenConfirmModal] = React.useState<boolean>(false)
 	const [alertInfo, setAlertInfo] = React.useState<AlertInfoType>({
 		open: false,
 		severity: 'success',
 		message: '',
 	})
-
-	const queryClient = useQueryClient()
 
 	const handleFileChange = (file: File[]) => {
 		const importFile = file?.[0]
@@ -283,3 +273,5 @@ export const DialogImport: React.FC<FormImportProps> = ({ ...props }) => {
 		</div>
 	)
 }
+
+export default memo(DialogImport)

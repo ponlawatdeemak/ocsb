@@ -36,9 +36,9 @@ import { AppPath } from '@/config/app.config'
 import { QueryObserverResult, RefetchOptions, useMutation } from '@tanstack/react-query'
 import service from '@/api'
 import { ResponseDto } from '@/api/interface'
-import AlertDialog from '@/components/common/dialog/AlertDialog'
 import { UserRole } from '@interface/config/um.config'
 import ImgProfile from './ImgProfile'
+import DialogDelete from '../DialogDelete'
 
 interface HeadCell {
 	disablePadding: boolean
@@ -603,19 +603,15 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 				</Paper>
 			</div>
 
-			<AlertDialog
+			<DialogDelete
 				open={isConfirmDeleteDialogOpen}
-				title={'คุณต้องการลบรายการนี้หรือไม่'}
-				content={'คุณต้องการลบรายการนี้หรือไม่'}
-				onClose={() => {
+				onCancel={() => {
 					setCurrentDeleteId('')
 					setIsConfirmDeleteDialogOpen(false)
 				}}
-				onConfirm={() => handleDeleteUser(currentDeleteId)}
+				onSubmit={() => handleDeleteUser(currentDeleteId)}
 				loading={busy || isDeleteUMPending}
-				isDisableBackdropClick
 			/>
-
 			<AlertSnackbar alertInfo={alertInfo} onClose={() => setAlertInfo({ ...alertInfo, open: false })} />
 		</Box>
 	)
