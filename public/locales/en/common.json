@@ -11,13 +11,14 @@
 	},
 
 	"areaUnit": "Area Unit",
-	"areaRai": "Rai",
-	"areaPlot": "LandPlot",
+	"m2": "M²",
+	"km2": "Km²",
+	"rai": "Rai",
+	"hexa": "Hexa",
 
 	"quantityUnit": "Quantity Unit",
 	"ton": "Ton",
-	"kilogram": "Kilogram",
-	"gram": "Gram",
+	"kg": "Kg",
 
 	"languages": "Languages",
 	"languagesTh": "ไทย",

@@ -18,28 +18,16 @@ import { useCallback, useMemo, useState } from 'react'
 import FilterSelect, { FilterSelectOptionType } from '../common/select/FilterSelect'
 import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
+import { CurrentSettingType } from './AppBar'
 
 interface SettingDialogProps {
 	open: boolean
-	selectedAreaUnit: AreaUnitKey
-	selectedQuantityUnit: QuantityUnitKey
-	currentLanguage: 'th' | 'en'
-	setSelectedAreaUnit: React.Dispatch<React.SetStateAction<AreaUnitKey>>
-	setSelectedQuantityUnit: React.Dispatch<React.SetStateAction<QuantityUnitKey>>
-	setCurrentLanguage: React.Dispatch<React.SetStateAction<'th' | 'en'>>
+	currentSetting: CurrentSettingType
+	setCurrentSetting: React.Dispatch<React.SetStateAction<CurrentSettingType>>
 	onClose: () => void
 }
 
-const SettingDialog: React.FC<SettingDialogProps> = ({
-	open,
-	selectedAreaUnit,
-	selectedQuantityUnit,
-	currentLanguage,
-	setSelectedAreaUnit,
-	setSelectedQuantityUnit,
-	setCurrentLanguage,
-	onClose,
-}) => {
+const SettingDialog: React.FC<SettingDialogProps> = ({ open, currentSetting, setCurrentSetting, onClose }) => {
 	const router = useRouter()
 	const { setAreaUnit } = useAreaUnit()
 	const { setQuantityUnit } = useQuantityUnit()
@@ -49,8 +37,10 @@ const SettingDialog: React.FC<SettingDialogProps> = ({
 
 	const areaUnitOptions: FilterSelectOptionType[] = useMemo(
 		() => [
+			{ id: AreaUnitKey.Sqm, name: t(`${AreaUnitKey.Sqm}`) },
+			{ id: AreaUnitKey.Sqkm, name: t(`${AreaUnitKey.Sqkm}`) },
 			{ id: AreaUnitKey.Rai, name: t(`${AreaUnitKey.Rai}`) },
-			{ id: AreaUnitKey.LandPlot, name: t(`${AreaUnitKey.LandPlot}`) },
+			{ id: AreaUnitKey.Hexa, name: t(`${AreaUnitKey.Hexa}`) },
 		],
 		[t],
 	)
@@ -59,47 +49,55 @@ const SettingDialog: React.FC<SettingDialogProps> = ({
 		() => [
 			{ id: QuantityUnitKey.Ton, name: t(`${QuantityUnitKey.Ton}`) },
 			{ id: QuantityUnitKey.Kilogram, name: t(`${QuantityUnitKey.Kilogram}`) },
-			{ id: QuantityUnitKey.Gram, name: t(`${QuantityUnitKey.Gram}`) },
 		],
 		[t],
 	)
 
 	const handleAreaUnitChange = useCallback(
 		(event: SelectChangeEvent) => {
-			setSelectedAreaUnit(event.target.value as AreaUnitKey)
+			setCurrentSetting((prevSetting) => ({
+				...prevSetting,
+				areaUnit: event.target.value as AreaUnitKey,
+			}))
 		},
-		[setSelectedAreaUnit],
+		[setCurrentSetting],
 	)
 
 	const handleQuantityUnitChange = useCallback(
 		(event: SelectChangeEvent) => {
-			setSelectedQuantityUnit(event.target.value as QuantityUnitKey)
+			setCurrentSetting((prevSetting) => ({
+				...prevSetting,
+				quantityUnit: event.target.value as QuantityUnitKey,
+			}))
 		},
-		[setSelectedQuantityUnit],
+		[setCurrentSetting],
 	)
 
 	const handleToggleLanguage = useCallback(
 		(_event: React.MouseEvent<HTMLElement>, language: Languages) => {
 			if (language) {
-				setCurrentLanguage(language)
+				setCurrentSetting((prevSetting) => ({
+					...prevSetting,
+					language: language,
+				}))
 			}
 		},
-		[setCurrentLanguage],
+		[setCurrentSetting],
 	)
 
 	const onSettingsSubmit = useCallback(() => {
 		try {
 			setBusy(true)
-			setAreaUnit(selectedAreaUnit)
-			setQuantityUnit(selectedQuantityUnit)
-			i18n.changeLanguage(currentLanguage)
+			setAreaUnit(currentSetting.areaUnit)
+			setQuantityUnit(currentSetting.quantityUnit)
+			i18n.changeLanguage(currentSetting.language)
 			router.push(
 				{
 					pathname: router.pathname,
 					query: router.query,
 				},
 				router.asPath,
-				{ locale: currentLanguage },
+				{ locale: currentSetting.language },
 			)
 		} catch (error) {
 			console.error(error)
@@ -107,7 +105,7 @@ const SettingDialog: React.FC<SettingDialogProps> = ({
 			setBusy(false)
 			onClose()
 		}
-	}, [setAreaUnit, setQuantityUnit, selectedAreaUnit, selectedQuantityUnit, currentLanguage, i18n, router, onClose])
+	}, [setAreaUnit, setQuantityUnit, currentSetting, i18n, router, onClose])
 
 	return (
 		<Dialog
@@ -135,7 +133,7 @@ const SettingDialog: React.FC<SettingDialogProps> = ({
 							className='w-[276px]'
 							fullWidth={false}
 							id='unitArea'
-							value={selectedAreaUnit}
+							value={currentSetting.areaUnit}
 							data={areaUnitOptions}
 							onChange={handleAreaUnitChange}
 							disabled={busy}
@@ -148,7 +146,7 @@ const SettingDialog: React.FC<SettingDialogProps> = ({
 							className='w-[276px]'
 							fullWidth={false}
 							id='unitQuantity'
-							value={selectedQuantityUnit}
+							value={currentSetting.quantityUnit}
 							data={quantityUnitOptions}
 							onChange={handleQuantityUnitChange}
 							disabled={busy}
@@ -163,7 +161,7 @@ const SettingDialog: React.FC<SettingDialogProps> = ({
 								exclusive
 								color='primary'
 								className='flex h-[38px] w-[132px] !rounded-[5px] bg-[#E6E6E6] [&_.Mui-selected>div]:text-white [&_.Mui-selected]:!bg-secondary'
-								value={currentLanguage}
+								value={currentSetting.language}
 								onChange={handleToggleLanguage}
 								disabled={busy}
 							>

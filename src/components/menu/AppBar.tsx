@@ -14,11 +14,17 @@ import useQuantityUnit from '@/store/quantity-unit'
 import { useTranslation } from 'next-i18next'
 import { ResponseLanguage } from '@/api/interface'
 
+export interface CurrentSettingType {
+	areaUnit: AreaUnitKey
+	quantityUnit: QuantityUnitKey
+	language: keyof ResponseLanguage
+}
+
 interface AppBarProps {
 	className?: string
 }
 
-const AppBar: React.FC<AppBarProps> = ({}) => {
+const AppBar: React.FC<AppBarProps> = ({ className }) => {
 	const { data: session } = useSession()
 	const { isDesktop } = useResponsive()
 	const { areaUnit } = useAreaUnit()
@@ -27,11 +33,11 @@ const AppBar: React.FC<AppBarProps> = ({}) => {
 	const { i18n } = useTranslation('common')
 	const language = i18n.language as keyof ResponseLanguage
 
-	const [selectedAreaUnit, setSelectedAreaUnit] = useState<AreaUnitKey>(areaUnit || AreaUnitKey.Rai)
-	const [selectedQuantityUnit, setSelectedQuantityUnit] = useState<QuantityUnitKey>(
-		quantityUnit || QuantityUnitKey.Ton,
-	)
-	const [currentLanguage, setCurrentLanguage] = useState<'th' | 'en'>(language || Languages.TH)
+	const [currentSetting, setCurrentSetting] = useState<CurrentSettingType>({
+		areaUnit: areaUnit || AreaUnitKey.Rai,
+		quantityUnit: quantityUnit || QuantityUnitKey.Ton,
+		language: language || Languages.TH,
+	})
 
 	const toggleMenuDrawer = useCallback(
 		(newOpen: boolean) => () => {
@@ -55,14 +61,7 @@ const AppBar: React.FC<AppBarProps> = ({}) => {
 					</Box>
 				</Box>
 				{isDesktop && (
-					<MenuListOnDesktop
-						selectedAreaUnit={selectedAreaUnit}
-						selectedQuantityUnit={selectedQuantityUnit}
-						currentLanguage={currentLanguage}
-						setSelectedAreaUnit={setSelectedAreaUnit}
-						setSelectedQuantityUnit={setSelectedQuantityUnit}
-						setCurrentLanguage={setCurrentLanguage}
-					/>
+					<MenuListOnDesktop currentSetting={currentSetting} setCurrentSetting={setCurrentSetting} />
 				)}
 			</Box>
 			{isDesktop ? (
@@ -86,12 +85,8 @@ const AppBar: React.FC<AppBarProps> = ({}) => {
 						</Box>
 						<Box className='h-[calc(100%-116px)] overflow-auto'>
 							<MenuListOnMobile
-								selectedAreaUnit={selectedAreaUnit}
-								selectedQuantityUnit={selectedQuantityUnit}
-								currentLanguage={currentLanguage}
-								setSelectedAreaUnit={setSelectedAreaUnit}
-								setSelectedQuantityUnit={setSelectedQuantityUnit}
-								setCurrentLanguage={setCurrentLanguage}
+								currentSetting={currentSetting}
+								setCurrentSetting={setCurrentSetting}
 								onCloseMenuDrawer={() => setDrawerMenuOpen(false)}
 							/>
 						</Box>

@@ -16,6 +16,7 @@ import { useSession } from 'next-auth/react'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 import AlertDialog from '@/components/common/dialog/AlertDialog'
 import useResponsive from '@/hook/responsive'
+import { DialogImport } from './DialogImport'
 
 export const UserManagementMain = () => {
 	const router = useRouter()
@@ -34,7 +35,8 @@ export const UserManagementMain = () => {
 	})
 	const [selected, setSelected] = useState<readonly string[]>([])
 	const [activeAnchorEl, setActiveAnchorEl] = useState<null | HTMLElement>(null)
-	const [busy, setBusy] = useState<boolean>(false)
+	const [busy, setBusy] = useState(false)
+	const [showImport, setShowImport] = useState(false)
 
 	const [isConfirmDeleteAllDialogOpen, setIsConfirmDeleteAllDialogOpen] = useState<boolean>(false)
 	const [isConfirmActiveAllDialogOpen, setIsConfirmActiveAllDialogOpen] = useState<boolean>(false)
@@ -190,7 +192,7 @@ export const UserManagementMain = () => {
 							className='flex h-[38px] items-center gap-1.5 !rounded-[5px] !bg-white/10 !px-3 !py-2.5 shadow-none hover:shadow-none max-lg:!min-w-[38px] [&_.MuiButton-icon]:m-0'
 							variant='contained'
 							startIcon={<FileUploadOutlined className='!h-4 !w-4 !fill-white' />}
-							onClick={() => console.log('Import!!!')}
+							onClick={() => setShowImport(true)}
 						>
 							{isDesktop && <Box className='!text-xs text-white'>{t('um:button.import')}</Box>}
 						</Button>
@@ -354,6 +356,14 @@ export const UserManagementMain = () => {
 			/>
 
 			<AlertSnackbar alertInfo={alertInfo} onClose={() => setAlertInfo({ ...alertInfo, open: false })} />
+			<DialogImport
+				open={showImport}
+				setOpen={setShowImport}
+				onClose={() => {
+					setShowImport(false)
+					refetchSearchUM()
+				}}
+			/>
 		</div>
 	)
 }
