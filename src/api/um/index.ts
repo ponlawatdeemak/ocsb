@@ -6,7 +6,9 @@ import {
 	GetImageUserDtoOut,
 	GetUMDtoOut,
 	PostImageUserDtoOut,
+	PostImportCsvUMDtoOut,
 	PostUMDtoOut,
+	PostValidateCsvUMDtoOut,
 	PutUMDtoOut,
 	SearchUMDtoOut,
 } from '@interface/dto/um/um.dto-out'
@@ -64,6 +66,30 @@ const um = {
 
 	postActiveUM: async (payload: PostActiveUMDtoIn): Promise<ResponseDto<{}>> =>
 		(await api.post('/um/active', payload)).data,
+
+	postImportValidate: async (file: File): Promise<ResponseDto<PostValidateCsvUMDtoOut>> => {
+		const formData = new FormData()
+		formData.append('file', file)
+		return (
+			await api.post(`/um/validate/csv`, formData, APIService.WebAPI, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			})
+		).data
+	},
+
+	postImportData: async (file: File): Promise<ResponseDto<PostImportCsvUMDtoOut>> => {
+		const formData = new FormData()
+		formData.append('file', file)
+		return (
+			await api.post(`/um/import/csv`, formData, APIService.WebAPI, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			})
+		).data
+	},
 }
 
 export default um

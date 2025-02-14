@@ -63,5 +63,16 @@
 	"alert": {
 		"saveComplete": "Save data complete.",
 		"saveError": "Save data error."
+	},
+	"import": {
+		"title": "Import User",
+		"dnd": "Drop the files here ...",
+		"template": "Download Template",
+		"upload": "Upload File",
+		"titleDnd": "Paste file here",
+		"contentDnd": "File format .CSV",
+		"invalidFileType": "Invalid file extension",
+		"fileSizeLimitExceed": "File size does not exceed 15 MB",
+		"success": "Import success"
 	}
 }

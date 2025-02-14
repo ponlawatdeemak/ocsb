@@ -63,5 +63,15 @@
 	"alert": {
 		"saveComplete": "บันทึกข้อมูลสำเร็จ",
 		"saveError": "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง"
+	},
+	"import": {
+		"title": "นำเข้าผู้ใช้งาน",
+		"dnd": "วางไฟล์ที่นี่ ...",
+		"template": "ดาวน์โหลด Template",
+		"upload": "อัปโหลดไฟล์",
+		"titleDnd": "หรือ วางไฟล์ลงที่นี่",
+		"contentDnd": "ไฟล์แนบรูปแบบ .CSV",
+		"invalidFileType": "นามสกุลไฟล์ไม่ถูกต้อง",
+		"fileSizeLimitExceed": "ขนาดไฟล์ต้องไม่เกิน 15 MB"
 	}
 }
