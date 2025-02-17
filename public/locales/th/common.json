@@ -47,5 +47,11 @@
 	"placeholder": {
 		"input": "ระบุ",
 		"autocomplete": "เลือก"
-	}
+	},
+
+    "area": "พื้นที่",
+    "month": "เดือน",
+    "year": "ปี",
+    "quantity": "ปริมาณ",
+    "region": "ภูมิภาค"
 }

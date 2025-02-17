@@ -47,5 +47,11 @@
 	"placeholder": {
 		"input": "Enter ",
 		"autocomplete": "Enter "
-	}
+	},
+
+    "area": "Area",
+    "month": "Month",
+    "year": "Year",
+    "quantity": "Quantity",
+    "region": "Region"
 }

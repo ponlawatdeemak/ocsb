@@ -7,6 +7,7 @@ import {
 	GetPlantOverviewDtoIn,
 	GetProductOverviewDtoIn,
 	GetProductPredictOverviewDtoIn,
+	GetReplantOverviewDtoIn,
 	GetSummaryOverviewDtoIn,
 } from '@interface/dto/overview/overview.dto-in'
 import {
@@ -16,6 +17,7 @@ import {
 	GetPlantOverviewDtoOut,
 	GetProductOverviewDtoOut,
 	GetProductPredictOverviewDtoOut,
+	GetReplantOverviewDtoOut,
 	GetSummaryOverviewDtoOut,
 } from '@interface/dto/overview/overview.dto-out'
 
@@ -40,6 +42,8 @@ const overview = {
 		payload: GetProductPredictOverviewDtoIn,
 	): Promise<ResponseDto<GetProductPredictOverviewDtoOut[]>> =>
 		await api.get(`/overview/product-predict?${payload.id && `id=${payload.id}`}`),
+	getReplantOverview: async (payload: GetReplantOverviewDtoIn): Promise<ResponseDto<GetReplantOverviewDtoOut[]>> =>
+		await api.get(`/overview/replant?${payload.id && `id=${payload.id}`}`),
 }
 
 export default overview

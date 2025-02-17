@@ -10,5 +10,11 @@
     "burntScar": "Burnt Scar",
     "sugarCaneYield":"Sugar Cane Yield",
     "sugarCanePredict": "Sugar Cane Quantity Prediction",
-    "threeYearPlant": "Replanting Sugar Cane in last 3 years"
+    "threeYearPlant": "Replanting Sugar Cane in last 3 years",
+    "titleInfo": "Projects include Saraburi, Phetchabun, Sa Kaeo and Khon Kaen",
+    "regionHotspot": "Hotspot amount in each region",
+    "allRegionHotspot": "Hotspot amount in all region",
+    "regionSugarCane": "Sugar Cane amount in each region",
+    "allRegionSugarCane": "Sugar Cane amount in all region",
+    "replant": "Sugar Cane Replant"
 }
