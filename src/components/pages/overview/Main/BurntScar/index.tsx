@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 import * as _ from 'lodash'
 import { Languages } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
+import { formatDate } from '@/utils/date'
 
 const OverviewBurntScarMain = ({
 	burntData,
@@ -22,7 +23,7 @@ const OverviewBurntScarMain = ({
 	const columns = useMemo(() => {
 		const xLabel = ['x']
 		burntData?.[0].monthlyData.forEach((item) => {
-			xLabel.push(item.month)
+			xLabel.push(formatDate(new Date(item.month), 'MMM yy', i18n.language))
 		})
 
 		const columnsData =
