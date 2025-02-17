@@ -20,7 +20,7 @@ export enum PublicPath {
 export enum PrivatePath {
 	MapAnalyze = '/map-analyze',
 	BurntArea = '/map-analyze/burnt-area',
-	CultivationArea = '/map-analyze/cultivation-area',
+	PlantingArea = '/map-analyze/planting-area',
 	UserManagement = '/user-management',
 	UserManagementForm = '/user-management/form',
 	Profile = '/profile',
@@ -50,9 +50,9 @@ export const mapAnalyzeMenuConfig: {
 		path: AppPath.BurntArea,
 	},
 	{
-		id: 'CultivationArea',
-		label: 'menu.cultivationArea',
-		path: AppPath.CultivationArea,
+		id: 'PlantingArea',
+		label: 'menu.plantingArea',
+		path: AppPath.PlantingArea,
 	},
 ]
 
