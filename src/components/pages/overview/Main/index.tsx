@@ -24,6 +24,7 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 	const { t, i18n } = useTranslation(['overview', 'common'])
 	const [year, setYear] = useState('')
 	const [productPredictYear, setProductPredictYear] = useState('')
+	const [replantYear, setReplantYear] = useState('')
 
 	const { data: yearProductionLookupData, isLoading: isYearProductionDataLoading } = useQuery({
 		queryKey: ['yearProductionLookupData'],
@@ -77,6 +78,21 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 		enabled: !!year,
 	})
 
+	const { data: replantData, isLoading: isReplantDataLoading } = useQuery({
+		queryKey: ['replantData', year, replantYear],
+		queryFn: () => service.overview.getReplantOverview({ id: replantYear ? replantYear : year }),
+		enabled: !!year,
+	})
+
+	const yearLookupData = useMemo(() => {
+		return (
+			yearProductionLookupData?.map((item: any) => ({
+				id: item.id,
+				name: item[`${_.camelCase(`name-${i18n.language === Languages.TH ? '' : i18n.language}`)}`],
+			})) ?? []
+		)
+	}, [i18n.language, yearProductionLookupData])
+
 	const handleSetProductPredictYear = (action: 'back' | 'forward') => {
 		if (action === 'back') {
 			setProductPredictYear((productPredictYear) =>
@@ -89,16 +105,7 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 		}
 	}
 
-	const yearLookupData = useMemo(() => {
-		return (
-			yearProductionLookupData?.map((item: any) => ({
-				id: item.id,
-				name: item[`${_.camelCase(`name-${i18n.language === Languages.TH ? '' : i18n.language}`)}`],
-			})) ?? []
-		)
-	}, [i18n.language, yearProductionLookupData])
-
-	const isDisabledBackproductPredict = useMemo(() => {
+	const isDisabledBackProductPredict = useMemo(() => {
 		if ((productPredictYear ? productPredictYear : year) && productPredictData) {
 			return Number(productPredictYear ? productPredictYear : year) === yearProductionLookupData[0].id
 		} else {
@@ -106,7 +113,7 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 		}
 	}, [productPredictData, productPredictYear, year, yearProductionLookupData])
 
-	const isDisabledForwardproductPredict = useMemo(() => {
+	const isDisabledForwardProductPredict = useMemo(() => {
 		if ((productPredictYear ? productPredictYear : year) && productPredictData) {
 			return (
 				Number(productPredictYear ? productPredictYear : year) ===
@@ -117,25 +124,53 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 		}
 	}, [productPredictData, productPredictYear, year, yearProductionLookupData])
 
+	const handleSetReplantYear = (action: 'back' | 'forward') => {
+		if (action === 'back') {
+			setReplantYear((replantYear) => (replantYear ? String(Number(replantYear) - 1) : String(Number(year) - 1)))
+		} else if (action === 'forward') {
+			setReplantYear((replantYear) => (replantYear ? String(Number(replantYear) + 1) : String(Number(year) + 1)))
+		}
+	}
+
+	const isDisabledBackReplant = useMemo(() => {
+		if ((replantYear ? replantYear : year) && replantData) {
+			return Number(replantYear ? replantYear : year) === yearProductionLookupData[0].id
+		} else {
+			return false
+		}
+	}, [replantData, replantYear, year, yearProductionLookupData])
+
+	const isDisabledForwardReplant = useMemo(() => {
+		if ((replantYear ? replantYear : year) && replantData) {
+			return (
+				Number(replantYear ? replantYear : year) ===
+				yearProductionLookupData[yearProductionLookupData.length - 1].id
+			)
+		} else {
+			return false
+		}
+	}, [replantData, replantYear, year, yearProductionLookupData])
+
 	return (
-		<div className={classNames('relative flex h-auto w-full flex-1 flex-col p-6 lg:px-6 lg:py-3', className)}>
-			<div className='absolute left-0 top-0 z-0 h-[750px] w-full bg-primary lg:h-[300px]'></div>
-			<div className='z-10 flex h-full w-full flex-1 flex-col gap-6 text-white lg:gap-4'>
-				<div className='flex w-full flex-col justify-between gap-6 lg:flex-row lg:items-center'>
+		<div className={classNames('relative flex h-auto w-full flex-1 flex-col p-6 xl:px-6 xl:py-3', className)}>
+			<div className='absolute left-0 top-0 z-0 h-[750px] w-full bg-primary xl:h-[300px]'></div>
+			<div className='z-10 flex h-full w-full flex-1 flex-col gap-6 text-white xl:gap-4'>
+				<div className='flex w-full flex-col justify-between gap-6 xl:flex-row xl:items-center'>
 					<div className='flex items-center gap-[6px]'>
 						<Typography className='!text-md'>{t('productOverview')}</Typography>
-						<InfoTooltip title={t('productOverview')} />
+						<InfoTooltip title={t('titleInfo')} />
 					</div>
-					<div className='flex flex-col gap-[6px] lg:flex-row lg:items-center lg:gap-[16px]'>
+					<div className='flex flex-col gap-[6px] xl:flex-row xl:items-center xl:gap-[16px]'>
 						<Typography className='text-nowrap !text-xs'>{t('productYear')}</Typography>
 						<FilterSelect
-							className='lg:[&>.MuiInputBase-root]:min-w-[206px]'
+							className='xl:[&>.MuiInputBase-root]:min-w-[206px]'
 							id='year'
 							value={year}
 							data={yearLookupData}
 							disabled={isYearProductionDataLoading}
 							onChange={(event) => {
 								setProductPredictYear('')
+								setReplantYear('')
 								setYear(event.target.value)
 							}}
 						/>
@@ -148,8 +183,10 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 					isBurntDataLoading ||
 					isPlantDataLoading ||
 					isProductDataLoading ||
-					isProductPredictDataLoading) &&
-				!productPredictYear ? (
+					isProductPredictDataLoading ||
+					isReplantDataLoading) &&
+				!productPredictYear &&
+				!replantYear ? (
 					<div className='flex h-full w-full items-center justify-center'>
 						<CircularProgress size={80} />
 					</div>
@@ -157,7 +194,7 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 					<>
 						<OverviewSummaryMain summaryData={summaryData?.data} />
 
-						<div className='flex w-full flex-col items-center gap-6 lg:max-h-[245px] lg:flex-row lg:gap-4'>
+						<div className='flex w-full flex-col items-center gap-6 xl:max-h-[245px] xl:flex-row xl:gap-4'>
 							<OverviewHotSpotMain
 								heatPointsData={heatPointsData?.data}
 								heatPointSugarcaneData={heatPointsSugarcaneData?.data}
@@ -165,17 +202,27 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 							<OverviewBurntScarMain burntData={BurntData?.data} />
 						</div>
 
-						<div className='flex w-full flex-col items-center gap-6 lg:flex-row lg:gap-4'>
-							<OverviewPlantMain plantData={plantData?.data} />
-							<OverviewProductMain productData={productData?.data} />
-							<OverviewProductPredictMain
-								productPredictData={productPredictData?.data}
-								isProductPredictDataLoading={isProductPredictDataLoading}
-								handleSetProductPredictYear={handleSetProductPredictYear}
-								isDisabledBack={isDisabledBackproductPredict}
-								isDisabledForward={isDisabledForwardproductPredict}
-							/>
-							<OverviewReplantMain replantData={undefined} />
+						<div className='flex w-full flex-col items-center gap-6 xl:flex-row xl:gap-4'>
+							<div className='flex w-full flex-col items-center gap-6 lg:flex-row xl:h-full xl:flex-[1] xl:gap-4'>
+								<OverviewPlantMain plantData={plantData?.data} />
+								<OverviewProductMain productData={productData?.data} />
+							</div>
+							<div className='flex w-full flex-col items-center gap-6 xl:h-full xl:flex-[2] xl:flex-row xl:gap-4'>
+								<OverviewProductPredictMain
+									productPredictData={productPredictData?.data}
+									isProductPredictDataLoading={isProductPredictDataLoading}
+									handleSetProductPredictYear={handleSetProductPredictYear}
+									isDisabledBack={isDisabledBackProductPredict}
+									isDisabledForward={isDisabledForwardProductPredict}
+								/>
+								<OverviewReplantMain
+									replantData={replantData?.data}
+									isReplantDataLoading={isReplantDataLoading}
+									handleSetReplantYear={handleSetReplantYear}
+									isDisabledBack={isDisabledBackReplant}
+									isDisabledForward={isDisabledForwardReplant}
+								/>
+							</div>
 						</div>
 					</>
 				)}

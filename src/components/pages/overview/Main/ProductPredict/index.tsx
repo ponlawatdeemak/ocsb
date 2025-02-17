@@ -9,10 +9,9 @@ import StackedAreaChart from '../../Chart/StackedAreaChart'
 import classNames from 'classnames'
 import { Languages } from '@/enum'
 import { useMemo } from 'react'
-import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
 import * as _ from 'lodash'
-import { regionColor, stackedAreaColor } from '@interface/config/app.config'
+import { stackedAreaColor } from '@interface/config/app.config'
 
 const OverviewProductPredictMain = ({
 	productPredictData,
@@ -32,34 +31,46 @@ const OverviewProductPredictMain = ({
 	const { t, i18n } = useTranslation(['overview', 'common'])
 	const { quantityUnit } = useQuantityUnit()
 
-	// const columns = useMemo(() => {
-	// 	const xLabel = ['x']
-	// 	productPredictData?.forEach((item) => {
-	// 		xLabel.push(i18n.language === Languages.TH ? item.regionName : item.regionNameEn)
-	// 	})
+	const columns = useMemo(() => {
+		const label = ['x']
+		productPredictData?.forEach((item) => {
+			label.push(i18n.language === Languages.TH ? item.regionName : item.regionNameEn)
+		})
 
-	// 	const columnsData =
-	// 		productPredictData?.map((item) => {
-	// 			return [
-	// 				item.years[
-	// 					`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _RegionGetProductPredictOverviewDtoOut
-	// 				],
-	// 				...item.years.map((data) => {
-	// 					return data.weight[quantityUnit]
-	// 				}),
-	// 			]
-	// 		}) ??
-	//         []
+		const result: [string, number][] = []
 
-	// 	return [xLabel, ...columnsData]
-	// }, [i18n.language, productPredictData, quantityUnit])
+		productPredictData?.forEach((region) => {
+			region.years.forEach((yearData) => {
+				const existingYearIndex = result.findIndex(
+					(entry) =>
+						entry[0] ===
+						yearData[
+							`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _RegionGetProductPredictOverviewDtoOut
+						],
+				)
+
+				if (existingYearIndex === -1) {
+					result.push([
+						yearData[
+							`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _RegionGetProductPredictOverviewDtoOut
+						] as string,
+						yearData.weight[quantityUnit],
+					])
+				} else {
+					result[existingYearIndex].push(yearData.weight[quantityUnit])
+				}
+			})
+		})
+
+		return [label, ...result]
+	}, [i18n.language, productPredictData, quantityUnit])
 
 	const colors = useMemo(() => {
-		return productPredictData?.reduce(
+		return productPredictData?.[0].years.reduce(
 			(acc, item, index) => {
 				acc[
 					item[
-						`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetProductPredictOverviewDtoOut
+						`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _RegionGetProductPredictOverviewDtoOut
 					] as string
 				] = stackedAreaColor[index as keyof typeof stackedAreaColor].color
 				return acc
@@ -83,7 +94,7 @@ const OverviewProductPredictMain = ({
 	return (
 		<div
 			className={classNames(
-				'flex h-full flex-col justify-start gap-6 rounded-[10px] bg-white p-4 shadow max-lg:w-full lg:flex-[2]',
+				'flex h-full flex-col justify-start gap-6 rounded-[10px] bg-white p-4 shadow max-xl:w-full xl:flex-[2]',
 				className,
 			)}
 		>
@@ -95,41 +106,40 @@ const OverviewProductPredictMain = ({
 						onClick={() => {
 							handleSetProductPredictYear('back')
 						}}
-						disabled={isDisabledBack}
+						disabled={isDisabledBack || isProductPredictDataLoading}
 					>
-						<ArrowBackIcon fill={isDisabledBack ? '#A7AFB9' : '#000000'} />
+						<ArrowBackIcon fill={isDisabledBack || isProductPredictDataLoading ? '#A7AFB9' : '#000000'} />
 					</IconButton>
 					<IconButton
 						className='!p-0'
 						onClick={() => {
 							handleSetProductPredictYear('forward')
 						}}
-						disabled={isDisabledForward}
+						disabled={isDisabledForward || isProductPredictDataLoading}
 					>
-						<ArrowForwardIcon fill={isDisabledForward ? '#A7AFB9' : '#000000'} />
+						<ArrowForwardIcon
+							fill={isDisabledForward || isProductPredictDataLoading ? '#A7AFB9' : '#000000'}
+						/>
 					</IconButton>
 				</div>
 			</div>
-			{/* {isProductPredictDataLoading ? (
+			{isProductPredictDataLoading ? (
 				<div className='flex h-full w-full items-center justify-center'>
 					<CircularProgress />
 				</div>
 			) : (
 				productPredictData &&
-				// columns &&
+				columns &&
 				colors &&
 				group && (
 					<StackedAreaChart
 						legendId='StackedAreaOverview'
-						columns={
-							[]
-							// columns
-						}
+						columns={columns}
 						groups={[group]}
 						colors={colors}
 					/>
 				)
-			)} */}
+			)}
 		</div>
 	)
 }

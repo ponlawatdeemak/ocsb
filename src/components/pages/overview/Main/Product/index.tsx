@@ -22,7 +22,7 @@ const OverviewProductMain = ({
 	return (
 		<div
 			className={classNames(
-				'flex h-full flex-col justify-start gap-4 rounded-[10px] bg-primary p-4 text-white shadow max-lg:w-full lg:flex-[1]',
+				'flex h-full flex-col justify-start gap-4 rounded-[10px] bg-primary p-4 text-white shadow max-xl:w-full xl:flex-[1]',
 				className,
 			)}
 		>

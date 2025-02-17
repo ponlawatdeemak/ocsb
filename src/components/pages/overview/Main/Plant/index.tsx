@@ -1,9 +1,5 @@
-import {
-	GetPlantOverviewAreaPercent,
-	GetPlantOverviewDtoOut,
-	GetPlantOverviewRegionArea,
-} from '@interface/dto/overview/overview.dto-out'
-import { Typography } from '@mui/material'
+import { GetPlantOverviewDtoOut, GetPlantOverviewRegionArea } from '@interface/dto/overview/overview.dto-out'
+import { Divider, Typography } from '@mui/material'
 import { useTranslation } from 'next-i18next'
 import LinearProgressBar from '../../Chart/LinearProgressBar'
 import InfoTooltip from '../../Tooltip/InfoTooltip'
@@ -26,7 +22,7 @@ const OverviewPlantMain = ({
 	return (
 		<div
 			className={classNames(
-				'flex h-full flex-col justify-start gap-4 rounded-[10px] bg-primary p-4 shadow max-lg:w-full lg:flex-[1]',
+				'flex h-full flex-col justify-start gap-4 rounded-[10px] bg-primary p-4 shadow max-xl:w-full xl:flex-[1]',
 				className,
 			)}
 		>
@@ -58,12 +54,11 @@ const OverviewPlantMain = ({
 									<Typography className='!text-sm'>{defaultNumber(item.area[areaUnit])}</Typography>
 								</div>
 								<LinearProgressBar
-									value={
-										item.areaPercent[
-											`${_.camelCase(`${areaUnit}-percent`)}` as keyof GetPlantOverviewAreaPercent
-										]
-									}
+									value={Math.max(item.percent[areaUnit], 10)}
 									color='#40C4FF'
+									fontColor='black'
+									contentInner={`${item.percent[areaUnit]}%`}
+									contentOuter={''}
 								/>
 							</div>
 						)

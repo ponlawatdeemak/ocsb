@@ -19,12 +19,12 @@ const OverviewHotSpotMain = ({
 	return (
 		<div
 			className={classNames(
-				'flex h-full w-full flex-col items-start rounded-[10px] bg-white p-4 shadow max-lg:gap-6 lg:flex-row',
+				'flex h-full w-full flex-col items-start rounded-[10px] bg-white p-4 shadow max-xl:gap-6 xl:flex-row',
 				className,
 			)}
 		>
 			<HotSpotHeatMain heatPointsData={heatPointsData} />
-			<Divider orientation='vertical' className='max-lg:hidden' />
+			<Divider orientation='vertical' className='max-xl:hidden' />
 			<HotSpotHeatSugarcaneMain heatPointSugarcaneData={heatPointSugarcaneData} />
 		</div>
 	)
