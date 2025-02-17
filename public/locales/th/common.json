@@ -10,6 +10,31 @@
 		"userManagement": "จัดการผู้ใช้งาน"
 	},
 
+	"tools": {
+		"compass": "เข็มทิศ",
+		"zoom": "ซูมเข้า /ซูมออก",
+		"basemap": "แผนที่ฐาน",
+		"extent": "กลับไปตำแหน่งเริ่มต้น",
+		"current": "กลับไปตำแหน่งปัจจุบัน",
+		"measurement": "การวัดระยะ",
+		"export": "พิมพ์แผนที่"
+	},
+
+	"measurement": {
+		"title": "การวัดพื้นที่",
+		"unitTitle": "หน่วย",
+		"lengthTitle": "ระยะทาง",
+		"areaTitle": "พื้นที่",
+		"line": {
+			"meters": "เมตร",
+			"kilometers": "กิโลเมตร"
+		},
+		"polygon": {
+			"squareMeters": "ตร.ม.",
+			"squareKilometers": "ตร.กม."
+		}
+	},
+
 	"areaUnit": "หน่วยพื้นที่",
 	"m2": "ตรม.",
 	"km2": "ตร.กม.",

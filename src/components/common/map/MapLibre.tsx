@@ -116,7 +116,9 @@ const MapLibre: FC<MapLibreProps> = ({ viewState, mapStyle }) => {
 			onStyleData={onStyleData}
 			touchZoomRotate={true}
 			touchPitch={false}
-			dragRotate={false}
+			dragRotate={true}
+			maxPitch={0}
+			minPitch={0}
 		>
 			<DeckGLOverlay />
 		</Map>

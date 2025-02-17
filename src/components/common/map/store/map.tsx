@@ -16,9 +16,6 @@ export type MapStore = {
 	setLayers: (value: Layer[]) => void
 	getLayer: (value: string) => Layer | undefined
 	removeLayer: (value: string) => void
-
-	switchState?: { id: string; isOn: boolean }[] | null
-	setSwitchState: (value: { id: string; isOn: boolean }[] | null) => void
 }
 
 export const useMapStore = create<MapStore>()((set, get) => ({
@@ -41,9 +38,6 @@ export const useMapStore = create<MapStore>()((set, get) => ({
 			...state,
 			layers: state.layers.filter((layer) => !(layer instanceof Layer && layer.id === layerId)),
 		})),
-
-	switchState: null,
-	setSwitchState: (switchState) => set((state) => ({ ...state, switchState })),
 }))
 
 export default useMapStore

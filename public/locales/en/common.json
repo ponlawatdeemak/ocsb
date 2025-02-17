@@ -10,6 +10,31 @@
 		"userManagement": "User Management"
 	},
 
+	"tools": {
+		"compass": "Compass",
+		"zoom": "Zoom In / Zoom Out",
+		"basemap": "Base Map",
+		"extent": "Extent Location",
+		"current": "Current Location",
+		"measurement": "Measurement",
+		"export": "Map Export"
+	},
+
+	"measurement": {
+		"title": "Measurement",
+		"unitTitle": "Unit",
+		"lengthTitle": "Distance",
+		"areaTitle": "Area",
+		"line": {
+			"meters": "m",
+			"kilometers": "km"
+		},
+		"polygon": {
+			"squareMeters": "m²",
+			"squareKilometers": "km²"
+		}
+	},
+
 	"areaUnit": "Area Unit",
 	"m2": "M²",
 	"km2": "Km²",

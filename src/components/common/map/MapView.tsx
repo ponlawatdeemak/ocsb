@@ -1,9 +1,8 @@
-import { useCallback, useMemo, useState } from 'react'
+import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react'
 import classNames from 'classnames'
 import { BasemapType, MapInfoWindow, MapLayer, MapViewState } from './interface/map'
 import MapLibre from './MapLibre'
 import { Paper } from '@mui/material'
-import { PropsWithChildren, useEffect } from 'react'
 import useMapStore from './store/map'
 import { layerIdConfig } from '@/config/app.config'
 import { BASEMAP } from '@deck.gl/carto'
@@ -19,33 +18,19 @@ const DEFAULT = {
 		longitude: 100,
 		latitude: 13,
 		zoom: 5,
+		bearing: 0,
+		pitch: 0,
 	},
 
-	basemap: BasemapType.CartoLight,
+	basemap: BasemapType.Google,
 }
 
 export interface MapViewProps extends PropsWithChildren {
 	className?: string
 	initialLayer?: MapLayer[]
-	legendSelectorLabel?: string
-	hiddenZoomButton?: boolean
-	hiddenFullscreenButton?: boolean
-	hiddenLayersButton?: boolean
-	hiddenCurrentLocationButton?: boolean
-	hiddenScaleControl?: boolean
 }
 
-export default function MapView({
-	className = '',
-	initialLayer,
-	legendSelectorLabel,
-	hiddenZoomButton = false,
-	hiddenFullscreenButton = false,
-	hiddenLayersButton = false,
-	hiddenCurrentLocationButton = false,
-	hiddenScaleControl = true,
-	children,
-}: MapViewProps) {
+export default function MapView({ className = '', initialLayer, children }: Readonly<MapViewProps>) {
 	const { getLayer, addLayer, removeLayer, setLayers, infoWindow, setInfoWindow, mapLibre } = useMapStore()
 
 	const [viewState, setViewState] = useState<MapViewState>(DEFAULT.viewState)
@@ -70,7 +55,7 @@ export default function MapView({
 	}, [setInfoWindow])
 
 	useEffect(() => {
-		if (initialLayer && initialLayer.length) {
+		if (initialLayer?.length) {
 			const layers = initialLayer.map((item) => item.layer)
 			setLayers(layers)
 		}
@@ -109,7 +94,7 @@ export default function MapView({
 					getColor: [255, 0, 0],
 				})
 				addLayer(iconLayer)
-				mapLibre?.flyTo({ center: [longitude, latitude], zoom: CURRENT_LOCATION_ZOOM, duration: 500 })
+				mapLibre?.flyTo({ center: [longitude, latitude], zoom: CURRENT_LOCATION_ZOOM, duration: 3000 })
 			}
 		},
 		[getLayer, mapLibre, addLayer, removeLayer],
@@ -117,18 +102,7 @@ export default function MapView({
 
 	return (
 		<div className={classNames('relative flex flex-1 overflow-hidden', className)}>
-			<MapTools
-				layerList={initialLayer}
-				onBasemapChanged={onBasemapChanged}
-				onGetLocation={onGetLocation}
-				currentBaseMap={basemap}
-				legendSelectorLabel={legendSelectorLabel}
-				hiddenZoomButton={hiddenZoomButton}
-				hiddenFullscreenButton={hiddenFullscreenButton}
-				hiddenLayersButton={hiddenLayersButton}
-				hiddenCurrentLocationButton={hiddenCurrentLocationButton}
-				hiddenScaleControl={hiddenScaleControl}
-			/>
+			<MapTools onBasemapChanged={onBasemapChanged} onGetLocation={onGetLocation} currentBaseMap={basemap} />
 			<MapLibre viewState={viewState} mapStyle={mapStyle} onViewStateChange={onViewStateChange} />
 
 			{infoWindow && (
