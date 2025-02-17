@@ -1,6 +1,19 @@
 import { LinearProgress } from '@mui/material'
 
-const LinearProgressBar = ({ value, color }: { value: number; color: string }) => {
+const LinearProgressBar = ({
+	value,
+	color,
+	fontColor,
+	contentInner,
+	contentOuter,
+}: {
+	value: number
+	color: string
+	fontColor: string
+	contentInner: number | string
+	contentOuter: number | string
+	className?: string
+}) => {
 	return (
 		<LinearProgress
 			variant='determinate'
@@ -12,6 +25,21 @@ const LinearProgressBar = ({ value, color }: { value: number; color: string }) =
 				'& .MuiLinearProgress-bar': {
 					borderRadius: '50px',
 					backgroundColor: color,
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'end',
+					fontSize: '9px',
+					':after': {
+						content: `"${contentOuter}"`,
+						color: 'black',
+						position: 'absolute',
+						right: '-25px',
+					},
+					':before': {
+						content: `"${contentInner}"`,
+						color: fontColor,
+						paddingRight: '2px',
+					},
 				},
 			}}
 		/>

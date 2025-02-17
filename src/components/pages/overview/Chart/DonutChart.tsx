@@ -6,6 +6,7 @@ import { ResponseLanguage } from '@/api/interface'
 import BillboardJS, { IChart } from '@billboard.js/react'
 import classNames from 'classnames'
 import { defaultNumber } from '@/utils/text'
+import { Padding } from 'maplibre-gl'
 
 const DonutChart = ({
 	columns,
@@ -35,13 +36,18 @@ const DonutChart = ({
 					format: function (value: any, ratio: any, id: any) {
 						return `${id}\n${defaultNumber(ratio * 100, 1)}%`
 					},
-					ratio: 1.5,
+					ratio: 1.8,
 				},
+				width: 35,
 			},
 			legend: {
 				show: false,
 			},
 			tooltip: { show: false },
+			padding: {
+				top: 10,
+				bottom: 5,
+			},
 		}
 	}, [colors, columns])
 
@@ -63,7 +69,7 @@ const DonutChart = ({
 				options={options}
 				ref={chartRef}
 				className={
-					'z-10 [&_.bb-chart-arc_text]:!fill-[#3C0A6D] [&_.bb-chart-arc_text]:!text-2xs [&_svg]:!overflow-visible'
+					'z-10 [&_*]:font-["Prompt","Montserrat"] [&_.bb-chart-arc_text]:!fill-[#3C0A6D] [&_.bb-chart-arc_text]:!text-2xs [&_svg]:!overflow-visible'
 				}
 				style={{ height: height, width: width }}
 			/>

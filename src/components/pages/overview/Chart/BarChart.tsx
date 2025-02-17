@@ -1,9 +1,19 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef, useMemo, useCallback } from 'react'
 import bb, { bar } from 'billboard.js'
 import BillboardJS, { IChart } from '@billboard.js/react'
 import 'billboard.js/dist/billboard.css'
+import { defaultNumber } from '@/utils/text'
+import { useTranslation } from 'next-i18next'
+
+interface TooltipDataType {
+	id: string
+	index: number
+	name: string
+	value: number
+	color: string
+}
 
 const BarChart = ({
 	className = '',
@@ -16,10 +26,26 @@ const BarChart = ({
 	colors: { [key: string]: string }
 	className?: string
 }) => {
-	const chartRef = useRef<IChart>(null)
+	const { t, i18n } = useTranslation(['overview', 'common'])
 
-	const options = useMemo(() => {
-		return {
+	const generateTooltips = useCallback(
+		(data: TooltipDataType[]) => {
+			let tooltipOverview = '<div class="bg-white p-2 rounded-md shadow flex flex-col">'
+			data.forEach(
+				(item) =>
+					(tooltipOverview += `<div class="text-[12px]">${t('replant')}(${item.name}) : ${defaultNumber(item.value)}%</div>`),
+			)
+
+			tooltipOverview += '</div>'
+
+			return tooltipOverview
+		},
+		[t],
+	)
+
+	useEffect(() => {
+		bb.generate({
+			bindto: '#bar',
 			data: {
 				x: 'x',
 				columns: columns,
@@ -35,7 +61,7 @@ const BarChart = ({
 					padding: 0,
 					tick: {
 						count: 6,
-						format: (value: number) => value,
+						format: (value: number) => defaultNumber(value),
 					},
 				},
 			},
@@ -63,35 +89,38 @@ const BarChart = ({
 			},
 			padding: {
 				top: 0,
-				right: 10,
+				right: 20,
 				bottom: 0,
 				left: 40,
 			},
-		}
-	}, [colors, columns, legendId])
-
-	useEffect(() => {
-		const chart = chartRef.current?.instance
-		if (chartRef.current && chart) {
-			chart.load({
-				columns: columns,
-				colors: colors,
-			})
-		}
-	}, [columns, colors])
+			tooltip: {
+				grouped: false,
+				contents: function (d: any, _arg1: any, _arg2: any, color: any) {
+					const data: TooltipDataType[] = d.map((item: any, index: number) => ({
+						id: item.id,
+						index: item.index,
+						name: item.name,
+						value: item.value,
+						color: color(d[index]),
+					}))
+					return generateTooltips(data)
+				},
+			},
+		})
+	}, [colors, columns, generateTooltips, legendId])
 
 	return (
 		<Box className={classNames('relative flex h-full w-full grow flex-col', className)}>
-			<BillboardJS
-				bb={bb}
-				options={options}
-				ref={chartRef}
-				className='bb h-full w-full [&_.bb-area]:!opacity-100 [&_.bb-tooltip-container]:text-black [&_.tick]:fill-black [&_svg]:lg:absolute'
-			/>
+			<div
+				id='bar'
+				className='bb h-full w-full [&_*]:font-["Prompt","Montserrat"] [&_.bb-area]:!opacity-100 [&_.bb-axis-x_g_text_tspan]:fill-[#31356E] [&_.bb-tooltip-container]:text-black [&_.bb-ygrid:first-child]:stroke-[#31356E] [&_.bb-ygrid:first-child]:opacity-60 [&_.bb-ygrid]:opacity-30 [&_.bb-ygrid]:[stroke-dasharray:0] [&_.domain]:hidden [&_.tick]:fill-black [&_.tick_line]:hidden [&_svg]:xl:absolute'
+			></div>
 			<div
 				id={legendId}
 				className='absolute right-[10px] top-[-20px] flex w-full flex-wrap justify-end gap-x-3'
 			></div>
+			<div className='absolute top-[-20px] text-[10px] text-black'>{t('replant')}</div>
+			<div className='absolute bottom-[-1px] right-[0px] text-[10px] text-black'>{t('common:region')}</div>
 		</Box>
 	)
 }

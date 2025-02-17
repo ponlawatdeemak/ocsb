@@ -1,10 +1,21 @@
 import BillboardJS, { IChart } from '@billboard.js/react'
 import 'billboard.js/dist/billboard.css'
 import bb, { spline } from 'billboard.js'
-import { useRef, useMemo, useEffect } from 'react'
+import { useRef, useMemo, useEffect, useCallback } from 'react'
 import { Box } from '@mui/material'
 import classNames from 'classnames'
 import { defaultNumber } from '@/utils/text'
+import useAreaUnit from '@/store/area-unit'
+import { AreaUnitKey, Languages } from '@/enum'
+import { useTranslation } from 'next-i18next'
+
+interface TooltipDataType {
+	id: string
+	index: number
+	name: string
+	value: number
+	color: string
+}
 
 const SplineChart = ({
 	className = '',
@@ -17,9 +28,29 @@ const SplineChart = ({
 	columns: any[][]
 	colors: { [key: string]: string }
 }) => {
-	const chartRef = useRef<IChart>(null)
-	const options = useMemo(() => {
-		return {
+	const { areaUnit } = useAreaUnit()
+	const { t, i18n } = useTranslation(['overview', 'common'])
+
+	const generateTooltips = useCallback(
+		(data: TooltipDataType[]) => {
+			let tooltipOverview = '<div class="bg-white p-2 rounded-md shadow flex flex-col">'
+			data.forEach(
+				(item) =>
+					(tooltipOverview += `<div class="text-[12px]">${t('burntScar')}(${item.name}) : ${defaultNumber(item.value)} ${t(`common:${areaUnit}`)}</div>`),
+			)
+
+			tooltipOverview += '</div>'
+
+			return tooltipOverview
+		},
+		[areaUnit, t],
+	)
+
+	const lines = columns[0].map((item) => ({ value: item }))
+
+	useEffect(() => {
+		bb.generate({
+			bindto: '#spline',
 			data: {
 				x: 'x',
 				columns: columns,
@@ -32,7 +63,7 @@ const SplineChart = ({
 				},
 				y: {
 					min: 0,
-					padding: 0,
+					padding: { top: 3, bottom: 10 },
 					tick: {
 						count: 8,
 						format: (value: number) => defaultNumber(value, 0),
@@ -41,7 +72,7 @@ const SplineChart = ({
 			},
 			grid: {
 				x: {
-					show: true,
+					lines: lines,
 				},
 			},
 			legend: {
@@ -58,52 +89,38 @@ const SplineChart = ({
 			},
 			padding: {
 				top: 0,
-				right: 10,
+				right: i18n.language === Languages.TH ? 25 : 50,
 				bottom: 0,
-				left: 40,
+				left: areaUnit === AreaUnitKey.Sqm ? 70 : 50,
 			},
 			tooltip: {
-				show: true,
-				format: {
-					value: function (value: any) {
-						return defaultNumber(value)
-					},
+				grouped: false,
+				contents: function (d: any, _arg1: any, _arg2: any, color: any) {
+					const data: TooltipDataType[] = d.map((item: any, index: number) => ({
+						id: item.id,
+						index: item.index,
+						name: item.name,
+						value: item.value,
+						color: color(d[index]),
+					}))
+					return generateTooltips(data)
 				},
-				// contents: {
-				// 	bindto: '#tooltip',
-				// 	template:
-				// 		'<ul class={=CLASS_TOOLTIP}>{{' +
-				// 		'<li class="{=CLASS_TOOLTIP_NAME}"><span>{=VALUE}</span><br>' +
-				// 		'<span style=color:{=COLOR}>{=NAME}</span></li>' +
-				// 		'}}</ul>',
-				// },
 			},
-		}
-	}, [colors, columns, legendId])
-
-	useEffect(() => {
-		const chart = chartRef.current?.instance
-		if (chartRef.current && chart) {
-			chart.load({
-				columns: columns,
-				colors: colors,
-				unload: true,
-			})
-		}
-	}, [columns, colors])
+		})
+	}, [areaUnit, colors, columns, generateTooltips, i18n.language, legendId, lines])
 
 	return (
 		<Box className={classNames('relative flex h-full w-full grow flex-col', className)}>
-			<BillboardJS
-				bb={bb}
-				options={options}
-				ref={chartRef}
-				className='bb h-full w-full [&_.bb-tooltip-container]:text-black [&_.tick]:fill-black [&_svg]:!overflow-visible [&_svg]:lg:absolute'
-			/>
+			<div
+				id='spline'
+				className='bb h-full w-full [&_*]:font-["Prompt","Montserrat"] [&_.bb-axis-x_g_text_tspan]:fill-[#31356E] [&_.bb-tooltip-container]:text-black [&_.bb-xgrid-lines]:opacity-20 [&_.domain]:hidden [&_.tick]:fill-black [&_.tick_line]:hidden [&_svg]:!overflow-visible [&_svg]:xl:absolute'
+			></div>
 			<div
 				id={legendId}
 				className='absolute right-[10px] top-[-20px] flex w-full flex-wrap justify-end gap-x-3'
 			></div>
+			<div className='absolute left-[5px] top-[-20px] text-[10px] text-black'>{`${t('common:area')} (${t(`common:${areaUnit}`)})`}</div>
+			<div className='absolute bottom-[-1px] right-[0px] text-[10px] text-black'>{`${t('common:month')}/${t(`common:year`)}`}</div>
 		</Box>
 	)
 }

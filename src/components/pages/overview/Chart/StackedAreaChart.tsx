@@ -1,10 +1,21 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef, useMemo, useCallback } from 'react'
 import bb, { area } from 'billboard.js'
 import BillboardJS, { IChart } from '@billboard.js/react'
 import 'billboard.js/dist/billboard.css'
 import { defaultNumber } from '@/utils/text'
+import { useTranslation } from 'next-i18next'
+import useQuantityUnit from '@/store/quantity-unit'
+import { Languages, QuantityUnitKey } from '@/enum'
+
+interface TooltipDataType {
+	id: string
+	index: number
+	name: string
+	value: number
+	color: string
+}
 
 const StackedAreaChart = ({
 	className = '',
@@ -19,10 +30,27 @@ const StackedAreaChart = ({
 	className?: string
 	groups: any[]
 }) => {
-	const chartRef = useRef<IChart>(null)
+	const { t, i18n } = useTranslation(['overview', 'common'])
+	const { quantityUnit } = useQuantityUnit()
 
-	const options = useMemo(() => {
-		return {
+	const generateTooltips = useCallback(
+		(data: TooltipDataType[]) => {
+			let tooltipOverview = '<div class="bg-white p-2 rounded-md shadow flex flex-col">'
+			data.forEach(
+				(item) =>
+					(tooltipOverview += `<div class="text-[12px]">${t('common:quantity')}(${item.name}) : ${defaultNumber(item.value)} ${t(`common:${quantityUnit}`)}</div>`),
+			)
+
+			tooltipOverview += '</div>'
+
+			return tooltipOverview
+		},
+		[quantityUnit, t],
+	)
+
+	useEffect(() => {
+		bb.generate({
+			bindto: '#stackedArea',
 			data: {
 				x: 'x',
 				columns: columns,
@@ -66,53 +94,37 @@ const StackedAreaChart = ({
 			},
 			padding: {
 				top: 0,
-				right: 10,
+				right: i18n.language === Languages.TH ? 15 : 25,
 				bottom: 0,
-				left: 40,
+				left: quantityUnit === QuantityUnitKey.Ton ? 60 : 80,
 			},
 			tooltip: {
-				show: true,
-				format: {
-					value: function (value: any) {
-						return defaultNumber(value)
-					},
+				contents: function (d: any, _arg1: any, _arg2: any, color: any) {
+					const data: TooltipDataType[] = d.map((item: any, index: number) => ({
+						id: item.id,
+						index: item.index,
+						name: item.name,
+						value: item.value,
+						color: color(d[index]),
+					}))
+					return generateTooltips(data)
 				},
-				// contents: {
-				// 	bindto: '#tooltip',
-				// 	template:
-				// 		'<ul class={=CLASS_TOOLTIP}>{{' +
-				// 		'<li class="{=CLASS_TOOLTIP_NAME}"><span>{=VALUE}</span><br>' +
-				// 		'<span style=color:{=COLOR}>{=NAME}</span></li>' +
-				// 		'}}</ul>',
-				// },
 			},
-		}
-	}, [colors, columns, groups, legendId])
-
-	useEffect(() => {
-		const chart = chartRef.current?.instance
-		if (chartRef.current && chart) {
-			chart.load({
-				columns: columns,
-				colors: colors,
-				unload: true,
-			})
-			chart.groups(groups)
-		}
-	}, [columns, colors, groups])
+		})
+	}, [colors, columns, generateTooltips, groups, i18n.language, legendId, quantityUnit])
 
 	return (
 		<Box className={classNames('relative flex h-full w-full grow flex-col', className)}>
-			<BillboardJS
-				bb={bb}
-				options={options}
-				ref={chartRef}
-				className='bb h-full w-full [&_.bb-area]:!opacity-100 [&_.bb-tooltip-container]:text-black [&_.tick]:fill-black [&_svg]:lg:absolute'
-			/>
+			<div
+				id='stackedArea'
+				className='bb h-full w-full [&_*]:font-["Prompt","Montserrat"] [&_.bb-area]:!opacity-100 [&_.bb-axis-x_g_text_tspan]:fill-[#31356E] [&_.bb-tooltip-container]:text-black [&_.bb-ygrid:first-child]:stroke-[#31356E] [&_.bb-ygrid:first-child]:opacity-60 [&_.bb-ygrid]:opacity-30 [&_.bb-ygrid]:[stroke-dasharray:0] [&_.domain]:hidden [&_.tick]:fill-black [&_.tick_line]:hidden [&_svg]:xl:absolute'
+			></div>
 			<div
 				id={legendId}
 				className='absolute right-[10px] top-[-20px] flex w-full flex-wrap justify-end gap-x-3'
 			></div>
+			<div className='absolute top-[-20px] text-[10px] text-black'>{`${t('common:quantity')} (${t(`common:${quantityUnit}`)})`}</div>
+			<div className='absolute bottom-[-1px] right-[0px] text-[10px] text-black'>{t('common:region')}</div>
 		</Box>
 	)
 }
