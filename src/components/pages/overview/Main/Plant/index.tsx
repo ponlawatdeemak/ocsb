@@ -32,7 +32,15 @@ const OverviewPlantMain = ({
 		>
 			<div className='flex w-full items-center justify-between'>
 				<Typography>{`${t('SugarCaneArea')} (${t(`common:${areaUnit}`)})`}</Typography>
-				<InfoTooltip title={t('SugarCaneArea')} placement='bottom' />
+				<InfoTooltip
+					title={
+						<div className='flex w-full flex-col items-center gap-[6px]'>
+							{`(${t('regionSugarCane')}*100)`}
+							<Divider orientation='horizontal' className='w-full' /> {`${t('allRegionSugarCane')}`}
+						</div>
+					}
+					placement='bottom'
+				/>
 			</div>
 			<div className='flex flex-col gap-3'>
 				{plantData &&

@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material'
+import { Divider, Typography } from '@mui/material'
 import DonutChart from '../../../Chart/DonutChart'
 import InfoTooltip from '../../../Tooltip/InfoTooltip'
 import { GetHeatPointsOverviewDtoOut } from '@interface/dto/overview/overview.dto-out'
@@ -40,10 +40,19 @@ const HotSpotHeatMain = ({ heatPointsData }: { heatPointsData: GetHeatPointsOver
 		heatPointsData &&
 		columns &&
 		colors && (
-			<div className='flex w-full flex-col gap-4 lg:mr-4'>
+			<div className='flex w-full flex-col gap-4 xl:mr-4'>
 				<div className='flex w-full items-center justify-between'>
 					<Typography className='text-primary'>{t('totalHotspot')}</Typography>
-					<InfoTooltip title={t('totalHotspot')} color='#a7a7a7' placement='bottom' />
+					<InfoTooltip
+						title={
+							<div className='flex w-full flex-col items-center gap-[6px]'>
+								{`(${t('regionHotspot')}*100)`}
+								<Divider orientation='horizontal' className='w-full' /> {`${t('allRegionHotspot')}`}
+							</div>
+						}
+						color='#a7a7a7'
+						placement='bottom'
+					/>
 				</div>
 				<DonutChart columns={columns} colors={colors} width={170} height={170} />
 			</div>

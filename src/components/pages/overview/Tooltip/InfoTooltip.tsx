@@ -1,7 +1,16 @@
 import { InfoIcon } from '@/components/svg/MenuIcon'
 import { IconButton, Tooltip } from '@mui/material'
+import { ReactNode } from 'react'
 
-const InfoTooltip = ({ title, color, placement = 'right' }: { title: string; color?: string; placement?: string }) => {
+const InfoTooltip = ({
+	title,
+	color,
+	placement = 'right',
+}: {
+	title: string | ReactNode
+	color?: string
+	placement?: string
+}) => {
 	return (
 		<Tooltip
 			title={title}
