@@ -35,6 +35,8 @@
 	"delete": "Delete",
 	"deleteMsg": "Are you sure you want to delete?",
 
+	"noData": "No Data",
+
 	"error": {
 		"somethingWrong": "Something went wrong. Please check the information again."
 	},
