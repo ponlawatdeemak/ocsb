@@ -17,6 +17,7 @@ import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/Alert
 import AlertDialog from '@/components/common/dialog/AlertDialog'
 import useResponsive from '@/hook/responsive'
 import { DialogImport } from './DialogImport'
+import DialogDelete from './DialogDelete'
 
 export const UserManagementMain = () => {
 	const router = useRouter()
@@ -311,20 +312,6 @@ export const UserManagementMain = () => {
 				/>
 			</Box>
 
-			{/* Delete All Users Dialog */}
-			<AlertDialog
-				open={isConfirmDeleteAllDialogOpen}
-				title={t('um:confirm.delete.title')}
-				content={t('um:confirm.delete.content')}
-				onClose={() => {
-					setSelected([])
-					setIsConfirmDeleteAllDialogOpen(false)
-				}}
-				onConfirm={handleDeleteAllUsers}
-				loading={busy || isDeleteAllUMPending}
-				isDisableBackdropClick
-			/>
-
 			{/* Active All Users Dialog */}
 			<AlertDialog
 				open={isConfirmActiveAllDialogOpen}
@@ -363,6 +350,14 @@ export const UserManagementMain = () => {
 					setShowImport(false)
 					refetchSearchUM()
 				}}
+			/>
+			<DialogDelete
+				open={isConfirmDeleteAllDialogOpen}
+				onCancel={() => {
+					setIsConfirmDeleteAllDialogOpen(false)
+				}}
+				onSubmit={handleDeleteAllUsers}
+				loading={busy || isDeleteAllUMPending}
 			/>
 		</div>
 	)

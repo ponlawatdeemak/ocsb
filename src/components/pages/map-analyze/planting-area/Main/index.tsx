@@ -1,10 +1,10 @@
 import React from 'react'
 
-interface CultivationAreaMainProps {
+interface PlantingAreaMainProps {
 	className?: string
 }
 
-export const CultivationAreaMain: React.FC<CultivationAreaMainProps> = ({ className = '' }) => {
+export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = '' }) => {
 	return (
 		<div>
 			<div className='flex flex-col text-center'>

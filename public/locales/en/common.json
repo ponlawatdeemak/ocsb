@@ -3,7 +3,7 @@
 		"overview": "Overview",
 		"mapAnalyze": "Map",
 		"burntArea": "Hotspot",
-		"cultivationArea": "Cultivation",
+		"plantingArea": "Planting",
 		"about": "About Us",
 		"glossary": "Glossary",
 		"setting": "Setting",
@@ -36,8 +36,8 @@
 	},
 
 	"areaUnit": "Area Unit",
-	"m2": "M²",
-	"km2": "Km²",
+	"m2": "m²",
+	"km2": "km²",
 	"rai": "Rai",
 	"hexa": "Hexa",
 
@@ -57,6 +57,10 @@
 	"confirm": "Confirm",
 	"cancel": "Cancel",
 	"close": "Close",
+	"delete": "Delete",
+	"deleteMsg": "Are you sure you want to delete?",
+
+	"noData": "No Data",
 
 	"error": {
 		"somethingWrong": "Something went wrong. Please check the information again."
