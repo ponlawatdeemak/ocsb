@@ -3,7 +3,7 @@
 		"overview": "Overview",
 		"mapAnalyze": "Map",
 		"burntArea": "Hotspot",
-		"cultivationArea": "Cultivation",
+		"plantingArea": "Planting",
 		"about": "About Us",
 		"glossary": "Glossary",
 		"setting": "Setting",
@@ -37,6 +37,8 @@
 	"close": "Close",
 	"delete": "Delete",
 	"deleteMsg": "Are you sure you want to delete?",
+
+	"noData": "No Data",
 
 	"error": {
 		"somethingWrong": "Something went wrong. Please check the information again."
