@@ -1,4 +1,9 @@
+import { Box } from '@mui/material'
+import classNames from 'classnames'
 import React from 'react'
+import BurntSearchFormMain from './SearchForm'
+import BurntMapMain from './BurntMap'
+import BurntDashboardMain from './Dashboard'
 
 interface BurntAreaMainProps {
 	className?: string
@@ -6,12 +11,12 @@ interface BurntAreaMainProps {
 
 export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) => {
 	return (
-		<div>
-			<div className='flex flex-col text-center'>
-				<div className='text-[200px]'>🏗️</div>
-				<div className='text-[50px]'>🔥🔥🔥</div>
-				<div>Under Development!</div>
-			</div>
-		</div>
+		<Box className={classNames('flex h-full w-full flex-col', className)}>
+			<BurntSearchFormMain className='z-10 w-full' />
+			<Box className='flex h-full w-full flex-1'>
+				<BurntDashboardMain className='max-w-[calc(80vw)]' />
+				<BurntMapMain className='h-full w-full flex-1 max-md:absolute' />
+			</Box>
+		</Box>
 	)
 }

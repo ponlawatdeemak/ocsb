@@ -138,7 +138,7 @@ const MapTools: React.FC<MapToolsProps> = ({ onBasemapChanged, onGetLocation, cu
 	return (
 		<>
 			{/* Tools Controls */}
-			<Box className='absolute right-6 top-2.5 z-10 flex flex-col gap-2 [&_button]:bg-white'>
+			<Box className='absolute right-4 top-[140px] z-10 flex flex-col gap-2 md:right-6 md:top-2.5 [&_button]:bg-white'>
 				<Tooltip title={t('tools.compass')} placement='left' arrow>
 					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 						<IconButton

@@ -50,7 +50,7 @@ const MultipleSelectCheckmarks: React.FC<MultipleSelectCheckmarksProps> = ({
 				IconComponent={ExpandMore}
 				SelectDisplayProps={{
 					className:
-						'box-border !h-[38px] !flex items-center !pl-4 !pr-16 !py-0 text-sm text-black sm:text-base',
+						'box-border !h-[38px] !flex items-center !pl-4 !pr-12 !py-0 text-sm text-black sm:text-base',
 				}}
 				MenuProps={{
 					slotProps: {
