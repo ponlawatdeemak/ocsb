@@ -44,6 +44,8 @@ const HotSpotHeatSugarcaneMain = ({
 								fontColor={index > 1 ? 'white' : 'black'}
 								contentInner={item.inSugarcane}
 								contentOuter={item.inSugarcane === item.regionCount ? '' : item.notInSugarcane}
+								titleInner={t('hotspotInArea')}
+								titleOuter={t('hotspotOutArea')}
 							/>
 						</div>
 					))

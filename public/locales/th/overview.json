@@ -7,6 +7,7 @@
     "SugarCaneQuantity": "ปริมาณอ้อย",
     "totalHotspot": "จุดความร้อนสะสมทั้งหมด",
     "hotspotInArea": "จุดความร้อนที่ตกในแปลงอ้อย",
+    "hotspotOutArea": "จุดความร้อนที่ตกนอกแปลงอ้อย",
     "burntScar": "ร่องรอยการเผาไหม้",
     "sugarCaneYield": "ผลผลิตอ้อย",
     "sugarCanePredict": "การคาดการณ์ปริมาณอ้อยเข้าหีบ",
