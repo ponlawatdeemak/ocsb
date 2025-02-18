@@ -26,19 +26,19 @@ const OverviewSummaryMain = ({
 		>
 			<div className='bg-gradient-to-r from-[#F94187_0%] to-[#BB53A6_100%]'>
 				<Typography>{t('totalHotspot')}</Typography>
-				<Typography>{`${defaultNumber(summaryData?.hotspot ?? '-')} ${t('common:point')}`}</Typography>
+				<Typography>{`${defaultNumber(summaryData?.hotspot ?? '-', 0)} ${t('common:point')}`}</Typography>
 			</div>
 			<div className='bg-gradient-to-r from-[#875FBA_0%] to-[#5C4ABD_100%]'>
 				<Typography>{t('burntScarArea')}</Typography>
-				<Typography>{`${defaultNumber(summaryData?.burnArea[areaUnit] ?? '-')} ${t(`common:${areaUnit}`)}`}</Typography>
+				<Typography>{`${defaultNumber(summaryData?.burnArea[areaUnit] ?? '-', 0)} ${t(`common:${areaUnit}`)}`}</Typography>
 			</div>
 			<div className='bg-gradient-to-r from-[#FAB725_0%] to-[#F67F54_100%]'>
 				<Typography>{t('SugarCaneArea')}</Typography>
-				<Typography>{`${defaultNumber(summaryData?.yieldPred[areaUnit] ?? '-')} ${t(`common:${areaUnit}`)}`}</Typography>
+				<Typography>{`${defaultNumber(summaryData?.yieldPred[areaUnit] ?? '-', 0)} ${t(`common:${areaUnit}`)}`}</Typography>
 			</div>
 			<div className='bg-gradient-to-r from-[#89E2E6_0%] to-[#488AB6_100%]'>
 				<Typography>{t('SugarCaneQuantity')}</Typography>
-				<Typography>{`${defaultNumber(summaryData?.sugarcaneVolume[quantityUnit] ?? '-')} ${t(`common:${quantityUnit}`)}`}</Typography>
+				<Typography>{`${defaultNumber(summaryData?.sugarcaneVolume[quantityUnit] ?? '-', 0)} ${t(`common:${quantityUnit}`)}`}</Typography>
 			</div>
 		</div>
 	)

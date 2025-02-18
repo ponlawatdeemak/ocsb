@@ -54,7 +54,9 @@ const OverviewPlantMain = ({
 											] as string
 										}
 									</Typography>
-									<Typography className='!text-sm'>{defaultNumber(item.area[areaUnit])}</Typography>
+									<Typography className='!text-sm'>
+										{defaultNumber(item.area[areaUnit], 0)}
+									</Typography>
 								</div>
 								<LinearProgressBar
 									value={Math.max(item.percent[areaUnit], isDesktopXl ? 11 : 6)}

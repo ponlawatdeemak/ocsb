@@ -126,7 +126,7 @@ const SplineChart = ({
 					'!top-[-40px]': !isDesktopXl,
 				})}
 			>{`${t('common:area')} (${t(`common:${areaUnit}`)})`}</div>
-			<div className='absolute bottom-[-1px] right-[0px] text-[10px] text-black'>{`${t('common:month')}/${t(`common:year`)}`}</div>
+			<div className='absolute bottom-0 right-[0px] text-[10px] text-black xl:bottom-[5px]'>{`${t('common:month')}/${t(`common:year`)}`}</div>
 		</Box>
 	)
 }
