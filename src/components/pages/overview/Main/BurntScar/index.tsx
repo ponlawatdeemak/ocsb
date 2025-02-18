@@ -9,6 +9,8 @@ import * as _ from 'lodash'
 import { Languages } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
 import { formatDate } from '@/utils/date'
+import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
+import useResponsive from '@/hook/responsive'
 
 const OverviewBurntScarMain = ({
 	burntData,
@@ -19,6 +21,7 @@ const OverviewBurntScarMain = ({
 }) => {
 	const { t, i18n } = useTranslation(['overview', 'common'])
 	const { areaUnit } = useAreaUnit()
+	const { isDesktopXl } = useResponsive()
 
 	const columns = useMemo(() => {
 		const xLabel = ['x']
@@ -60,13 +63,18 @@ const OverviewBurntScarMain = ({
 	return (
 		<div
 			className={classNames(
-				'flex h-full w-full flex-col items-start gap-6 rounded-[10px] bg-white p-4 shadow',
+				'flex h-full w-full flex-col items-start gap-6 rounded-[10px] bg-white p-4 shadow max-xl:min-h-[400px]',
+				{ '!gap-12': !isDesktopXl },
 				className,
 			)}
 		>
 			<Typography className='text-primary'>{t('burntScar')}</Typography>
-			{burntData && columns && colors && (
+			{burntData?.length && columns && colors ? (
 				<SplineChart legendId='splineOverview' columns={columns} colors={colors} />
+			) : (
+				<div className='flex w-full items-center justify-center xl:h-[170px]'>
+					<NoDataDisplay />
+				</div>
 			)}
 		</div>
 	)

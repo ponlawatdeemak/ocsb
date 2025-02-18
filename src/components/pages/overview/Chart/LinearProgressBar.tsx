@@ -22,6 +22,7 @@ const LinearProgressBar = ({
 				height: '12px',
 				borderRadius: '50px',
 				backgroundColor: '#E6E6E6',
+				position: 'relative',
 				'& .MuiLinearProgress-bar': {
 					borderRadius: '50px',
 					backgroundColor: color,

@@ -8,6 +8,7 @@ import { defaultNumber } from '@/utils/text'
 import { useTranslation } from 'next-i18next'
 import useQuantityUnit from '@/store/quantity-unit'
 import { Languages, QuantityUnitKey } from '@/enum'
+import useResponsive from '@/hook/responsive'
 
 interface TooltipDataType {
 	id: string
@@ -32,6 +33,7 @@ const StackedAreaChart = ({
 }) => {
 	const { t, i18n } = useTranslation(['overview', 'common'])
 	const { quantityUnit } = useQuantityUnit()
+	const { isDesktopXl } = useResponsive()
 
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
@@ -94,9 +96,9 @@ const StackedAreaChart = ({
 			},
 			padding: {
 				top: 0,
-				right: i18n.language === Languages.TH ? 15 : 25,
-				bottom: 0,
-				left: quantityUnit === QuantityUnitKey.Ton ? 60 : 80,
+				right: i18n.language === Languages.TH ? 15 : 24,
+				bottom: isDesktopXl ? 0 : 20,
+				left: quantityUnit === QuantityUnitKey.Ton ? 62 : 80,
 			},
 			tooltip: {
 				contents: function (d: any, _arg1: any, _arg2: any, color: any) {
@@ -111,7 +113,7 @@ const StackedAreaChart = ({
 				},
 			},
 		})
-	}, [colors, columns, generateTooltips, groups, i18n.language, legendId, quantityUnit])
+	}, [colors, columns, generateTooltips, groups, i18n.language, isDesktopXl, legendId, quantityUnit])
 
 	return (
 		<Box className={classNames('relative flex h-full w-full grow flex-col', className)}>
@@ -123,7 +125,11 @@ const StackedAreaChart = ({
 				id={legendId}
 				className='absolute right-[10px] top-[-20px] flex w-full flex-wrap justify-end gap-x-3'
 			></div>
-			<div className='absolute top-[-20px] text-[10px] text-black'>{`${t('common:quantity')} (${t(`common:${quantityUnit}`)})`}</div>
+			<div
+				className={classNames('absolute top-[-20px] text-[10px] text-black', {
+					'!top-[-40px]': !isDesktopXl,
+				})}
+			>{`${t('common:quantity')} (${t(`common:${quantityUnit}`)})`}</div>
 			<div className='absolute bottom-[-1px] right-[0px] text-[10px] text-black'>{t('common:region')}</div>
 		</Box>
 	)

@@ -8,6 +8,8 @@ import { Languages } from '@/enum'
 import * as _ from 'lodash'
 import useAreaUnit from '@/store/area-unit'
 import { defaultNumber } from '@/utils/text'
+import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
+import useResponsive from '@/hook/responsive'
 
 const OverviewPlantMain = ({
 	plantData,
@@ -18,6 +20,7 @@ const OverviewPlantMain = ({
 }) => {
 	const { t, i18n } = useTranslation(['overview', 'common'])
 	const { areaUnit } = useAreaUnit()
+	const { isDesktopXl } = useResponsive()
 
 	return (
 		<div
@@ -39,7 +42,7 @@ const OverviewPlantMain = ({
 				/>
 			</div>
 			<div className='flex flex-col gap-3'>
-				{plantData &&
+				{plantData ? (
 					plantData.regionArea.map((item) => {
 						return (
 							<div key={item.regionId} className='flex flex-col'>
@@ -54,7 +57,7 @@ const OverviewPlantMain = ({
 									<Typography className='!text-sm'>{defaultNumber(item.area[areaUnit])}</Typography>
 								</div>
 								<LinearProgressBar
-									value={Math.max(item.percent[areaUnit], 10)}
+									value={Math.max(item.percent[areaUnit], isDesktopXl ? 11 : 6)}
 									color='#40C4FF'
 									fontColor='black'
 									contentInner={`${item.percent[areaUnit]}%`}
@@ -62,7 +65,12 @@ const OverviewPlantMain = ({
 								/>
 							</div>
 						)
-					})}
+					})
+				) : (
+					<div className='flex h-[170px] w-full items-center justify-center'>
+						<NoDataDisplay />
+					</div>
+				)}
 			</div>
 		</div>
 	)

@@ -7,6 +7,7 @@ import { useMemo } from 'react'
 import * as _ from 'lodash'
 import { Languages } from '@/enum'
 import { regionColor } from '@interface/config/app.config'
+import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
 
 const HotSpotHeatMain = ({ heatPointsData }: { heatPointsData: GetHeatPointsOverviewDtoOut[] | undefined }) => {
 	const { t, i18n } = useTranslation(['overview', 'common'])
@@ -37,26 +38,28 @@ const HotSpotHeatMain = ({ heatPointsData }: { heatPointsData: GetHeatPointsOver
 	}, [heatPointsData, i18n.language])
 
 	return (
-		heatPointsData &&
-		columns &&
-		colors && (
-			<div className='flex w-full flex-col gap-4 xl:mr-4'>
-				<div className='flex w-full items-center justify-between'>
-					<Typography className='text-primary'>{t('totalHotspot')}</Typography>
-					<InfoTooltip
-						title={
-							<div className='flex w-full flex-col items-center gap-[6px]'>
-								{`(${t('regionHotspot')}*100)`}
-								<Divider orientation='horizontal' className='w-full' /> {`${t('allRegionHotspot')}`}
-							</div>
-						}
-						color='#a7a7a7'
-						placement='bottom'
-					/>
-				</div>
-				<DonutChart columns={columns} colors={colors} width={170} height={170} />
+		<div className='flex w-full flex-col gap-4 xl:mr-4'>
+			<div className='flex w-full items-center justify-between'>
+				<Typography className='text-primary'>{t('totalHotspot')}</Typography>
+				<InfoTooltip
+					title={
+						<div className='flex w-full flex-col items-center gap-[6px]'>
+							{`(${t('regionHotspot')}*100)`}
+							<Divider orientation='horizontal' className='w-full' /> {`${t('allRegionHotspot')}`}
+						</div>
+					}
+					color='#a7a7a7'
+					placement='bottom'
+				/>
 			</div>
-		)
+			{heatPointsData?.length && columns && colors ? (
+				<DonutChart columns={columns} colors={colors} width={170} height={170} />
+			) : (
+				<div className='flex h-[170px] w-full items-center justify-center'>
+					<NoDataDisplay />
+				</div>
+			)}
+		</div>
 	)
 }
 

@@ -12,6 +12,8 @@ import { useMemo } from 'react'
 import useQuantityUnit from '@/store/quantity-unit'
 import * as _ from 'lodash'
 import { stackedAreaColor } from '@interface/config/app.config'
+import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
+import useResponsive from '@/hook/responsive'
 
 const OverviewProductPredictMain = ({
 	productPredictData,
@@ -30,6 +32,7 @@ const OverviewProductPredictMain = ({
 }) => {
 	const { t, i18n } = useTranslation(['overview', 'common'])
 	const { quantityUnit } = useQuantityUnit()
+	const { isDesktopXl } = useResponsive()
 
 	const columns = useMemo(() => {
 		const label = ['x']
@@ -94,7 +97,8 @@ const OverviewProductPredictMain = ({
 	return (
 		<div
 			className={classNames(
-				'flex h-full flex-col justify-start gap-6 rounded-[10px] bg-white p-4 shadow max-xl:w-full xl:flex-[2]',
+				'flex h-full flex-col justify-start gap-6 rounded-[10px] bg-white p-4 shadow max-xl:min-h-[400px] max-xl:w-full xl:flex-[2]',
+				{ '!gap-12': !isDesktopXl },
 				className,
 			)}
 		>
@@ -127,18 +131,12 @@ const OverviewProductPredictMain = ({
 				<div className='flex h-full w-full items-center justify-center'>
 					<CircularProgress />
 				</div>
+			) : productPredictData?.length && columns && colors && group ? (
+				<StackedAreaChart legendId='StackedAreaOverview' columns={columns} groups={[group]} colors={colors} />
 			) : (
-				productPredictData &&
-				columns &&
-				colors &&
-				group && (
-					<StackedAreaChart
-						legendId='StackedAreaOverview'
-						columns={columns}
-						groups={[group]}
-						colors={colors}
-					/>
-				)
+				<div className='flex h-full w-full items-center justify-center xl:h-[170px] xl:flex-1'>
+					<NoDataDisplay />
+				</div>
 			)}
 		</div>
 	)

@@ -9,6 +9,8 @@ import { Languages } from '@/enum'
 import * as _ from 'lodash'
 import useAreaUnit from '@/store/area-unit'
 import { barColor } from '@interface/config/app.config'
+import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
+import useResponsive from '@/hook/responsive'
 
 const OverviewReplantMain = ({
 	replantData,
@@ -27,6 +29,7 @@ const OverviewReplantMain = ({
 }) => {
 	const { t, i18n } = useTranslation(['overview', 'common'])
 	const { areaUnit } = useAreaUnit()
+	const { isDesktopXl } = useResponsive()
 
 	const columns = useMemo(() => {
 		const label = ['x']
@@ -81,7 +84,8 @@ const OverviewReplantMain = ({
 	return (
 		<div
 			className={classNames(
-				'flex h-full flex-col justify-start gap-6 rounded-[10px] bg-white p-4 shadow max-xl:w-full xl:flex-[2]',
+				'flex h-full flex-col justify-start gap-6 rounded-[10px] bg-white p-4 shadow max-xl:min-h-[400px] max-xl:w-full xl:flex-[2]',
+				{ '!gap-12': !isDesktopXl },
 				className,
 			)}
 		>
@@ -112,10 +116,12 @@ const OverviewReplantMain = ({
 				<div className='flex h-full w-full items-center justify-center'>
 					<CircularProgress />
 				</div>
+			) : replantData?.length && columns && colors ? (
+				<BarChart legendId='BarOverview' columns={columns} colors={colors} />
 			) : (
-				replantData &&
-				columns &&
-				colors && <BarChart legendId='BarOverview' columns={columns} colors={colors} />
+				<div className='flex h-full w-full items-center justify-center xl:h-[170px] xl:flex-1'>
+					<NoDataDisplay />
+				</div>
 			)}
 		</div>
 	)

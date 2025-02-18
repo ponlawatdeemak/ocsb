@@ -7,6 +7,7 @@ import * as _ from 'lodash'
 import useAreaUnit from '@/store/area-unit'
 import { defaultNumber } from '@/utils/text'
 import useQuantityUnit from '@/store/quantity-unit'
+import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
 
 const OverviewProductMain = ({
 	productData,
@@ -28,7 +29,7 @@ const OverviewProductMain = ({
 		>
 			<Typography>{`${t('sugarCaneYield')} (${t(`common:${quantityUnit}`)}/${t(`common:${areaUnit}`)})`}</Typography>
 			<div className='flex flex-col gap-4'>
-				{productData &&
+				{productData ? (
 					productData.map((item) => (
 						<div key={item.regionId} className='flex flex-col gap-2'>
 							<div className='flex items-center justify-between'>
@@ -49,7 +50,12 @@ const OverviewProductMain = ({
 							</div>
 							<Divider className='!border-white !border-opacity-25' />
 						</div>
-					))}
+					))
+				) : (
+					<div className='flex h-[170px] w-full items-center justify-center'>
+						<NoDataDisplay />
+					</div>
+				)}
 			</div>
 		</div>
 	)

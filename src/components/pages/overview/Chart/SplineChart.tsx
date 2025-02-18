@@ -8,6 +8,7 @@ import { defaultNumber } from '@/utils/text'
 import useAreaUnit from '@/store/area-unit'
 import { AreaUnitKey, Languages } from '@/enum'
 import { useTranslation } from 'next-i18next'
+import useResponsive from '@/hook/responsive'
 
 interface TooltipDataType {
 	id: string
@@ -30,6 +31,7 @@ const SplineChart = ({
 }) => {
 	const { areaUnit } = useAreaUnit()
 	const { t, i18n } = useTranslation(['overview', 'common'])
+	const { isDesktopXl } = useResponsive()
 
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
@@ -63,7 +65,7 @@ const SplineChart = ({
 				},
 				y: {
 					min: 0,
-					padding: { top: 3, bottom: 10 },
+					padding: { top: 3, bottom: isDesktopXl ? 10 : 15 },
 					tick: {
 						count: 8,
 						format: (value: number) => defaultNumber(value, 0),
@@ -89,8 +91,8 @@ const SplineChart = ({
 			},
 			padding: {
 				top: 0,
-				right: i18n.language === Languages.TH ? 25 : 50,
-				bottom: 0,
+				right: isDesktopXl ? (i18n.language === Languages.TH ? 25 : 50) : 0,
+				bottom: isDesktopXl ? 5 : 35,
 				left: areaUnit === AreaUnitKey.Sqm ? 70 : 50,
 			},
 			tooltip: {
@@ -107,7 +109,7 @@ const SplineChart = ({
 				},
 			},
 		})
-	}, [areaUnit, colors, columns, generateTooltips, i18n.language, legendId, lines])
+	}, [areaUnit, colors, columns, generateTooltips, i18n.language, isDesktopXl, legendId, lines])
 
 	return (
 		<Box className={classNames('relative flex h-full w-full grow flex-col', className)}>
@@ -119,7 +121,11 @@ const SplineChart = ({
 				id={legendId}
 				className='absolute right-[10px] top-[-20px] flex w-full flex-wrap justify-end gap-x-3'
 			></div>
-			<div className='absolute left-[5px] top-[-20px] text-[10px] text-black'>{`${t('common:area')} (${t(`common:${areaUnit}`)})`}</div>
+			<div
+				className={classNames('absolute left-[5px] top-[-20px] text-[10px] text-black', {
+					'!top-[-40px]': !isDesktopXl,
+				})}
+			>{`${t('common:area')} (${t(`common:${areaUnit}`)})`}</div>
 			<div className='absolute bottom-[-1px] right-[0px] text-[10px] text-black'>{`${t('common:month')}/${t(`common:year`)}`}</div>
 		</Box>
 	)

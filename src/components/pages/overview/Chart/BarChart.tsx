@@ -6,6 +6,7 @@ import BillboardJS, { IChart } from '@billboard.js/react'
 import 'billboard.js/dist/billboard.css'
 import { defaultNumber } from '@/utils/text'
 import { useTranslation } from 'next-i18next'
+import useResponsive from '@/hook/responsive'
 
 interface TooltipDataType {
 	id: string
@@ -26,7 +27,8 @@ const BarChart = ({
 	colors: { [key: string]: string }
 	className?: string
 }) => {
-	const { t, i18n } = useTranslation(['overview', 'common'])
+	const { t } = useTranslation(['overview', 'common'])
+	const { isDesktopXl } = useResponsive()
 
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
@@ -90,7 +92,7 @@ const BarChart = ({
 			padding: {
 				top: 0,
 				right: 20,
-				bottom: 0,
+				bottom: isDesktopXl ? 0 : 20,
 				left: 40,
 			},
 			tooltip: {
@@ -107,7 +109,7 @@ const BarChart = ({
 				},
 			},
 		})
-	}, [colors, columns, generateTooltips, legendId])
+	}, [colors, columns, generateTooltips, isDesktopXl, legendId])
 
 	return (
 		<Box className={classNames('relative flex h-full w-full grow flex-col', className)}>
@@ -119,7 +121,13 @@ const BarChart = ({
 				id={legendId}
 				className='absolute right-[10px] top-[-20px] flex w-full flex-wrap justify-end gap-x-3'
 			></div>
-			<div className='absolute top-[-20px] text-[10px] text-black'>{t('replant')}</div>
+			<div
+				className={classNames('absolute top-[-20px] text-[10px] text-black', {
+					'!top-[-40px]': !isDesktopXl,
+				})}
+			>
+				{t('replant')}
+			</div>
 			<div className='absolute bottom-[-1px] right-[0px] text-[10px] text-black'>{t('common:region')}</div>
 		</Box>
 	)

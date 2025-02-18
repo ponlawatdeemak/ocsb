@@ -5,8 +5,9 @@ import LinearProgressBar from '../../../Chart/LinearProgressBar'
 import { Languages } from '@/enum'
 import * as _ from 'lodash'
 import { defaultNumber } from '@/utils/text'
-import classNames from 'classnames'
 import { regionColor } from '@interface/config/app.config'
+import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
+import useResponsive from '@/hook/responsive'
 
 const HotSpotHeatSugarcaneMain = ({
 	heatPointSugarcaneData,
@@ -14,12 +15,13 @@ const HotSpotHeatSugarcaneMain = ({
 	heatPointSugarcaneData: GetHeatPointsSugarcaneOverviewDtoOut[] | undefined
 }) => {
 	const { t, i18n } = useTranslation(['overview', 'common'])
+	const { isDesktopXl } = useResponsive()
 
 	return (
 		<div className='flex w-full flex-col gap-4 xl:ml-4'>
 			<Typography className='text-primary'>{t('hotspotInArea')}</Typography>
 			<div className='flex flex-col gap-3'>
-				{heatPointSugarcaneData &&
+				{heatPointSugarcaneData?.length ? (
 					heatPointSugarcaneData.map((item, index) => (
 						<div key={item.regionId} className='flex flex-col'>
 							<div className='flex items-center justify-between text-black'>
@@ -37,14 +39,19 @@ const HotSpotHeatSugarcaneMain = ({
 								<Typography className='!text-sm'>{`${t('common:total')} ${defaultNumber(item.regionCount)} ${t('common:point')}`}</Typography>
 							</div>
 							<LinearProgressBar
-								value={Math.max((item.inSugarcane * 100) / item.regionCount, 7)}
+								value={Math.max((item.inSugarcane * 100) / item.regionCount, isDesktopXl ? 7 : 6)}
 								color={regionColor[item.regionId as keyof typeof regionColor].color}
 								fontColor={index > 1 ? 'white' : 'black'}
 								contentInner={item.inSugarcane}
 								contentOuter={item.inSugarcane === item.regionCount ? '' : item.notInSugarcane}
 							/>
 						</div>
-					))}
+					))
+				) : (
+					<div className='flex h-[170px] w-full items-center justify-center'>
+						<NoDataDisplay />
+					</div>
+				)}
 			</div>
 		</div>
 	)
