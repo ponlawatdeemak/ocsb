@@ -72,7 +72,7 @@ const OverviewBurntScarMain = ({
 			{burntData?.length && columns && colors ? (
 				<SplineChart legendId='splineOverview' columns={columns} colors={colors} />
 			) : (
-				<div className='flex w-full items-center justify-center xl:h-[170px]'>
+				<div className='flex h-full w-full items-center justify-center xl:h-[170px]'>
 					<NoDataDisplay />
 				</div>
 			)}

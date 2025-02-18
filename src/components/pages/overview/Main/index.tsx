@@ -109,7 +109,7 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 		if ((productPredictYear ? productPredictYear : year) && productPredictData) {
 			return Number(productPredictYear ? productPredictYear : year) === yearProductionLookupData[0].id
 		} else {
-			return false
+			return true
 		}
 	}, [productPredictData, productPredictYear, year, yearProductionLookupData])
 
@@ -120,7 +120,7 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 				yearProductionLookupData[yearProductionLookupData.length - 1].id
 			)
 		} else {
-			return false
+			return true
 		}
 	}, [productPredictData, productPredictYear, year, yearProductionLookupData])
 
