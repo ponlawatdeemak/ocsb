@@ -10,12 +10,12 @@ interface BurntAreaMainProps {
 }
 
 export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) => {
-	const [selectedArea, setSelectedArea] = useState<number[]>([])
+	const [selectedArea, setSelectedArea] = useState<any[]>([])
 	const [selectedCard, setSelectedCard] = useState<number>()
 
 	const handleClickAdd = () => {
 		const updateArea = [...selectedArea]
-		updateArea.push(Math.random())
+		updateArea.push({ id: Math.random().toString().split('.')[1] })
 		setSelectedArea(updateArea)
 	}
 
@@ -27,11 +27,11 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	}
 
 	const handleSelectCard = (item: any) => {
-		setSelectedCard(item)
+		setSelectedCard((selected) => (selected === item ? undefined : item))
 	}
 
 	return (
-		<Box className={classNames('flex h-full w-full flex-col', className)}>
+		<Box className={classNames('flex w-full grow flex-col', className)}>
 			<BurntSearchFormMain className='z-10 w-full' />
 			<Box className='relative flex h-full w-full'>
 				<BurntDashboardMain
@@ -40,9 +40,9 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					handleClickDelete={handleClickDelete}
 					selectedCard={selectedCard}
 					handleSelectCard={handleSelectCard}
-					className='max-w-[calc(80vw)]'
+					className='max-w-[calc(80vw)] max-lg:hidden'
 				/>
-				<BurntMapMain className='h-full w-full flex-1 bg-green-200' />
+				<BurntMapMain className='h-full w-full flex-1' />
 			</Box>
 		</Box>
 	)
