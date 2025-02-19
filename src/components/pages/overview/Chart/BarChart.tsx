@@ -1,8 +1,7 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
-import { useEffect, useRef, useMemo, useCallback } from 'react'
+import { useEffect, useCallback } from 'react'
 import bb, { bar } from 'billboard.js'
-import BillboardJS, { IChart } from '@billboard.js/react'
 import 'billboard.js/dist/billboard.css'
 import { defaultNumber } from '@/utils/text'
 import { useTranslation } from 'next-i18next'
@@ -35,7 +34,7 @@ const BarChart = ({
 			let tooltipOverview = '<div class="bg-white p-2 rounded-md shadow flex flex-col">'
 			data.forEach(
 				(item) =>
-					(tooltipOverview += `<div class="text-[12px]">${t('replant')}(${item.name}) : ${defaultNumber(item.value)}%</div>`),
+					(tooltipOverview += `<div class="text-[12px]">${t('replant')} (${item.name}) : ${defaultNumber(item.value)}%</div>`),
 			)
 
 			tooltipOverview += '</div>'
@@ -126,7 +125,7 @@ const BarChart = ({
 					'!top-[-40px]': !isDesktopXl,
 				})}
 			>
-				{t('replant')}
+				{t('replant') + ' %'}
 			</div>
 			<div className='absolute bottom-[-1px] right-[0px] text-[10px] text-black'>{t('common:region')}</div>
 		</Box>

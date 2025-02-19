@@ -27,7 +27,7 @@ const OverviewProductMain = ({
 				className,
 			)}
 		>
-			<Typography>{`${t('sugarCaneYield')} (${t(`common:${quantityUnit}`)}/${t(`common:${areaUnit}`)})`}</Typography>
+			<Typography>{`${t('sugarCaneYield')} (${t('common:' + quantityUnit)}/${t('common:' + areaUnit)})`}</Typography>
 			<div className='flex flex-col gap-4'>
 				{productData ? (
 					productData.map((item) => (
@@ -36,11 +36,15 @@ const OverviewProductMain = ({
 								<Typography className='!text-xs'>
 									{`${
 										item[
-											`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetProductOverviewDtoOut
+											_.camelCase(
+												`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+											) as keyof GetProductOverviewDtoOut
 										] as string
 									} (${(
 										item[
-											`${_.camelCase(`provinces-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetProductOverviewDtoOut
+											_.camelCase(
+												`provinces-${i18n.language === Languages.TH ? '' : i18n.language}`,
+											) as keyof GetProductOverviewDtoOut
 										] as string[]
 									).join(',')})`}
 								</Typography>

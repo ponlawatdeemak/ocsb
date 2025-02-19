@@ -16,6 +16,9 @@ import OverviewProductPredictMain from './ProductPredict'
 import OverviewReplantMain from './Replant'
 import { Languages } from '@/enum'
 
+const PRODUCT_PREDICT_LEGEND_LENGTH = 4
+const REPLANT_LEGEND_LENGTH = 3
+
 interface OverviewMainProps {
 	className?: string
 }
@@ -31,125 +34,116 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 		queryFn: async () => {
 			const response = await service.lookup.get({ name: 'year_production', sort: 'id', order: 'ASC' })
 			setYear(String(response[response.length - 1].id))
+			setProductPredictYear(String(response[response.length - 1].id))
+			setReplantYear(String(response[response.length - 1].id))
 			return response
 		},
 	})
 
-	const { data: summaryData, isLoading: isSummaryDataLoading } = useQuery({
+	const { data: summaryData, isPending: isSummaryDataLoading } = useQuery({
 		queryKey: ['summaryData', year],
 		queryFn: () => service.overview.getSummaryOverview({ id: year }),
 		enabled: !!year,
 	})
 
-	const { data: heatPointsData, isLoading: isHeatPointsDataLoading } = useQuery({
+	const { data: heatPointsData, isPending: isHeatPointsDataLoading } = useQuery({
 		queryKey: ['heatPointsData', year],
 		queryFn: () => service.overview.getHeatPointsOverview({ id: year }),
 		enabled: !!year,
 	})
 
-	const { data: heatPointsSugarcaneData, isLoading: isHeatPointsSugarcaneDataLoading } = useQuery({
+	const { data: heatPointsSugarcaneData, isPending: isHeatPointsSugarcaneDataLoading } = useQuery({
 		queryKey: ['heatPointsSugarcaneData', year],
 		queryFn: () => service.overview.getHeatPointsSugarcaneOverview({ id: year }),
 		enabled: !!year,
 	})
 
-	const { data: BurntData, isLoading: isBurntDataLoading } = useQuery({
+	const { data: BurntData, isPending: isBurntDataLoading } = useQuery({
 		queryKey: ['BurntData', year],
 		queryFn: () => service.overview.getBurntOverview({ id: year }),
 		enabled: !!year,
 	})
 
-	const { data: plantData, isLoading: isPlantDataLoading } = useQuery({
+	const { data: plantData, isPending: isPlantDataLoading } = useQuery({
 		queryKey: ['plantData', year],
 		queryFn: () => service.overview.getPlantOverview({ id: year }),
 		enabled: !!year,
 	})
 
-	const { data: productData, isLoading: isProductDataLoading } = useQuery({
+	const { data: productData, isPending: isProductDataLoading } = useQuery({
 		queryKey: ['productData', year],
 		queryFn: () => service.overview.getProductOverview({ id: year }),
 		enabled: !!year,
 	})
 
-	const { data: productPredictData, isLoading: isProductPredictDataLoading } = useQuery({
-		queryKey: ['productPredictData', year, productPredictYear],
-		queryFn: () =>
-			service.overview.getProductPredictOverview({ id: productPredictYear ? productPredictYear : year }),
-		enabled: !!year,
+	const { data: productPredictData, isPending: isProductPredictDataLoading } = useQuery({
+		queryKey: ['productPredictData', productPredictYear],
+		queryFn: () => service.overview.getProductPredictOverview({ id: productPredictYear }),
+		enabled: !!productPredictYear,
 	})
 
-	const { data: replantData, isLoading: isReplantDataLoading } = useQuery({
-		queryKey: ['replantData', year, replantYear],
-		queryFn: () => service.overview.getReplantOverview({ id: replantYear ? replantYear : year }),
-		enabled: !!year,
+	const { data: replantData, isPending: isReplantDataLoading } = useQuery({
+		queryKey: ['replantData', replantYear],
+		queryFn: () => service.overview.getReplantOverview({ id: replantYear }),
+		enabled: !!replantYear,
 	})
 
 	const yearLookupData = useMemo(() => {
 		return (
 			yearProductionLookupData?.map((item: any) => ({
 				id: item.id,
-				name: item[`${_.camelCase(`name-${i18n.language === Languages.TH ? '' : i18n.language}`)}`],
+				name: item[_.camelCase(`name-${i18n.language === Languages.TH ? '' : i18n.language}`)],
 			})) ?? []
 		)
 	}, [i18n.language, yearProductionLookupData])
 
 	const handleSetProductPredictYear = (action: 'back' | 'forward') => {
 		if (action === 'back') {
-			setProductPredictYear((productPredictYear) =>
-				productPredictYear ? String(Number(productPredictYear) - 1) : String(Number(year) - 1),
-			)
+			setProductPredictYear((productPredictYear) => String(Number(productPredictYear) - 1))
 		} else if (action === 'forward') {
-			setProductPredictYear((productPredictYear) =>
-				productPredictYear ? String(Number(productPredictYear) + 1) : String(Number(year) + 1),
-			)
+			setProductPredictYear((productPredictYear) => String(Number(productPredictYear) + 1))
 		}
 	}
 
 	const isDisabledBackProductPredict = useMemo(() => {
-		if ((productPredictYear ? productPredictYear : year) && productPredictData) {
-			return Number(productPredictYear ? productPredictYear : year) === yearProductionLookupData[0].id
+		if (productPredictYear && productPredictData) {
+			return Number(productPredictYear) <= PRODUCT_PREDICT_LEGEND_LENGTH
 		} else {
 			return true
 		}
-	}, [productPredictData, productPredictYear, year, yearProductionLookupData])
+	}, [productPredictData, productPredictYear])
 
 	const isDisabledForwardProductPredict = useMemo(() => {
-		if ((productPredictYear ? productPredictYear : year) && productPredictData) {
-			return (
-				Number(productPredictYear ? productPredictYear : year) ===
-				yearProductionLookupData[yearProductionLookupData.length - 1].id
-			)
+		if (productPredictYear && productPredictData) {
+			return Number(productPredictYear) === yearProductionLookupData[yearProductionLookupData.length - 1].id
 		} else {
 			return true
 		}
-	}, [productPredictData, productPredictYear, year, yearProductionLookupData])
+	}, [productPredictData, productPredictYear, yearProductionLookupData])
 
 	const handleSetReplantYear = (action: 'back' | 'forward') => {
 		if (action === 'back') {
-			setReplantYear((replantYear) => (replantYear ? String(Number(replantYear) - 1) : String(Number(year) - 1)))
+			setReplantYear((replantYear) => String(Number(replantYear) - 1))
 		} else if (action === 'forward') {
-			setReplantYear((replantYear) => (replantYear ? String(Number(replantYear) + 1) : String(Number(year) + 1)))
+			setReplantYear((replantYear) => String(Number(replantYear) + 1))
 		}
 	}
 
 	const isDisabledBackReplant = useMemo(() => {
-		if ((replantYear ? replantYear : year) && replantData) {
-			return Number(replantYear ? replantYear : year) === yearProductionLookupData[0].id
+		if (replantYear && replantData) {
+			return Number(replantYear) <= REPLANT_LEGEND_LENGTH
 		} else {
 			return false
 		}
-	}, [replantData, replantYear, year, yearProductionLookupData])
+	}, [replantData, replantYear])
 
 	const isDisabledForwardReplant = useMemo(() => {
-		if ((replantYear ? replantYear : year) && replantData) {
-			return (
-				Number(replantYear ? replantYear : year) ===
-				yearProductionLookupData[yearProductionLookupData.length - 1].id
-			)
+		if (replantYear && replantData) {
+			return Number(replantYear) === yearProductionLookupData[yearProductionLookupData.length - 1].id
 		} else {
 			return false
 		}
-	}, [replantData, replantYear, year, yearProductionLookupData])
+	}, [replantData, replantYear, yearProductionLookupData])
 
 	return (
 		<div className={classNames('relative flex h-auto w-full flex-1 flex-col p-6 xl:px-6 xl:py-3', className)}>
@@ -169,24 +163,20 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 							data={yearLookupData}
 							disabled={isYearProductionDataLoading}
 							onChange={(event) => {
-								setProductPredictYear('')
-								setReplantYear('')
+								setProductPredictYear(event.target.value)
+								setReplantYear(event.target.value)
 								setYear(event.target.value)
 							}}
 						/>
 					</div>
 				</div>
-				{(isYearProductionDataLoading ||
-					isSummaryDataLoading ||
-					isHeatPointsDataLoading ||
-					isHeatPointsSugarcaneDataLoading ||
-					isBurntDataLoading ||
-					isPlantDataLoading ||
-					isProductDataLoading ||
-					isProductPredictDataLoading ||
-					isReplantDataLoading) &&
-				!productPredictYear &&
-				!replantYear ? (
+				{isYearProductionDataLoading ||
+				isSummaryDataLoading ||
+				isHeatPointsDataLoading ||
+				isHeatPointsSugarcaneDataLoading ||
+				isBurntDataLoading ||
+				isPlantDataLoading ||
+				isProductDataLoading ? (
 					<div className='flex h-full w-full items-center justify-center'>
 						<CircularProgress size={80} />
 					</div>

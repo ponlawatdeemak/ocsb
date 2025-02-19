@@ -4,7 +4,7 @@ import { Typography, IconButton, CircularProgress } from '@mui/material'
 import { useTranslation } from 'next-i18next'
 import BarChart from '../../Chart/BarChart'
 import classNames from 'classnames'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Languages } from '@/enum'
 import * as _ from 'lodash'
 import useAreaUnit from '@/store/area-unit'
@@ -31,6 +31,21 @@ const OverviewReplantMain = ({
 	const { areaUnit } = useAreaUnit()
 	const { isDesktopXl } = useResponsive()
 
+	const checkYearIndex = useCallback(
+		(result: [string, number][], yearData: _yearGetReplantOverviewDtoOut) => {
+			return result.findIndex(
+				(entry) =>
+					entry[0] ===
+					yearData[
+						_.camelCase(
+							`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+						) as keyof _yearGetReplantOverviewDtoOut
+					],
+			)
+		},
+		[i18n.language],
+	)
+
 	const columns = useMemo(() => {
 		const label = ['x']
 		replantData?.forEach((item) => {
@@ -41,18 +56,14 @@ const OverviewReplantMain = ({
 
 		replantData?.forEach((region) => {
 			region.years.forEach((yearData) => {
-				const existingYearIndex = result.findIndex(
-					(entry) =>
-						entry[0] ===
-						yearData[
-							`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _yearGetReplantOverviewDtoOut
-						],
-				)
+				const existingYearIndex = checkYearIndex(result, yearData)
 
 				if (existingYearIndex === -1) {
 					result.push([
 						yearData[
-							`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _yearGetReplantOverviewDtoOut
+							_.camelCase(
+								`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+							) as keyof _yearGetReplantOverviewDtoOut
 						] as string,
 						yearData.area[areaUnit],
 					])
@@ -63,14 +74,16 @@ const OverviewReplantMain = ({
 		})
 
 		return [label, ...result]
-	}, [areaUnit, i18n.language, replantData])
+	}, [areaUnit, i18n.language, replantData, checkYearIndex])
 
 	const colors = useMemo(() => {
 		return replantData?.[0].years.reduce(
 			(acc, item, index) => {
 				acc[
 					item[
-						`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _yearGetReplantOverviewDtoOut
+						_.camelCase(
+							`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+						) as keyof _yearGetReplantOverviewDtoOut
 					] as string
 				] = barColor[index as keyof typeof barColor].color
 				return acc
@@ -116,12 +129,16 @@ const OverviewReplantMain = ({
 				<div className='flex h-full w-full items-center justify-center'>
 					<CircularProgress />
 				</div>
-			) : replantData?.length && columns && colors ? (
-				<BarChart legendId='BarOverview' columns={columns} colors={colors} />
 			) : (
-				<div className='flex h-full w-full items-center justify-center xl:h-[170px] xl:flex-1'>
-					<NoDataDisplay />
-				</div>
+				<>
+					{replantData?.length && columns && colors ? (
+						<BarChart legendId='BarOverview' columns={columns} colors={colors} />
+					) : (
+						<div className='flex h-full w-full items-center justify-center xl:h-[170px] xl:flex-1'>
+							<NoDataDisplay />
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	)

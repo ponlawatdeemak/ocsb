@@ -8,7 +8,7 @@ import { useTranslation } from 'next-i18next'
 import StackedAreaChart from '../../Chart/StackedAreaChart'
 import classNames from 'classnames'
 import { Languages } from '@/enum'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import useQuantityUnit from '@/store/quantity-unit'
 import * as _ from 'lodash'
 import { stackedAreaColor } from '@interface/config/app.config'
@@ -34,6 +34,21 @@ const OverviewProductPredictMain = ({
 	const { quantityUnit } = useQuantityUnit()
 	const { isDesktopXl } = useResponsive()
 
+	const checkYearIndex = useCallback(
+		(result: [string, number][], yearData: _RegionGetProductPredictOverviewDtoOut) => {
+			return result.findIndex(
+				(entry) =>
+					entry[0] ===
+					yearData[
+						_.camelCase(
+							`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+						) as keyof _RegionGetProductPredictOverviewDtoOut
+					],
+			)
+		},
+		[i18n.language],
+	)
+
 	const columns = useMemo(() => {
 		const label = ['x']
 		productPredictData?.forEach((item) => {
@@ -44,18 +59,14 @@ const OverviewProductPredictMain = ({
 
 		productPredictData?.forEach((region) => {
 			region.years.forEach((yearData) => {
-				const existingYearIndex = result.findIndex(
-					(entry) =>
-						entry[0] ===
-						yearData[
-							`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _RegionGetProductPredictOverviewDtoOut
-						],
-				)
+				const existingYearIndex = checkYearIndex(result, yearData)
 
 				if (existingYearIndex === -1) {
 					result.push([
 						yearData[
-							`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _RegionGetProductPredictOverviewDtoOut
+							_.camelCase(
+								`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+							) as keyof _RegionGetProductPredictOverviewDtoOut
 						] as string,
 						yearData.weight[quantityUnit],
 					])
@@ -66,14 +77,16 @@ const OverviewProductPredictMain = ({
 		})
 
 		return [label, ...result]
-	}, [i18n.language, productPredictData, quantityUnit])
+	}, [i18n.language, productPredictData, quantityUnit, checkYearIndex])
 
 	const colors = useMemo(() => {
 		return productPredictData?.[0].years.reduce(
 			(acc, item, index) => {
 				acc[
 					item[
-						`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _RegionGetProductPredictOverviewDtoOut
+						_.camelCase(
+							`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+						) as keyof _RegionGetProductPredictOverviewDtoOut
 					] as string
 				] = stackedAreaColor[index as keyof typeof stackedAreaColor].color
 				return acc
@@ -88,7 +101,9 @@ const OverviewProductPredictMain = ({
 		return (
 			productPredictData?.[0].years.map((item) => {
 				return item[
-					`${_.camelCase(`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof _RegionGetProductPredictOverviewDtoOut
+					_.camelCase(
+						`yearName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+					) as keyof _RegionGetProductPredictOverviewDtoOut
 				]
 			}) ?? []
 		)
@@ -131,12 +146,21 @@ const OverviewProductPredictMain = ({
 				<div className='flex h-full w-full items-center justify-center'>
 					<CircularProgress />
 				</div>
-			) : productPredictData?.length && columns && colors && group ? (
-				<StackedAreaChart legendId='StackedAreaOverview' columns={columns} groups={[group]} colors={colors} />
 			) : (
-				<div className='flex h-full w-full items-center justify-center xl:h-[170px] xl:flex-1'>
-					<NoDataDisplay />
-				</div>
+				<>
+					{productPredictData?.length && columns && colors && group ? (
+						<StackedAreaChart
+							legendId='StackedAreaOverview'
+							columns={columns}
+							groups={[group]}
+							colors={colors}
+						/>
+					) : (
+						<div className='flex h-full w-full items-center justify-center xl:h-[170px] xl:flex-1'>
+							<NoDataDisplay />
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	)

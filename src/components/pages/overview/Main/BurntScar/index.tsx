@@ -33,7 +33,9 @@ const OverviewBurntScarMain = ({
 			burntData?.map((item) => {
 				return [
 					item[
-						`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetBurntOverviewDtoOut
+						_.camelCase(
+							`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+						) as keyof GetBurntOverviewDtoOut
 					],
 					...item.monthlyData.map((data) => {
 						return data.area[areaUnit]
@@ -49,7 +51,9 @@ const OverviewBurntScarMain = ({
 			(acc, item) => {
 				acc[
 					item[
-						`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetBurntOverviewDtoOut
+						_.camelCase(
+							`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+						) as keyof GetBurntOverviewDtoOut
 					] as string
 				] = regionColor[item.regionId as keyof typeof regionColor].color
 				return acc

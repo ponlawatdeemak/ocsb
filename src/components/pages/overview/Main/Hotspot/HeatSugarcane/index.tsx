@@ -28,11 +28,15 @@ const HotSpotHeatSugarcaneMain = ({
 								<Typography className='!text-xs'>
 									{`${
 										item[
-											`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetHeatPointsSugarcaneOverviewDtoOut
+											_.camelCase(
+												`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+											) as keyof GetHeatPointsSugarcaneOverviewDtoOut
 										]
 									} (${(
 										item[
-											`${_.camelCase(`provinces-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetHeatPointsSugarcaneOverviewDtoOut
+											_.camelCase(
+												`provinces-${i18n.language === Languages.TH ? '' : i18n.language}`,
+											) as keyof GetHeatPointsSugarcaneOverviewDtoOut
 										] as string[]
 									).join(',')})`}
 								</Typography>

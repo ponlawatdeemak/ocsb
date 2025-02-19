@@ -15,7 +15,9 @@ const HotSpotHeatMain = ({ heatPointsData }: { heatPointsData: GetHeatPointsOver
 	const columns = useMemo(() => {
 		return heatPointsData?.map((item) => [
 			item[
-				`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetHeatPointsOverviewDtoOut
+				_.camelCase(
+					`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+				) as keyof GetHeatPointsOverviewDtoOut
 			],
 			item.regionCount,
 		])
@@ -26,7 +28,9 @@ const HotSpotHeatMain = ({ heatPointsData }: { heatPointsData: GetHeatPointsOver
 			(acc, item) => {
 				acc[
 					item[
-						`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetHeatPointsOverviewDtoOut
+						_.camelCase(
+							`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+						) as keyof GetHeatPointsOverviewDtoOut
 					] as string
 				] = regionColor[item.regionId as keyof typeof regionColor].color
 				return acc
@@ -45,7 +49,8 @@ const HotSpotHeatMain = ({ heatPointsData }: { heatPointsData: GetHeatPointsOver
 					title={
 						<div className='flex w-full flex-col items-center gap-[6px]'>
 							{`(${t('regionHotspot')}*100)`}
-							<Divider orientation='horizontal' className='w-full' /> {`${t('allRegionHotspot')}`}
+							<Divider orientation='horizontal' className='w-full' />
+							{`${t('allRegionHotspot')}`}
 						</div>
 					}
 					color='#a7a7a7'

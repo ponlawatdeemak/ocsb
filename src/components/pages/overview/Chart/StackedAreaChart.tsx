@@ -1,8 +1,7 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
-import { useEffect, useRef, useMemo, useCallback } from 'react'
+import { useEffect, useCallback } from 'react'
 import bb, { area } from 'billboard.js'
-import BillboardJS, { IChart } from '@billboard.js/react'
 import 'billboard.js/dist/billboard.css'
 import { defaultNumber } from '@/utils/text'
 import { useTranslation } from 'next-i18next'
@@ -40,7 +39,7 @@ const StackedAreaChart = ({
 			let tooltipOverview = '<div class="bg-white p-2 rounded-md shadow flex flex-col">'
 			data.forEach(
 				(item) =>
-					(tooltipOverview += `<div class="text-[12px]">${t('common:quantity')}(${item.name}) : ${defaultNumber(item.value)} ${t(`common:${quantityUnit}`)}</div>`),
+					(tooltipOverview += `<div class="text-[12px]">${t('common:quantity')} (${item.name}) : ${defaultNumber(item.value)} ${t('common:' + quantityUnit)}</div>`),
 			)
 
 			tooltipOverview += '</div>'
@@ -87,7 +86,7 @@ const StackedAreaChart = ({
 				},
 			},
 			point: {
-				show: false,
+				r: 0,
 			},
 			grid: {
 				y: {
@@ -101,6 +100,7 @@ const StackedAreaChart = ({
 				left: quantityUnit === QuantityUnitKey.Ton ? 62 : 80,
 			},
 			tooltip: {
+				grouped: false,
 				contents: function (d: any, _arg1: any, _arg2: any, color: any) {
 					const data: TooltipDataType[] = d.map((item: any, index: number) => ({
 						id: item.id,
@@ -129,7 +129,7 @@ const StackedAreaChart = ({
 				className={classNames('absolute top-[-20px] text-[10px] text-black', {
 					'!top-[-40px]': !isDesktopXl,
 				})}
-			>{`${t('common:quantity')} (${t(`common:${quantityUnit}`)})`}</div>
+			>{`${t('common:quantity')} (${t('common:' + quantityUnit)})`}</div>
 			<div className='absolute bottom-[-1px] right-[0px] text-[10px] text-black'>{t('common:region')}</div>
 		</Box>
 	)

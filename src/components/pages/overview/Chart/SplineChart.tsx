@@ -1,7 +1,6 @@
-import BillboardJS, { IChart } from '@billboard.js/react'
 import 'billboard.js/dist/billboard.css'
 import bb, { spline } from 'billboard.js'
-import { useRef, useMemo, useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useMemo } from 'react'
 import { Box } from '@mui/material'
 import classNames from 'classnames'
 import { defaultNumber } from '@/utils/text'
@@ -38,7 +37,7 @@ const SplineChart = ({
 			let tooltipOverview = '<div class="bg-white p-2 rounded-md shadow flex flex-col">'
 			data.forEach(
 				(item) =>
-					(tooltipOverview += `<div class="text-[12px]">${t('burntScar')}(${item.name}) : ${defaultNumber(item.value)} ${t(`common:${areaUnit}`)}</div>`),
+					(tooltipOverview += `<div class="text-[12px]">${t('burntScar')} (${item.name}) : ${defaultNumber(item.value)} ${t('common:' + areaUnit)}</div>`),
 			)
 
 			tooltipOverview += '</div>'
@@ -48,7 +47,7 @@ const SplineChart = ({
 		[areaUnit, t],
 	)
 
-	const lines = columns[0].map((item) => ({ value: item }))
+	const lines = useMemo(() => columns[0].map((item) => ({ value: item })), [columns])
 
 	useEffect(() => {
 		bb.generate({
@@ -125,8 +124,8 @@ const SplineChart = ({
 				className={classNames('absolute left-[5px] top-[-20px] text-[10px] text-black', {
 					'!top-[-40px]': !isDesktopXl,
 				})}
-			>{`${t('common:area')} (${t(`common:${areaUnit}`)})`}</div>
-			<div className='absolute bottom-0 right-[0px] text-[10px] text-black xl:bottom-[5px]'>{`${t('common:month')}/${t(`common:year`)}`}</div>
+			>{`${t('common:area')} (${t('common:' + areaUnit)})`}</div>
+			<div className='absolute bottom-0 right-[0px] text-[10px] text-black xl:bottom-[5px]'>{`${t('common:month')}/${t('common:year')}`}</div>
 		</Box>
 	)
 }

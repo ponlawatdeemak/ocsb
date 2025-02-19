@@ -4,9 +4,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'next-i18next'
 import { ResponseLanguage } from '@/api/interface'
 import BillboardJS, { IChart } from '@billboard.js/react'
-import classNames from 'classnames'
 import { defaultNumber } from '@/utils/text'
-import { Padding } from 'maplibre-gl'
 
 const DonutChart = ({
 	columns,
@@ -43,7 +41,9 @@ const DonutChart = ({
 			legend: {
 				show: false,
 			},
-			tooltip: { show: false },
+			tooltip: {
+				show: true,
+			},
 			padding: {
 				top: 10,
 				bottom: 5,
@@ -69,7 +69,7 @@ const DonutChart = ({
 				options={options}
 				ref={chartRef}
 				className={
-					'z-10 [&_*]:font-["Prompt","Montserrat"] [&_.bb-chart-arc_text]:!fill-[#3C0A6D] [&_.bb-chart-arc_text]:!text-2xs [&_svg]:!overflow-visible'
+					'z-10 [&_*]:font-["Prompt","Montserrat"] [&_.bb-chart-arc_text]:!fill-[#3C0A6D] [&_.bb-chart-arc_text]:!text-2xs [&_.bb-tooltip-container]:!text-black [&_svg]:!overflow-visible'
 				}
 				style={{ height: height, width: width }}
 			/>

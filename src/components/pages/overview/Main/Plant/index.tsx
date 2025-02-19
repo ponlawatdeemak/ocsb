@@ -30,7 +30,7 @@ const OverviewPlantMain = ({
 			)}
 		>
 			<div className='flex w-full items-center justify-between'>
-				<Typography>{`${t('SugarCaneArea')} (${t(`common:${areaUnit}`)})`}</Typography>
+				<Typography>{`${t('SugarCaneArea')} (${t('common:' + areaUnit)})`}</Typography>
 				<InfoTooltip
 					title={
 						<div className='flex w-full flex-col items-center gap-[6px]'>
@@ -50,7 +50,9 @@ const OverviewPlantMain = ({
 									<Typography className='!text-xs'>
 										{
 											item[
-												`${_.camelCase(`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`)}` as keyof GetPlantOverviewRegionArea
+												_.camelCase(
+													`regionName-${i18n.language === Languages.TH ? '' : i18n.language}`,
+												) as keyof GetPlantOverviewRegionArea
 											] as string
 										}
 									</Typography>
