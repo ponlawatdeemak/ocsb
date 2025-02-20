@@ -5,6 +5,8 @@ import BurntSearchFormMain from './SearchForm'
 import BurntMapMain from './BurntMap'
 import BurntDashboardMain from './Dashboard'
 
+const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
+
 interface BurntAreaMainProps {
 	className?: string
 }
@@ -12,6 +14,8 @@ interface BurntAreaMainProps {
 export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) => {
 	const [selectedArea, setSelectedArea] = useState<number[]>([])
 	const [selectedCard, setSelectedCard] = useState<number>()
+
+	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
 
 	const handleClickAdd = () => {
 		const updateArea = [...selectedArea]
@@ -32,7 +36,11 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 
 	return (
 		<Box className={classNames('flex h-full w-full flex-col', className)}>
-			<BurntSearchFormMain className='z-10 w-full' />
+			<BurntSearchFormMain
+				className='z-10 w-full'
+				selectedDateRange={selectedDateRange}
+				onSelectedDateRange={(selectedDateRange: Date[]) => setSelectedDateRange(selectedDateRange)}
+			/>
 			<Box className='absolute flex h-full w-full md:relative'>
 				<BurntDashboardMain
 					selectedArea={selectedArea}

@@ -32,15 +32,20 @@ export enum CalendarType {
 }
 
 const defaultCurrentDateRange: DateObject[] = [new DateObject(), new DateObject()]
-const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
 
 export const DATE_RANGE_LENGTH = 2
 
 interface BurntSearchFormMainProps {
 	className?: string
+	selectedDateRange: Date[]
+	onSelectedDateRange: (selectedDateRange: Date[]) => void
 }
 
-const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({ className = '' }) => {
+const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
+	className = '',
+	selectedDateRange,
+	onSelectedDateRange,
+}) => {
 	const { isDesktopMD } = useResponsive()
 	const [selectedHotspots, setSelectedHotspots] = useState<string[]>(['1', '2'])
 	const { t, i18n } = useTranslation(['common', 'map-analyze'])
@@ -51,7 +56,6 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({ className = '
 
 	const [calendarType, setCalendarType] = useState<CalendarType | false>(CalendarType.Date)
 	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
-	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
 
 	const hotspotOptions: MultipleSelectedType[] = useMemo(
 		() => [
@@ -123,23 +127,24 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({ className = '
 		if (currentDateRange.length === DATE_RANGE_LENGTH) {
 			const startDate = new Date(currentDateRange[0]?.format('Date: YYYY-MM-DD', ['Date']))
 			const endDate = new Date(currentDateRange[1]?.format('Date: YYYY-MM-DD', ['Date']))
-			setSelectedDateRange([startDate, endDate])
+			onSelectedDateRange([startDate, endDate])
 			setCalendarDesktopPopoverAnchorEl(null)
 			setCalendarMobilePopoverAnchorEl(null)
 			setCalendarType(CalendarType.Date)
 		}
-	}, [currentDateRange])
+	}, [currentDateRange, onSelectedDateRange])
 
 	const handleCurrentMonthRangeSubmit = useCallback(() => {
 		if (currentDateRange.length === DATE_RANGE_LENGTH) {
 			const startDate = startOfMonth(new Date(currentDateRange[0]?.format('Date: YYYY-MM-DD', ['Date'])))
 			const endDate = endOfMonth(new Date(currentDateRange[1]?.format('Date: YYYY-MM-DD', ['Date'])))
-			setSelectedDateRange([startDate, endDate])
+			setCurrentDateRange([new DateObject(startDate), new DateObject(endDate)])
+			onSelectedDateRange([startDate, endDate])
 			setCalendarDesktopPopoverAnchorEl(null)
 			setCalendarMobilePopoverAnchorEl(null)
 			setCalendarType(CalendarType.Date)
 		}
-	}, [currentDateRange])
+	}, [currentDateRange, onSelectedDateRange])
 
 	const displaySelectedDateRange = useMemo(() => {
 		if (selectedDateRange[0].toString() === selectedDateRange[1].toString()) {
