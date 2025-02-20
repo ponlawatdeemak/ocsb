@@ -12,6 +12,7 @@ interface BurntDashboardMainProps {
 	selectedCard: number | undefined
 	handleSelectCard: (item: any) => void
 	mapTypeArray: string[]
+	selectedHotspots: string[]
 	className?: string
 }
 
@@ -22,6 +23,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 	selectedCard,
 	handleSelectCard,
 	mapTypeArray,
+	selectedHotspots,
 	className = '',
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -47,6 +49,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 						handleSelectCard={() => handleSelectCard(item)}
 						payloadData={item}
 						mapTypeArray={mapTypeArray}
+						selectedHotspots={selectedHotspots}
 					/>
 				))}
 				{selectedArea.length < 4 && (

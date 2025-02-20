@@ -86,6 +86,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					selectedCard={selectedCard}
 					handleSelectCard={handleSelectCard}
 					mapTypeArray={mapTypeArray}
+					selectedHotspots={selectedHotspots}
 					className='max-w-[calc(80vw)] max-lg:hidden'
 				/>
 				<BurntMapMain className='h-full w-full flex-1' />

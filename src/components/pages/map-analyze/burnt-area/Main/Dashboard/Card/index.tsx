@@ -1,6 +1,6 @@
 import { Box, Divider, IconButton, Typography } from '@mui/material'
 import classNames from 'classnames'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import DonutChart from '../Chart/DonutChart'
 import StackedBarChart from '../Chart/StackedBarChart'
@@ -16,6 +16,7 @@ interface DashboardCardMainProps {
 	handleSelectCard: () => void
 	payloadData: any
 	mapTypeArray: string[]
+	selectedHotspots: string[]
 	className?: string
 }
 const data = {
@@ -94,6 +95,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	handleSelectCard,
 	payloadData,
 	mapTypeArray,
+	selectedHotspots,
 	className = '',
 }) => {
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -145,43 +147,45 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 
 	const [donutColorHotspot, setDonutColorHotspot] = useState(defaultColorHotspot)
 	const [percent, setPercent] = useState((data.hotspot.inSugarcane * 100) / data.hotspot.total)
-	const [hideData, setHideData] = useState<string[]>([])
+	const [hideData, setHideData] = useState<string[]>()
 
 	const handleClickOnChart = (name: string) => {
-		if (name === inSugarCaneArea.label.en || name === inSugarCaneArea.label.th) {
-			if (
-				donutColorHotspot[notInSugarCaneArea.label.en] === '#f5f5f6' ||
-				donutColorHotspot[notInSugarCaneArea.label.th] === '#f5f5f6'
-			) {
-				setDonutColorHotspot(defaultColorHotspot)
-				setHideData([])
-			} else {
-				setDonutColorHotspot({
-					[inSugarCaneArea.label.en]: '#FF0000',
-					[inSugarCaneArea.label.th]: '#FF0000',
-					[notInSugarCaneArea.label.en]: '#f5f5f6',
-					[notInSugarCaneArea.label.th]: '#f5f5f6',
-				})
-				setHideData([notInSugarCaneArea.label[language]])
-			}
-			setPercent(percentInArea)
-		} else if (name === notInSugarCaneArea.label.en || name === notInSugarCaneArea.label.th) {
-			if (
-				donutColorHotspot[inSugarCaneArea.label.en] === '#f5f5f6' ||
-				donutColorHotspot[inSugarCaneArea.label.th] === '#f5f5f6'
-			) {
-				setDonutColorHotspot(defaultColorHotspot)
+		if (selectedHotspots.length === hotspotType.length) {
+			if (name === inSugarCaneArea.label.en || name === inSugarCaneArea.label.th) {
+				if (
+					donutColorHotspot[notInSugarCaneArea.label.en] === '#f5f5f6' ||
+					donutColorHotspot[notInSugarCaneArea.label.th] === '#f5f5f6'
+				) {
+					setDonutColorHotspot(defaultColorHotspot)
+					setHideData([])
+				} else {
+					setDonutColorHotspot({
+						[inSugarCaneArea.label.en]: '#FF0000',
+						[inSugarCaneArea.label.th]: '#FF0000',
+						[notInSugarCaneArea.label.en]: '#f5f5f6',
+						[notInSugarCaneArea.label.th]: '#f5f5f6',
+					})
+					setHideData([notInSugarCaneArea.label[language]])
+				}
 				setPercent(percentInArea)
-				setHideData([])
-			} else {
-				setDonutColorHotspot({
-					[inSugarCaneArea.label.en]: '#f5f5f6',
-					[inSugarCaneArea.label.th]: '#f5f5f6',
-					[notInSugarCaneArea.label.en]: '#FFC7C7',
-					[notInSugarCaneArea.label.th]: '#FFC7C7',
-				})
-				setPercent(percentNotInArea)
-				setHideData([inSugarCaneArea.label[language]])
+			} else if (name === notInSugarCaneArea.label.en || name === notInSugarCaneArea.label.th) {
+				if (
+					donutColorHotspot[inSugarCaneArea.label.en] === '#f5f5f6' ||
+					donutColorHotspot[inSugarCaneArea.label.th] === '#f5f5f6'
+				) {
+					setDonutColorHotspot(defaultColorHotspot)
+					setPercent(percentInArea)
+					setHideData([])
+				} else {
+					setDonutColorHotspot({
+						[inSugarCaneArea.label.en]: '#f5f5f6',
+						[inSugarCaneArea.label.th]: '#f5f5f6',
+						[notInSugarCaneArea.label.en]: '#FFC7C7',
+						[notInSugarCaneArea.label.th]: '#FFC7C7',
+					})
+					setPercent(percentNotInArea)
+					setHideData([inSugarCaneArea.label[language]])
+				}
 			}
 		}
 	}
@@ -208,6 +212,37 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	//region plant
 	const defaultColorPlant = { [t('common:menu.plantingArea')]: '#8AB62D', [t('common:noData')]: '#f5f5f6' }
 	//end region plant
+
+	useEffect(() => {
+		if (!selectedHotspots.includes(inSugarCaneArea.code)) {
+			setHideData([inSugarCaneArea.label[language]])
+			setDonutColorHotspot({
+				[inSugarCaneArea.label.en]: '#f5f5f6',
+				[inSugarCaneArea.label.th]: '#f5f5f6',
+				[notInSugarCaneArea.label.en]: '#FFC7C7',
+				[notInSugarCaneArea.label.th]: '#FFC7C7',
+			})
+		} else if (!selectedHotspots.includes(notInSugarCaneArea.code)) {
+			setHideData([notInSugarCaneArea.label[language]])
+			setDonutColorHotspot({
+				[inSugarCaneArea.label.en]: '#FF0000',
+				[inSugarCaneArea.label.th]: '#FF0000',
+				[notInSugarCaneArea.label.en]: '#f5f5f6',
+				[notInSugarCaneArea.label.th]: '#f5f5f6',
+			})
+		} else if (selectedHotspots.length === hotspotType.length) {
+			setHideData([])
+			setDonutColorHotspot(defaultColorHotspot)
+		}
+	}, [
+		defaultColorHotspot,
+		inSugarCaneArea.code,
+		inSugarCaneArea.label,
+		language,
+		notInSugarCaneArea.code,
+		notInSugarCaneArea.label,
+		selectedHotspots,
+	])
 
 	return (
 		<Box className={classNames('flex h-full w-[300px] min-w-0 flex-col bg-white', className)}>
@@ -319,7 +354,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 							/>
 						</div>
 						<Typography className='pt-3 !text-lg'>{`${defaultNumber(data.plant.area[areaUnit])} ${t(areaUnitTranslate)}`}</Typography>
-						<Typography className='pb-4 !text-xs text-[#707070]'>
+						<Typography className='!text-xs text-[#707070]'>
 							{`${t('common:total')} ${defaultNumber(data.plant.total[areaUnit])} ${t(areaUnitTranslate)}`}
 						</Typography>
 					</>
