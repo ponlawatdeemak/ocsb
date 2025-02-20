@@ -12,7 +12,8 @@ const lookup = {
 	},
 	getSearchAdm: async (payload: GetSearchAdmLookupDtoIn) => {
 		const res = await api.get(`/lookup/search-adm?keyword=${payload.keyword}`)
-		return res.data
+		const data = res?.data?.map((el: any) => _.mapKeys(el, (val, key) => _.camelCase(key)))
+		return data
 	},
 }
 

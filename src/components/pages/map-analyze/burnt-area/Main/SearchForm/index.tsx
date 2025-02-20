@@ -1,15 +1,17 @@
 import MultipleSelectCheckmarks, { MultipleSelectedType } from '@/components/common/select/MultipleSelectCheckmarks'
 import { hotspotType, mapType, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
-import { CalendarIcon } from '@/components/svg/AppIcon'
+import { CalendarIcon, SearchInputIcon } from '@/components/svg/AppIcon'
 import useResponsive from '@/hook/responsive'
 import {
+	Autocomplete,
 	Box,
 	Button,
 	FormControl,
 	IconButton,
+	Input,
+	InputAdornment,
 	InputBase,
-	OutlinedInput,
 	Paper,
 	Popover,
 	Typography,
@@ -23,7 +25,14 @@ import { formatDate } from '@/utils/date'
 import { endOfMonth, startOfMonth } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
+import { Clear } from '@mui/icons-material'
 import { debounce } from 'lodash'
+
+interface OptionType {
+	id: string
+	name: ResponseLanguage
+	geometry: any
+}
 
 export enum CalendarType {
 	Date = 'date',
@@ -63,6 +72,8 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	)
 
 	const { isDesktopMD } = useResponsive()
+	const [searchAdmInputValue, setSearchAdmInputValue] = useState<string>('')
+	const [searchSelectedAdmOption, setSearchSelectedAdmOption] = useState<OptionType | null>(null)
 
 	const [calendarDesktopPopoverAnchorEl, setCalendarDesktopPopoverAnchorEl] = useState<HTMLButtonElement | null>(null)
 	const [calendarMobilePopoverAnchorEl, setCalendarMobilePopoverAnchorEl] = useState<HTMLButtonElement | null>(null)
@@ -72,10 +83,33 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 
 	const [burntAreaSearch, setBurntAreaSearch] = useState('')
 
-	const { data: searchAdmData, isLoading: isSearchAdmDataLoading } = useQuery({
-		queryKey: ['getSearchAdm', burntAreaSearch],
-		queryFn: () => service.lookup.getSearchAdm({ keyword: burntAreaSearch }),
+	const { data: searchAdmData, isPending: _isSearchAdmDataLoading } = useQuery({
+		queryKey: ['getSearchAdminPoly', searchAdmInputValue],
+		queryFn: () => service.lookup.getSearchAdm({ keyword: searchAdmInputValue }),
+		enabled: !!searchAdmInputValue,
 	})
+
+	const { data: burnAreaCalendarData, isLoading: isBurnAreaCalendarDataLoading } = useQuery({
+		queryKey: ['getBurnAreaCalendar'],
+		queryFn: () => service.mapAnalyze.getBurnAreaCalendar(),
+	})
+
+	const optionAdmList: OptionType[] = useMemo(() => {
+		return searchAdmData?.map((item: any) => ({ id: item.id, name: item.name, geometry: item.geometry })) ?? []
+	}, [searchAdmData])
+
+	const handleChangeAdmInput = useCallback((_event: React.SyntheticEvent<Element, Event>, newInputValue: string) => {
+		setSearchAdmInputValue(newInputValue)
+	}, [])
+
+	const handleSelectAdmOption = useCallback((_event: ChangeEvent<{}>, newSelectedValue: OptionType | null) => {
+		setSearchSelectedAdmOption(newSelectedValue)
+	}, [])
+
+	const handleClear = useCallback(() => {
+		setSearchAdmInputValue('')
+		setSearchSelectedAdmOption(null)
+	}, [])
 
 	const handleCalendarPopoverClick = useCallback(() => {
 		const burntAreaSearchFormElement = document.getElementById('burnt-area-search-form') as HTMLElement
@@ -132,8 +166,8 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 
 	const handleCurrentDateRangeSubmit = useCallback(() => {
 		if (currentDateRange.length === DATE_RANGE_LENGTH) {
-			const startDate = new Date(currentDateRange[0]?.format('Date: YYYY-MM-DD', ['Date']))
-			const endDate = new Date(currentDateRange[1]?.format('Date: YYYY-MM-DD', ['Date']))
+			const startDate = new Date(currentDateRange[0]?.format('YYYY-MM-DD'))
+			const endDate = new Date(currentDateRange[1]?.format('YYYY-MM-DD'))
 			onSelectedDateRange([startDate, endDate])
 			setCalendarDesktopPopoverAnchorEl(null)
 			setCalendarMobilePopoverAnchorEl(null)
@@ -143,8 +177,8 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 
 	const handleCurrentMonthRangeSubmit = useCallback(() => {
 		if (currentDateRange.length === DATE_RANGE_LENGTH) {
-			const startDate = startOfMonth(new Date(currentDateRange[0]?.format('Date: YYYY-MM-DD', ['Date'])))
-			const endDate = endOfMonth(new Date(currentDateRange[1]?.format('Date: YYYY-MM-DD', ['Date'])))
+			const startDate = startOfMonth(new Date(currentDateRange[0]?.format('YYYY-MM-DD')))
+			const endDate = endOfMonth(new Date(currentDateRange[1]?.format('YYYY-MM-DD')))
 			setCurrentDateRange([new DateObject(startDate), new DateObject(endDate)])
 			onSelectedDateRange([startDate, endDate])
 			setCalendarDesktopPopoverAnchorEl(null)
@@ -179,13 +213,47 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 			</Typography>
 			<Box id='burnt-area-search-form' className='flex items-center gap-4 max-md:flex-col'>
 				<Box className='flex w-full items-center gap-4 md:w-[26%]'>
-					<FormControl className='w-full [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white'>
-						<OutlinedInput
-							id='burnt-area-search'
-							onChange={debounce(handleBurntAreaSearchChange, 300)}
-							defaultValue={''}
-							className='[&_fieldset]:border-none [&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
-							placeholder={t('map-analyze:searchArea')}
+					<FormControl className='md-[255px] w-full overflow-hidden !rounded-[5px] bg-white [&_::placeholder]:text-xs [&_input]:!text-xs [&_input]:!normal-case [&_input]:text-black'>
+						<Autocomplete
+							blurOnSelect
+							options={optionAdmList}
+							getOptionLabel={(option) => option.name[language]}
+							isOptionEqualToValue={(option, value) => option.id === value.id}
+							value={searchSelectedAdmOption}
+							onInputChange={debounce(handleChangeAdmInput, 500)}
+							onChange={handleSelectAdmOption}
+							slotProps={{
+								paper: {
+									className: 'border mt-1 !shadow-none border-solid border-gray !rounded-[5px]',
+								},
+							}}
+							renderInput={(params) => {
+								const { InputLabelProps, InputProps, ...otherParams } = params
+								return (
+									<Input
+										{...otherParams}
+										{...params.InputProps}
+										className='flex h-[38px] items-center gap-2 rounded-[5px] bg-white px-3 py-0 [&_.MuiInputBase-input]:!p-0'
+										startAdornment={
+											<InputAdornment className='!m-0 !h-4 !w-4' position='start'>
+												<SearchInputIcon />
+											</InputAdornment>
+										}
+										endAdornment={
+											<InputAdornment className='!m-0' position='end'>
+												{searchAdmInputValue && (
+													<IconButton className='!p-0.5' onClick={handleClear}>
+														<Clear className='!h-4 !w-4' />
+													</IconButton>
+												)}
+											</InputAdornment>
+										}
+										disableUnderline={true}
+										id='burnt-adm-search'
+										placeholder={t('map-analyze:searchArea')}
+									/>
+								)
+							}}
 						/>
 					</FormControl>
 					<Paper
@@ -204,6 +272,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 								'[&_svg>path]:stroke-white': Boolean(calendarMobilePopoverAnchorEl),
 							})}
 							onClick={handleCalendarPopoverClick}
+							disabled={isBurnAreaCalendarDataLoading}
 						>
 							<CalendarIcon />
 						</IconButton>
@@ -265,6 +334,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 								'[&_svg>path]:stroke-white': Boolean(calendarDesktopPopoverAnchorEl),
 							})}
 							onClick={handleCalendarPopoverClick}
+							disabled={isBurnAreaCalendarDataLoading}
 						>
 							<CalendarIcon />
 						</IconButton>
@@ -295,6 +365,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 				<CalendarDesktopPopverMain
 					calendarType={calendarType}
 					currentDateRange={currentDateRange}
+					burnAreaCalendarData={burnAreaCalendarData?.data ?? []}
 					onCalendarTypeChange={handleCalendarTypeChange}
 					onCurrentDateRangeChange={handleCurrentDateRangeChange}
 					onCurrentDateRangeReset={handleCurrentDateRangeReset}
