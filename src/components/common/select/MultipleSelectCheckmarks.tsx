@@ -26,6 +26,7 @@ interface MultipleSelectCheckmarksProps {
 	onChange: (event: SelectChangeEvent<string[]>) => void
 	fixedRenderValue?: string
 	disabled?: boolean
+	name?: string
 }
 
 const MultipleSelectCheckmarks: React.FC<MultipleSelectCheckmarksProps> = ({
@@ -36,11 +37,13 @@ const MultipleSelectCheckmarks: React.FC<MultipleSelectCheckmarksProps> = ({
 	onChange,
 	fixedRenderValue = '',
 	disabled = false,
+	name,
 }) => {
 	return (
 		<FormControl className={classNames('[&_.Mui-focused]:border-secondary', className)}>
 			{label && <FormLabel className='mb-1.5 !text-xs !text-white'>{label}</FormLabel>}
 			<Select
+				name={name}
 				className='h-[38px] !rounded-[5px] border-[1.5px] border-solid border-gray bg-white p-0 [&_fieldset]:border-none [&_svg]:right-3 [&_svg]:top-[calc(50%-12px)] [&_svg]:h-6 [&_svg]:w-6 [&_svg]:text-black'
 				multiple
 				displayEmpty

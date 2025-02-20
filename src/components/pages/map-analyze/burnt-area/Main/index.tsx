@@ -1,9 +1,10 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import BurntSearchFormMain from './SearchForm'
 import BurntMapMain from './BurntMap'
 import BurntDashboardMain from './Dashboard'
+import { hotspotType, mapTypeCode } from '@interface/config/app.config'
 
 interface BurntAreaMainProps {
 	className?: string
@@ -12,6 +13,8 @@ interface BurntAreaMainProps {
 export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) => {
 	const [selectedArea, setSelectedArea] = useState<any[]>([])
 	const [selectedCard, setSelectedCard] = useState<number>()
+	const [mapTypeArray, setMapTypeArray] = useState<string[]>([mapTypeCode.hotspots])
+	const [selectedHotspots, setSelectedHotspots] = useState<string[]>(hotspotType.map((type) => type.code))
 
 	const handleClickAdd = () => {
 		const updateArea = [...selectedArea]
@@ -30,9 +33,51 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 		setSelectedCard((selected) => (selected === item ? undefined : item))
 	}
 
+	const handleChange = useCallback(
+		(event: any) => {
+			event.preventDefault()
+			event.stopPropagation()
+			const updateMapTypeArray = [...mapTypeArray]
+
+			if (event.target.value) {
+				const { value } = event.target
+
+				setSelectedHotspots(value)
+				if (value && value.length > 0) {
+					const findIndex = updateMapTypeArray.findIndex((type) => type === event.target.name)
+					if (findIndex === -1) {
+						updateMapTypeArray.push(event.target.name)
+						setMapTypeArray(updateMapTypeArray)
+					}
+				} else if (!value || value.length === 0) {
+					const findIndex = updateMapTypeArray.findIndex((type) => type === event.target.name)
+					if (findIndex !== -1) {
+						updateMapTypeArray.splice(findIndex, 1)
+						setMapTypeArray(updateMapTypeArray)
+					}
+				}
+			} else {
+				const findIndex = updateMapTypeArray.findIndex((type) => type === event.target.name)
+				if (findIndex === -1) {
+					updateMapTypeArray.push(event.target.name)
+					setMapTypeArray(updateMapTypeArray)
+				} else {
+					updateMapTypeArray.splice(findIndex, 1)
+					setMapTypeArray(updateMapTypeArray)
+				}
+			}
+		},
+		[mapTypeArray],
+	)
+
 	return (
 		<Box className={classNames('flex w-full grow flex-col', className)}>
-			<BurntSearchFormMain className='z-10 w-full' />
+			<BurntSearchFormMain
+				className='z-10 w-full'
+				selectedHotspots={selectedHotspots}
+				handleChange={handleChange}
+				mapTypeArray={mapTypeArray}
+			/>
 			<Box className='relative flex h-full w-full'>
 				<BurntDashboardMain
 					selectedArea={selectedArea}
@@ -40,6 +85,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					handleClickDelete={handleClickDelete}
 					selectedCard={selectedCard}
 					handleSelectCard={handleSelectCard}
+					mapTypeArray={mapTypeArray}
 					className='max-w-[calc(80vw)] max-lg:hidden'
 				/>
 				<BurntMapMain className='h-full w-full flex-1' />

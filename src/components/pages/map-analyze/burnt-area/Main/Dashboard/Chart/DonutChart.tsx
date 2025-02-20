@@ -30,14 +30,14 @@ const DonutChart = ({
 	width?: number
 	handleClickOnChart: (name: string) => void
 }) => {
-	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
+	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
 
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
 			let tooltipOverview = '<div class="absolute left-4 top-2 bg-white p-2 rounded-md shadow flex flex-col">'
 			data.forEach(
 				(item) =>
-					(tooltipOverview += `<div class="text-[12px] text-nowrap">${item.name} : ${defaultNumber(item.value)} ${t(`common:point`)}</div>`),
+					(tooltipOverview += `<div class="text-[12px] text-nowrap">${item.name} : ${defaultNumber(item.value)} ${t('common:point')}</div>`),
 			)
 
 			tooltipOverview += '</div>'

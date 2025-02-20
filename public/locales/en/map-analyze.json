@@ -1,5 +1,7 @@
 {
     "totalHotspots": " Total Hotspots",
     "hotspotInArea": "Hotspot In Sugar Cane Area",
-    "hotspotOutArea": "Hotspot Outside Sugar Cane Area"
+    "hotspotOutArea": "Hotspot Outside Sugar Cane Area",
+    "addCompare": "Add Comparison Board",
+    "compare": "Show Comparison Board"
 }

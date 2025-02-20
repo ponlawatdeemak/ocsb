@@ -8,13 +8,14 @@ import { formatDate } from '@/utils/date'
 import { useTranslation } from 'next-i18next'
 import useAreaUnit from '@/store/area-unit'
 import { defaultNumber } from '@/utils/text'
-import { hotspotType, ResponseLanguage } from '@interface/config/app.config'
+import { hotspotType, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
 
 interface DashboardCardMainProps {
 	handleClickDelete: () => void
 	isSelectedCard: boolean
 	handleSelectCard: () => void
 	payloadData: any
+	mapTypeArray: string[]
 	className?: string
 }
 const data = {
@@ -92,6 +93,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	isSelectedCard,
 	handleSelectCard,
 	payloadData,
+	mapTypeArray,
 	className = '',
 }) => {
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -231,80 +233,97 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 					<CloseIcon className='!h-3 !w-3' />
 				</IconButton>
 			</button>
-			<div className='flex w-full flex-col items-center justify-center pt-7'>
-				<Typography className='pb-3 !text-sm'>{t('overview:totalHotspot')}</Typography>
-				<div className='h-[111px] !max-h-[111px] w-[111px] !max-w-[111px]'>
-					<DonutChart
-						columns={[
-							[inSugarCaneArea.label[language], data.hotspot.inSugarcane],
-							[notInSugarCaneArea.label[language], data.hotspot.notInSugarcane],
-						]}
-						colors={donutColorHotspot}
-						percent={percent}
-						chartId={payloadData.id}
-						height={111}
-						width={111}
-						handleClickOnChart={handleClickOnChart}
-					/>
-				</div>
-				<Typography className='pt-3 !text-lg'>
-					{defaultNumber(data.hotspot.inSugarcane)} {t('common:point')}
-				</Typography>
-				<Typography className='pb-4 !text-xs text-[#707070]'>
-					{t('totalHotspots')} {defaultNumber(data.hotspot.total)} {t('common:point')}
-				</Typography>
+			<div className='flex w-full flex-col items-center justify-center py-4'>
+				{mapTypeArray.includes(mapTypeCode.hotspots) && (
+					<>
+						<Typography className='pb-3 !text-sm'>{t('overview:totalHotspot')}</Typography>
+						<div className='h-[111px] !max-h-[111px] w-[111px] !max-w-[111px]'>
+							<DonutChart
+								columns={[
+									[inSugarCaneArea.label[language], data.hotspot.inSugarcane],
+									[notInSugarCaneArea.label[language], data.hotspot.notInSugarcane],
+								]}
+								colors={donutColorHotspot}
+								percent={percent}
+								chartId={payloadData.id}
+								height={111}
+								width={111}
+								handleClickOnChart={handleClickOnChart}
+							/>
+						</div>
+						<Typography className='pt-3 !text-lg'>
+							{defaultNumber(data.hotspot.inSugarcane)} {t('common:point')}
+						</Typography>
+						<Typography className='pb-4 !text-xs text-[#707070]'>
+							{t('totalHotspots')} {defaultNumber(data.hotspot.total)} {t('common:point')}
+						</Typography>
 
-				<Divider flexItem />
+						<Divider flexItem />
 
-				<Typography className='pt-3 !text-sm'>
-					{hideData?.[0] === inSugarCaneArea.label[language] ? t('hotspotOutArea') : t('hotspotInArea')}
-				</Typography>
-				<div className='h-[262px] !max-h-[262px] !min-h-[262px] w-full pb-4'>
-					<StackedBarChart
-						chartId={payloadData.id}
-						columns={columnsHotspot}
-						colors={defaultColorHotspot}
-						groups={[[inSugarCaneArea.label[language], notInSugarCaneArea.label[language]]]}
-						hideData={hideData}
-						handleClickOnChart={handleClickOnChart}
-					/>
-				</div>
+						<Typography className='pt-3 !text-sm'>
+							{hideData?.[0] === inSugarCaneArea.label[language]
+								? t('hotspotOutArea')
+								: t('hotspotInArea')}
+						</Typography>
+						<div className='h-[262px] !max-h-[262px] !min-h-[262px] w-full'>
+							<StackedBarChart
+								chartId={payloadData.id}
+								columns={columnsHotspot}
+								colors={defaultColorHotspot}
+								groups={[[inSugarCaneArea.label[language], notInSugarCaneArea.label[language]]]}
+								hideData={hideData}
+								handleClickOnChart={handleClickOnChart}
+							/>
+						</div>
+					</>
+				)}
 
-				<Divider flexItem />
+				{mapTypeArray.includes(mapTypeCode.burnArea) && (
+					<>
+						{mapTypeArray.includes(mapTypeCode.hotspots) && <Divider flexItem className='!mb-3 !mt-4' />}
 
-				<Typography className='pt-3 !text-sm'>
-					{t('overview:burntScar')} ({t(`common:${areaUnit}`)})
-				</Typography>
-				<div className='h-[262px] !max-h-[262px] !min-h-[262px] w-full pb-4'>
-					<StackedBarChart
-						chartId={'second-bar' + payloadData.id}
-						columns={columnsBurnArea}
-						colors={defaultColorBurnArea}
-						handleClickOnChart={handleClickOnChart}
-					/>
-				</div>
+						<Typography className='!text-sm'>
+							{t('overview:burntScar')} ({t(`common:${areaUnit}`)})
+						</Typography>
+						<div className='h-[262px] !max-h-[262px] !min-h-[262px] w-full'>
+							<StackedBarChart
+								chartId={'second-bar' + payloadData.id}
+								columns={columnsBurnArea}
+								colors={defaultColorBurnArea}
+								handleClickOnChart={handleClickOnChart}
+							/>
+						</div>
+					</>
+				)}
 
-				<Divider flexItem />
+				{mapTypeArray.includes(mapTypeCode.plant) && (
+					<>
+						{(mapTypeArray.includes(mapTypeCode.hotspots) ||
+							mapTypeArray.includes(mapTypeCode.burnArea)) && (
+							<Divider flexItem className='!mb-3 !mt-4' />
+						)}
 
-				<Typography className='pb-3 pt-3 !text-sm'>{t('common:menu.plantingArea')}</Typography>
-				<div className='h-[111px] !max-h-[111px] w-[111px] !max-w-[111px]'>
-					<DonutChart
-						columns={[
-							[t('common:menu.plantingArea'), data.plant.area[areaUnit]],
-							[t('common:noData'), data.plant.total[areaUnit] - data.plant.area[areaUnit]],
-						]}
-						colors={defaultColorPlant}
-						percent={(data.plant.area[areaUnit] * 100) / data.plant.total[areaUnit]}
-						chartId={'second-donut' + payloadData.id}
-						height={111}
-						width={111}
-						handleClickOnChart={handleClickOnChart}
-					/>
-				</div>
-				<Typography className='pt-3 !text-lg'>{`${defaultNumber(data.plant.area[areaUnit])} ${t(areaUnitTranslate)}`}</Typography>
-				<Typography className='pb-4 !text-xs text-[#707070]'>
-					{`${t('common:total')} ${defaultNumber(data.plant.total[areaUnit])} ${t(areaUnitTranslate)}`}
-				</Typography>
+						<Typography className='pb-3 !text-sm'>{t('common:menu.plantingArea')}</Typography>
+						<div className='h-[111px] !max-h-[111px] w-[111px] !max-w-[111px]'>
+							<DonutChart
+								columns={[
+									[t('common:menu.plantingArea'), data.plant.area[areaUnit]],
+									[t('common:noData'), data.plant.total[areaUnit] - data.plant.area[areaUnit]],
+								]}
+								colors={defaultColorPlant}
+								percent={(data.plant.area[areaUnit] * 100) / data.plant.total[areaUnit]}
+								chartId={'second-donut' + payloadData.id}
+								height={111}
+								width={111}
+								handleClickOnChart={handleClickOnChart}
+							/>
+						</div>
+						<Typography className='pt-3 !text-lg'>{`${defaultNumber(data.plant.area[areaUnit])} ${t(areaUnitTranslate)}`}</Typography>
+						<Typography className='pb-4 !text-xs text-[#707070]'>
+							{`${t('common:total')} ${defaultNumber(data.plant.total[areaUnit])} ${t(areaUnitTranslate)}`}
+						</Typography>
+					</>
+				)}
 			</div>
 		</Box>
 	)

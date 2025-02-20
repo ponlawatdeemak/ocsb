@@ -1,28 +1,31 @@
 import MultipleSelectCheckmarks, { MultipleSelectedType } from '@/components/common/select/MultipleSelectCheckmarks'
+import { hotspotType, mapType, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
 import { EventNoteOutlined } from '@mui/icons-material'
-import { Box, Button, FormControl, OutlinedInput, SelectChangeEvent, Typography } from '@mui/material'
+import { Box, Button, FormControl, OutlinedInput, Typography } from '@mui/material'
 import classNames from 'classnames'
-import React, { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'next-i18next'
+import React, { useMemo } from 'react'
 
 interface BurntSearchFormMainProps {
+	selectedHotspots: string[]
+	handleChange: (event: any) => void
+	mapTypeArray: string[]
 	className?: string
 }
 
-const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({ className = '' }) => {
-	const [selectedHotspots, setSelectedHotspots] = useState<string[]>(['1', '2'])
+const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
+	selectedHotspots,
+	handleChange,
+	mapTypeArray,
+	className = '',
+}) => {
+	const { i18n } = useTranslation(['map-analyze', 'common', 'overview'])
+	const language = i18n.language as keyof ResponseLanguage
 
 	const hotspotOptions: MultipleSelectedType[] = useMemo(
-		() => [
-			{ id: '1', name: 'จุดความร้อนที่ตกในแปลงอ้อย' },
-			{ id: '2', name: 'จุดความร้อนที่ไม่ตกในแปลงอ้อย' },
-		],
-		[],
+		() => hotspotType.map((type) => ({ id: type.code, name: type.label[language] })),
+		[language],
 	)
-
-	const handleHotspotChange = useCallback((event: SelectChangeEvent<typeof selectedHotspots>) => {
-		const { value } = event.target
-		setSelectedHotspots(typeof value === 'string' ? value.split(',') : value)
-	}, [])
 
 	return (
 		<Box
@@ -46,27 +49,37 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({ className = '
 				</Box>
 
 				<Box className='flex w-[74%] items-center gap-4'>
-					<MultipleSelectCheckmarks
-						className='[&_.MuiInputBase-root]:!border-none [&_.MuiSelect-select>div]:!text-black'
-						options={hotspotOptions}
-						multipleSelected={selectedHotspots}
-						onChange={handleHotspotChange}
-						fixedRenderValue={'จุดความร้อน'}
-					/>
-
-					<Button
-						className='h-[38px] !rounded-[5px] !bg-white !px-4 !py-2.5 !shadow-none'
-						variant='contained'
-					>
-						<Typography className='flex-1 truncate !text-sm text-black'>{'ร่องรอยการเผาไหม้'}</Typography>
-					</Button>
-
-					<Button
-						className='h-[38px] !rounded-[5px] !bg-white !px-4 !py-2.5 !shadow-none'
-						variant='contained'
-					>
-						<Typography className='flex-1 truncate !text-sm text-black'>{'พื้นที่ปลูกอ้อย'}</Typography>
-					</Button>
+					{mapType.map((item) => {
+						if (item.code === mapTypeCode.hotspots) {
+							return (
+								<MultipleSelectCheckmarks
+									key={item.code}
+									name={item.code}
+									className='[&_.MuiInputBase-root]:!border-none [&_.MuiSelect-select>div]:!text-black'
+									options={hotspotOptions}
+									multipleSelected={selectedHotspots}
+									onChange={handleChange}
+									fixedRenderValue={item.label[language]}
+								/>
+							)
+						} else {
+							return (
+								<Button
+									key={item.code}
+									className={classNames(
+										'h-[38px] !truncate !rounded-[5px] !px-4 !py-2.5 !text-sm !shadow-none',
+										{ '!bg-[#EBF5FF] !text-primary': mapTypeArray.includes(item.code) },
+										{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
+									)}
+									name={item.code}
+									variant='contained'
+									onClick={handleChange}
+								>
+									{item.label[language]}
+								</Button>
+							)
+						}
+					})}
 
 					<Button
 						className='h-[38px] w-[200px] !justify-between !rounded-[5px] !bg-white !px-3 !py-2.5 !shadow-none [&_.MuiButton-endIcon]:m-0'
