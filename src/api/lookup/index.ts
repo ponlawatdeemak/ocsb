@@ -6,7 +6,9 @@ import * as _ from 'lodash'
 
 const lookup = {
 	get: async (payload: GetLookupDtoIn) => {
-		const res = await api.get(`/lookup?name=${payload.name}${payload.where ? `&where=${payload.where}` : ''}`)
+		const res = await api.get(
+			`/lookup?name=${payload.name}${payload.where ? `&where=${payload.where}` : ''}${payload.sort ? `&sort=${payload.sort}` : ''}${payload.order ? `&order=${payload.order}` : ''}`,
+		)
 		const data = res?.data?.map((el: any) => _.mapKeys(el, (val, key) => _.camelCase(key)))
 		return data
 	},

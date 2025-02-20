@@ -45,6 +45,9 @@
 	"ton": "Ton",
 	"kg": "Kg",
 
+    "total": "Total",
+    "point": "Points",
+
 	"languages": "Languages",
 	"languagesTh": "ไทย",
 	"languagesEn": "English",
@@ -71,5 +74,11 @@
 	"placeholder": {
 		"input": "Enter ",
 		"autocomplete": "Enter "
-	}
+	},
+
+    "area": "Area",
+    "month": "Month",
+    "year": "Year",
+    "quantity": "Quantity",
+    "region": "Region"
 }

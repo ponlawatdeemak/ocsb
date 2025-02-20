@@ -45,6 +45,9 @@
 	"ton": "ตัน",
 	"kg": "กิโลกรัม",
 
+    "total": "ทั้งหมด",
+    "point": "จุด",
+
 	"languages": "ภาษา",
 	"languagesTh": "ไทย",
 	"languagesEn": "English",
@@ -71,5 +74,11 @@
 	"placeholder": {
 		"input": "ระบุ",
 		"autocomplete": "เลือก"
-	}
+	},
+
+    "area": "พื้นที่",
+    "month": "เดือน",
+    "year": "ปี",
+    "quantity": "ปริมาณ",
+    "region": "ภูมิภาค"
 }
