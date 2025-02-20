@@ -122,3 +122,15 @@ export const CalendarIcon: React.FC<SVGProps> = ({ width = 18, height = 18, fill
 		</svg>
 	)
 }
+
+export const SearchInputIcon: React.FC<SVGProps> = ({ width = 16, height = 16, fill = 'none' }) => {
+	return (
+		<svg width={width} height={height} viewBox='0 0 16 16' fill={fill} xmlns='http://www.w3.org/2000/svg'>
+			<path
+				d='M11.2846 11.3604L13.6 13.6004M7.59999 4.80039C8.92548 4.80039 9.99999 5.87491 9.99999 7.20039M12.8533 7.62706C12.8533 10.5137 10.5133 12.8537 7.62666 12.8537C4.74005 12.8537 2.39999 10.5137 2.39999 7.62706C2.39999 4.74045 4.74005 2.40039 7.62666 2.40039C10.5133 2.40039 12.8533 4.74045 12.8533 7.62706Z'
+				stroke='#A7A7A7'
+				strokeLinecap='round'
+			/>
+		</svg>
+	)
+}
