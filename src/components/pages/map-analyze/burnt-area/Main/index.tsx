@@ -33,7 +33,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	return (
 		<Box className={classNames('flex h-full w-full flex-col', className)}>
 			<BurntSearchFormMain className='z-10 w-full' />
-			<Box className='relative flex h-full w-full'>
+			<Box className='absolute flex h-full w-full md:relative'>
 				<BurntDashboardMain
 					selectedArea={selectedArea}
 					handleClickAdd={handleClickAdd}
@@ -42,7 +42,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					handleSelectCard={handleSelectCard}
 					className='max-w-[calc(80vw)]'
 				/>
-				<BurntMapMain className='h-full w-full flex-1 bg-green-200' />
+				<BurntMapMain className='h-full w-full flex-1' />
 			</Box>
 		</Box>
 	)

@@ -109,3 +109,16 @@ export const DeleteIcon: React.FC<SVGProps> = () => {
 		</svg>
 	)
 }
+
+export const CalendarIcon: React.FC<SVGProps> = ({ width = 18, height = 18, fill = 'none' }) => {
+	return (
+		<svg width={width} height={height} viewBox='0 0 18 18' fill={fill} xmlns='http://www.w3.org/2000/svg'>
+			<path
+				d='M3.5625 6.68569H14.0625M4.91964 2.25V3.40728M12.5625 2.25V3.40714M12.5625 3.40714H5.0625C3.81986 3.40714 2.8125 4.44327 2.8125 5.72141V13.4357C2.8125 14.7139 3.81986 15.75 5.0625 15.75H12.5625C13.8051 15.75 14.8125 14.7139 14.8125 13.4357L14.8125 5.72141C14.8125 4.44327 13.8051 3.40714 12.5625 3.40714ZM5.4375 9.38571H12.1875M5.4375 12.4714H12.1875'
+				stroke='white'
+				strokeLinecap='round'
+				strokeLinejoin='round'
+			/>
+		</svg>
+	)
+}
