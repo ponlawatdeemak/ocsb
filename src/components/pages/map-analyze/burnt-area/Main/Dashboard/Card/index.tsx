@@ -7,6 +7,8 @@ import StackedBarChart from '../Chart/StackedBarChart'
 import { formatDate } from '@/utils/date'
 import { useTranslation } from 'next-i18next'
 import useAreaUnit from '@/store/area-unit'
+import { defaultNumber } from '@/utils/text'
+import { hotspotType, ResponseLanguage } from '@interface/config/app.config'
 
 interface DashboardCardMainProps {
 	handleClickDelete: () => void
@@ -92,14 +94,28 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	payloadData,
 	className = '',
 }) => {
-	const { t, i18n } = useTranslation(['map-analyze', 'common'])
-	const defaultColorHotspot = { data: '#FF0000', noData: '#FFC7C7' }
+	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
+	const language = i18n.language as keyof ResponseLanguage
 	const { areaUnit } = useAreaUnit()
+	const areaUnitTranslate = `common:${areaUnit}`
 
 	//region Hotspot
-	const [donutColorHotspot, setDonutColorHotspot] = useState(defaultColorHotspot)
-	const [percent, setPercent] = useState((data.hotspot.inSugarcane * 100) / data.hotspot.total)
-	const [hideData, setHideData] = useState<string[]>([])
+	const inSugarCaneArea = useMemo(() => {
+		return hotspotType[0]
+	}, [])
+
+	const notInSugarCaneArea = useMemo(() => {
+		return hotspotType[1]
+	}, [])
+
+	const defaultColorHotspot = useMemo(() => {
+		return {
+			[`${hotspotType[0].label.en}`]: '#FF0000',
+			[`${hotspotType[0].label.th}`]: '#FF0000',
+			[`${hotspotType[1].label.en}`]: '#FFC7C7',
+			[`${hotspotType[1].label.th}`]: '#FFC7C7',
+		}
+	}, [])
 
 	const percentInArea = useMemo(() => {
 		return (data.hotspot.inSugarcane * 100) / data.hotspot.total
@@ -115,7 +131,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			label.push(formatDate(new Date(item.date), 'MMM yy', i18n.language))
 		})
 
-		const result: any[][] = [['data'], ['noData']]
+		const result: any[][] = [[inSugarCaneArea.label[language]], [notInSugarCaneArea.label[language]]]
 
 		data.hotspot.list?.forEach((item) => {
 			result[0].push(item.inSugarcane)
@@ -123,57 +139,77 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 		})
 
 		return [label, ...result]
-	}, [i18n.language])
+	}, [i18n.language, inSugarCaneArea.label, language, notInSugarCaneArea.label])
 
-	const handleClickData = () => {
-		if (donutColorHotspot.noData === '#f5f5f6') {
-			setDonutColorHotspot(defaultColorHotspot)
-			setHideData([])
-		} else {
-			setDonutColorHotspot({ data: '#FF0000', noData: '#f5f5f6' })
-			setHideData(['noData'])
-		}
-		setPercent(percentInArea)
-	}
+	const [donutColorHotspot, setDonutColorHotspot] = useState(defaultColorHotspot)
+	const [percent, setPercent] = useState((data.hotspot.inSugarcane * 100) / data.hotspot.total)
+	const [hideData, setHideData] = useState<string[]>([])
 
-	const handleClickNoData = () => {
-		if (donutColorHotspot.data === '#f5f5f6') {
-			setDonutColorHotspot(defaultColorHotspot)
+	const handleClickOnChart = (name: string) => {
+		if (name === inSugarCaneArea.label.en || name === inSugarCaneArea.label.th) {
+			if (
+				donutColorHotspot[notInSugarCaneArea.label.en] === '#f5f5f6' ||
+				donutColorHotspot[notInSugarCaneArea.label.th] === '#f5f5f6'
+			) {
+				setDonutColorHotspot(defaultColorHotspot)
+				setHideData([])
+			} else {
+				setDonutColorHotspot({
+					[inSugarCaneArea.label.en]: '#FF0000',
+					[inSugarCaneArea.label.th]: '#FF0000',
+					[notInSugarCaneArea.label.en]: '#f5f5f6',
+					[notInSugarCaneArea.label.th]: '#f5f5f6',
+				})
+				setHideData([notInSugarCaneArea.label[language]])
+			}
 			setPercent(percentInArea)
-			setHideData([])
-		} else {
-			setDonutColorHotspot({ data: '#f5f5f6', noData: '#FFC7C7' })
-			setPercent(percentNotInArea)
-			setHideData(['data'])
+		} else if (name === notInSugarCaneArea.label.en || name === notInSugarCaneArea.label.th) {
+			if (
+				donutColorHotspot[inSugarCaneArea.label.en] === '#f5f5f6' ||
+				donutColorHotspot[inSugarCaneArea.label.th] === '#f5f5f6'
+			) {
+				setDonutColorHotspot(defaultColorHotspot)
+				setPercent(percentInArea)
+				setHideData([])
+			} else {
+				setDonutColorHotspot({
+					[inSugarCaneArea.label.en]: '#f5f5f6',
+					[inSugarCaneArea.label.th]: '#f5f5f6',
+					[notInSugarCaneArea.label.en]: '#FFC7C7',
+					[notInSugarCaneArea.label.th]: '#FFC7C7',
+				})
+				setPercent(percentNotInArea)
+				setHideData([inSugarCaneArea.label[language]])
+			}
 		}
 	}
 	//end region Hotspot
 
 	//region burnArea
-	const defaultColorBurnArea = { data: '#F9B936' }
+	const defaultColorBurnArea = { [t('overview:burntScar')]: '#F9B936' }
 	const columnsBurnArea = useMemo(() => {
 		const label = ['x']
 		data.burnArea.list?.forEach((item) => {
 			label.push(formatDate(new Date(item.date), 'MMM yy', i18n.language))
 		})
 
-		const result: any[][] = [['data']]
+		const result: any[][] = [[t('overview:burntScar')]]
 
 		data.burnArea.list?.forEach((item) => {
 			result[0].push(item.area[areaUnit])
 		})
 
 		return [label, ...result]
-	}, [areaUnit, i18n.language])
+	}, [areaUnit, i18n.language, t])
 	//end region burnArea
 
 	//region plant
-	const defaultColorPlant = { data: '#8AB62D', noData: '#f5f5f6' }
+	const defaultColorPlant = { [t('common:menu.plantingArea')]: '#8AB62D', [t('common:noData')]: '#f5f5f6' }
 	//end region plant
 
 	return (
 		<Box className={classNames('flex h-full w-[300px] min-w-0 flex-col bg-white', className)}>
-			<div
+			<button
 				className={classNames(
 					'flex h-fit w-full items-start justify-between bg-[#EBF5FF] px-5 py-4 hover:cursor-pointer',
 				)}
@@ -194,76 +230,80 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 				>
 					<CloseIcon className='!h-3 !w-3' />
 				</IconButton>
-			</div>
+			</button>
 			<div className='flex w-full flex-col items-center justify-center pt-7'>
-				<Typography className='pb-3 !text-sm'>จุดความร้อนสะสมทั้งหมด</Typography>
+				<Typography className='pb-3 !text-sm'>{t('overview:totalHotspot')}</Typography>
 				<div className='h-[111px] !max-h-[111px] w-[111px] !max-w-[111px]'>
 					<DonutChart
 						columns={[
-							['data', data.hotspot.inSugarcane],
-							['noData', data.hotspot.notInSugarcane],
+							[inSugarCaneArea.label[language], data.hotspot.inSugarcane],
+							[notInSugarCaneArea.label[language], data.hotspot.notInSugarcane],
 						]}
 						colors={donutColorHotspot}
 						percent={percent}
 						chartId={payloadData.id}
 						height={111}
 						width={111}
-						handleClickData={handleClickData}
-						handleClickNoData={handleClickNoData}
+						handleClickOnChart={handleClickOnChart}
 					/>
 				</div>
-				<Typography className='pt-3 !text-lg'>{data.hotspot.inSugarcane} จุด</Typography>
+				<Typography className='pt-3 !text-lg'>
+					{defaultNumber(data.hotspot.inSugarcane)} {t('common:point')}
+				</Typography>
 				<Typography className='pb-4 !text-xs text-[#707070]'>
-					จุดความร้อนทั้งหมด {data.hotspot.total} จุด
+					{t('totalHotspots')} {defaultNumber(data.hotspot.total)} {t('common:point')}
 				</Typography>
 
 				<Divider flexItem />
 
 				<Typography className='pt-3 !text-sm'>
-					{hideData?.[0] === 'data' ? 'จุดความร้อนที่ไม่ตกในแปลงอ้อย' : 'จุดความร้อนที่ตกในแปลงอ้อย'}
+					{hideData?.[0] === inSugarCaneArea.label[language] ? t('hotspotOutArea') : t('hotspotInArea')}
 				</Typography>
 				<div className='h-[262px] !max-h-[262px] !min-h-[262px] w-full pb-4'>
 					<StackedBarChart
 						chartId={payloadData.id}
 						columns={columnsHotspot}
 						colors={defaultColorHotspot}
-						groups={[['data', 'noData']]}
+						groups={[[inSugarCaneArea.label[language], notInSugarCaneArea.label[language]]]}
 						hideData={hideData}
+						handleClickOnChart={handleClickOnChart}
 					/>
 				</div>
 
 				<Divider flexItem />
 
-				<Typography className='pt-3 !text-sm'>ร่องรอยการเผาไหม้ ({t(`common:${areaUnit}`)})</Typography>
+				<Typography className='pt-3 !text-sm'>
+					{t('overview:burntScar')} ({t(`common:${areaUnit}`)})
+				</Typography>
 				<div className='h-[262px] !max-h-[262px] !min-h-[262px] w-full pb-4'>
 					<StackedBarChart
-						chartId={'noStack' + payloadData.id + 'asdasd'}
+						chartId={'second-bar' + payloadData.id}
 						columns={columnsBurnArea}
 						colors={defaultColorBurnArea}
+						handleClickOnChart={handleClickOnChart}
 					/>
 				</div>
 
 				<Divider flexItem />
 
-				<Typography className='pb-3 pt-3 !text-sm'>พื้นที่ปลูกอ้อย</Typography>
+				<Typography className='pb-3 pt-3 !text-sm'>{t('common:menu.plantingArea')}</Typography>
 				<div className='h-[111px] !max-h-[111px] w-[111px] !max-w-[111px]'>
 					<DonutChart
 						columns={[
-							['data', data.plant.area[areaUnit]],
-							['noData', data.plant.total[areaUnit] - data.plant.area[areaUnit]],
+							[t('common:menu.plantingArea'), data.plant.area[areaUnit]],
+							[t('common:noData'), data.plant.total[areaUnit] - data.plant.area[areaUnit]],
 						]}
 						colors={defaultColorPlant}
 						percent={(data.plant.area[areaUnit] * 100) / data.plant.total[areaUnit]}
-						chartId={'second-' + payloadData.id + 'asdaskp'}
+						chartId={'second-donut' + payloadData.id}
 						height={111}
 						width={111}
-						handleClickData={handleClickData}
-						handleClickNoData={handleClickNoData}
+						handleClickOnChart={handleClickOnChart}
 					/>
 				</div>
-				<Typography className='pt-3 !text-lg'>{`${data.plant.area[areaUnit]} ${t(`common:${areaUnit}`)}`}</Typography>
+				<Typography className='pt-3 !text-lg'>{`${defaultNumber(data.plant.area[areaUnit])} ${t(areaUnitTranslate)}`}</Typography>
 				<Typography className='pb-4 !text-xs text-[#707070]'>
-					{`ทั้งหมด ${data.plant.total[areaUnit]} ${t(`common:${areaUnit}`)}`}
+					{`${t('common:total')} ${defaultNumber(data.plant.total[areaUnit])} ${t(areaUnitTranslate)}`}
 				</Typography>
 			</div>
 		</Box>

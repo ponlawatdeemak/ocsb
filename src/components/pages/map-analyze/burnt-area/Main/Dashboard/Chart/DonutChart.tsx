@@ -2,7 +2,6 @@ import 'billboard.js/dist/billboard.css'
 import bb, { donut } from 'billboard.js'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'next-i18next'
-import { ResponseLanguage } from '@/api/interface'
 import classNames from 'classnames'
 import { defaultNumber } from '@/utils/text'
 
@@ -21,8 +20,7 @@ const DonutChart = ({
 	percent,
 	height = 168,
 	width = 168,
-	handleClickData,
-	handleClickNoData,
+	handleClickOnChart,
 }: {
 	chartId: string
 	columns: any[][]
@@ -30,18 +28,16 @@ const DonutChart = ({
 	percent: number
 	height?: number
 	width?: number
-	handleClickData: () => void
-	handleClickNoData: () => void
+	handleClickOnChart: (name: string) => void
 }) => {
-	const { t, i18n } = useTranslation(['map-analyze', 'common'])
-	const language = i18n.language as keyof ResponseLanguage
+	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
 
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
 			let tooltipOverview = '<div class="absolute left-4 top-2 bg-white p-2 rounded-md shadow flex flex-col">'
 			data.forEach(
 				(item) =>
-					(tooltipOverview += `<div class="text-[12px] text-nowrap">${item.name === 'data' ? t('จุดความร้อนที่ตกในแปลงอ้อย') : t('จุดความร้อนที่ไม่ตกในแปลงอ้อย')} : ${defaultNumber(item.value)} ${t(`จุด`)}</div>`),
+					(tooltipOverview += `<div class="text-[12px] text-nowrap">${item.name} : ${defaultNumber(item.value)} ${t(`common:point`)}</div>`),
 			)
 
 			tooltipOverview += '</div>'
@@ -60,11 +56,7 @@ const DonutChart = ({
 				colors: colors ?? {},
 				order: null,
 				onclick: function (d) {
-					if (d.name === 'data') {
-						handleClickData()
-					} else if (d.name === 'noData') {
-						handleClickNoData()
-					}
+					handleClickOnChart(d.name ?? '')
 				},
 			},
 			donut: {
@@ -96,7 +88,7 @@ const DonutChart = ({
 				height: 130,
 			},
 		})
-	}, [chartId, colors, columns, generateTooltips, handleClickData, handleClickNoData])
+	}, [chartId, colors, columns, generateTooltips, handleClickOnChart])
 
 	return (
 		<div className='relative flex h-full w-full items-center justify-center'>
