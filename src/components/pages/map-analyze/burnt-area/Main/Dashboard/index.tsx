@@ -1,4 +1,4 @@
-import { Button, Tooltip } from '@mui/material'
+import { Button, CircularProgress, Tooltip } from '@mui/material'
 import classNames from 'classnames'
 import React from 'react'
 import DashboardCardMain from './Card'
@@ -13,6 +13,7 @@ interface BurntDashboardMainProps {
 	handleSelectCard: (item: any) => void
 	mapTypeArray: string[]
 	selectedHotspots: string[]
+	isDisabledAdd: boolean
 	className?: string
 }
 
@@ -24,6 +25,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 	handleSelectCard,
 	mapTypeArray,
 	selectedHotspots,
+	isDisabledAdd,
 	className = '',
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -31,9 +33,16 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 	if (selectedArea.length === 0) {
 		return (
 			<Button
-				className='!absolute left-0 top-0 z-[9999] gap-[6px] !rounded-none !px-6 !py-3 !text-sm !font-normal !text-white max-md:!hidden'
+				className={classNames(
+					'!absolute left-0 top-0 z-[9999] gap-[6px] !rounded-none !px-6 !py-3 !text-sm !font-normal !text-white max-md:!hidden',
+				)}
 				variant='contained'
-				onClick={handleClickAdd}
+				onClick={() => {
+					if (!isDisabledAdd) {
+						handleClickAdd()
+					}
+				}}
+				disabled={isDisabledAdd}
 			>
 				<DashboardIcon /> {t('compare')}
 			</Button>
@@ -45,7 +54,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 					<DashboardCardMain
 						key={item.id}
 						handleClickDelete={() => handleClickDelete(item)}
-						isSelectedCard={selectedCard === item}
+						isSelectedCard={selectedCard === item.id}
 						handleSelectCard={() => handleSelectCard(item)}
 						payloadData={item}
 						mapTypeArray={mapTypeArray}
@@ -54,7 +63,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 				))}
 				{selectedArea.length < 4 && (
 					<Tooltip
-						title={t('addCompare')}
+						title={isDisabledAdd ? t('common:processing') : t('addCompare')}
 						placement='right'
 						componentsProps={{
 							tooltip: {
@@ -75,11 +84,18 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 						arrow
 					>
 						<Button
-							className='!absolute right-[-40px] top-0 z-[1] !max-h-10 !min-h-10 !min-w-10 !max-w-10 !rounded-[0px_5px_5px_0px] !bg-[#EBF5FF] !p-2 !text-primary !shadow-none hover:!shadow'
+							className={classNames(
+								'!absolute right-[-40px] top-0 z-[1] !max-h-10 !min-h-10 !min-w-10 !max-w-10 !rounded-[0px_5px_5px_0px] !bg-[#EBF5FF] !p-2 !text-primary !shadow-none hover:!shadow',
+								{ 'hover:cursor-default': isDisabledAdd },
+							)}
 							variant='contained'
-							onClick={handleClickAdd}
+							onClick={() => {
+								if (!isDisabledAdd) {
+									handleClickAdd()
+								}
+							}}
 						>
-							<AddDashboardIcon />
+							{isDisabledAdd ? <CircularProgress size={15} /> : <AddDashboardIcon />}
 						</Button>
 					</Tooltip>
 				)}

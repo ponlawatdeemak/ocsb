@@ -1,5 +1,5 @@
 import MultipleSelectCheckmarks, { MultipleSelectedType } from '@/components/common/select/MultipleSelectCheckmarks'
-import { hotspotType, mapType, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
+import { hotspotType, hotspotTypeCode, mapType, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
 import { CalendarIcon, SearchInputIcon } from '@/components/svg/AppIcon'
 import useResponsive from '@/hook/responsive'
@@ -27,8 +27,10 @@ import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
 import { Clear } from '@mui/icons-material'
 import { debounce } from 'lodash'
+import { GetDashBoardBurntAreaDtoIn } from '@interface/dto/brunt-area/brunt-area.dto-in'
+import { GetDashBoardBurntAreaDtoOut } from '@interface/dto/brunt-area/brunt-area.dto.out'
 
-interface OptionType {
+export interface OptionType {
 	id: string
 	name: ResponseLanguage
 	geometry: any
@@ -47,12 +49,13 @@ const defaultCurrentDateRange: DateObject[] = [new DateObject(), new DateObject(
 export const DATE_RANGE_LENGTH = 2
 
 interface BurntSearchFormMainProps {
-	selectedHotspots: string[]
+	selectedHotspots: hotspotTypeCode[]
 	handleChange: (event: any) => void
-	mapTypeArray: string[]
+	mapTypeArray: mapTypeCode[]
 	className?: string
 	selectedDateRange: Date[]
 	onSelectedDateRange: (selectedDateRange: Date[]) => void
+	handleGetDashboardData: (admOption: OptionType | null, dashboardData: GetDashBoardBurntAreaDtoOut | null) => void
 }
 
 const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
@@ -61,6 +64,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	mapTypeArray,
 	selectedDateRange,
 	onSelectedDateRange,
+	handleGetDashboardData,
 	className = '',
 }) => {
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -81,8 +85,6 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	const [calendarType, setCalendarType] = useState<CalendarType | false>(CalendarType.Date)
 	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
 
-	const [burntAreaSearch, setBurntAreaSearch] = useState('')
-
 	const { data: searchAdmData, isPending: _isSearchAdmDataLoading } = useQuery({
 		queryKey: ['getSearchAdminPoly', searchAdmInputValue],
 		queryFn: () => service.lookup.getSearchAdm({ keyword: searchAdmInputValue }),
@@ -92,6 +94,25 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	const { data: burnAreaCalendarData, isLoading: isBurnAreaCalendarDataLoading } = useQuery({
 		queryKey: ['getBurnAreaCalendar'],
 		queryFn: () => service.mapAnalyze.getBurnAreaCalendar(),
+	})
+
+	const { data: dashBoardData, isPending: _isDashBoardDataLoading } = useQuery({
+		queryKey: ['getDashBoardBurntArea', searchAdmInputValue, currentDateRange, mapTypeArray, selectedHotspots],
+		queryFn: async () => {
+			handleGetDashboardData(searchSelectedAdmOption, null)
+			const payload: GetDashBoardBurntAreaDtoIn = {
+				startDate: currentDateRange[0].toDate().toISOString().split('T')[0],
+				endDate: currentDateRange[1].toDate().toISOString().split('T')[0],
+				admC: searchSelectedAdmOption ? Number(searchSelectedAdmOption.id) : undefined,
+				mapType: mapTypeArray.length ? mapTypeArray : undefined,
+				inSugarcan: selectedHotspots.length ? selectedHotspots : undefined,
+			}
+			const response = await service.mapAnalyze.getDashBoardBurntArea(payload)
+			if (response) {
+				handleGetDashboardData(searchSelectedAdmOption, response.data)
+			}
+			return response.data
+		},
 	})
 
 	const optionAdmList: OptionType[] = useMemo(() => {
@@ -186,10 +207,6 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 			setCalendarType(CalendarType.Date)
 		}
 	}, [currentDateRange, onSelectedDateRange])
-
-	const handleBurntAreaSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-		setBurntAreaSearch(event.target.value)
-	}, [])
 
 	const displaySelectedDateRange = useMemo(() => {
 		if (selectedDateRange[0].toString() === selectedDateRange[1].toString()) {

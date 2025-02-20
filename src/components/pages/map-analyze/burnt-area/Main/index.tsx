@@ -1,10 +1,11 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
 import React, { useCallback, useState } from 'react'
-import BurntSearchFormMain from './SearchForm'
+import BurntSearchFormMain, { OptionType } from './SearchForm'
 import BurntMapMain from './BurntMap'
 import BurntDashboardMain from './Dashboard'
-import { hotspotType, mapTypeCode } from '@interface/config/app.config'
+import { hotspotType, hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
+import { GetDashBoardBurntAreaDtoOut } from '@interface/dto/brunt-area/brunt-area.dto.out'
 
 const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
 
@@ -13,28 +14,41 @@ interface BurntAreaMainProps {
 }
 
 export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) => {
-	const [selectedArea, setSelectedArea] = useState<any[]>([])
+	const [selectedArea, setSelectedArea] = useState<
+		{ id: string; adm: OptionType | null; dashboard: GetDashBoardBurntAreaDtoOut | null }[]
+	>([])
 	const [selectedCard, setSelectedCard] = useState<number>()
-	const [mapTypeArray, setMapTypeArray] = useState<string[]>([mapTypeCode.hotspots])
-	const [selectedHotspots, setSelectedHotspots] = useState<string[]>(hotspotType.map((type) => type.code))
+	const [mapTypeArray, setMapTypeArray] = useState<mapTypeCode[]>([mapTypeCode.hotspots])
+	const [selectedHotspots, setSelectedHotspots] = useState<hotspotTypeCode[]>(hotspotType.map((type) => type.code))
 
 	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
 
+	const [currentAdmOption, setCurrentAdmOption] = useState<OptionType | null>(null)
+	const [currentDashboardData, setCurrentDashboardData] = useState<GetDashBoardBurntAreaDtoOut | null>(null)
+
 	const handleClickAdd = () => {
 		const updateArea = [...selectedArea]
-		updateArea.push({ id: Math.random().toString().split('.')[1] })
+		updateArea.push({ id: crypto.randomUUID(), adm: currentAdmOption, dashboard: currentDashboardData })
 		setSelectedArea(updateArea)
 	}
 
 	const handleClickDelete = (item: any) => {
 		const updateArea = [...selectedArea]
-		const index = updateArea.findIndex((area) => area === item)
+		const index = updateArea.findIndex((area) => area.id === item.id)
 		updateArea.splice(index, 1)
 		setSelectedArea(updateArea)
 	}
 
 	const handleSelectCard = (item: any) => {
-		setSelectedCard((selected) => (selected === item ? undefined : item))
+		setSelectedCard((selected) => (selected === item.id ? undefined : item.id))
+	}
+
+	const handleGetDashboardData = (
+		admOption: OptionType | null,
+		dashboardData: GetDashBoardBurntAreaDtoOut | null,
+	) => {
+		setCurrentAdmOption(admOption)
+		setCurrentDashboardData(dashboardData)
 	}
 
 	const handleChange = useCallback(
@@ -83,6 +97,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				selectedHotspots={selectedHotspots}
 				handleChange={handleChange}
 				mapTypeArray={mapTypeArray}
+				handleGetDashboardData={handleGetDashboardData}
 			/>
 			<Box className='absolute flex h-full w-full md:relative'>
 				<BurntDashboardMain
@@ -93,6 +108,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					handleSelectCard={handleSelectCard}
 					mapTypeArray={mapTypeArray}
 					selectedHotspots={selectedHotspots}
+					isDisabledAdd={!currentDashboardData}
 					className='max-w-[calc(80vw)] max-lg:hidden'
 				/>
 				<BurntMapMain className='h-full w-full flex-1' />

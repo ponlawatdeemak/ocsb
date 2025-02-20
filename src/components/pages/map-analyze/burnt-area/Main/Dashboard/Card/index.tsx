@@ -9,12 +9,14 @@ import { useTranslation } from 'next-i18next'
 import useAreaUnit from '@/store/area-unit'
 import { defaultNumber } from '@/utils/text'
 import { hotspotType, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
+import { OptionType } from '../../SearchForm'
+import { GetDashBoardBurntAreaDtoOut } from '@interface/dto/brunt-area/brunt-area.dto.out'
 
 interface DashboardCardMainProps {
 	handleClickDelete: () => void
 	isSelectedCard: boolean
 	handleSelectCard: () => void
-	payloadData: any
+	payloadData: { id: string; adm: OptionType | null; dashboard: GetDashBoardBurntAreaDtoOut | null }
 	mapTypeArray: string[]
 	selectedHotspots: string[]
 	className?: string
@@ -257,7 +259,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 				}}
 				onClick={handleSelectCard}
 			>
-				<Typography className='break-all'>DashboardCardMain</Typography>
+				<Typography className='break-all'>{payloadData.adm?.name[language] ?? t('allArea')}</Typography>
 				<IconButton
 					onClick={(e) => {
 						e.preventDefault()
