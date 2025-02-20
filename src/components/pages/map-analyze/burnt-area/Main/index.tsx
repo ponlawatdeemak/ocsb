@@ -6,6 +6,8 @@ import BurntMapMain from './BurntMap'
 import BurntDashboardMain from './Dashboard'
 import { hotspotType, mapTypeCode } from '@interface/config/app.config'
 
+const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
+
 interface BurntAreaMainProps {
 	className?: string
 }
@@ -15,6 +17,8 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	const [selectedCard, setSelectedCard] = useState<number>()
 	const [mapTypeArray, setMapTypeArray] = useState<string[]>([mapTypeCode.hotspots])
 	const [selectedHotspots, setSelectedHotspots] = useState<string[]>(hotspotType.map((type) => type.code))
+
+	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
 
 	const handleClickAdd = () => {
 		const updateArea = [...selectedArea]
@@ -71,14 +75,16 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	)
 
 	return (
-		<Box className={classNames('flex w-full grow flex-col', className)}>
+		<Box className={classNames('flex h-full w-full flex-col', className)}>
 			<BurntSearchFormMain
 				className='z-10 w-full'
+				selectedDateRange={selectedDateRange}
+				onSelectedDateRange={(selectedDateRange: Date[]) => setSelectedDateRange(selectedDateRange)}
 				selectedHotspots={selectedHotspots}
 				handleChange={handleChange}
 				mapTypeArray={mapTypeArray}
 			/>
-			<Box className='relative flex h-full w-full'>
+			<Box className='absolute flex h-full w-full md:relative'>
 				<BurntDashboardMain
 					selectedArea={selectedArea}
 					handleClickAdd={handleClickAdd}

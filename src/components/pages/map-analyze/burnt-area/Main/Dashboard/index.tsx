@@ -31,7 +31,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 	if (selectedArea.length === 0) {
 		return (
 			<Button
-				className='!absolute left-0 top-0 z-[9999] gap-[6px] !rounded-none !px-6 !py-3 !text-sm !font-normal !text-white'
+				className='!absolute left-0 top-0 z-[9999] gap-[6px] !rounded-none !px-6 !py-3 !text-sm !font-normal !text-white max-md:!hidden'
 				variant='contained'
 				onClick={handleClickAdd}
 			>

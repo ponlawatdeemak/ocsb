@@ -7,6 +7,7 @@ import { SessionProvider } from 'next-auth/react'
 import { SSRConfig, appWithTranslation } from 'next-i18next'
 import type { AppProps } from 'next/app'
 import '../src/styles/globals.css'
+import '../src/styles/override/react-datepicker.css'
 import theme from '../src/styles/theme'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 

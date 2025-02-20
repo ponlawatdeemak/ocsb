@@ -3,5 +3,12 @@
     "hotspotInArea": "Hotspot In Sugar Cane Area",
     "hotspotOutArea": "Hotspot Outside Sugar Cane Area",
     "addCompare": "Add Comparison Board",
-    "compare": "Show Comparison Board"
+    "compare": "Show Comparison Board",
+	"hotspotAndBurntAreaAnalysis": "Analysis of Hotspots and Burnt Areas",
+	"hotspotInsideAreas": "Hotspots Inside Areas",
+	"hotspotOutsideAreas": "Hotspots Outside Areas",
+	"searchArea": "Search Area",
+	"hotspot": "Hotspots",
+	"burntScar": "Burnt Scar",
+	"plantingArea": "Planting Area"
 }

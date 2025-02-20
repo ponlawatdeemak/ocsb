@@ -35,6 +35,21 @@
 		}
 	},
 
+	"calendar": {
+		"dateBtn": "เลือกวันที่",
+		"monthBtn": "รายเดือน",
+		"lastSevenDayBtn": "7 วันล่าสุด",
+		"lastThirtyDayBtn": "30 วันล่าสุด",
+		"lastThreeMonthBtn": "3 เดือนล่าสุด",
+		"selectedDate": "วันที่เลือก:",
+		"prevYearBtn": "ปีก่อนหน้า",
+		"nextYearBtn": "ปีถัดไป",
+		"resetBtn": "ล้างค่า",
+		"confirmBtn": "ตกลง",
+		"currentDate": "วันที่ปัจจุบัน",
+		"burntDate": "วันที่เกิดร่องรอยการเผาไหม้"
+	},
+
 	"areaUnit": "หน่วยพื้นที่",
 	"m2": "ตร.ม.",
 	"km2": "ตร.กม.",
@@ -45,8 +60,8 @@
 	"ton": "ตัน",
 	"kg": "กิโลกรัม",
 
-    "total": "ทั้งหมด",
-    "point": "จุด",
+	"total": "ทั้งหมด",
+	"point": "จุด",
 
 	"languages": "ภาษา",
 	"languagesTh": "ไทย",
@@ -70,15 +85,16 @@
 	},
 
 	"required": "กรุณาระบุ",
+	"requiredDate": "กรุณาระบุวันที่",
 	"clear": "ล้างข้อมูล",
 	"placeholder": {
 		"input": "ระบุ",
 		"autocomplete": "เลือก"
 	},
 
-    "area": "พื้นที่",
-    "month": "เดือน",
-    "year": "ปี",
-    "quantity": "ปริมาณ",
-    "region": "ภูมิภาค"
+	"area": "พื้นที่",
+	"month": "เดือน",
+	"year": "ปี",
+	"quantity": "ปริมาณ",
+	"region": "ภูมิภาค"
 }

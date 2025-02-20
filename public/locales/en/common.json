@@ -35,6 +35,21 @@
 		}
 	},
 
+	"calendar": {
+		"dateBtn": "Date",
+		"monthBtn": "Month",
+		"lastSevenDayBtn": "Last 7 Days",
+		"lastThirtyDayBtn": "Last 30 Days",
+		"lastThreeMonthBtn": "Last 3 Months",
+		"selectedDate": "Selected Date:",
+		"prevYearBtn": "Previous Year",
+		"nextYearBtn": "Next Year",
+		"resetBtn": "Reset",
+		"confirmBtn": "Submit",
+		"currentDate": "Current Date",
+		"burntDate": "Burnt Area Date"
+	},
+
 	"areaUnit": "Area Unit",
 	"m2": "m²",
 	"km2": "km²",
@@ -45,8 +60,8 @@
 	"ton": "Ton",
 	"kg": "Kg",
 
-    "total": "Total",
-    "point": "Points",
+	"total": "Total",
+	"point": "Points",
 
 	"languages": "Languages",
 	"languagesTh": "ไทย",
@@ -70,15 +85,16 @@
 	},
 
 	"required": "Please Enter ",
+	"requiredDate": "Please Enter Date",
 	"clear": "Clear",
 	"placeholder": {
 		"input": "Enter ",
 		"autocomplete": "Enter "
 	},
 
-    "area": "Area",
-    "month": "Month",
-    "year": "Year",
-    "quantity": "Quantity",
-    "region": "Region"
+	"area": "Area",
+	"month": "Month",
+	"year": "Year",
+	"quantity": "Quantity",
+	"region": "Region"
 }
