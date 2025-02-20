@@ -22,6 +22,8 @@ import { useTranslation } from 'next-i18next'
 import { ResponseLanguage } from '@interface/config/app.config'
 import { formatDate } from '@/utils/date'
 import { endOfMonth, startOfMonth } from 'date-fns'
+import { useQuery } from '@tanstack/react-query'
+import service from '@/api'
 
 export enum CalendarType {
 	Date = 'date',
@@ -56,6 +58,11 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 
 	const [calendarType, setCalendarType] = useState<CalendarType | false>(CalendarType.Date)
 	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
+
+	const { data: burnAreaCalendarData, isLoading: isBurnAreaCalendarDataLoading } = useQuery({
+		queryKey: ['getBurnAreaCalendar'],
+		queryFn: () => service.mapAnalyze.getBurnAreaCalendar(),
+	})
 
 	const hotspotOptions: MultipleSelectedType[] = useMemo(
 		() => [
@@ -125,8 +132,8 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 
 	const handleCurrentDateRangeSubmit = useCallback(() => {
 		if (currentDateRange.length === DATE_RANGE_LENGTH) {
-			const startDate = new Date(currentDateRange[0]?.format('Date: YYYY-MM-DD', ['Date']))
-			const endDate = new Date(currentDateRange[1]?.format('Date: YYYY-MM-DD', ['Date']))
+			const startDate = new Date(currentDateRange[0]?.format('YYYY-MM-DD'))
+			const endDate = new Date(currentDateRange[1]?.format('YYYY-MM-DD'))
 			onSelectedDateRange([startDate, endDate])
 			setCalendarDesktopPopoverAnchorEl(null)
 			setCalendarMobilePopoverAnchorEl(null)
@@ -136,8 +143,8 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 
 	const handleCurrentMonthRangeSubmit = useCallback(() => {
 		if (currentDateRange.length === DATE_RANGE_LENGTH) {
-			const startDate = startOfMonth(new Date(currentDateRange[0]?.format('Date: YYYY-MM-DD', ['Date'])))
-			const endDate = endOfMonth(new Date(currentDateRange[1]?.format('Date: YYYY-MM-DD', ['Date'])))
+			const startDate = startOfMonth(new Date(currentDateRange[0]?.format('YYYY-MM-DD')))
+			const endDate = endOfMonth(new Date(currentDateRange[1]?.format('YYYY-MM-DD')))
 			setCurrentDateRange([new DateObject(startDate), new DateObject(endDate)])
 			onSelectedDateRange([startDate, endDate])
 			setCalendarDesktopPopoverAnchorEl(null)
@@ -191,6 +198,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 								'[&_svg>path]:stroke-white': Boolean(calendarMobilePopoverAnchorEl),
 							})}
 							onClick={handleCalendarPopoverClick}
+							disabled={isBurnAreaCalendarDataLoading}
 						>
 							<CalendarIcon />
 						</IconButton>
@@ -246,6 +254,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 								'[&_svg>path]:stroke-white': Boolean(calendarDesktopPopoverAnchorEl),
 							})}
 							onClick={handleCalendarPopoverClick}
+							disabled={isBurnAreaCalendarDataLoading}
 						>
 							<CalendarIcon />
 						</IconButton>
@@ -276,6 +285,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 				<CalendarDesktopPopverMain
 					calendarType={calendarType}
 					currentDateRange={currentDateRange}
+					burnAreaCalendarData={burnAreaCalendarData?.data ?? []}
 					onCalendarTypeChange={handleCalendarTypeChange}
 					onCurrentDateRangeChange={handleCurrentDateRangeChange}
 					onCurrentDateRangeReset={handleCurrentDateRangeReset}

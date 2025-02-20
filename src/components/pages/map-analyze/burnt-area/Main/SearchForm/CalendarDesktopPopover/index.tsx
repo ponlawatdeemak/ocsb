@@ -15,6 +15,7 @@ interface CalendarDesktopPopverMainProps {
 	className?: string
 	calendarType: CalendarType | false
 	currentDateRange: DateObject[]
+	burnAreaCalendarData: string[]
 	onCalendarTypeChange: (_event: React.MouseEvent<HTMLElement>, type: CalendarType) => void
 	onCurrentDateRangeChange: (values: DateObject[]) => void
 	onCurrentDateRangeReset: () => void
@@ -26,6 +27,7 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 	className = '',
 	calendarType,
 	currentDateRange,
+	burnAreaCalendarData,
 	onCalendarTypeChange,
 	onCurrentDateRangeChange,
 	onCurrentDateRangeReset,
@@ -43,11 +45,7 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 				<Box className='flex items-center gap-2'>
 					<Typography className='!text-xs text-primary'>
 						{currentDateRange[0]
-							? formatDate(
-									new Date(currentDateRange[0]?.format('Date: YYYY-MM-DD', ['Date'])),
-									displayFormat,
-									language,
-								)
+							? formatDate(new Date(currentDateRange[0]?.format('YYYY-MM-DD')), displayFormat, language)
 							: ''}
 					</Typography>
 				</Box>
@@ -57,21 +55,13 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 				<Box className='flex items-center gap-2'>
 					<Typography className='!text-xs text-primary'>
 						{currentDateRange[0]
-							? formatDate(
-									new Date(currentDateRange[0]?.format('Date: YYYY-MM-DD', ['Date'])),
-									displayFormat,
-									language,
-								)
+							? formatDate(new Date(currentDateRange[0]?.format('YYYY-MM-DD')), displayFormat, language)
 							: ''}
 					</Typography>
 					<EastRounded className='!h-3 !w-3 text-black' />
 					<Typography className='!text-xs text-primary'>
 						{currentDateRange[1]
-							? formatDate(
-									new Date(currentDateRange[1]?.format('Date: YYYY-MM-DD', ['Date'])),
-									displayFormat,
-									language,
-								)
+							? formatDate(new Date(currentDateRange[1]?.format('YYYY-MM-DD')), displayFormat, language)
 							: ''}
 					</Typography>
 				</Box>
@@ -218,6 +208,22 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 								locale={language === Languages.EN ? english_en : thai_th}
 								value={currentDateRange}
 								onChange={onCurrentDateRangeChange}
+								mapDays={({ date }) => {
+									const isBurntDate = burnAreaCalendarData
+										.map((burntDate) => burntDate.toString())
+										.includes(date?.format('YYYY-MM-DD').toString())
+
+									return {
+										children: (
+											<Box className='flex h-full flex-col items-center justify-center'>
+												<Box>{date.format('D')}</Box>
+												{isBurntDate && (
+													<Box className='h-[5px] w-[5px] rounded-full bg-[#FF0000]'></Box>
+												)}
+											</Box>
+										),
+									}
+								}}
 								range
 								numberOfMonths={2}
 								showOtherDays
