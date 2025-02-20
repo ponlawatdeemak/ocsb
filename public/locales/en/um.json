@@ -62,7 +62,9 @@
 	},
 	"alert": {
 		"saveComplete": "Save data complete.",
-		"saveError": "Save data error."
+		"saveError": "Save data error.",
+		"duplicateEmail": "This email is already in use",
+		"duplicatePhone": "This phone is already in use"
 	},
 	"import": {
 		"title": "Import User",
