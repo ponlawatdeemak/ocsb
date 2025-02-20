@@ -15,12 +15,15 @@ import {
 	Typography,
 } from '@mui/material'
 import classNames from 'classnames'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { ChangeEvent, useCallback, useMemo, useState } from 'react'
 import CalendarDesktopPopverMain from './CalendarDesktopPopover'
 import CalendarMobilePopoverMain from './CalendarMobilePopover'
 import { DateObject } from 'react-multi-date-picker'
 import { formatDate } from '@/utils/date'
 import { endOfMonth, startOfMonth } from 'date-fns'
+import { useQuery } from '@tanstack/react-query'
+import service from '@/api'
+import { debounce } from 'lodash'
 
 export enum CalendarType {
 	Date = 'date',
@@ -60,13 +63,19 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	)
 
 	const { isDesktopMD } = useResponsive()
-	// const [selectedHotspots, setSelectedHotspots] = useState<string[]>(['1', '2'])
 
 	const [calendarDesktopPopoverAnchorEl, setCalendarDesktopPopoverAnchorEl] = useState<HTMLButtonElement | null>(null)
 	const [calendarMobilePopoverAnchorEl, setCalendarMobilePopoverAnchorEl] = useState<HTMLButtonElement | null>(null)
 
 	const [calendarType, setCalendarType] = useState<CalendarType | false>(CalendarType.Date)
 	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
+
+	const [burntAreaSearch, setBurntAreaSearch] = useState('')
+
+	const { data: searchAdmData, isLoading: isSearchAdmDataLoading } = useQuery({
+		queryKey: ['getSearchAdm', burntAreaSearch],
+		queryFn: () => service.lookup.getSearchAdm({ keyword: burntAreaSearch }),
+	})
 
 	const handleCalendarPopoverClick = useCallback(() => {
 		const burntAreaSearchFormElement = document.getElementById('burnt-area-search-form') as HTMLElement
@@ -144,6 +153,10 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 		}
 	}, [currentDateRange, onSelectedDateRange])
 
+	const handleBurntAreaSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+		setBurntAreaSearch(event.target.value)
+	}, [])
+
 	const displaySelectedDateRange = useMemo(() => {
 		if (selectedDateRange[0].toString() === selectedDateRange[1].toString()) {
 			return selectedDateRange[0] ? formatDate(selectedDateRange[0], 'dd MMMM yyyy', language) : ''
@@ -169,6 +182,8 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 					<FormControl className='w-full [&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white'>
 						<OutlinedInput
 							id='burnt-area-search'
+							onChange={debounce(handleBurntAreaSearchChange, 300)}
+							defaultValue={''}
 							className='[&_fieldset]:border-none [&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
 							placeholder={t('map-analyze:searchArea')}
 						/>

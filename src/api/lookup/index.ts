@@ -1,7 +1,5 @@
 import { api } from '@/api/core'
-import { ResponseDto } from '@/api/interface'
-import { GetLookupDtoIn } from '@interface/dto/lookup/lookup.dto-in'
-import { GetLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
+import { GetLookupDtoIn, GetSearchAdmLookupDtoIn } from '@interface/dto/lookup/lookup.dto-in'
 import * as _ from 'lodash'
 
 const lookup = {
@@ -11,6 +9,10 @@ const lookup = {
 		)
 		const data = res?.data?.map((el: any) => _.mapKeys(el, (val, key) => _.camelCase(key)))
 		return data
+	},
+	getSearchAdm: async (payload: GetSearchAdmLookupDtoIn) => {
+		const res = await api.get(`/lookup/search-adm?keyword=${payload.keyword}`)
+		return res.data
 	},
 }
 
