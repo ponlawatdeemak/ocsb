@@ -108,7 +108,7 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 					setTimeout(() => {
 						router.push(AppPath.Login)
 						setBusy(false)
-					}, 3000)
+					}, 1500)
 					return
 				}
 				await mutateResetPassword({ token: token ?? '', newPassword: values.newPassword })
@@ -116,14 +116,14 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 				setTimeout(() => {
 					router.push(AppPath.Login)
 					setBusy(false)
-				}, 3000)
+				}, 1500)
 			} catch (error) {
 				console.error('Reset password failed', error)
 				setAlertResetPasswordInfo({ open: true, severity: 'error', message: t('auth:error.resetPassword') })
 				setTimeout(() => {
 					router.push(AppPath.Login)
 					setBusy(false)
-				}, 3000)
+				}, 1500)
 			}
 		},
 		[mutateResetPassword, token, router, t],

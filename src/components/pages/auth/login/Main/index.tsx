@@ -66,7 +66,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 				setTimeout(() => {
 					router.push(callbackUrl ?? AppPath.Overview)
 					setBusy(false)
-				}, 3000)
+				}, 1500)
 			} catch (error) {
 				console.error('Login failed', error)
 			}
