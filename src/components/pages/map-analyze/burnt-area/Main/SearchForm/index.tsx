@@ -85,7 +85,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	const [calendarType, setCalendarType] = useState<CalendarType | false>(CalendarType.Date)
 	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
 
-	const { data: searchAdmData, isPending: _isSearchAdmDataLoading } = useQuery({
+	const { data: searchAdmData, isPending: isSearchAdmDataLoading } = useQuery({
 		queryKey: ['getSearchAdminPoly', searchAdmInputValue],
 		queryFn: () => service.lookup.getSearchAdm({ keyword: searchAdmInputValue }),
 		enabled: !!searchAdmInputValue,
@@ -271,6 +271,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 									/>
 								)
 							}}
+							noOptionsText={isSearchAdmDataLoading ? 'พิมพ์คำค้นหา' : 'ไม่พบข้อมูล'}
 						/>
 					</FormControl>
 					<Paper

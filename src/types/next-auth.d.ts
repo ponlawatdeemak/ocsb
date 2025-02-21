@@ -37,15 +37,15 @@ interface UserSession {
 	firstName: string
 	lastName: string
 	email: string
-	image: string
 	phone: string
 	isActive: boolean
 	role: Role
-	regions: Region[]
 	posiion: Position
 	region: Region
+	regions: Region[]
 	province: Province
 	tokens: Tokens
+	geometry: number[][]
 	hasImage: boolean
 }
 
