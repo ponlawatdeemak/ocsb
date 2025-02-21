@@ -10,6 +10,7 @@ import { Languages } from '@/enum'
 import thai_th from '@/utils/thai_th'
 import english_en from '@/utils/english_en'
 import { formatDate } from '@/utils/date'
+import { addMonths, subMonths } from 'date-fns'
 
 interface CalendarDesktopPopverMainProps {
 	className?: string
@@ -226,6 +227,8 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 								}}
 								range
 								numberOfMonths={2}
+								minDate={subMonths(new Date(currentDateRange[0].format()), 12)}
+								maxDate={addMonths(new Date(currentDateRange[0].format()), 12)}
 								showOtherDays
 								disableMonthPicker
 								disableYearPicker
