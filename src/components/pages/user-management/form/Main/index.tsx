@@ -158,23 +158,25 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = () 
 				setAlertUMFormInfo({
 					open: true,
 					severity: 'success',
-					message: 'บันทึกข้อมูลสำเร็จ',
+					message: t('um:alert.saveComplete'),
 				})
 
 				router.push(AppPath.UserManagement)
 			} catch (error: any) {
 				let message = ''
 				if (error?.message === errorResponse.USER_EMAIL_DUPLICATED) {
-					message = 'ไม่สามารถใช้อีเมลซ้ำกับในระบบ กรุณาลองใหม่อีกครั้ง'
+					message = t('um:alert.duplicateEmail')
 				} else if (error?.message === errorResponse.USER_PHONE_DUPLICATED) {
-					message = 'ไม่สามารถใช้เบอร์โทรศัพท์ซ้ำกับในระบบ กรุณาลองใหม่อีกครั้ง'
+					message = t('um:alert.duplicatePhone')
+				} else {
+					message = t('common:error.somethingWrong')
 				}
 				setAlertUMFormInfo({ open: true, severity: 'error', message })
 			} finally {
 				setBusy(false)
 			}
 		},
-		[isEdit, mutatePostUM, mutatePutUM, router, userId],
+		[isEdit, mutatePostUM, mutatePutUM, router, userId, t],
 	)
 
 	const formik = useFormik<UMFormValues>({

@@ -44,7 +44,7 @@ export interface MapLegend {
 }
 
 export enum BasemapType {
+	Google,
 	CartoLight,
 	CartoDark,
-	Google,
 }

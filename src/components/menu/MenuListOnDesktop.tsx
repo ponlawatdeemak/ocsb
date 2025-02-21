@@ -12,24 +12,14 @@ import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
 import { ResponseLanguage } from '@/api/interface'
 import { UserRole } from '@interface/config/um.config'
+import { CurrentSettingType } from './AppBar'
 
 interface MenuListOnDesktopProps {
-	selectedAreaUnit: AreaUnitKey
-	selectedQuantityUnit: QuantityUnitKey
-	currentLanguage: 'th' | 'en'
-	setSelectedAreaUnit: React.Dispatch<React.SetStateAction<AreaUnitKey>>
-	setSelectedQuantityUnit: React.Dispatch<React.SetStateAction<QuantityUnitKey>>
-	setCurrentLanguage: React.Dispatch<React.SetStateAction<'th' | 'en'>>
+	currentSetting: CurrentSettingType
+	setCurrentSetting: React.Dispatch<React.SetStateAction<CurrentSettingType>>
 }
 
-const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = ({
-	selectedAreaUnit,
-	selectedQuantityUnit,
-	currentLanguage,
-	setSelectedAreaUnit,
-	setSelectedQuantityUnit,
-	setCurrentLanguage,
-}) => {
+const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = ({ currentSetting, setCurrentSetting }) => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const { data: session } = useSession()
@@ -157,9 +147,11 @@ const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = ({
 							className='min-h-[30px] min-w-0 cursor-pointer !p-1'
 							onClick={() => {
 								if (menu.id === 'Setting') {
-									setSelectedAreaUnit(areaUnit || AreaUnitKey.Rai)
-									setSelectedQuantityUnit(quantityUnit || QuantityUnitKey.Ton)
-									setCurrentLanguage(language || Languages.TH)
+									setCurrentSetting({
+										areaUnit: areaUnit || AreaUnitKey.Rai,
+										quantityUnit: quantityUnit || QuantityUnitKey.Ton,
+										language: language || Languages.TH,
+									})
 									setOpenSettingDialog(true)
 								} else {
 									handleChangeTabValue(menu.path)
@@ -186,12 +178,8 @@ const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = ({
 
 			<SettingDialog
 				open={openSettingDialog}
-				selectedAreaUnit={selectedAreaUnit}
-				selectedQuantityUnit={selectedQuantityUnit}
-				currentLanguage={currentLanguage}
-				setSelectedAreaUnit={setSelectedAreaUnit}
-				setSelectedQuantityUnit={setSelectedQuantityUnit}
-				setCurrentLanguage={setCurrentLanguage}
+				currentSetting={currentSetting}
+				setCurrentSetting={setCurrentSetting}
 				onClose={() => handleCloseDialog()}
 			/>
 		</React.Fragment>

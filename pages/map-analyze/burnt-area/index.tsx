@@ -10,7 +10,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => ({
 	props: {
 		...(await serverSideTranslations(
 			context.locale ?? DEFAULT_LOCALE,
-			['common', 'map-analyze'],
+			['common', 'map-analyze', 'overview'],
 			nextI18NextConfig as UserConfig,
 		)),
 	},

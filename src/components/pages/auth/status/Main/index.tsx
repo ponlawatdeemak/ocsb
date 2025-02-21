@@ -27,7 +27,7 @@ export const AuthStatusMain: React.FC<AuthStatusMainProps> = ({ className = '' }
 
 	const handleBack = useCallback(() => {
 		setDataForgetPassword(null)
-		router.push(AppPath.Overview)
+		router.push(AppPath.Login)
 	}, [setDataForgetPassword, router])
 
 	return (
@@ -42,14 +42,14 @@ export const AuthStatusMain: React.FC<AuthStatusMainProps> = ({ className = '' }
 				</Box>
 				<Box className='flex w-full flex-1 flex-col items-center justify-between gap-4 rounded-[20px] bg-primary pb-[50px] pt-[40px] shadow-[0_-3px_6px_0_rgba(0,0,0,0.15)]'>
 					<Typography className='!text-lg text-white'>
-						{forgetPassword?.isSuccess ? 'ดำเนินการสำเร็จ' : 'ดำเนินการไม่สำเร็จ'}
+						{forgetPassword?.isSuccess ? t('auth:authStatus.success') : t('auth:authStatus.fail')}
 					</Typography>
 					<Box className='flex w-[250px] flex-col gap-4'>
 						{forgetPassword?.type === 'email' && (
 							<Box className='flex flex-col items-center gap-4'>
 								<CheckCircle className='!h-12 !w-12 !fill-success' />
 								<Typography className='text-center !text-sm text-white'>
-									{'เราได้ส่งอีเมลสำหรับตั้งค่ารหัสผ่านใหม่ให้เรียบร้อยแล้ว'}
+									{t('auth:authStatus.emailMsg')}
 								</Typography>
 							</Box>
 						)}
@@ -57,7 +57,7 @@ export const AuthStatusMain: React.FC<AuthStatusMainProps> = ({ className = '' }
 							<Box className='flex flex-col items-center gap-4'>
 								<Cancel className='!h-12 !w-12 !fill-error' />
 								<Typography className='text-center !text-sm text-white'>
-									{'ข้อมูล token ไม่ถูกต้อง หรือหมดอายุ กรุณาดำเนินการจากอีเมลล่าสุด'}
+									{t('auth:authStatus.tokenMsg')}
 								</Typography>
 							</Box>
 						)}

@@ -3,21 +3,65 @@
 		"overview": "ภาพรวม",
 		"mapAnalyze": "แผนที่",
 		"burntArea": "จุดความร้อน",
-		"cultivationArea": "พื้นที่ปลูกอ้อย",
+		"plantingArea": "พื้นที่ปลูกอ้อย",
 		"about": "เกี่ยวกับเรา",
 		"glossary": "อภิธานศัพท์",
 		"setting": "ตั้งค่า",
 		"userManagement": "จัดการผู้ใช้งาน"
 	},
 
+	"tools": {
+		"compass": "เข็มทิศ",
+		"zoom": "ซูมเข้า /ซูมออก",
+		"basemap": "แผนที่ฐาน",
+		"extent": "กลับไปตำแหน่งเริ่มต้น",
+		"current": "กลับไปตำแหน่งปัจจุบัน",
+		"measurement": "การวัดระยะ",
+		"export": "พิมพ์แผนที่"
+	},
+
+	"measurement": {
+		"title": "การวัดพื้นที่",
+		"unitTitle": "หน่วย",
+		"lengthTitle": "ระยะทาง",
+		"areaTitle": "พื้นที่",
+		"line": {
+			"meters": "เมตร",
+			"kilometers": "กิโลเมตร"
+		},
+		"polygon": {
+			"squareMeters": "ตร.ม.",
+			"squareKilometers": "ตร.กม."
+		}
+	},
+
+	"calendar": {
+		"dateBtn": "เลือกวันที่",
+		"monthBtn": "รายเดือน",
+		"lastSevenDayBtn": "7 วันล่าสุด",
+		"lastThirtyDayBtn": "30 วันล่าสุด",
+		"lastThreeMonthBtn": "3 เดือนล่าสุด",
+		"selectedDate": "วันที่เลือก:",
+		"prevYearBtn": "ปีก่อนหน้า",
+		"nextYearBtn": "ปีถัดไป",
+		"resetBtn": "ล้างค่า",
+		"confirmBtn": "ตกลง",
+		"currentDate": "วันที่ปัจจุบัน",
+		"burntDate": "วันที่เกิดร่องรอยการเผาไหม้"
+	},
+
 	"areaUnit": "หน่วยพื้นที่",
-	"areaRai": "ไร่",
-	"areaPlot": "แปลง",
+	"m2": "ตร.ม.",
+	"km2": "ตร.กม.",
+	"rai": "ไร่",
+	"hexa": "เฮกซ่า",
 
 	"quantityUnit": "หน่วยปริมาณ",
 	"ton": "ตัน",
-	"kilogram": "กิโลกรัม",
-	"gram": "กรัม",
+	"kg": "กิโลกรัม",
+
+	"total": "ทั้งหมด",
+	"point": "จุด",
 
 	"languages": "ภาษา",
 	"languagesTh": "ไทย",
@@ -34,14 +78,25 @@
 	"delete": "ลบรายการ",
 	"deleteMsg": "คุณต้องการลบรายการนี้หรือไม่",
 
+	"noData": "ไม่พบข้อมูล",
+
 	"error": {
 		"somethingWrong": "เกิดข้อผิดพลาด กรุณาตรวจสอบข้อมูลอีกครั้ง"
 	},
 
 	"required": "กรุณาระบุ",
+	"requiredDate": "กรุณาระบุวันที่",
 	"clear": "ล้างข้อมูล",
 	"placeholder": {
 		"input": "ระบุ",
 		"autocomplete": "เลือก"
-	}
+	},
+
+	"area": "พื้นที่",
+	"month": "เดือน",
+	"year": "ปี",
+	"quantity": "ปริมาณ",
+	"region": "ภูมิภาค",
+
+    "processing": "กำลังประมวลผล"
 }

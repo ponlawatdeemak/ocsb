@@ -3,7 +3,7 @@ import { GetServerSideProps } from 'next'
 import { UserConfig } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import nextI18NextConfig from '../../../next-i18next.config'
-import { CultivationAreaMain } from '@/components/pages/map-analyze'
+import { PlantingAreaMain } from '@/components/pages/map-analyze'
 import MainLayout from '@/components/layout/MainLayout'
 
 export const getServerSideProps: GetServerSideProps = async (context) => ({
@@ -16,12 +16,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => ({
 	},
 })
 
-const CultivationAreaPage = () => {
+const PlantingAreaPage = () => {
 	return (
 		<MainLayout>
-			<CultivationAreaMain />
+			<PlantingAreaMain />
 		</MainLayout>
 	)
 }
 
-export default CultivationAreaPage
+export default PlantingAreaPage

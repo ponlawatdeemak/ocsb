@@ -27,6 +27,8 @@
 		"@mui/material": "^5.16.7",
 		"@mui/styles": "^5.16.7",
 		"@tanstack/react-query": "^5.53.2",
+		"@turf/area": "^7.1.0",
+		"@turf/length": "^7.1.0",
 		"axios": "1.7.7",
 		"billboard.js": "^3.13.0",
 		"classnames": "^2.5.1",
@@ -45,6 +47,7 @@
 		"react-dropzone": "^14.3.5",
 		"react-i18next": "^15.0.1",
 		"react-map-gl": "^7.1.7",
+		"react-multi-date-picker": "^4.5.2",
 		"swr": "^2.2.5",
 		"yup": "^1.4.0",
 		"zustand": "^4.5.5"

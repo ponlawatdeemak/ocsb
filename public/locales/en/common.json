@@ -3,21 +3,65 @@
 		"overview": "Overview",
 		"mapAnalyze": "Map",
 		"burntArea": "Hotspot",
-		"cultivationArea": "Cultivation",
+		"plantingArea": "Planting",
 		"about": "About Us",
 		"glossary": "Glossary",
 		"setting": "Setting",
 		"userManagement": "User Management"
 	},
 
+	"tools": {
+		"compass": "Compass",
+		"zoom": "Zoom In / Zoom Out",
+		"basemap": "Base Map",
+		"extent": "Extent Location",
+		"current": "Current Location",
+		"measurement": "Measurement",
+		"export": "Map Export"
+	},
+
+	"measurement": {
+		"title": "Measurement",
+		"unitTitle": "Unit",
+		"lengthTitle": "Distance",
+		"areaTitle": "Area",
+		"line": {
+			"meters": "m",
+			"kilometers": "km"
+		},
+		"polygon": {
+			"squareMeters": "m²",
+			"squareKilometers": "km²"
+		}
+	},
+
+	"calendar": {
+		"dateBtn": "Date",
+		"monthBtn": "Month",
+		"lastSevenDayBtn": "Last 7 Days",
+		"lastThirtyDayBtn": "Last 30 Days",
+		"lastThreeMonthBtn": "Last 3 Months",
+		"selectedDate": "Selected Date:",
+		"prevYearBtn": "Previous Year",
+		"nextYearBtn": "Next Year",
+		"resetBtn": "Reset",
+		"confirmBtn": "Submit",
+		"currentDate": "Current Date",
+		"burntDate": "Burnt Area Date"
+	},
+
 	"areaUnit": "Area Unit",
-	"areaRai": "Rai",
-	"areaPlot": "LandPlot",
+	"m2": "m²",
+	"km2": "km²",
+	"rai": "Rai",
+	"hexa": "Hexa",
 
 	"quantityUnit": "Quantity Unit",
 	"ton": "Ton",
-	"kilogram": "Kilogram",
-	"gram": "Gram",
+	"kg": "Kg",
+
+	"total": "Total",
+	"point": "Points",
 
 	"languages": "Languages",
 	"languagesTh": "ไทย",
@@ -34,14 +78,25 @@
 	"delete": "Delete",
 	"deleteMsg": "Are you sure you want to delete?",
 
+	"noData": "No Data",
+
 	"error": {
 		"somethingWrong": "Something went wrong. Please check the information again."
 	},
 
 	"required": "Please Enter ",
+	"requiredDate": "Please Enter Date",
 	"clear": "Clear",
 	"placeholder": {
 		"input": "Enter ",
 		"autocomplete": "Enter "
-	}
+	},
+
+	"area": "Area",
+	"month": "Month",
+	"year": "Year",
+	"quantity": "Quantity",
+	"region": "Region",
+
+    "processing": "Processing"
 }

@@ -36,7 +36,7 @@ export const BackIcon: React.FC<SVGProps> = ({ width = 26, height = 26, fill = '
 export const CsvIcon: React.FC<SVGProps> = () => {
 	return (
 		<svg xmlns='http://www.w3.org/2000/svg' width='36' height='41' viewBox='0 0 36 41' fill='none'>
-			<g clip-path='url(#clip0_533_3845)'>
+			<g clipPath='url(#clip0_533_3845)'>
 				<path
 					d='M7.68307 0C7.0045 0.00210983 6.35433 0.272606 5.8745 0.75243C5.39468 1.23225 5.12418 1.88243 5.12207 2.561V38.418C5.12418 39.0966 5.39468 39.7467 5.8745 40.2266C6.35433 40.7064 7.0045 40.9769 7.68307 40.979H33.2951C33.9736 40.9769 34.6238 40.7064 35.1036 40.2266C35.5835 39.7467 35.854 39.0966 35.8561 38.418V10.245L25.6121 0H7.68307Z'
 					fill='#E2E5E7'
@@ -77,7 +77,7 @@ export const DeleteIcon: React.FC<SVGProps> = () => {
 				fill='#FFD7D7'
 			/>
 			<circle cx='31' cy='31' r='25' fill='#E22626' />
-			<g clip-path='url(#clip0_10_3909)'>
+			<g clipPath='url(#clip0_10_3909)'>
 				<path
 					d='M41.0001 23.5C41.3187 23.5004 41.6251 23.6223 41.8568 23.8411C42.0885 24.0598 42.2279 24.3587 42.2465 24.6767C42.2652 24.9948 42.1617 25.308 41.9572 25.5523C41.7528 25.7966 41.4627 25.9536 41.1463 25.9913L41.0001 26H40.8988L39.7501 39.75C39.7501 40.7065 39.3847 41.6269 38.7285 42.3228C38.0723 43.0188 37.1749 43.4376 36.2201 43.4938L36.0001 43.5H26.0001C24.0026 43.5 22.3701 41.9387 22.2601 40.0625L22.2538 39.8538L21.1001 26H21.0001C20.6815 25.9996 20.375 25.8777 20.1434 25.6589C19.9117 25.4402 19.7723 25.1413 19.7536 24.8233C19.7349 24.5052 19.8384 24.192 20.0429 23.9477C20.2474 23.7034 20.5375 23.5464 20.8538 23.5087L21.0001 23.5H41.0001Z'
 					fill='white'
@@ -89,16 +89,16 @@ export const DeleteIcon: React.FC<SVGProps> = () => {
 				<path
 					d='M28.1252 29.5V38.5'
 					stroke='#E22626'
-					stroke-width='2'
-					stroke-linecap='round'
-					stroke-linejoin='round'
+					strokeWidth='2'
+					strokeLinecap='round'
+					strokeLinejoin='round'
 				/>
 				<path
 					d='M34.125 29.5V38.5'
 					stroke='#E22626'
-					stroke-width='2'
-					stroke-linecap='round'
-					stroke-linejoin='round'
+					strokeWidth='2'
+					strokeLinecap='round'
+					strokeLinejoin='round'
 				/>
 			</g>
 			<defs>
@@ -106,6 +106,31 @@ export const DeleteIcon: React.FC<SVGProps> = () => {
 					<rect width='30' height='30' fill='white' transform='translate(16 16)' />
 				</clipPath>
 			</defs>
+		</svg>
+	)
+}
+
+export const CalendarIcon: React.FC<SVGProps> = ({ width = 18, height = 18, fill = 'none' }) => {
+	return (
+		<svg width={width} height={height} viewBox='0 0 18 18' fill={fill} xmlns='http://www.w3.org/2000/svg'>
+			<path
+				d='M3.5625 6.68569H14.0625M4.91964 2.25V3.40728M12.5625 2.25V3.40714M12.5625 3.40714H5.0625C3.81986 3.40714 2.8125 4.44327 2.8125 5.72141V13.4357C2.8125 14.7139 3.81986 15.75 5.0625 15.75H12.5625C13.8051 15.75 14.8125 14.7139 14.8125 13.4357L14.8125 5.72141C14.8125 4.44327 13.8051 3.40714 12.5625 3.40714ZM5.4375 9.38571H12.1875M5.4375 12.4714H12.1875'
+				stroke='white'
+				strokeLinecap='round'
+				strokeLinejoin='round'
+			/>
+		</svg>
+	)
+}
+
+export const SearchInputIcon: React.FC<SVGProps> = ({ width = 16, height = 16, fill = 'none' }) => {
+	return (
+		<svg width={width} height={height} viewBox='0 0 16 16' fill={fill} xmlns='http://www.w3.org/2000/svg'>
+			<path
+				d='M11.2846 11.3604L13.6 13.6004M7.59999 4.80039C8.92548 4.80039 9.99999 5.87491 9.99999 7.20039M12.8533 7.62706C12.8533 10.5137 10.5133 12.8537 7.62666 12.8537C4.74005 12.8537 2.39999 10.5137 2.39999 7.62706C2.39999 4.74045 4.74005 2.40039 7.62666 2.40039C10.5133 2.40039 12.8533 4.74045 12.8533 7.62706Z'
+				stroke='#A7A7A7'
+				strokeLinecap='round'
+			/>
 		</svg>
 	)
 }
