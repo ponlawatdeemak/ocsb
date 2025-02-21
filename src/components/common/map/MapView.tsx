@@ -1,8 +1,8 @@
-import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react'
 import classNames from 'classnames'
 import { BasemapType, MapInfoWindow, MapLayer, MapViewState } from './interface/map'
 import MapLibre from './MapLibre'
-import { Paper } from '@mui/material'
+import { CircularProgress, Paper } from '@mui/material'
 import useMapStore from './store/map'
 import { layerIdConfig } from '@/config/app.config'
 import { BASEMAP } from '@deck.gl/carto'
@@ -28,9 +28,10 @@ const DEFAULT = {
 export interface MapViewProps extends PropsWithChildren {
 	className?: string
 	initialLayer?: MapLayer[]
+	loading?: boolean
 }
 
-export default function MapView({ className = '', initialLayer, children }: Readonly<MapViewProps>) {
+export function MapView({ className, initialLayer, children, loading }: Readonly<MapViewProps>) {
 	const { getLayer, addLayer, removeLayer, setLayers, infoWindow, setInfoWindow, mapLibre } = useMapStore()
 
 	const [viewState, setViewState] = useState<MapViewState>(DEFAULT.viewState)
@@ -102,6 +103,14 @@ export default function MapView({ className = '', initialLayer, children }: Read
 
 	return (
 		<div className={classNames('relative flex flex-1 overflow-hidden', className)}>
+			{loading && (
+				<CircularProgress
+					size={16}
+					className={classNames('absolute right-[50px] top-[145px] z-20 md:right-16 md:top-3', {
+						'!text-[#fff]': basemap === BasemapType.Google || basemap === BasemapType.CartoDark,
+					})}
+				/>
+			)}
 			<MapTools onBasemapChanged={onBasemapChanged} onGetLocation={onGetLocation} currentBaseMap={basemap} />
 			<MapLibre viewState={viewState} mapStyle={mapStyle} onViewStateChange={onViewStateChange} />
 
@@ -133,3 +142,5 @@ const InfoWindow: React.FC<InfoWindowProps> = ({ children }) => {
 		</Paper>
 	)
 }
+
+export default memo(MapView)
