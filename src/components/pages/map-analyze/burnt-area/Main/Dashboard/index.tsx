@@ -4,7 +4,6 @@ import React from 'react'
 import DashboardCardMain from './Card'
 import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
-import { DateObject } from 'react-multi-date-picker'
 import { OptionType } from '../SearchForm'
 import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 
@@ -16,7 +15,7 @@ interface BurntDashboardMainProps {
 	handleSelectCard: (item: any) => void
 	mapTypeArray: mapTypeCode[]
 	selectedHotspots: hotspotTypeCode[]
-	currentDateRange: DateObject[]
+	selectedDateRange: Date[]
 	className?: string
 }
 
@@ -28,7 +27,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 	handleSelectCard,
 	mapTypeArray,
 	selectedHotspots,
-	currentDateRange,
+	selectedDateRange,
 	className = '',
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -57,7 +56,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 						area={item}
 						mapTypeArray={mapTypeArray}
 						selectedHotspots={selectedHotspots}
-						currentDateRange={currentDateRange}
+						selectedDateRange={selectedDateRange}
 					/>
 				))}
 				{selectedArea.length < 4 && (

@@ -96,9 +96,9 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	)
 
 	return (
-		<Box className={classNames('flex h-full w-full flex-col', className)}>
+		<Box className={classNames('flex w-full grow flex-col overflow-y-hidden', className)}>
 			<BurntSearchFormMain
-				className='z-10 w-full'
+				className='relative z-10 w-full'
 				selectedDateRange={selectedDateRange}
 				onSelectedDateRange={(selectedDateRange: Date[]) => setSelectedDateRange(selectedDateRange)}
 				selectedHotspots={selectedHotspots}
@@ -109,7 +109,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				currentDateRange={currentDateRange}
 				handleCurrentDateRange={handleCurrentDateRange}
 			/>
-			<Box className='absolute flex h-full w-full md:relative'>
+			<Box className='absolute flex h-full w-full overflow-y-auto md:relative'>
 				<BurntDashboardMain
 					selectedArea={selectedArea}
 					handleClickAdd={handleClickAdd}
@@ -118,7 +118,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					handleSelectCard={handleSelectCard}
 					mapTypeArray={mapTypeArray}
 					selectedHotspots={selectedHotspots}
-					currentDateRange={currentDateRange}
+					selectedDateRange={selectedDateRange}
 					className='max-w-[calc(80vw)] max-md:hidden'
 				/>
 				<BurntMapMain className='h-full w-full flex-1' />

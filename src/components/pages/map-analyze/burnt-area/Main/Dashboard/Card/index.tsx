@@ -12,7 +12,6 @@ import { hotspotType, hotspotTypeCode, mapTypeCode, ResponseLanguage } from '@in
 import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
 import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
-import { DateObject } from 'react-multi-date-picker'
 import { OptionType } from '../../SearchForm'
 
 interface DashboardCardMainProps {
@@ -22,7 +21,7 @@ interface DashboardCardMainProps {
 	area: { id: string; admOption: OptionType | null }
 	mapTypeArray: mapTypeCode[]
 	selectedHotspots: hotspotTypeCode[]
-	currentDateRange: DateObject[]
+	selectedDateRange: Date[]
 	className?: string
 }
 
@@ -33,7 +32,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	area,
 	mapTypeArray,
 	selectedHotspots,
-	currentDateRange,
+	selectedDateRange,
 	className = '',
 }) => {
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -54,19 +53,24 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	const [hideData, setHideData] = useState<string[]>()
 
 	const { data: dashBoardData, isFetching: isDashBoardDataLoading } = useQuery({
-		queryKey: ['getDashBoardBurntArea', area.admOption, mapTypeArray, selectedHotspots, currentDateRange, area.id],
+		queryKey: ['getDashBoardBurntArea', area.admOption, mapTypeArray, selectedHotspots, selectedDateRange, area.id],
 		queryFn: async () => {
 			const response = await service.mapAnalyze.getDashBoardBurntArea({
-				startDate: currentDateRange[0]?.toDate().toISOString().split('T')[0],
-				endDate: currentDateRange[1]?.toDate().toISOString().split('T')[0],
+				startDate: selectedDateRange[0]?.toISOString().split('T')[0],
+				endDate: selectedDateRange[1]?.toISOString().split('T')[0],
 				admC: Number(area.admOption?.id),
 				mapType: mapTypeArray,
 				inSugarcan: selectedHotspots,
 			})
-			if (response.data.hotspot?.inSugarcane && selectedHotspots.includes(inSugarCaneArea.code)) {
-				setPercent((response.data.hotspot.inSugarcane * 100) / response.data.hotspot.total)
-			} else if (response.data.hotspot?.notInSugarcane && selectedHotspots.includes(notInSugarCaneArea.code)) {
-				setPercent((response.data.hotspot.notInSugarcane * 100) / response.data.hotspot.total)
+			if (response.data.hotspot && selectedHotspots.length === hotspotType.length) {
+				setPercent(
+					(((response.data.hotspot.notInSugarcane ?? 0) + (response.data.hotspot.inSugarcane ?? 0)) * 100) /
+						response.data.hotspot.total,
+				)
+			} else if (response.data.hotspot && selectedHotspots[0] === inSugarCaneArea.code) {
+				setPercent(((response.data.hotspot.inSugarcane ?? 0) * 100) / response.data.hotspot.total)
+			} else if (response.data.hotspot && selectedHotspots[0] === notInSugarCaneArea.code) {
+				setPercent(((response.data.hotspot.notInSugarcane ?? 0) * 100) / response.data.hotspot.total)
 			}
 			return response.data
 		},
@@ -113,6 +117,11 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 					donutColorHotspot[notInSugarCaneArea.label.th] === '#f5f5f6'
 				) {
 					setDonutColorHotspot(defaultColorHotspot)
+					setPercent(
+						(((dashBoardData?.hotspot?.notInSugarcane ?? 0) + (dashBoardData?.hotspot?.inSugarcane ?? 0)) *
+							100) /
+							(dashBoardData?.hotspot?.total ?? 0),
+					)
 					setHideData([])
 				} else {
 					setDonutColorHotspot({
@@ -121,16 +130,22 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 						[notInSugarCaneArea.label.en]: '#f5f5f6',
 						[notInSugarCaneArea.label.th]: '#f5f5f6',
 					})
+					setPercent(percentInArea)
 					setHideData([notInSugarCaneArea.label[language]])
 				}
-				setPercent(percentInArea)
+
+				// setPercent(percentInArea)
 			} else if (name === notInSugarCaneArea.label.en || name === notInSugarCaneArea.label.th) {
 				if (
 					donutColorHotspot[inSugarCaneArea.label.en] === '#f5f5f6' ||
 					donutColorHotspot[inSugarCaneArea.label.th] === '#f5f5f6'
 				) {
 					setDonutColorHotspot(defaultColorHotspot)
-					setPercent(percentInArea)
+					setPercent(
+						(((dashBoardData?.hotspot?.notInSugarcane ?? 0) + (dashBoardData?.hotspot?.inSugarcane ?? 0)) *
+							100) /
+							(dashBoardData?.hotspot?.total ?? 0),
+					)
 					setHideData([])
 				} else {
 					setDonutColorHotspot({
@@ -199,9 +214,27 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 		notInSugarCaneArea.label,
 		selectedHotspots,
 	])
-	console.log(isDashBoardDataLoading)
+
+	const hotspotPoint = useMemo(() => {
+		if (hideData?.length === 0) {
+			return defaultNumber(dashBoardData?.hotspot?.total ?? '-')
+		} else if (hideData?.[0] === inSugarCaneArea.label[language]) {
+			return defaultNumber(dashBoardData?.hotspot?.notInSugarcane ?? '-')
+		} else if (hideData?.[0] === notInSugarCaneArea.label[language]) {
+			return defaultNumber(dashBoardData?.hotspot?.inSugarcane ?? '-')
+		}
+	}, [
+		dashBoardData?.hotspot?.inSugarcane,
+		dashBoardData?.hotspot?.notInSugarcane,
+		dashBoardData?.hotspot?.total,
+		hideData,
+		inSugarCaneArea.label,
+		language,
+		notInSugarCaneArea.label,
+	])
+
 	return (
-		<Box className={classNames('flex h-full w-[300px] min-w-0 flex-col bg-white', className)}>
+		<Box className={classNames('flex h-full w-[300px] min-w-0 flex-col overflow-y-auto bg-white', className)}>
 			<button
 				className={classNames(
 					'flex h-fit w-full items-start justify-between bg-[#EBF5FF] px-5 py-4 hover:cursor-pointer',
@@ -257,7 +290,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 											/>
 										</div>
 										<Typography className='pt-3 !text-lg'>
-											{`${defaultNumber(dashBoardData?.hotspot?.inSugarcane ?? '-')} ${t('common:point')}`}
+											{`${hotspotPoint} ${t('common:point')}`}
 										</Typography>
 										<Typography className='pb-4 !text-xs text-[#707070]'>
 											{`${t('totalHotspots')} ${defaultNumber(dashBoardData?.hotspot?.total ?? '-')} ${t('common:point')}`}
@@ -329,12 +362,12 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 												columns={[
 													[
 														t('common:menu.plantingArea'),
-														dashBoardData?.plant?.area[areaUnit] ?? 0,
+														dashBoardData?.plant?.area[areaUnit],
 													],
 													[
 														t('common:noData'),
-														(dashBoardData?.plant?.total[areaUnit] ?? 0) -
-															(dashBoardData?.plant?.area[areaUnit] ?? 0),
+														dashBoardData?.plant?.total[areaUnit] -
+															dashBoardData?.plant?.area[areaUnit],
 													],
 												]}
 												colors={defaultColorPlant}
