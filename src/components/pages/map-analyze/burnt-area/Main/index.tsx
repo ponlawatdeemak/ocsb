@@ -6,6 +6,8 @@ import BurntMapMain from './BurntMap'
 import BurntDashboardMain from './Dashboard'
 import { hotspotType, hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 import { DateObject } from 'react-multi-date-picker'
+import service from '@/api'
+import { useQuery } from '@tanstack/react-query'
 
 const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
 
@@ -23,6 +25,45 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	const [selectedHotspots, setSelectedHotspots] = useState<hotspotTypeCode[]>(hotspotType.map((type) => type.code))
 	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
 	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
+
+	const [mapExtent, setMapExtent] = useState<number[][] | null>(null)
+
+	const { data: hotspotBurntAreaData, isLoading: isHotspotBurntAreaDataLoading } = useQuery({
+		queryKey: ['getHotspotBurntArea', selectedHotspots, selectedDateRange, searchSelectedAdmOption, mapExtent],
+		queryFn: () =>
+			service.mapAnalyze.getHotspotBurntArea({
+				inSugarcan: selectedHotspots,
+				startDate: selectedDateRange[0].toISOString().split('T')[0],
+				endDate: selectedDateRange[1].toISOString().split('T')[0],
+				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+				polygon: JSON.stringify(mapExtent ?? ''),
+			}),
+		enabled: !!searchSelectedAdmOption?.id || !!mapExtent,
+	})
+
+	const { data: burntBurntAreaData, isLoading: isBurntBurntAreaDataLoading } = useQuery({
+		queryKey: ['getBurntBurntArea', selectedDateRange, searchSelectedAdmOption, mapExtent],
+		queryFn: () =>
+			service.mapAnalyze.getBurntBurntArea({
+				startDate: selectedDateRange[0].toISOString().split('T')[0],
+				endDate: selectedDateRange[1].toISOString().split('T')[0],
+				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+				polygon: JSON.stringify(mapExtent ?? ''),
+			}),
+		enabled: mapTypeArray.includes(mapTypeCode.burnArea) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+	})
+
+	const { data: plantBurntAreaData, isLoading: isPlantBurntAreaDataLoading } = useQuery({
+		queryKey: ['getPlantBurntArea', selectedDateRange, searchSelectedAdmOption, mapExtent],
+		queryFn: () =>
+			service.mapAnalyze.getPlantBurntArea({
+				startDate: selectedDateRange[0].toISOString().split('T')[0],
+				endDate: selectedDateRange[1].toISOString().split('T')[0],
+				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+				polygon: JSON.stringify(mapExtent ?? ''),
+			}),
+		enabled: mapTypeArray.includes(mapTypeCode.plant) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+	})
 
 	const handleClickAdd = () => {
 		const updateArea = [...selectedArea]
@@ -121,7 +162,17 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					selectedDateRange={selectedDateRange}
 					className='max-w-[calc(80vw)] max-md:hidden'
 				/>
-				<BurntMapMain className='h-full w-full flex-1' />
+				<BurntMapMain
+					className='h-full w-full flex-1'
+					currentAdmOption={searchSelectedAdmOption}
+					hotspotBurntAreaData={hotspotBurntAreaData?.data ?? []}
+					burntBurntAreaData={burntBurntAreaData?.data ?? []}
+					plantBurntAreaData={plantBurntAreaData?.data ?? []}
+					isHotspotBurntAreaDataLoading={isHotspotBurntAreaDataLoading}
+					isBurntBurntAreaDataLoading={isBurntBurntAreaDataLoading}
+					isPlantBurntAreaDataLoading={isPlantBurntAreaDataLoading}
+					onMapExtentChange={(polygon: number[][]) => setMapExtent(polygon)}
+				/>
 			</Box>
 		</Box>
 	)

@@ -65,7 +65,7 @@ export const ForgetPasswordMain: React.FC<ForgetPasswordMainProps> = ({ classNam
 					setDataForgetPassword({ isSuccess: true, email: values.email, type: 'email' })
 					router.push(AppPath.AuthStatus)
 					setBusy(false)
-				}, 3000)
+				}, 1500)
 			} catch (error) {
 				console.error('Verify email failed', error)
 				setAlertForgetPasswordInfo({
