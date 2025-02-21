@@ -9,7 +9,7 @@ const mapAnalyze = {
 		payload: GetDashBoardBurntAreaDtoIn,
 	): Promise<ResponseDto<GetDashBoardBurntAreaDtoOut>> => {
 		return await api.get(
-			`/brunt-area/dashboard?startDate=${payload.startDate}&endDate=${payload.endDate}${payload.admC ? `&admC=${payload.admC}` : ''}${payload.mapType ? `&mapType=${payload.mapType}` : ''}${payload.inSugarcan ? `&inSugarcan=${payload.inSugarcan}` : ''}`,
+			`/brunt-area/dashboard?startDate=${payload.startDate}&endDate=${payload.endDate}${payload.admC ? `&admC=${payload.admC}` : ''}${payload.mapType ? `&mapType=${payload.mapType}` : ''}${payload.inSugarcan?.length ? `&inSugarcan=${payload.inSugarcan}` : ''}`,
 		)
 	},
 }

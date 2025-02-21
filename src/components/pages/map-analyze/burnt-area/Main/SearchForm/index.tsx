@@ -27,8 +27,7 @@ import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
 import { Clear } from '@mui/icons-material'
 import { debounce } from 'lodash'
-import { GetDashBoardBurntAreaDtoIn } from '@interface/dto/brunt-area/brunt-area.dto-in'
-import { GetDashBoardBurntAreaDtoOut } from '@interface/dto/brunt-area/brunt-area.dto.out'
+import { defaultCurrentDateRange } from '..'
 
 export interface OptionType {
 	id: string
@@ -44,8 +43,6 @@ export enum CalendarType {
 	LastThreeMonths = 'lastThreeMonths',
 }
 
-const defaultCurrentDateRange: DateObject[] = [new DateObject(), new DateObject()]
-
 export const DATE_RANGE_LENGTH = 2
 
 interface BurntSearchFormMainProps {
@@ -55,7 +52,10 @@ interface BurntSearchFormMainProps {
 	className?: string
 	selectedDateRange: Date[]
 	onSelectedDateRange: (selectedDateRange: Date[]) => void
-	handleGetDashboardData: (admOption: OptionType | null, dashboardData: GetDashBoardBurntAreaDtoOut | null) => void
+	searchSelectedAdmOption: OptionType | null
+	handleSelectedAdmOption: (value: OptionType | null) => void
+	currentDateRange: DateObject[]
+	handleCurrentDateRange: (value: DateObject[]) => void
 }
 
 const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
@@ -64,7 +64,10 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	mapTypeArray,
 	selectedDateRange,
 	onSelectedDateRange,
-	handleGetDashboardData,
+	searchSelectedAdmOption,
+	handleSelectedAdmOption,
+	currentDateRange,
+	handleCurrentDateRange,
 	className = '',
 }) => {
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -77,13 +80,11 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 
 	const { isDesktopMD } = useResponsive()
 	const [searchAdmInputValue, setSearchAdmInputValue] = useState<string>('')
-	const [searchSelectedAdmOption, setSearchSelectedAdmOption] = useState<OptionType | null>(null)
 
 	const [calendarDesktopPopoverAnchorEl, setCalendarDesktopPopoverAnchorEl] = useState<HTMLButtonElement | null>(null)
 	const [calendarMobilePopoverAnchorEl, setCalendarMobilePopoverAnchorEl] = useState<HTMLButtonElement | null>(null)
 
 	const [calendarType, setCalendarType] = useState<CalendarType | false>(CalendarType.Date)
-	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
 
 	const { data: searchAdmData, isPending: _isSearchAdmDataLoading } = useQuery({
 		queryKey: ['getSearchAdminPoly', searchAdmInputValue],
@@ -96,25 +97,6 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 		queryFn: () => service.mapAnalyze.getBurnAreaCalendar(),
 	})
 
-	const { data: dashBoardData, isPending: _isDashBoardDataLoading } = useQuery({
-		queryKey: ['getDashBoardBurntArea', searchAdmInputValue, currentDateRange, mapTypeArray, selectedHotspots],
-		queryFn: async () => {
-			handleGetDashboardData(searchSelectedAdmOption, null)
-			const payload: GetDashBoardBurntAreaDtoIn = {
-				startDate: currentDateRange[0].toDate().toISOString().split('T')[0],
-				endDate: currentDateRange[1].toDate().toISOString().split('T')[0],
-				admC: searchSelectedAdmOption ? Number(searchSelectedAdmOption.id) : undefined,
-				mapType: mapTypeArray.length ? mapTypeArray : undefined,
-				inSugarcan: selectedHotspots.length ? selectedHotspots : undefined,
-			}
-			const response = await service.mapAnalyze.getDashBoardBurntArea(payload)
-			if (response) {
-				handleGetDashboardData(searchSelectedAdmOption, response.data)
-			}
-			return response.data
-		},
-	})
-
 	const optionAdmList: OptionType[] = useMemo(() => {
 		return searchAdmData?.map((item: any) => ({ id: item.id, name: item.name, geometry: item.geometry })) ?? []
 	}, [searchAdmData])
@@ -123,14 +105,17 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 		setSearchAdmInputValue(newInputValue)
 	}, [])
 
-	const handleSelectAdmOption = useCallback((_event: ChangeEvent<{}>, newSelectedValue: OptionType | null) => {
-		setSearchSelectedAdmOption(newSelectedValue)
-	}, [])
+	const handleSelectAdmOption = useCallback(
+		(_event: ChangeEvent<{}>, newSelectedValue: OptionType | null) => {
+			handleSelectedAdmOption(newSelectedValue)
+		},
+		[handleSelectedAdmOption],
+	)
 
 	const handleClear = useCallback(() => {
 		setSearchAdmInputValue('')
-		setSearchSelectedAdmOption(null)
-	}, [])
+		handleSelectedAdmOption(null)
+	}, [handleSelectedAdmOption])
 
 	const handleCalendarPopoverClick = useCallback(() => {
 		const burntAreaSearchFormElement = document.getElementById('burnt-area-search-form') as HTMLElement
@@ -150,25 +135,28 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 		setCalendarDesktopPopoverAnchorEl(null)
 		setCalendarMobilePopoverAnchorEl(null)
 		setCalendarType(CalendarType.Date)
-		setCurrentDateRange([new DateObject(selectedDateRange[0]), new DateObject(selectedDateRange[1])])
-	}, [selectedDateRange])
+		handleCurrentDateRange([new DateObject(selectedDateRange[0]), new DateObject(selectedDateRange[1])])
+	}, [handleCurrentDateRange, selectedDateRange])
 
-	const handleCalendarTypeChange = useCallback((_event: React.MouseEvent<HTMLElement>, type: CalendarType) => {
-		if (type !== null) {
-			switch (type) {
-				case CalendarType.LastSevenDays:
-					setCurrentDateRange([new DateObject().subtract(7, 'day'), new DateObject()])
-					break
-				case CalendarType.LastThirtyDays:
-					setCurrentDateRange([new DateObject().subtract(30, 'day'), new DateObject()])
-					break
-				case CalendarType.LastThreeMonths:
-					setCurrentDateRange([new DateObject().subtract(3, 'month'), new DateObject()])
-					break
+	const handleCalendarTypeChange = useCallback(
+		(_event: React.MouseEvent<HTMLElement>, type: CalendarType) => {
+			if (type !== null) {
+				switch (type) {
+					case CalendarType.LastSevenDays:
+						handleCurrentDateRange([new DateObject().subtract(7, 'day'), new DateObject()])
+						break
+					case CalendarType.LastThirtyDays:
+						handleCurrentDateRange([new DateObject().subtract(30, 'day'), new DateObject()])
+						break
+					case CalendarType.LastThreeMonths:
+						handleCurrentDateRange([new DateObject().subtract(3, 'month'), new DateObject()])
+						break
+				}
+				setCalendarType(type)
 			}
-			setCalendarType(type)
-		}
-	}, [])
+		},
+		[handleCurrentDateRange],
+	)
 
 	const handleCalendarTypeExpanded = useCallback(
 		(panel: CalendarType) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -177,13 +165,16 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 		[],
 	)
 
-	const handleCurrentDateRangeChange = useCallback((values: DateObject[]) => {
-		setCurrentDateRange(values)
-	}, [])
+	const handleCurrentDateRangeChange = useCallback(
+		(values: DateObject[]) => {
+			handleCurrentDateRange(values)
+		},
+		[handleCurrentDateRange],
+	)
 
 	const handleCurrentDateRangeReset = useCallback(() => {
-		setCurrentDateRange(defaultCurrentDateRange)
-	}, [])
+		handleCurrentDateRange(defaultCurrentDateRange)
+	}, [handleCurrentDateRange])
 
 	const handleCurrentDateRangeSubmit = useCallback(() => {
 		if (currentDateRange.length === DATE_RANGE_LENGTH) {
@@ -200,13 +191,13 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 		if (currentDateRange.length === DATE_RANGE_LENGTH) {
 			const startDate = startOfMonth(new Date(currentDateRange[0]?.format('YYYY-MM-DD')))
 			const endDate = endOfMonth(new Date(currentDateRange[1]?.format('YYYY-MM-DD')))
-			setCurrentDateRange([new DateObject(startDate), new DateObject(endDate)])
+			handleCurrentDateRange([new DateObject(startDate), new DateObject(endDate)])
 			onSelectedDateRange([startDate, endDate])
 			setCalendarDesktopPopoverAnchorEl(null)
 			setCalendarMobilePopoverAnchorEl(null)
 			setCalendarType(CalendarType.Date)
 		}
-	}, [currentDateRange, onSelectedDateRange])
+	}, [currentDateRange, handleCurrentDateRange, onSelectedDateRange])
 
 	const displaySelectedDateRange = useMemo(() => {
 		if (selectedDateRange[0].toString() === selectedDateRange[1].toString()) {
@@ -315,7 +306,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 								<Button
 									key={item.code}
 									className={classNames(
-										'h-[38px] !truncate !rounded-[5px] !px-4 !py-2.5 !text-sm !shadow-none',
+										'h-[38px] !truncate !rounded-[5px] !px-4 !py-2.5 !text-sm !font-normal !shadow-none',
 										{ '!bg-[#EBF5FF] !text-primary': mapTypeArray.includes(item.code) },
 										{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
 									)}

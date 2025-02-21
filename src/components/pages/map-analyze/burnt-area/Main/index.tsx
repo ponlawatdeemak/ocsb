@@ -5,30 +5,28 @@ import BurntSearchFormMain, { OptionType } from './SearchForm'
 import BurntMapMain from './BurntMap'
 import BurntDashboardMain from './Dashboard'
 import { hotspotType, hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
-import { GetDashBoardBurntAreaDtoOut } from '@interface/dto/brunt-area/brunt-area.dto.out'
+import { DateObject } from 'react-multi-date-picker'
 
 const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
+
+export const defaultCurrentDateRange: DateObject[] = [new DateObject(), new DateObject()]
 
 interface BurntAreaMainProps {
 	className?: string
 }
 
 export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) => {
-	const [selectedArea, setSelectedArea] = useState<
-		{ id: string; adm: OptionType | null; dashboard: GetDashBoardBurntAreaDtoOut | null }[]
-	>([])
-	const [selectedCard, setSelectedCard] = useState<number>()
+	const [searchSelectedAdmOption, setSearchSelectedAdmOption] = useState<OptionType | null>(null)
+	const [selectedArea, setSelectedArea] = useState<{ id: string; admOption: OptionType | null }[]>([])
+	const [selectedCard, setSelectedCard] = useState<string>()
 	const [mapTypeArray, setMapTypeArray] = useState<mapTypeCode[]>([mapTypeCode.hotspots])
 	const [selectedHotspots, setSelectedHotspots] = useState<hotspotTypeCode[]>(hotspotType.map((type) => type.code))
-
 	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
-
-	const [currentAdmOption, setCurrentAdmOption] = useState<OptionType | null>(null)
-	const [currentDashboardData, setCurrentDashboardData] = useState<GetDashBoardBurntAreaDtoOut | null>(null)
+	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
 
 	const handleClickAdd = () => {
 		const updateArea = [...selectedArea]
-		updateArea.push({ id: crypto.randomUUID(), adm: currentAdmOption, dashboard: currentDashboardData })
+		updateArea.push({ id: crypto.randomUUID(), admOption: searchSelectedAdmOption })
 		setSelectedArea(updateArea)
 	}
 
@@ -43,13 +41,22 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 		setSelectedCard((selected) => (selected === item.id ? undefined : item.id))
 	}
 
-	const handleGetDashboardData = (
-		admOption: OptionType | null,
-		dashboardData: GetDashBoardBurntAreaDtoOut | null,
-	) => {
-		setCurrentAdmOption(admOption)
-		setCurrentDashboardData(dashboardData)
-	}
+	const handleSelectedAdmOption = useCallback(
+		(value: OptionType | null) => {
+			setSearchSelectedAdmOption(value)
+			if (selectedCard) {
+				const updateArea = [...selectedArea]
+				const index = selectedArea.findIndex((area) => area.id === selectedCard)
+				updateArea[index].admOption = value
+				setSelectedArea(updateArea)
+			}
+		},
+		[selectedArea, selectedCard],
+	)
+
+	const handleCurrentDateRange = useCallback((value: DateObject[]) => {
+		setCurrentDateRange(value)
+	}, [])
 
 	const handleChange = useCallback(
 		(event: any) => {
@@ -97,7 +104,10 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				selectedHotspots={selectedHotspots}
 				handleChange={handleChange}
 				mapTypeArray={mapTypeArray}
-				handleGetDashboardData={handleGetDashboardData}
+				searchSelectedAdmOption={searchSelectedAdmOption}
+				handleSelectedAdmOption={handleSelectedAdmOption}
+				currentDateRange={currentDateRange}
+				handleCurrentDateRange={handleCurrentDateRange}
 			/>
 			<Box className='absolute flex h-full w-full md:relative'>
 				<BurntDashboardMain
@@ -108,8 +118,8 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					handleSelectCard={handleSelectCard}
 					mapTypeArray={mapTypeArray}
 					selectedHotspots={selectedHotspots}
-					isDisabledAdd={!currentDashboardData}
-					className='max-w-[calc(80vw)] max-lg:hidden'
+					currentDateRange={currentDateRange}
+					className='max-w-[calc(80vw)] max-md:hidden'
 				/>
 				<BurntMapMain className='h-full w-full flex-1' />
 			</Box>
