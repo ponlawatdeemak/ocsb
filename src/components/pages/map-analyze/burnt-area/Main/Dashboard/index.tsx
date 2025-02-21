@@ -1,7 +1,9 @@
-import { Box, Button } from '@mui/material'
+import { Button, CircularProgress, Tooltip } from '@mui/material'
 import classNames from 'classnames'
-import React, { useMemo } from 'react'
+import React from 'react'
 import DashboardCardMain from './Card'
+import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
+import { useTranslation } from 'next-i18next'
 
 interface BurntDashboardMainProps {
 	selectedArea: any[]
@@ -9,6 +11,9 @@ interface BurntDashboardMainProps {
 	handleClickDelete: (item: any) => void
 	selectedCard: number | undefined
 	handleSelectCard: (item: any) => void
+	mapTypeArray: string[]
+	selectedHotspots: string[]
+	isDisabledAdd: boolean
 	className?: string
 }
 
@@ -18,37 +23,81 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 	handleClickDelete,
 	selectedCard,
 	handleSelectCard,
+	mapTypeArray,
+	selectedHotspots,
+	isDisabledAdd,
 	className = '',
 }) => {
+	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
+
 	if (selectedArea.length === 0) {
 		return (
 			<Button
-				className='!absolute left-0 top-0 z-[9999] !rounded-none !text-white max-md:!hidden'
+				className={classNames(
+					'!absolute left-0 top-0 z-[9999] gap-[6px] !rounded-none !px-6 !py-3 !text-sm !font-normal !text-white max-md:!hidden',
+				)}
 				variant='contained'
-				onClick={handleClickAdd}
+				onClick={() => {
+					if (!isDisabledAdd) {
+						handleClickAdd()
+					}
+				}}
+				disabled={isDisabledAdd}
 			>
-				Add
+				<DashboardIcon /> {t('compare')}
 			</Button>
 		)
 	} else {
 		return (
-			<div className={classNames('relative flex h-full gap-[1px] max-lg:hidden', className)}>
-				{selectedArea.map((item, index) => (
+			<div className={classNames('relative flex h-full gap-[1px]', className)}>
+				{selectedArea.map((item) => (
 					<DashboardCardMain
-						key={index}
+						key={item.id}
 						handleClickDelete={() => handleClickDelete(item)}
-						isSelectedCard={selectedCard === item}
+						isSelectedCard={selectedCard === item.id}
 						handleSelectCard={() => handleSelectCard(item)}
+						payloadData={item}
+						mapTypeArray={mapTypeArray}
+						selectedHotspots={selectedHotspots}
 					/>
 				))}
 				{selectedArea.length < 4 && (
-					<Button
-						className='!absolute right-[-40px] top-0 z-[9999] !max-h-10 !min-h-10 !min-w-10 !max-w-10 !bg-[#EBF5FF] !text-primary !shadow-none hover:!shadow'
-						variant='contained'
-						onClick={handleClickAdd}
+					<Tooltip
+						title={isDisabledAdd ? t('common:processing') : t('addCompare')}
+						placement='right'
+						componentsProps={{
+							tooltip: {
+								sx: {
+									bgcolor: 'white',
+									color: 'black',
+									fontSize: '12px',
+									padding: '8px',
+									boxShadow: '0px 2px 10px -2px rgb(0 0 0 / 0.3)',
+								},
+							},
+							arrow: {
+								sx: {
+									color: 'white',
+								},
+							},
+						}}
+						arrow
 					>
-						+
-					</Button>
+						<Button
+							className={classNames(
+								'!absolute right-[-40px] top-0 z-[1] !max-h-10 !min-h-10 !min-w-10 !max-w-10 !rounded-[0px_5px_5px_0px] !bg-[#EBF5FF] !p-2 !text-primary !shadow-none hover:!shadow',
+								{ 'hover:cursor-default': isDisabledAdd },
+							)}
+							variant='contained'
+							onClick={() => {
+								if (!isDisabledAdd) {
+									handleClickAdd()
+								}
+							}}
+						>
+							{isDisabledAdd ? <CircularProgress size={15} /> : <AddDashboardIcon />}
+						</Button>
+					</Tooltip>
 				)}
 			</div>
 		)

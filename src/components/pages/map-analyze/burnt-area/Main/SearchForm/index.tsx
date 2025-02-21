@@ -1,4 +1,6 @@
 import MultipleSelectCheckmarks, { MultipleSelectedType } from '@/components/common/select/MultipleSelectCheckmarks'
+import { hotspotType, hotspotTypeCode, mapType, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
+import { useTranslation } from 'next-i18next'
 import { CalendarIcon, SearchInputIcon } from '@/components/svg/AppIcon'
 import useResponsive from '@/hook/responsive'
 import {
@@ -12,7 +14,6 @@ import {
 	InputBase,
 	Paper,
 	Popover,
-	SelectChangeEvent,
 	Typography,
 } from '@mui/material'
 import classNames from 'classnames'
@@ -20,16 +21,16 @@ import React, { ChangeEvent, useCallback, useMemo, useState } from 'react'
 import CalendarDesktopPopverMain from './CalendarDesktopPopover'
 import CalendarMobilePopoverMain from './CalendarMobilePopover'
 import { DateObject } from 'react-multi-date-picker'
-import { useTranslation } from 'next-i18next'
-import { ResponseLanguage } from '@interface/config/app.config'
 import { formatDate } from '@/utils/date'
 import { endOfMonth, startOfMonth } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
 import { Clear } from '@mui/icons-material'
 import { debounce } from 'lodash'
+import { GetDashBoardBurntAreaDtoIn } from '@interface/dto/brunt-area/brunt-area.dto-in'
+import { GetDashBoardBurntAreaDtoOut } from '@interface/dto/brunt-area/brunt-area.dto.out'
 
-interface OptionType {
+export interface OptionType {
 	id: string
 	name: ResponseLanguage
 	geometry: any
@@ -48,21 +49,33 @@ const defaultCurrentDateRange: DateObject[] = [new DateObject(), new DateObject(
 export const DATE_RANGE_LENGTH = 2
 
 interface BurntSearchFormMainProps {
+	selectedHotspots: hotspotTypeCode[]
+	handleChange: (event: any) => void
+	mapTypeArray: mapTypeCode[]
 	className?: string
 	selectedDateRange: Date[]
 	onSelectedDateRange: (selectedDateRange: Date[]) => void
+	handleGetDashboardData: (admOption: OptionType | null, dashboardData: GetDashBoardBurntAreaDtoOut | null) => void
 }
 
 const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
-	className = '',
+	selectedHotspots,
+	handleChange,
+	mapTypeArray,
 	selectedDateRange,
 	onSelectedDateRange,
+	handleGetDashboardData,
+	className = '',
 }) => {
-	const { isDesktopMD } = useResponsive()
-	const [selectedHotspots, setSelectedHotspots] = useState<string[]>(['1', '2'])
-	const { t, i18n } = useTranslation(['common', 'map-analyze'])
+	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
 	const language = i18n.language as keyof ResponseLanguage
 
+	const hotspotOptions: MultipleSelectedType[] = useMemo(
+		() => hotspotType.map((type) => ({ id: type.code, name: type.label[language] })),
+		[language],
+	)
+
+	const { isDesktopMD } = useResponsive()
 	const [searchAdmInputValue, setSearchAdmInputValue] = useState<string>('')
 	const [searchSelectedAdmOption, setSearchSelectedAdmOption] = useState<OptionType | null>(null)
 
@@ -83,18 +96,24 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 		queryFn: () => service.mapAnalyze.getBurnAreaCalendar(),
 	})
 
-	const hotspotOptions: MultipleSelectedType[] = useMemo(
-		() => [
-			{ id: '1', name: t('map-analyze:hotspotInsideAreas') },
-			{ id: '2', name: t('map-analyze:hotspotOutsideAreas') },
-		],
-		[t],
-	)
-
-	const handleHotspotChange = useCallback((event: SelectChangeEvent<typeof selectedHotspots>) => {
-		const { value } = event.target
-		setSelectedHotspots(typeof value === 'string' ? value.split(',') : value)
-	}, [])
+	const { data: dashBoardData, isPending: _isDashBoardDataLoading } = useQuery({
+		queryKey: ['getDashBoardBurntArea', searchAdmInputValue, currentDateRange, mapTypeArray, selectedHotspots],
+		queryFn: async () => {
+			handleGetDashboardData(searchSelectedAdmOption, null)
+			const payload: GetDashBoardBurntAreaDtoIn = {
+				startDate: currentDateRange[0].toDate().toISOString().split('T')[0],
+				endDate: currentDateRange[1].toDate().toISOString().split('T')[0],
+				admC: searchSelectedAdmOption ? Number(searchSelectedAdmOption.id) : undefined,
+				mapType: mapTypeArray.length ? mapTypeArray : undefined,
+				inSugarcan: selectedHotspots.length ? selectedHotspots : undefined,
+			}
+			const response = await service.mapAnalyze.getDashBoardBurntArea(payload)
+			if (response) {
+				handleGetDashboardData(searchSelectedAdmOption, response.data)
+			}
+			return response.data
+		},
+	})
 
 	const optionAdmList: OptionType[] = useMemo(() => {
 		return searchAdmData?.map((item: any) => ({ id: item.id, name: item.name, geometry: item.geometry })) ?? []
@@ -277,32 +296,38 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 					</Paper>
 				</Box>
 
-				<Box className='flex w-full items-center gap-4 md:w-[74%]'>
-					<MultipleSelectCheckmarks
-						className='max-md:w-full [&_.MuiInputBase-root]:!border-none [&_.MuiSelect-select>div]:!text-black'
-						options={hotspotOptions}
-						multipleSelected={selectedHotspots}
-						onChange={handleHotspotChange}
-						fixedRenderValue={t('map-analyze:hotspot')}
-					/>
-
-					<Button
-						className='h-[38px] !rounded-[5px] !bg-white !px-4 !py-2.5 !normal-case !shadow-none max-md:w-full'
-						variant='contained'
-					>
-						<Typography className='flex-1 truncate !text-sm text-black'>
-							{t('map-analyze:burntScar')}
-						</Typography>
-					</Button>
-
-					<Button
-						className='h-[38px] !rounded-[5px] !bg-white !px-4 !py-2.5 !normal-case !shadow-none max-md:w-full'
-						variant='contained'
-					>
-						<Typography className='flex-1 truncate !text-sm text-black'>
-							{t('map-analyze:plantingArea')}
-						</Typography>
-					</Button>
+				<Box className='flex w-[74%] items-center gap-4'>
+					{mapType.map((item) => {
+						if (item.code === mapTypeCode.hotspots) {
+							return (
+								<MultipleSelectCheckmarks
+									key={item.code}
+									name={item.code}
+									className='[&_.MuiInputBase-root]:!border-none [&_.MuiSelect-select>div]:!text-black'
+									options={hotspotOptions}
+									multipleSelected={selectedHotspots}
+									onChange={handleChange}
+									fixedRenderValue={item.label[language]}
+								/>
+							)
+						} else {
+							return (
+								<Button
+									key={item.code}
+									className={classNames(
+										'h-[38px] !truncate !rounded-[5px] !px-4 !py-2.5 !text-sm !shadow-none',
+										{ '!bg-[#EBF5FF] !text-primary': mapTypeArray.includes(item.code) },
+										{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
+									)}
+									name={item.code}
+									variant='contained'
+									onClick={handleChange}
+								>
+									{item.label[language]}
+								</Button>
+							)
+						}
+					})}
 
 					<Paper
 						component='form'
