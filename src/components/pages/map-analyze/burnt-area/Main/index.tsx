@@ -161,7 +161,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					isHotspotBurntAreaDataLoading={isHotspotBurntAreaDataLoading}
 					isBurntBurntAreaDataLoading={isBurntBurntAreaDataLoading}
 					isPlantBurntAreaDataLoading={isPlantBurntAreaDataLoading}
-					onMapExtentChange={(polygon: number[][]) => setMapExtent(polygon)}
+					onMapExtentChange={setMapExtent}
 				/>
 			</Box>
 		</Box>

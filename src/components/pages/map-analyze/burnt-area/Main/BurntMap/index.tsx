@@ -11,8 +11,9 @@ import {
 	GetPlantBurntAreaDtoOut,
 } from '@interface/dto/brunt-area/brunt-area.dto.out'
 import { IconLayer, PolygonLayer } from '@deck.gl/layers'
-import { temp } from './mockup'
+
 import { getPinHotSpot } from '@/utils/pin'
+import { mapTypeCode } from '@interface/config/app.config'
 
 interface BurntMapMainProps {
 	className?: string
@@ -24,6 +25,7 @@ interface BurntMapMainProps {
 	isBurntBurntAreaDataLoading: boolean
 	isPlantBurntAreaDataLoading: boolean
 	onMapExtentChange: (polygon: number[][]) => void
+	mapTypeCode: mapTypeCode[]
 }
 
 const BurntMapMain: React.FC<BurntMapMainProps> = ({
@@ -69,22 +71,21 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	// update layer
 	useEffect(() => {
 		if (mapLibre && overlay) {
-			// mapLibre.fitBounds(currentAdmOption?.geometry ?? session?.user.geometry, { padding: 100 })
 			if (hotspotBurntAreaData?.length) {
 				const layers = [
 					new IconLayer({
-						id: 'hotspot' + `-${new Date().getTime()}`,
+						id: 'hotspot',
 						data: hotspotBurntAreaData,
 						pickable: true,
 						sizeScale: 1,
 						getPosition: (d) => d.geometry.coordinates,
 						beforeId: 'custom-referer-layer',
-						getSize: 28,
+						getSize: 14,
 						getIcon: (d) => {
 							return {
-								url: getPinHotSpot(14),
-								width: 28,
-								height: 28,
+								url: getPinHotSpot(),
+								width: 14,
+								height: 14,
 								mask: false,
 							}
 						},
@@ -110,7 +111,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				overlay.setProps({ layers: [layers] })
 			}
 		}
-	}, [mapLibre, overlay, hotspotBurntAreaData])
+	}, [mapLibre, overlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData, , mapTypeCode])
 
 	return (
 		<Box className={classNames('', className)}>
