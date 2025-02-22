@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import BurntSearchFormMain, { OptionType } from './SearchForm'
 import BurntMapMain from './BurntMap'
 import BurntDashboardMain from './Dashboard'
@@ -22,6 +22,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	const [selectedArea, setSelectedArea] = useState<{ id: string; admOption: OptionType | null }[]>([])
 	const [selectedCard, setSelectedCard] = useState<string>()
 	const [mapTypeArray, setMapTypeArray] = useState<mapTypeCode[]>([mapTypeCode.hotspots])
+
 	const [selectedHotspots, setSelectedHotspots] = useState<hotspotTypeCode[]>(hotspotType.map((type) => type.code))
 	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
 	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
@@ -30,40 +31,73 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 
 	const { data: hotspotBurntAreaData, isLoading: isHotspotBurntAreaDataLoading } = useQuery({
 		queryKey: ['getHotspotBurntArea', selectedHotspots, selectedDateRange, searchSelectedAdmOption, mapExtent],
-		queryFn: () =>
-			service.mapAnalyze.getHotspotBurntArea({
-				inSugarcan: selectedHotspots,
-				startDate: selectedDateRange[0].toISOString().split('T')[0],
-				endDate: selectedDateRange[1].toISOString().split('T')[0],
-				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-				polygon: JSON.stringify(mapExtent ?? ''),
-			}),
-		enabled: !!searchSelectedAdmOption?.id || !!mapExtent,
+		queryFn: ({ signal }) =>
+			service.mapAnalyze.getHotspotBurntArea(
+				{
+					inSugarcan: selectedHotspots,
+					startDate: selectedDateRange[0].toISOString().split('T')[0],
+					endDate: selectedDateRange[1].toISOString().split('T')[0],
+					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+					polygon: JSON.stringify(mapExtent ?? ''),
+				},
+				{ signal },
+			),
+		enabled: !!selectedHotspots?.length && (!!searchSelectedAdmOption?.id || !!mapExtent),
 	})
 
 	const { data: burntBurntAreaData, isLoading: isBurntBurntAreaDataLoading } = useQuery({
-		queryKey: ['getBurntBurntArea', selectedDateRange, searchSelectedAdmOption, mapExtent],
-		queryFn: () =>
-			service.mapAnalyze.getBurntBurntArea({
-				startDate: selectedDateRange[0].toISOString().split('T')[0],
-				endDate: selectedDateRange[1].toISOString().split('T')[0],
-				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-				polygon: JSON.stringify(mapExtent ?? ''),
-			}),
+		queryKey: ['getBurntBurntArea', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
+		queryFn: ({ signal }) =>
+			service.mapAnalyze.getBurntBurntArea(
+				{
+					startDate: selectedDateRange[0].toISOString().split('T')[0],
+					endDate: selectedDateRange[1].toISOString().split('T')[0],
+					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+					polygon: JSON.stringify(mapExtent ?? ''),
+				},
+				{ signal },
+			),
 		enabled: mapTypeArray.includes(mapTypeCode.burnArea) && (!!searchSelectedAdmOption?.id || !!mapExtent),
 	})
 
 	const { data: plantBurntAreaData, isLoading: isPlantBurntAreaDataLoading } = useQuery({
-		queryKey: ['getPlantBurntArea', selectedDateRange, searchSelectedAdmOption, mapExtent],
-		queryFn: () =>
-			service.mapAnalyze.getPlantBurntArea({
-				startDate: selectedDateRange[0].toISOString().split('T')[0],
-				endDate: selectedDateRange[1].toISOString().split('T')[0],
-				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-				polygon: JSON.stringify(mapExtent ?? ''),
-			}),
+		queryKey: ['getPlantBurntArea', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
+		queryFn: ({ signal }) =>
+			service.mapAnalyze.getPlantBurntArea(
+				{
+					startDate: selectedDateRange[0].toISOString().split('T')[0],
+					endDate: selectedDateRange[1].toISOString().split('T')[0],
+					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+					polygon: JSON.stringify(mapExtent ?? ''),
+				},
+				{ signal },
+			),
 		enabled: mapTypeArray.includes(mapTypeCode.plant) && (!!searchSelectedAdmOption?.id || !!mapExtent),
 	})
+
+	const mapDataHotSpot = useMemo(() => {
+		if (selectedHotspots?.length) {
+			return hotspotBurntAreaData?.data || []
+		} else {
+			return []
+		}
+	}, [selectedHotspots, hotspotBurntAreaData])
+
+	const mapDataBurnt = useMemo(() => {
+		if (mapTypeArray?.includes(mapTypeCode.burnArea)) {
+			return burntBurntAreaData?.data || []
+		} else {
+			return []
+		}
+	}, [mapTypeArray, burntBurntAreaData])
+
+	const mapDataPlant = useMemo(() => {
+		if (mapTypeArray?.includes(mapTypeCode.plant)) {
+			return plantBurntAreaData?.data || []
+		} else {
+			return []
+		}
+	}, [mapTypeArray, plantBurntAreaData])
 
 	const handleClickAdd = () => {
 		const updateArea = [...selectedArea]
@@ -165,9 +199,9 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				<BurntMapMain
 					className='h-full w-full flex-1'
 					currentAdmOption={searchSelectedAdmOption}
-					hotspotBurntAreaData={hotspotBurntAreaData?.data ?? []}
-					burntBurntAreaData={burntBurntAreaData?.data ?? []}
-					plantBurntAreaData={plantBurntAreaData?.data ?? []}
+					hotspotBurntAreaData={mapDataHotSpot}
+					burntBurntAreaData={mapDataBurnt}
+					plantBurntAreaData={mapDataPlant}
 					isHotspotBurntAreaDataLoading={isHotspotBurntAreaDataLoading}
 					isBurntBurntAreaDataLoading={isBurntBurntAreaDataLoading}
 					isPlantBurntAreaDataLoading={isPlantBurntAreaDataLoading}

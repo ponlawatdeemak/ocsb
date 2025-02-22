@@ -12,6 +12,7 @@ import {
 	GetHotspotBurntAreaDtoOut,
 	GetPlantBurntAreaDtoOut,
 } from '@interface/dto/brunt-area/brunt-area.dto.out'
+import { AxiosRequestConfig } from 'axios'
 
 const mapAnalyze = {
 	getBurnAreaCalendar: async (): Promise<ResponseDto<string[]>> => await api.get('/brunt-area/burn-area-calendar'),
@@ -28,6 +29,7 @@ const mapAnalyze = {
 	},
 	getHotspotBurntArea: async (
 		payload: GetHotspotBurntAreaDtoIn,
+		axiosOption?: AxiosRequestConfig,
 	): Promise<ResponseDto<GetHotspotBurntAreaDtoOut[]>> => {
 		const params = new URLSearchParams()
 
@@ -37,9 +39,12 @@ const mapAnalyze = {
 		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
 		if (payload.polygon) params.append('polygon', payload.polygon)
 
-		return await api.get(`/brunt-area/hotspot?${params}`)
+		return await api.get(`/brunt-area/hotspot?${params}`, undefined, axiosOption)
 	},
-	getBurntBurntArea: async (payload: GetBurntBurntAreaDtoIn): Promise<ResponseDto<GetBurntBurntAreaDtoOut[]>> => {
+	getBurntBurntArea: async (
+		payload: GetBurntBurntAreaDtoIn,
+		axiosOption?: AxiosRequestConfig,
+	): Promise<ResponseDto<GetBurntBurntAreaDtoOut[]>> => {
 		const params = new URLSearchParams()
 
 		if (payload.startDate) params.append('startDate', payload.startDate)
@@ -47,9 +52,12 @@ const mapAnalyze = {
 		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
 		if (payload.polygon) params.append('polygon', payload.polygon)
 
-		return await api.get(`/brunt-area/burnt?${params}`)
+		return await api.get(`/brunt-area/burnt?${params}`, undefined, axiosOption)
 	},
-	getPlantBurntArea: async (payload: GetPlantBurntAreaDtoIn): Promise<ResponseDto<GetPlantBurntAreaDtoOut[]>> => {
+	getPlantBurntArea: async (
+		payload: GetPlantBurntAreaDtoIn,
+		axiosOption?: AxiosRequestConfig,
+	): Promise<ResponseDto<GetPlantBurntAreaDtoOut[]>> => {
 		const params = new URLSearchParams()
 
 		if (payload.startDate) params.append('startDate', payload.startDate)
@@ -57,7 +65,7 @@ const mapAnalyze = {
 		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
 		if (payload.polygon) params.append('polygon', payload.polygon)
 
-		return await api.get(`/brunt-area/plant?${params}`)
+		return await api.get(`/brunt-area/plant?${params}`, undefined, axiosOption)
 	},
 }
 

@@ -28,6 +28,7 @@ import service from '@/api'
 import { Clear } from '@mui/icons-material'
 import { debounce } from 'lodash'
 import { defaultCurrentDateRange } from '..'
+import zIndex from '@mui/material/styles/zIndex'
 
 export interface OptionType {
 	id: string
@@ -234,6 +235,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 								paper: {
 									className: 'border mt-1 !shadow-none border-solid border-gray !rounded-[5px]',
 								},
+								popper: { sx: { zIndex: 10000 } },
 							}}
 							renderInput={(params) => {
 								const { InputLabelProps, InputProps, ...otherParams } = params

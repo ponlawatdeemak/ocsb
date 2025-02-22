@@ -13,7 +13,6 @@ import {
 import { IconLayer, PolygonLayer } from '@deck.gl/layers'
 
 import { getPinHotSpot } from '@/utils/pin'
-import { mapTypeCode } from '@interface/config/app.config'
 
 interface BurntMapMainProps {
 	className?: string
@@ -25,7 +24,6 @@ interface BurntMapMainProps {
 	isBurntBurntAreaDataLoading: boolean
 	isPlantBurntAreaDataLoading: boolean
 	onMapExtentChange: (polygon: number[][]) => void
-	mapTypeCode: mapTypeCode[]
 }
 
 const BurntMapMain: React.FC<BurntMapMainProps> = ({
@@ -64,54 +62,57 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	// zoom to search area or default user region
 	useEffect(() => {
 		if (mapLibre) {
-			mapLibre.fitBounds(currentAdmOption?.geometry ?? session?.user.geometry, { padding: 100 })
+			// mapLibre.fitBounds(currentAdmOption?.geometry ?? session?.user.geometry, { padding: 100 })
 		}
 	}, [mapLibre, currentAdmOption?.geometry, session?.user.geometry])
 
 	// update layer
 	useEffect(() => {
 		if (mapLibre && overlay) {
-			if (hotspotBurntAreaData?.length) {
-				const layers = [
-					new IconLayer({
-						id: 'hotspot',
-						data: hotspotBurntAreaData,
-						pickable: true,
-						sizeScale: 1,
-						getPosition: (d) => d.geometry.coordinates,
-						beforeId: 'custom-referer-layer',
-						getSize: 14,
-						getIcon: (d) => {
-							return {
-								url: getPinHotSpot(),
-								width: 14,
-								height: 14,
-								mask: false,
-							}
-						},
-					}),
-					// new PolygonLayer({
-					// 	id: 'polygon-layer',
-					// 	data: DATA,
-					// 	pickable: true,
-					// 	stroked: true,
-					// 	filled: true,
-					// 	lineWidthMinPixels: 1,
-					// 	getPolygon: (d) => d.polygon,
-					// 	getFillColor: (d) => d.color,
-					// 	getLineColor: [0, 0, 0], // Black outline
-					// 	// Interactive props
-					// }),
-				]
-				// load hotspot if open
-				// load burnt if open
-				// load plant if open
+			// if (hotspotBurntAreaData?.length) {
+			const layers = [
+				new PolygonLayer({
+					id: 'plant',
+					beforeId: 'custom-referer-layer',
+					data: plantBurntAreaData,
+					pickable: true,
+					stroked: true,
+					filled: true,
+					lineWidthMinPixels: 1,
+					getPolygon: (d) => d.geometry.coordinates,
+					getFillColor: () => [139, 182, 45, 180],
+					getLineColor: () => [139, 182, 45, 180],
+				}),
 
-				// set overlay
-				overlay.setProps({ layers: [layers] })
-			}
+				new PolygonLayer({
+					id: 'burnt',
+					beforeId: 'custom-referer-layer',
+					data: burntBurntAreaData,
+					pickable: true,
+					stroked: true,
+					filled: true,
+					lineWidthMinPixels: 1,
+					getPolygon: (d) => d.geometry.coordinates,
+					getFillColor: () => [255, 204, 0, 180],
+					getLineColor: () => [255, 204, 0, 180],
+				}),
+				new IconLayer({
+					id: 'hotspot',
+					beforeId: 'custom-referer-layer',
+					data: hotspotBurntAreaData,
+					pickable: true,
+					sizeScale: 1,
+					getPosition: (d) => d.geometry.coordinates,
+					getSize: 14,
+					getIcon: () => ({ url: getPinHotSpot(), width: 14, height: 14, mask: false }),
+				}),
+			]
+
+			// set overlay
+			overlay.setProps({ layers: [layers] })
+			// }
 		}
-	}, [mapLibre, overlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData, , mapTypeCode])
+	}, [mapLibre, overlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
 
 	return (
 		<Box className={classNames('', className)}>
