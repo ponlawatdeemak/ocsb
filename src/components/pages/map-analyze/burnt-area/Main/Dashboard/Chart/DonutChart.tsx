@@ -34,10 +34,10 @@ const DonutChart = ({
 
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
-			let tooltipOverview = '<div class="absolute left-4 top-2 bg-white p-2 rounded-md shadow flex flex-col">'
+			let tooltipOverview = '<div class="mt-12 bg-white p-2 rounded-md shadow flex flex-col">'
 			data.forEach(
 				(item) =>
-					(tooltipOverview += `<div class="text-[12px] text-nowrap">${item.name} : ${defaultNumber(item.value)} ${t('common:point')}</div>`),
+					(tooltipOverview += `<div class="text-[12px]">${item.name} : ${defaultNumber(item.value)} ${t('common:point')}</div>`),
 			)
 
 			tooltipOverview += '</div>'
