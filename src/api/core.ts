@@ -126,7 +126,7 @@ axiosInstance.interceptors.response.use(
 							authorization: `Bearer ${newAccessToken}`,
 						},
 					}).catch((err) => {
-						console.error(err)
+						console.error('err: ', err)
 						// TODO: modal logout
 					})
 				}
