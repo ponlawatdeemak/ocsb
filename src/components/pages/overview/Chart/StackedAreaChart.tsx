@@ -68,7 +68,7 @@ const StackedAreaChart = ({
 					min: 0,
 					padding: 0,
 					tick: {
-						count: 4,
+						// count: 4,
 						format: (value: number) => defaultNumber(value, 0),
 					},
 				},

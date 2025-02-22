@@ -46,7 +46,7 @@ const StackedBarChart = ({
 					min: 0,
 					padding: 0,
 					tick: {
-						count: 7,
+						// count: 7,
 						format: (value: number) => defaultNumber(value, 0),
 					},
 				},

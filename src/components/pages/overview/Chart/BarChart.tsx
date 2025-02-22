@@ -61,7 +61,7 @@ const BarChart = ({
 					min: 0,
 					padding: 0,
 					tick: {
-						count: 6,
+						// count: 6,
 						format: (value: number) => defaultNumber(value, 0),
 					},
 				},
