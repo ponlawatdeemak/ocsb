@@ -19,13 +19,13 @@ export default function IdentityProvider(props: Props) {
 
 	useEffect(() => {
 		// session is undefined mean session not successfully loaded yet
-		if (session?.user?.tokens.accessToken) {
+		if (session?.user?.tokens?.accessToken) {
 			updateAccessToken({
 				accessToken: session.user.tokens.accessToken,
 				refreshToken: session?.user?.tokens.refreshToken ?? undefined,
 				accessType: 'Login',
 			})
-		} else if (session === null) {
+		} else if (session === null || session?.error) {
 			updateAccessToken({
 				accessToken: '',
 				refreshToken: '',

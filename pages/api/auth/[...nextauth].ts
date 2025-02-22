@@ -79,7 +79,8 @@ export const authOptions: NextAuthOptions = {
 					const expiredTime = data?.exp
 					const currentTime = Math.floor(Date.now() / 1000)
 					if (currentTime >= expiredTime) {
-						const newToken = await refreshAccessToken()
+						const refreshToken = token?.tokens?.refreshToken
+						const newToken = await refreshAccessToken(refreshToken)
 						if (newToken?.accessToken) jwt.tokens.accessToken = newToken?.accessToken
 						if (newToken?.refreshToken) jwt.tokens.refreshToken = newToken?.refreshToken
 					}
@@ -91,17 +92,27 @@ export const authOptions: NextAuthOptions = {
 		},
 
 		async session({ session, token }) {
-			const userId = token?.id
-			const accessToken = token?.tokens?.accessToken
-			const refreshToken = token?.tokens?.refreshToken
 			const { error, ...user } = token
-			session.user = user as UserSession
-			if (accessToken) {
-				updateAccessToken({ accessToken, refreshToken, userId, accessType: session.user ? 'Login' : 'Guest' })
-				session.user.tokens.accessToken = accessToken
-				session.user.tokens.refreshToken = refreshToken
+			if (error) {
+				session.error = error
+				session.user = null as any
+			} else {
+				session.user = user as UserSession
+				const accessToken = token?.tokens?.accessToken
+				if (accessToken) {
+					const userId = token?.id
+					const refreshToken = token?.tokens?.refreshToken
+					updateAccessToken({
+						accessToken,
+						refreshToken,
+						userId,
+						accessType: session.user ? 'Login' : 'Guest',
+					})
+					session.user.tokens.accessToken = accessToken
+					session.user.tokens.refreshToken = refreshToken
+				}
 			}
-			session.error = error
+
 			return session
 		},
 	},

@@ -72,8 +72,15 @@ const getConfig = (service: APIService, config: AxiosRequestConfig<any> | undefi
 	},
 })
 
-export const refreshAccessToken = async () => {
-	const res = await service.auth.refreshToken({ refreshToken: apiRefreshToken ?? '' })
+export const refreshAccessToken = async (refreshToken?: string) => {
+	const token = apiRefreshToken || refreshToken
+	if (!token) {
+		throw new Error()
+	}
+	const res = await service.auth.refreshToken({ refreshToken: token })
+	if (!res) {
+		throw new Error()
+	}
 	const newAccessToken = res?.data?.accessToken === '' ? undefined : res?.data?.accessToken
 	const newRefreshToken = res?.data?.refreshToken === '' ? undefined : res?.data?.refreshToken
 	updateAccessToken({ accessToken: newAccessToken, refreshToken: newRefreshToken, accessType: 'Login' })
