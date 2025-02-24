@@ -29,7 +29,7 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 	const { data: regionsLookupData, isLoading: isRegionsDataLoading } = useQuery({
 		queryKey: ['getRegionsSearchForm'],
 		queryFn: async () => {
-			const response = await service.lookup.get({ name: 'regions' })
+			const response = await service.lookup.get({ name: 'regions', sort: 'region_id', order: 'ASC' })
 
 			if (!response) return
 			setSearchParams((prevSearch) => ({
@@ -43,7 +43,7 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 	const { data: rolesLookupData, isLoading: isRolesDataLoading } = useQuery({
 		queryKey: ['getRolesSearchForm'],
 		queryFn: async () => {
-			const response = await service.lookup.get({ name: 'roles' })
+			const response = await service.lookup.get({ name: 'roles', sort: 'role_id', order: 'ASC' })
 
 			if (!response) return
 			setSearchParams((prevSearch) => ({
@@ -57,7 +57,7 @@ const UserManagementSearchForm: React.FC<UserManagementSearchFormProps> = ({
 	const { data: positionLookupData, isLoading: isPositionDataLoading } = useQuery({
 		queryKey: ['getPositionSearchForm'],
 		queryFn: async () => {
-			const response = await service.lookup.get({ name: 'position' })
+			const response = await service.lookup.get({ name: 'position', sort: 'position_id', order: 'ASC' })
 
 			if (!response) return
 			setSearchParams((prevSearch) => ({

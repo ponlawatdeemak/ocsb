@@ -34,6 +34,8 @@ export interface UMFormValues {
 	isActive?: boolean
 }
 
+const CENTRAL_REGION_ID = 5
+
 export interface ProfileFormProps {
 	title: string
 	formik: FormikProps<UMFormValues>
@@ -67,10 +69,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
 	const { data: regionsLookupData, isLoading: isRegionsDataLoading } = useQuery({
 		queryKey: ['getRegions'],
-		queryFn: () =>
-			service.lookup.get({ name: 'regions' }).then((res) => {
-				return res.filter((item: RegionsEntity) => item.regionName !== 'ส่วนกลาง')
-			}),
+		queryFn: () => service.lookup.get({ name: 'regions', sort: 'region_id', order: 'ASC' }),
 	})
 
 	const { data: provinceLookupData, isPending: isProvinceDataLoading } = useQuery({
@@ -81,13 +80,13 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
 	const { data: positionLookupData, isLoading: isPositionDataLoading } = useQuery({
 		queryKey: ['getPosition'],
-		queryFn: () => service.lookup.get({ name: 'position' }),
+		queryFn: () => service.lookup.get({ name: 'position', sort: 'position_id', order: 'ASC' }),
 	})
 
 	const { data: rolesLookupData, isLoading: isRolesDataLoading } = useQuery({
 		queryKey: ['getRoles'],
 		queryFn: () =>
-			service.lookup.get({ name: 'roles' }).then((res) => {
+			service.lookup.get({ name: 'roles', sort: 'role_id', order: 'ASC' }).then((res) => {
 				if (session?.user.role.roleId === UserRole.Admin) {
 					return res.filter((item: RolesEntity) => item.roleId !== UserRole.SuperAdmin)
 				} else {
@@ -320,24 +319,26 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 						</Typography>
 						<div className='flex flex-col max-lg:pl-[24px] max-lg:pt-[10px]'>
 							<div className='flex flex-col lg:flex-row lg:items-center lg:gap-6'>
-								{regionsLookupData?.map((item: RegionsEntity) => (
-									<FormControlLabel
-										key={item.regionId}
-										control={
-											<Checkbox
-												value={Number(item.regionId)}
-												onChange={onRegionCheck}
-												size='small'
-												checked={formik.values.regions?.includes(item.regionId!) ? true : false}
-												disabled={loading || !isEditRole}
-											/>
-										}
-										label={String(
-											item[`regionName${Languages.TH === i18n.language ? '' : enSuffix}`],
-										)}
-										className='!mr-0 [&_.MuiFormControlLabel-label]:text-sm'
-									/>
-								))}
+								{regionsLookupData
+									?.filter((data: RegionsEntity) => data.regionId !== CENTRAL_REGION_ID)
+									?.map((item: RegionsEntity) => (
+										<FormControlLabel
+											key={item.regionId}
+											control={
+												<Checkbox
+													value={Number(item.regionId)}
+													onChange={onRegionCheck}
+													size='small'
+													checked={formik.values.regions?.includes(item.regionId!)}
+													disabled={loading || !isEditRole}
+												/>
+											}
+											label={String(
+												item[`regionName${Languages.TH === i18n.language ? '' : enSuffix}`],
+											)}
+											className='!mr-0 [&_.MuiFormControlLabel-label]:text-sm'
+										/>
+									))}
 							</div>
 							{typeof checkBoxerrorMessage === 'string' && (
 								<FormHelperText error className='max-lg:!ml-[-10px] lg:!mx-[14px] lg:!mt-[0px]'>
