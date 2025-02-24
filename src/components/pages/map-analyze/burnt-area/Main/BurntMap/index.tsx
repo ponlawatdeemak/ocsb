@@ -131,10 +131,14 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		<Box className={classNames('', className)}>
 			<Box className='relative flex h-full grow'>
 				<Box className='absolute bottom-12 left-3 z-10 flex items-end gap-4'>
-					<IconButton className='h-6 w-6 !rounded-[5px] !bg-primary !p-1' onClick={handleCurrentRegionToggle}>
-						<RegionPinIcon />
+					<IconButton
+						className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {
+							'!bg-white': !isCurrentRegionOpen,
+						})}
+						onClick={handleCurrentRegionToggle}
+					>
+						<RegionPinIcon color={isCurrentRegionOpen ? 'white' : '#003491'} />
 					</IconButton>
-
 					{isCurrentRegionOpen && (
 						<Box className='flex flex-col gap-1 rounded-[5px] bg-white p-2'>
 							{currentRegion.map((region) => {
@@ -151,7 +155,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 				<Box
 					className={classNames(
-						'absolute bottom-3 left-[52px] z-10 flex items-center gap-2 rounded-[5px] bg-white py-1 pl-2 pr-3',
+						'absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-[5px] bg-white py-1 pl-2 pr-3',
 						{ '!hidden': mapTypeArray.length === 0 },
 					)}
 				>
