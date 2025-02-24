@@ -51,7 +51,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const { mapLibre, overlay } = useMapStore()
 	const { t, i18n } = useTranslation(['map-analyze', 'common'])
 	const language = i18n.language as keyof ResponseLanguage
-	const [currentRegion, setCurrentRegion] = useState(['ภาค 1', 'ภาค 2', 'ภาค 3', 'ภาค 4'])
+	const [currentRegion, setCurrentRegion] = useState('')
 	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
 
 	const { data: regionData, isPending: isRegionLoading } = useQuery({
@@ -92,7 +92,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						`regionName${Languages.TH === i18n.language ? '' : enSuffix}`
 					] as string
 
-					setCurrentRegion([regionName])
+					setCurrentRegion(regionName)
 				}
 			})
 		}
@@ -172,16 +172,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					>
 						<RegionPinIcon color={isCurrentRegionOpen ? 'white' : '#003491'} />
 					</IconButton>
-					{isCurrentRegionOpen && (
+					{isCurrentRegionOpen && currentRegion && (
 						<Box className='flex flex-col gap-1 rounded-[5px] bg-white p-2'>
-							{currentRegion.map((region) => {
-								return (
-									<Typography
-										key={region}
-										className='!text-2xs text-black'
-									>{`${t('common:currentRegion')} : ${region}`}</Typography>
-								)
-							})}
+							<Typography className='!text-2xs text-black'>{`${t('common:currentRegion')} : ${currentRegion}`}</Typography>
 						</Box>
 					)}
 				</Box>
