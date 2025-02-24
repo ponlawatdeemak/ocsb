@@ -8,6 +8,7 @@ import { hotspotType, hotspotTypeCode, mapTypeCode } from '@interface/config/app
 import { DateObject } from 'react-multi-date-picker'
 import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
+import useMapStore from '@/components/common/map/store/map'
 
 const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
 
@@ -18,6 +19,7 @@ interface BurntAreaMainProps {
 }
 
 export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) => {
+	const { mapLibre } = useMapStore()
 	const [searchSelectedAdmOption, setSearchSelectedAdmOption] = useState<OptionType | null>(null)
 	const [selectedArea, setSelectedArea] = useState<{ id: string; admOption: OptionType | null }[]>([])
 	const [selectedCard, setSelectedCard] = useState<string>()
@@ -114,6 +116,9 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 
 	const handleSelectCard = (item: any) => {
 		setSelectedCard((selected) => (selected === item.id ? undefined : item.id))
+		if (mapLibre && selectedCard !== item.id && item?.admOption?.geometry) {
+			mapLibre.fitBounds(item.admOption.geometry, { padding: 100 })
+		}
 	}
 
 	const handleSelectedAdmOption = useCallback(

@@ -28,6 +28,7 @@
 		"@mui/styles": "^5.16.7",
 		"@tanstack/react-query": "^5.53.2",
 		"@turf/area": "^7.1.0",
+		"@turf/boolean-point-in-polygon": "^7.2.0",
 		"@turf/length": "^7.1.0",
 		"axios": "1.7.7",
 		"billboard.js": "^3.13.0",

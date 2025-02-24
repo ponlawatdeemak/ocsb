@@ -1,9 +1,9 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import bb, { bar } from 'billboard.js'
 import 'billboard.js/dist/billboard.css'
-import { defaultNumber } from '@/utils/text'
+// import { defaultNumber } from '@/utils/text'
 
 const StackedBarChart = ({
 	chartId,
@@ -47,6 +47,21 @@ const StackedBarChart = ({
 	// },[maxTick])
 	// console.log('👻 maxTick: ', maxTick)
 
+	const nFormatter = useCallback((num: number, digits = 2) => {
+		const lookup = [
+			{ value: 1, symbol: '' },
+			{ value: 1e3, symbol: 'k' },
+			{ value: 1e6, symbol: 'M' },
+			{ value: 1e9, symbol: 'G' },
+			{ value: 1e12, symbol: 'T' },
+			{ value: 1e15, symbol: 'P' },
+			{ value: 1e18, symbol: 'E' },
+		]
+		const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/
+		const item = lookup.findLast((item) => num >= item.value)
+		return item ? (num / item.value).toFixed(digits).replace(regexp, '').concat(item.symbol) : '0'
+	}, [])
+
 	useEffect(() => {
 		bb.generate({
 			bindto: '#stackedBar-' + chartId,
@@ -72,7 +87,7 @@ const StackedBarChart = ({
 					padding: 0,
 					tick: {
 						count: 5,
-						format: (value: number) => defaultNumber(value, 0),
+						format: (value: number) => nFormatter(value, 2),
 					},
 				},
 			},
@@ -94,7 +109,7 @@ const StackedBarChart = ({
 				width: 25,
 			},
 		})
-	}, [chartId, colors, columns, groups, handleClickOnChart, hideData])
+	}, [chartId, colors, columns, groups, handleClickOnChart, hideData, nFormatter])
 
 	return (
 		<Box className={classNames('flex h-full w-full grow flex-col', className)}>

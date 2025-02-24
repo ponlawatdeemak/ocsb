@@ -13,9 +13,14 @@ import {
 import { IconLayer, PolygonLayer } from '@deck.gl/layers'
 
 import { getPinHotSpot } from '@/utils/pin'
-import { RegionPinIcon } from '@/components/svg/AppIcon'
-import { mapTypeCode } from '@interface/config/app.config'
+import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
+import { mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
+import { useQuery } from '@tanstack/react-query'
+import service from '@/api'
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
+import { Languages } from '@/enum'
+import { enSuffix } from '@/config/app.config'
 
 interface BurntMapMainProps {
 	className?: string
@@ -44,14 +49,19 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 }) => {
 	const { data: session } = useSession()
 	const { mapLibre, overlay } = useMapStore()
-	const { t } = useTranslation(['map-analyze', 'common'])
-
+	const { t, i18n } = useTranslation(['map-analyze', 'common'])
+	const language = i18n.language as keyof ResponseLanguage
 	const [currentRegion, setCurrentRegion] = useState(['ภาค 1', 'ภาค 2', 'ภาค 3', 'ภาค 4'])
 	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
 
+	const { data: regionData, isPending: isRegionLoading } = useQuery({
+		queryKey: ['getRegion'],
+		queryFn: () => service.lookup.getRegion(),
+	})
+
 	// map event
 	useEffect(() => {
-		if (mapLibre) {
+		if (mapLibre && regionData?.length) {
 			mapLibre.on('moveend', () => {
 				const bound = mapLibre.getBounds()
 				const sw = bound.getSouthWest()
@@ -64,16 +74,39 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					[sw.lng, sw.lat],
 				]
 				onMapExtentChange(polygon)
+
+				const center = mapLibre.getCenter()
+
+				const insideRegion = regionData.find((reg) => {
+					let result = false
+					if (reg.geometry) {
+						result = booleanPointInPolygon(
+							{ type: 'Point', coordinates: [center.lng, center.lat] },
+							reg.geometry as any,
+						)
+					}
+					return result
+				})
+				if (insideRegion) {
+					const regionName = insideRegion[
+						`regionName${Languages.TH === i18n.language ? '' : enSuffix}`
+					] as string
+
+					setCurrentRegion([regionName])
+				}
 			})
 		}
-	}, [mapLibre, onMapExtentChange])
+	}, [mapLibre, onMapExtentChange, regionData, i18n])
 
 	// zoom to search area or default user region
 	useEffect(() => {
 		if (mapLibre) {
-			// mapLibre.fitBounds(currentAdmOption?.geometry ?? session?.user.geometry, { padding: 100 })
+			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
+			if (userGeometry) {
+				mapLibre.fitBounds(userGeometry, { padding: 100 })
+			}
 		}
-	}, [mapLibre, currentAdmOption?.geometry, session?.user.geometry])
+	}, [mapLibre, currentAdmOption?.geometry, session?.user?.geometry])
 
 	// update layer
 	useEffect(() => {
@@ -152,10 +185,15 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						</Box>
 					)}
 				</Box>
+				<Box className='absolute bottom-3 left-3 z-10 flex items-end gap-4'>
+					<IconButton className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {})}>
+						<CountViewerIcon color='white' />
+					</IconButton>
+				</Box>
 
 				<Box
 					className={classNames(
-						'absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-[5px] bg-white py-1 pl-2 pr-3',
+						'absolute bottom-3 left-[52px] z-10 flex items-center gap-2 rounded-[5px] bg-white py-1 pl-2 pr-3',
 						{ '!hidden': mapTypeArray.length === 0 },
 					)}
 				>

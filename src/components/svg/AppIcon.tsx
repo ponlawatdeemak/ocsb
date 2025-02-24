@@ -154,3 +154,30 @@ export const RegionPinIcon: React.FC<SVGProps> = ({ color = 'white', width = 16,
 		</svg>
 	)
 }
+
+export const CountViewerIcon: React.FC<SVGProps> = ({ color = 'white', width = 15, height = 15, fill = 'none' }) => {
+	return (
+		<svg
+			width={width}
+			height={height}
+			viewBox={`0 0 ${width} ${height}`}
+			fill='none'
+			xmlns='http://www.w3.org/2000/svg'
+		>
+			<g clip-path='url(#clip0_1235_5428)'>
+				<path
+					d='M7.5 10V7.5M7.5 5H7.50625M13.75 7.5C13.75 10.9518 10.9518 13.75 7.5 13.75C4.04822 13.75 1.25 10.9518 1.25 7.5C1.25 4.04822 4.04822 1.25 7.5 1.25C10.9518 1.25 13.75 4.04822 13.75 7.5Z'
+					stroke={color}
+					stroke-width='2'
+					stroke-linecap='round'
+					stroke-linejoin='round'
+				/>
+			</g>
+			<defs>
+				<clipPath id='clip0_1235_5428'>
+					<rect width={width} height={height} fill={color} />
+				</clipPath>
+			</defs>
+		</svg>
+	)
+}
