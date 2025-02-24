@@ -303,7 +303,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 												? t('hotspotOutArea')
 												: t('hotspotInArea')}
 										</Typography>
-										<div className='h-[262px] !max-h-[262px] !min-h-[262px] w-full'>
+										<div className='!min-h-[262px] w-full'>
 											<StackedBarChart
 												chartId={area.id}
 												columns={columnsHotspot}
@@ -334,7 +334,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 									{t('overview:burntScar')} ({t(`common:${areaUnit}`)})
 								</Typography>
 								{dashBoardData?.burnArea ? (
-									<div className='h-[262px] !max-h-[262px] !min-h-[262px] w-full'>
+									<div className='!min-h-[262px] w-full'>
 										<StackedBarChart
 											chartId={'second-bar' + area.id}
 											columns={columnsBurnArea}
