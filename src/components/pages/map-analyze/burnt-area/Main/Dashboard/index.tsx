@@ -1,19 +1,21 @@
-import { Button, CircularProgress, Tooltip } from '@mui/material'
+import { Button, Tooltip } from '@mui/material'
 import classNames from 'classnames'
 import React from 'react'
 import DashboardCardMain from './Card'
 import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
+import { OptionType } from '../SearchForm'
+import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 
 interface BurntDashboardMainProps {
-	selectedArea: any[]
+	selectedArea: { id: string; admOption: OptionType | null }[]
 	handleClickAdd: () => void
 	handleClickDelete: (item: any) => void
-	selectedCard: number | undefined
+	selectedCard: string | undefined
 	handleSelectCard: (item: any) => void
-	mapTypeArray: string[]
-	selectedHotspots: string[]
-	isDisabledAdd: boolean
+	mapTypeArray: mapTypeCode[]
+	selectedHotspots: hotspotTypeCode[]
+	selectedDateRange: Date[]
 	className?: string
 }
 
@@ -25,7 +27,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 	handleSelectCard,
 	mapTypeArray,
 	selectedHotspots,
-	isDisabledAdd,
+	selectedDateRange,
 	className = '',
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -37,12 +39,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 					'!absolute left-0 top-0 z-[9999] gap-[6px] !rounded-none !px-6 !py-3 !text-sm !font-normal !text-white max-md:!hidden',
 				)}
 				variant='contained'
-				onClick={() => {
-					if (!isDisabledAdd) {
-						handleClickAdd()
-					}
-				}}
-				disabled={isDisabledAdd}
+				onClick={handleClickAdd}
 			>
 				<DashboardIcon /> {t('compare')}
 			</Button>
@@ -54,16 +51,17 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 					<DashboardCardMain
 						key={item.id}
 						handleClickDelete={() => handleClickDelete(item)}
-						isSelectedCard={selectedCard === item.id}
+						isSelectedCard={(selectedCard ?? '') === item.id}
 						handleSelectCard={() => handleSelectCard(item)}
-						payloadData={item}
+						area={item}
 						mapTypeArray={mapTypeArray}
 						selectedHotspots={selectedHotspots}
+						selectedDateRange={selectedDateRange}
 					/>
 				))}
 				{selectedArea.length < 4 && (
 					<Tooltip
-						title={isDisabledAdd ? t('common:processing') : t('addCompare')}
+						title={t('addCompare')}
 						placement='right'
 						componentsProps={{
 							tooltip: {
@@ -86,16 +84,11 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 						<Button
 							className={classNames(
 								'!absolute right-[-40px] top-0 z-[1] !max-h-10 !min-h-10 !min-w-10 !max-w-10 !rounded-[0px_5px_5px_0px] !bg-[#EBF5FF] !p-2 !text-primary !shadow-none hover:!shadow',
-								{ 'hover:cursor-default': isDisabledAdd },
 							)}
 							variant='contained'
-							onClick={() => {
-								if (!isDisabledAdd) {
-									handleClickAdd()
-								}
-							}}
+							onClick={handleClickAdd}
 						>
-							{isDisabledAdd ? <CircularProgress size={15} /> : <AddDashboardIcon />}
+							<AddDashboardIcon />
 						</Button>
 					</Tooltip>
 				)}

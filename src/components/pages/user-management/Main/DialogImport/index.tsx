@@ -87,7 +87,6 @@ export const DialogImport: React.FC<FormImportProps> = ({ ...props }) => {
 			if (importFile) {
 				if (importFile?.type === 'text/csv') {
 					const res = await um.postImportValidate(importFile)
-					console.log('👻  res: ', res)
 					if (res.data?.errorList.length) {
 						setAlertInfo({ open: true, severity: 'error', message: t('common:error.somethingWrong') })
 						setLoading(false)

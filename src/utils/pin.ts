@@ -39,3 +39,11 @@ export function getPin(color?: string | null) {
 	`
 	return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
+
+export const getPinHotSpot = () => {
+	const svg = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<circle cx="7" cy="7" r="7" fill="#FF0000" fill-opacity="0.4"/>
+				<circle cx="7" cy="7" r="4" fill="#FF0000"/>
+				</svg>`
+	return `data:image/svg+xml,${encodeURIComponent(svg)}`
+}

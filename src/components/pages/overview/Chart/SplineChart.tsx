@@ -66,7 +66,7 @@ const SplineChart = ({
 					min: 0,
 					padding: { top: 3, bottom: isDesktopXl ? 10 : 15 },
 					tick: {
-						count: 8,
+						// count: 8,
 						format: (value: number) => defaultNumber(value, 0),
 					},
 				},

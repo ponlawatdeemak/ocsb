@@ -1,16 +1,71 @@
 import { api } from '@/api/core'
 import { ResponseDto } from '@interface/config/app.config'
-import { GetDashBoardBurntAreaDtoIn } from '@interface/dto/brunt-area/brunt-area.dto-in'
-import { GetDashBoardBurntAreaDtoOut } from '@interface/dto/brunt-area/brunt-area.dto.out'
+import {
+	GetBurntBurntAreaDtoIn,
+	GetDashBoardBurntAreaDtoIn,
+	GetHotspotBurntAreaDtoIn,
+	GetPlantBurntAreaDtoIn,
+} from '@interface/dto/brunt-area/brunt-area.dto-in'
+import {
+	GetBurntBurntAreaDtoOut,
+	GetDashBoardBurntAreaDtoOut,
+	GetHotspotBurntAreaDtoOut,
+	GetPlantBurntAreaDtoOut,
+} from '@interface/dto/brunt-area/brunt-area.dto.out'
+import { AxiosRequestConfig } from 'axios'
 
 const mapAnalyze = {
 	getBurnAreaCalendar: async (): Promise<ResponseDto<string[]>> => await api.get('/brunt-area/burn-area-calendar'),
 	getDashBoardBurntArea: async (
 		payload: GetDashBoardBurntAreaDtoIn,
 	): Promise<ResponseDto<GetDashBoardBurntAreaDtoOut>> => {
+		const mapType = payload.mapType?.map((type) => `&mapType=${type}`).join('')
+		const inSugarcan = payload.inSugarcan?.map((hotspotTypeCode) => `&inSugarcan=${hotspotTypeCode}`).join('')
+		const admC = `&admC=${payload.admC || ''}`
+
 		return await api.get(
-			`/brunt-area/dashboard?startDate=${payload.startDate}&endDate=${payload.endDate}${payload.admC ? `&admC=${payload.admC}` : ''}${payload.mapType ? `&mapType=${payload.mapType}` : ''}${payload.inSugarcan ? `&inSugarcan=${payload.inSugarcan}` : ''}`,
+			`/brunt-area/dashboard?startDate=${payload.startDate}&endDate=${payload.endDate}${admC ?? ''}${mapType ?? ''}${inSugarcan ?? ''}`,
 		)
+	},
+	getHotspotBurntArea: async (
+		payload: GetHotspotBurntAreaDtoIn,
+		axiosOption?: AxiosRequestConfig,
+	): Promise<ResponseDto<GetHotspotBurntAreaDtoOut[]>> => {
+		const params = new URLSearchParams()
+
+		if (payload.inSugarcan.length !== 0) params.append('inSugarcan', JSON.stringify(payload.inSugarcan))
+		if (payload.startDate) params.append('startDate', payload.startDate)
+		if (payload.endDate) params.append('endDate', payload.endDate)
+		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
+		if (payload.polygon) params.append('polygon', payload.polygon)
+
+		return await api.get(`/brunt-area/hotspot?${params}`, undefined, axiosOption)
+	},
+	getBurntBurntArea: async (
+		payload: GetBurntBurntAreaDtoIn,
+		axiosOption?: AxiosRequestConfig,
+	): Promise<ResponseDto<GetBurntBurntAreaDtoOut[]>> => {
+		const params = new URLSearchParams()
+
+		if (payload.startDate) params.append('startDate', payload.startDate)
+		if (payload.endDate) params.append('endDate', payload.endDate)
+		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
+		if (payload.polygon) params.append('polygon', payload.polygon)
+
+		return await api.get(`/brunt-area/burnt?${params}`, undefined, axiosOption)
+	},
+	getPlantBurntArea: async (
+		payload: GetPlantBurntAreaDtoIn,
+		axiosOption?: AxiosRequestConfig,
+	): Promise<ResponseDto<GetPlantBurntAreaDtoOut[]>> => {
+		const params = new URLSearchParams()
+
+		if (payload.startDate) params.append('startDate', payload.startDate)
+		if (payload.endDate) params.append('endDate', payload.endDate)
+		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
+		if (payload.polygon) params.append('polygon', payload.polygon)
+
+		return await api.get(`/brunt-area/plant?${params}`, undefined, axiosOption)
 	},
 }
 

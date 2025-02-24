@@ -91,8 +91,10 @@ div .rmdp-wrapper {
 	color: white;
 }
 
-.rmdp-week .rmdp-day.rmdp-deactive span {
-	color: #e6e6e6;
+.rmdp-week .rmdp-day.rmdp-deactive span,
+.rmdp-week .rmdp-day.rmdp-disabled span {
+	color: black;
+	opacity: 15%;
 }
 
 .rmdp-week .rmdp-day.rmdp-today span {
