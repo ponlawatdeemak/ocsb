@@ -186,12 +186,12 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 				<Box
 					className={classNames(
-						'absolute bottom-3 left-[52px] z-10 flex items-center gap-2 rounded-[5px] bg-white py-1 pl-2 pr-3',
+						'absolute bottom-3 left-[52px] z-10 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3',
 						{ '!hidden': mapTypeArray.length === 0 },
 					)}
 				>
 					<Box
-						className={classNames('hidden items-center gap-1.5', {
+						className={classNames('hidden shrink-0 items-center gap-1.5', {
 							'!flex': mapTypeArray.includes(mapTypeCode.hotspots),
 						})}
 					>
@@ -199,7 +199,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						<Typography className='!text-2xs text-black'>{t('hotspot')}</Typography>
 					</Box>
 					<Box
-						className={classNames('hidden items-center gap-1.5', {
+						className={classNames('hidden shrink-0 items-center gap-1.5', {
 							'!flex': mapTypeArray.includes(mapTypeCode.burnArea),
 						})}
 					>
@@ -207,7 +207,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						<Typography className='!text-2xs text-black'>{t('burntScar')}</Typography>
 					</Box>
 					<Box
-						className={classNames('hidden items-center gap-1.5', {
+						className={classNames('hidden shrink-0 items-center gap-1.5', {
 							'!flex': mapTypeArray.includes(mapTypeCode.plant),
 						})}
 					>
