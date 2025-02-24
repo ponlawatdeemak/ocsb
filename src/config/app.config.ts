@@ -49,11 +49,11 @@ export const mapAnalyzeMenuConfig: {
 		label: 'menu.burntArea',
 		path: AppPath.BurntArea,
 	},
-	{
-		id: 'PlantingArea',
-		label: 'menu.plantingArea',
-		path: AppPath.PlantingArea,
-	},
+	// {
+	// 	id: 'PlantingArea',
+	// 	label: 'menu.plantingArea',
+	// 	path: AppPath.PlantingArea,
+	// },
 ]
 
 export const appMenuConfig: {
@@ -84,18 +84,18 @@ export const appMenuConfig: {
 			UserRole.StaffReg4,
 		],
 	},
-	{
-		id: 'About',
-		label: 'menu.about',
-		path: AppPath.About,
-		access: [],
-	},
-	{
-		id: 'Glossary',
-		label: 'menu.glossary',
-		path: AppPath.Glossary,
-		access: [],
-	},
+	// {
+	// 	id: 'About',
+	// 	label: 'menu.about',
+	// 	path: AppPath.About,
+	// 	access: [],
+	// },
+	// {
+	// 	id: 'Glossary',
+	// 	label: 'menu.glossary',
+	// 	path: AppPath.Glossary,
+	// 	access: [],
+	// },
 	{
 		id: 'Setting',
 		label: 'menu.setting',
