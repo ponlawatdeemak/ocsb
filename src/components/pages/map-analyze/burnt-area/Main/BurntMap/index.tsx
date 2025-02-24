@@ -13,7 +13,7 @@ import {
 import { IconLayer, PolygonLayer } from '@deck.gl/layers'
 
 import { getPinHotSpot } from '@/utils/pin'
-import { RegionPinIcon } from '@/components/svg/AppIcon'
+import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
 import { mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
 import { useQuery } from '@tanstack/react-query'
@@ -184,6 +184,11 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 							})}
 						</Box>
 					)}
+				</Box>
+				<Box className='absolute bottom-3 left-3 z-10 flex items-end gap-4'>
+					<IconButton className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {})}>
+						<CountViewerIcon color='white' />
+					</IconButton>
 				</Box>
 
 				<Box
