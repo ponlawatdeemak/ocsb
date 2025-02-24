@@ -3,7 +3,7 @@ import useMapStore from '@/components/common/map/store/map'
 import { Box, IconButton, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo, useCallback, useEffect, useState } from 'react'
 import { OptionType } from '../SearchForm'
 import {
 	GetBurntBurntAreaDtoOut,
@@ -15,6 +15,7 @@ import { IconLayer, PolygonLayer } from '@deck.gl/layers'
 import { getPinHotSpot } from '@/utils/pin'
 import { RegionPinIcon } from '@/components/svg/AppIcon'
 import { mapTypeCode } from '@interface/config/app.config'
+import { useTranslation } from 'next-i18next'
 
 interface BurntMapMainProps {
 	className?: string
@@ -43,8 +44,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 }) => {
 	const { data: session } = useSession()
 	const { mapLibre, overlay } = useMapStore()
+	const { t } = useTranslation(['map-analyze', 'common'])
 
-	const [currentRegion, setCurrentRegion] = useState()
+	const [currentRegion, setCurrentRegion] = useState(['ภาค 1', 'ภาค 2', 'ภาค 3', 'ภาค 4'])
 	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
 
 	// map event
@@ -121,13 +123,30 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		}
 	}, [mapLibre, overlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
 
+	const handleCurrentRegionToggle = useCallback(() => {
+		setIsCurrentRegionOpen(!isCurrentRegionOpen)
+	}, [isCurrentRegionOpen])
+
 	return (
 		<Box className={classNames('', className)}>
 			<Box className='relative flex h-full grow'>
-				<Box className='absolute bottom-12 left-3 z-10'>
-					<IconButton className='h-6 w-6 !rounded-[5px] !bg-primary !p-1'>
+				<Box className='absolute bottom-12 left-3 z-10 flex items-end gap-4'>
+					<IconButton className='h-6 w-6 !rounded-[5px] !bg-primary !p-1' onClick={handleCurrentRegionToggle}>
 						<RegionPinIcon />
 					</IconButton>
+
+					{isCurrentRegionOpen && (
+						<Box className='flex flex-col gap-1 rounded-[5px] bg-white p-2'>
+							{currentRegion.map((region) => {
+								return (
+									<Typography
+										key={region}
+										className='!text-2xs text-black'
+									>{`${t('common:currentRegion')} : ${region}`}</Typography>
+								)
+							})}
+						</Box>
+					)}
 				</Box>
 
 				<Box
@@ -142,7 +161,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						})}
 					>
 						<Box className='h-3 w-3 rounded-full bg-[#FF0000]'></Box>
-						<Typography className='!text-2xs text-black'>จุดความร้อน</Typography>
+						<Typography className='!text-2xs text-black'>{t('hotspot')}</Typography>
 					</Box>
 					<Box
 						className={classNames('hidden items-center gap-1.5', {
@@ -150,7 +169,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						})}
 					>
 						<Box className='h-2 w-3 bg-[#F9B936]'></Box>
-						<Typography className='!text-2xs text-black'>ร่องรอยการเผาไหม้</Typography>
+						<Typography className='!text-2xs text-black'>{t('burntScar')}</Typography>
 					</Box>
 					<Box
 						className={classNames('hidden items-center gap-1.5', {
@@ -158,7 +177,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						})}
 					>
 						<Box className='h-3 w-3 rounded-full bg-[#8AB62D]'></Box>
-						<Typography className='!text-2xs text-black'>พื้นที่ปลูกอ้อย</Typography>
+						<Typography className='!text-2xs text-black'>{t('plantingArea')}</Typography>
 					</Box>
 				</Box>
 

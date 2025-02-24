@@ -98,6 +98,7 @@
 	"year": "ปี",
 	"quantity": "ปริมาณ",
 	"region": "ภูมิภาค",
+	"currentRegion": "ภูมิภาคสอน.",
 
 	"processing": "กำลังประมวลผล"
 }
