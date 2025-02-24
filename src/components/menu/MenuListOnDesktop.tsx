@@ -109,7 +109,7 @@ const MenuListOnDesktop: React.FC<MenuListOnDesktopProps> = ({ currentSetting, s
 														router.push(subMenu.path)
 														handleCloseMapAnalyzeMenu()
 													}}
-													className='p-3 px-2.5 text-base font-medium'
+													className='p-3 px-2.5 !text-xs'
 												>
 													{t(subMenu.label)}
 												</MenuItem>
