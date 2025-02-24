@@ -47,7 +47,8 @@
 		"resetBtn": "Reset",
 		"confirmBtn": "Submit",
 		"currentDate": "Current Date",
-		"burntDate": "Burnt Area Date"
+		"burntDate": "Burnt Area Date",
+		"errorMaxMonth": "Cannot select a time period exceeding 12 months"
 	},
 
 	"areaUnit": "Area Unit",
@@ -98,5 +99,5 @@
 	"quantity": "Quantity",
 	"region": "Region",
 
-    "processing": "Processing"
+	"processing": "Processing"
 }

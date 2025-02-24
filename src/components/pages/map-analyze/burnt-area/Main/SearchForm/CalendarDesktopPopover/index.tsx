@@ -1,6 +1,6 @@
 import { Box, Button, IconButton, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import classNames from 'classnames'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { CalendarType, DATE_RANGE_LENGTH } from '..'
 import { ChevronLeft, ChevronRight, EastRounded } from '@mui/icons-material'
 import { Calendar, DateObject } from 'react-multi-date-picker'
@@ -10,7 +10,9 @@ import { Languages } from '@/enum'
 import thai_th from '@/utils/thai_th'
 import english_en from '@/utils/english_en'
 import { formatDate } from '@/utils/date'
-import { addMonths, subMonths } from 'date-fns'
+import { differenceInMonths } from 'date-fns'
+import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
+// import { addMonths, subMonths } from 'date-fns'
 
 interface CalendarDesktopPopverMainProps {
 	className?: string
@@ -37,6 +39,12 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 }) => {
 	const { t, i18n } = useTranslation('common')
 	const language = i18n.language as keyof ResponseLanguage
+
+	const [alertInfo, setAlertInfo] = useState<AlertInfoType>({
+		open: false,
+		severity: 'error',
+		message: '',
+	})
 
 	const displayCurretnDateRange = useMemo(() => {
 		const displayFormat = calendarType === CalendarType.Month ? 'MMMM yyyy' : 'dd MMMM yyyy'
@@ -69,6 +77,19 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 			)
 		}
 	}, [calendarType, currentDateRange, language])
+
+	const onChange = (values: DateObject[]) => {
+		if (values.length === 2) {
+			const dateStart = values[0]
+			const dateEnd = values[1]
+			const monthDiff = differenceInMonths(dateStart.toDate(), dateEnd.toDate())
+			if (Math.abs(monthDiff) > 11) {
+				setAlertInfo({ open: true, severity: 'error', message: t('calendar.errorMaxMonth') })
+			} else {
+				onCurrentDateRangeChange(values)
+			}
+		}
+	}
 
 	return (
 		<Box className={classNames('h-full w-full', className)}>
@@ -132,7 +153,7 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 								className='desktop-calendar-month'
 								locale={language === Languages.EN ? english_en : thai_th}
 								value={currentDateRange}
-								onChange={onCurrentDateRangeChange}
+								onChange={onChange}
 								onlyMonthPicker
 								range
 								disableYearPicker
@@ -208,7 +229,7 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 							<Calendar
 								locale={language === Languages.EN ? english_en : thai_th}
 								value={currentDateRange}
-								onChange={onCurrentDateRangeChange}
+								onChange={onChange}
 								mapDays={({ date }) => {
 									const isBurntDate = burnAreaCalendarData
 										.map((burntDate) => burntDate.toString())
@@ -227,8 +248,8 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 								}}
 								range
 								numberOfMonths={2}
-								minDate={subMonths(new Date(currentDateRange[0].format()), 12)}
-								maxDate={addMonths(new Date(currentDateRange[0].format()), 12)}
+								// minDate={subMonths(new Date(currentDateRange[0].format()), 12)}
+								// maxDate={addMonths(new Date(currentDateRange[0].format()), 12)}
 								showOtherDays
 								disableMonthPicker
 								disableYearPicker
@@ -291,6 +312,7 @@ const CalendarDesktopPopverMain: React.FC<CalendarDesktopPopverMainProps> = ({
 					</Box>
 				)}
 			</Box>
+			<AlertSnackbar alertInfo={alertInfo} onClose={() => setAlertInfo({ ...alertInfo, open: false })} />
 		</Box>
 	)
 }
