@@ -297,7 +297,12 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 								<MultipleSelectCheckmarks
 									key={item.code}
 									name={item.code}
-									className='[&_.MuiInputBase-root]:!border-none [&_.MuiSelect-select>div]:!text-black'
+									className={classNames('[&_.MuiInputBase-root]:!border-none', {
+										'[&_.MuiInputBase-root]:!bg-[#EBF5FF] [&_.MuiSelect-select>div]:!text-primary [&_.MuiSvgIcon-root]:!text-primary':
+											mapTypeArray.includes(mapTypeCode.hotspots),
+										'[&_.MuiInputBase-root]:!bg-white [&_.MuiSelect-select>div]:!text-black [&_.MuiSvgIcon-root]:!text-black':
+											!mapTypeArray.includes(mapTypeCode.hotspots),
+									})}
 									options={hotspotOptions}
 									multipleSelected={selectedHotspots}
 									onChange={handleChange}

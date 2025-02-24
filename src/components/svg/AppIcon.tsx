@@ -134,3 +134,22 @@ export const SearchInputIcon: React.FC<SVGProps> = ({ width = 16, height = 16, f
 		</svg>
 	)
 }
+
+export const RegionPinIcon: React.FC<SVGProps> = ({ width = 16, height = 16, fill = 'none' }) => {
+	return (
+		<svg width={width} height={height} viewBox='0 0 16 16' fill={fill} xmlns='http://www.w3.org/2000/svg'>
+			<path
+				d='M14 6.66602C14 11.3327 8 15.3327 8 15.3327C8 15.3327 2 11.3327 2 6.66602C2 5.07472 2.63214 3.54859 3.75736 2.42337C4.88258 1.29816 6.4087 0.666016 8 0.666016C9.5913 0.666016 11.1174 1.29816 12.2426 2.42337C13.3679 3.54859 14 5.07472 14 6.66602Z'
+				stroke='white'
+				strokeLinecap='round'
+				strokeLinejoin='round'
+			/>
+			<path
+				d='M8 8.66602C9.10457 8.66602 10 7.77058 10 6.66602C10 5.56145 9.10457 4.66602 8 4.66602C6.89543 4.66602 6 5.56145 6 6.66602C6 7.77058 6.89543 8.66602 8 8.66602Z'
+				stroke='white'
+				strokeLinecap='round'
+				strokeLinejoin='round'
+			/>
+		</svg>
+	)
+}

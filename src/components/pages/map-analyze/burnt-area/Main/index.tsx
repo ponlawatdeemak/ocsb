@@ -198,6 +198,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				/>
 				<BurntMapMain
 					className='h-full w-full flex-1'
+					mapTypeArray={mapTypeArray}
 					currentAdmOption={searchSelectedAdmOption}
 					hotspotBurntAreaData={mapDataHotSpot}
 					burntBurntAreaData={mapDataBurnt}

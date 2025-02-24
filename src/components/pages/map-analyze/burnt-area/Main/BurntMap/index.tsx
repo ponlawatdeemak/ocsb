@@ -1,9 +1,9 @@
 import MapView from '@/components/common/map/MapView'
 import useMapStore from '@/components/common/map/store/map'
-import { Box } from '@mui/material'
+import { Box, IconButton, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
-import React, { memo, useEffect } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { OptionType } from '../SearchForm'
 import {
 	GetBurntBurntAreaDtoOut,
@@ -13,9 +13,12 @@ import {
 import { IconLayer, PolygonLayer } from '@deck.gl/layers'
 
 import { getPinHotSpot } from '@/utils/pin'
+import { RegionPinIcon } from '@/components/svg/AppIcon'
+import { mapTypeCode } from '@interface/config/app.config'
 
 interface BurntMapMainProps {
 	className?: string
+	mapTypeArray: mapTypeCode[]
 	currentAdmOption: OptionType | null
 	hotspotBurntAreaData: GetHotspotBurntAreaDtoOut[]
 	burntBurntAreaData: GetBurntBurntAreaDtoOut[]
@@ -28,6 +31,7 @@ interface BurntMapMainProps {
 
 const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	className = '',
+	mapTypeArray,
 	currentAdmOption,
 	hotspotBurntAreaData,
 	burntBurntAreaData,
@@ -39,6 +43,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 }) => {
 	const { data: session } = useSession()
 	const { mapLibre, overlay } = useMapStore()
+
+	const [currentRegion, setCurrentRegion] = useState()
+	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
 
 	// map event
 	useEffect(() => {
@@ -116,7 +123,45 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	return (
 		<Box className={classNames('', className)}>
-			<Box className='flex h-full grow'>
+			<Box className='relative flex h-full grow'>
+				<Box className='absolute bottom-12 left-3 z-10'>
+					<IconButton className='h-6 w-6 !rounded-[5px] !bg-primary !p-1'>
+						<RegionPinIcon />
+					</IconButton>
+				</Box>
+
+				<Box
+					className={classNames(
+						'absolute bottom-3 left-[52px] z-10 flex items-center gap-2 rounded-[5px] bg-white py-1 pl-2 pr-3',
+						{ '!hidden': mapTypeArray.length === 0 },
+					)}
+				>
+					<Box
+						className={classNames('hidden items-center gap-1.5', {
+							'!flex': mapTypeArray.includes(mapTypeCode.hotspots),
+						})}
+					>
+						<Box className='h-3 w-3 rounded-full bg-[#FF0000]'></Box>
+						<Typography className='!text-2xs text-black'>จุดความร้อน</Typography>
+					</Box>
+					<Box
+						className={classNames('hidden items-center gap-1.5', {
+							'!flex': mapTypeArray.includes(mapTypeCode.burnArea),
+						})}
+					>
+						<Box className='h-2 w-3 bg-[#F9B936]'></Box>
+						<Typography className='!text-2xs text-black'>ร่องรอยการเผาไหม้</Typography>
+					</Box>
+					<Box
+						className={classNames('hidden items-center gap-1.5', {
+							'!flex': mapTypeArray.includes(mapTypeCode.plant),
+						})}
+					>
+						<Box className='h-3 w-3 rounded-full bg-[#8AB62D]'></Box>
+						<Typography className='!text-2xs text-black'>พื้นที่ปลูกอ้อย</Typography>
+					</Box>
+				</Box>
+
 				<MapView
 					loading={
 						isHotspotBurntAreaDataLoading || isBurntBurntAreaDataLoading || isPlantBurntAreaDataLoading
