@@ -21,7 +21,7 @@ const mapAnalyze = {
 	): Promise<ResponseDto<GetDashBoardBurntAreaDtoOut>> => {
 		const mapType = payload.mapType?.map((type) => `&mapType=${type}`).join('')
 		const inSugarcan = payload.inSugarcan?.map((hotspotTypeCode) => `&inSugarcan=${hotspotTypeCode}`).join('')
-		const admC = `&admC=${payload.admC}`
+		const admC = `&admC=${payload.admC || ''}`
 
 		return await api.get(
 			`/brunt-area/dashboard?startDate=${payload.startDate}&endDate=${payload.endDate}${admC ?? ''}${mapType ?? ''}${inSugarcan ?? ''}`,
