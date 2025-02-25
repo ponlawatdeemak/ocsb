@@ -2,7 +2,7 @@ import { updateAccessToken } from '@/api/core'
 import { allowGuestPages, AppPath } from '@/config/app.config'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import { ReactNode, useEffect, useMemo } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 
 interface Props {
 	readonly children: ReactNode
@@ -11,6 +11,7 @@ interface Props {
 export default function IdentityProvider(props: Props) {
 	const { children } = props
 	const { data: session, status } = useSession()
+	const [initial, setInital] = useState(false)
 	const router = useRouter()
 
 	const requireLogin = useMemo(() => {
@@ -34,10 +35,13 @@ export default function IdentityProvider(props: Props) {
 		}
 	}, [session])
 
-	if (requireLogin && !session && status != 'loading') {
-		router?.push(AppPath.Login)
-		return null
-	}
+	useEffect(() => {
+		if (requireLogin && !session && status != 'loading') {
+			router?.push(AppPath.Login)
+		} else {
+			setInital(true)
+		}
+	}, [requireLogin, status, session, router])
 
-	return children
+	return initial ? children : <></>
 }
