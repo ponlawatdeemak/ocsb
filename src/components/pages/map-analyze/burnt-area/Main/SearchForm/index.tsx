@@ -191,6 +191,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	const handleCurrentMonthRangeSubmit = useCallback(() => {
 		if (currentDateRange.length === DATE_RANGE_LENGTH) {
 			const startDate = startOfMonth(new Date(currentDateRange[0]?.format('YYYY-MM-DD')))
+			startDate.setHours(startDate.getHours() + 7)
 			const endDate = endOfMonth(new Date(currentDateRange[1]?.format('YYYY-MM-DD')))
 			handleCurrentDateRange([new DateObject(startDate), new DateObject(endDate)])
 			onSelectedDateRange([startDate, endDate])

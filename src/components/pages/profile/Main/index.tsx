@@ -86,7 +86,11 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		regions: yup.array().min(1, `${t('required')}${t('um:profile.regions')}`),
 	})
 
-	const { data: profileData, isLoading: isProfileDataLoading } = useQuery({
+	const {
+		data: profileData,
+		refetch: refetchProfile,
+		isLoading: isProfileDataLoading,
+	} = useQuery({
 		queryKey: ['getProfile'],
 		queryFn: async () => {
 			const response = await service.profile.getProfile()
@@ -115,7 +119,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 				if (values.image && typeof values.image !== 'string') {
 					let formData = new FormData()
 					formData.append('file', values.image)
-					await service.um.postImage(values.image as File, {
+					await service.um.postImage(values.image, {
 						userId: profileData?.userId ?? '',
 					})
 				}
@@ -127,14 +131,15 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 				})
 				const response = await service.profile.getProfile()
 				update(response.data)
-				setBusy(false)
 			} catch (error: any) {
 				console.error(error)
 				setAlertInfo({ open: true, severity: 'error', message: t('auth:error.saveProfile') })
+			} finally {
 				setBusy(false)
+				refetchProfile()
 			}
 		},
-		[profileData?.userId, t, update],
+		[profileData?.userId, t, update, refetchProfile],
 	)
 
 	const formik = useFormik<UMFormValues>({
@@ -412,7 +417,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 								type={showCurrentPassword ? 'text' : 'password'}
 								name='currentPw'
 								size='small'
-								value={changePwFormik?.values['currentPw'] || ''}
+								value={changePwFormik?.values['currentPw'] ?? ''}
 								onChange={changePwFormik?.handleChange}
 								error={
 									changePwFormik?.touched['currentPw'] && Boolean(changePwFormik?.errors['currentPw'])

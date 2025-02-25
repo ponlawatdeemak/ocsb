@@ -107,7 +107,7 @@ export const UserManagementMain = () => {
 			const promises = requestMap.map((request) => mutateDeleteAllUM(request))
 			Promise.all(promises)
 				.then((res) => {
-					setAlertInfo({ open: true, severity: 'success', message: t('um:alert.saveComplete') })
+					setAlertInfo({ open: true, severity: 'success', message: t('um:alert.deleteComplete') })
 					refetchSearchUM()
 				})
 				.catch((error) => {

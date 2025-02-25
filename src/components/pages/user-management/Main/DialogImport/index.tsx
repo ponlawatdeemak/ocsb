@@ -94,7 +94,7 @@ export const DialogImport: React.FC<FormImportProps> = ({ ...props }) => {
 					} else {
 						await um.postImportData(importFile)
 					}
-					setAlertInfo({ open: true, severity: 'success', message: t('um:import.alert.saveComplete') })
+					setAlertInfo({ open: true, severity: 'success', message: t('um:alert.saveComplete') })
 
 					handleCloseImport(null, 'importFinish')
 				} else {

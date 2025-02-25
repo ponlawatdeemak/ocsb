@@ -181,7 +181,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 				}
 				const payload: DeleteUMDtoIn = { userId: id }
 				await mutateDeleteUM(payload)
-				setAlertInfo({ open: true, severity: 'success', message: t('um:alert.saveComplete') })
+				setAlertInfo({ open: true, severity: 'success', message: t('um:alert.deleteComplete') })
 			} catch (error: any) {
 				console.error(error)
 				setAlertInfo({

@@ -10,5 +10,12 @@
 	"hotspot": "Hotspots",
 	"burntScar": "Burnt Scar",
 	"plantingArea": "Planting Area",
-	"allRegions": "All Regions"
+	"allRegions": "All Regions",
+	"popupBurnt": {
+		"date": "Date of detection",
+		"address": "Address",
+		"coordinates": "Coordinates",
+		"burntScar": "Burnt Scar",
+		"plantingArea": "Planting Area"
+	}
 }
