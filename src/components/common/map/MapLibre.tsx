@@ -1,6 +1,6 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
 import React, { FC, memo, useCallback, useEffect } from 'react'
-import { Map, useControl } from 'react-map-gl/maplibre'
+import { Map, ScaleControl, useControl } from 'react-map-gl/maplibre'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import useMapStore from './store/map'
 import maplibregl, { MapLibreEvent, MapStyleDataEvent, StyleSpecification } from 'maplibre-gl'
@@ -85,6 +85,7 @@ const MapLibre: FC<MapLibreProps> = ({ mapStyle }) => {
 			maxPitch={0}
 			minPitch={0}
 		>
+			<ScaleControl position='bottom-right' />
 			<DeckGLOverlay />
 		</Map>
 	)
