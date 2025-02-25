@@ -11,7 +11,7 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 	const { t, i18n } = useTranslation(['map-analyze'])
 	const { areaUnit } = useAreaUnit()
 	return (
-		<div className=''>
+		<div>
 			{popupData.map((item) => {
 				const data = item.object.properties
 				const date = new Date(data.date).toLocaleDateString('en-GB', {
