@@ -10,5 +10,12 @@
 	"hotspot": "จุดความร้อน",
 	"burntScar": "ร่องรอยการเผาไหม้",
 	"plantingArea": "พื้นที่ปลูกอ้อย",
-	"allRegions": "ทุกภูมิภาค"
+	"allRegions": "ทุกภูมิภาค",
+	"popupBurnt": {
+		"date": "วันที่ตรวจพบ",
+		"address": "ที่ตั้ง",
+		"coordinates": "พิกัด",
+		"burntScar": "ร่องรอยการเผาไหม้",
+		"plantingArea": "พื้นที่ปลูกอ้อย"
+	}
 }

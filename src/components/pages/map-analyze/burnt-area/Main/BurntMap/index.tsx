@@ -3,7 +3,7 @@ import useMapStore from '@/components/common/map/store/map'
 import { Box, IconButton, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
-import React, { memo, useCallback, useEffect, useState } from 'react'
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { OptionType } from '../SearchForm'
 import {
 	GetBurntBurntAreaDtoOut,
@@ -14,13 +14,17 @@ import { IconLayer, PolygonLayer } from '@deck.gl/layers'
 
 import { getPinHotSpot } from '@/utils/pin'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
-import { mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
+import { mapTypeCode } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
 import { Languages } from '@/enum'
 import { enSuffix } from '@/config/app.config'
+import { Popup } from 'maplibre-gl'
+import { PickingInfo } from '@deck.gl/core'
+import PopupBurnt from './PopupBurnt'
+import CloseIcon from '@mui/icons-material/Close'
 
 interface BurntMapMainProps {
 	className?: string
@@ -50,9 +54,13 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const { data: session } = useSession()
 	const { mapLibre, overlay } = useMapStore()
 	const { t, i18n } = useTranslation(['map-analyze', 'common'])
-	const language = i18n.language as keyof ResponseLanguage
+
 	const [currentRegion, setCurrentRegion] = useState('')
 	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
+
+	const popupNode = useRef<HTMLDivElement>(null)
+	const [popupData, setPopupData] = useState<any[]>([])
+	const popup = useMemo(() => new Popup({ closeOnClick: false, closeButton: false }), [])
 
 	const { data: regionData, isPending: isRegionLoading } = useQuery({
 		queryKey: ['getRegion'],
@@ -108,10 +116,26 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		}
 	}, [mapLibre, currentAdmOption?.geometry, session?.user?.geometry])
 
+	const onMapClick = useCallback(
+		(info: PickingInfo) => {
+			if (mapLibre && overlay) {
+				const pickItem = overlay.pickMultipleObjects(info)
+				if (popupNode.current && pickItem.length) {
+					popup
+						?.setLngLat(info.coordinate as [number, number])
+						.setDOMContent(popupNode.current)
+						.addTo(mapLibre)
+
+					setPopupData(pickItem)
+				}
+			}
+		},
+		[mapLibre, overlay, popup],
+	)
+
 	// update layer
 	useEffect(() => {
 		if (mapLibre && overlay) {
-			// if (hotspotBurntAreaData?.length) {
 			const layers = [
 				new PolygonLayer({
 					id: 'plant',
@@ -150,11 +174,13 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				}),
 			]
 
-			// set overlay
-			overlay.setProps({ layers: [layers] })
-			// }
+			overlay.setProps({
+				layers: [layers],
+				onClick: onMapClick,
+				getCursor: (state) => (state.isHovering ? 'pointer' : 'default'),
+			})
 		}
-	}, [mapLibre, overlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
+	}, [mapLibre, overlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData, onMapClick])
 
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
@@ -218,9 +244,29 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 				<MapView
 					loading={
-						isHotspotBurntAreaDataLoading || isBurntBurntAreaDataLoading || isPlantBurntAreaDataLoading
+						isHotspotBurntAreaDataLoading ||
+						isBurntBurntAreaDataLoading ||
+						isPlantBurntAreaDataLoading ||
+						isRegionLoading
 					}
 				/>
+				<div
+					ref={popupNode}
+					className={`relative w-full min-w-[300px] flex-col ${!!popupData?.length ? 'flex' : 'hidden'}`}
+				>
+					<Box className='absolute right-1 top-1 flex justify-end'>
+						<IconButton
+							onClick={() => {
+								setPopupData([])
+								popup.remove()
+							}}
+							className='mr-2 p-0'
+						>
+							<CloseIcon className='text-white' sx={{ fontSize: 12 }} />
+						</IconButton>
+					</Box>
+					<PopupBurnt popupData={popupData} />
+				</div>
 			</Box>
 		</Box>
 	)
