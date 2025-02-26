@@ -6,6 +6,7 @@ import { useTranslation } from 'next-i18next'
 import React, { useEffect, useMemo, useState } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
+import { Languages } from '@/enum'
 
 interface GlossaryMainProps {
 	className?: string
@@ -19,11 +20,24 @@ export const GlossaryMain: React.FC<GlossaryMainProps> = ({ className = '' }) =>
 	const [letter, setLetter] = useState<string>('')
 
 	const words = useMemo(() => {
-		return glossary.filter(
-			(word) =>
-				word.term[language].startsWith(letter) &&
-				word.term[language].toLocaleLowerCase().includes(keyword.toLocaleLowerCase()),
-		)
+		return glossary
+			.filter(
+				(word) =>
+					(word.keyword
+						? word.keyword[language].startsWith(letter)
+						: word.term[language].startsWith(letter)) &&
+					word.term[language].toLocaleLowerCase().includes(keyword.toLocaleLowerCase()),
+			)
+			.toSorted((a, b) => {
+				const firstCharA = a.term[language].charAt(0)
+				const firstCharB = b.term[language].charAt(0)
+				if (language === Languages.EN) {
+					if (firstCharA < firstCharB) return -1
+					if (firstCharA > firstCharB) return 1
+				}
+
+				return 0
+			})
 	}, [keyword, language, letter])
 
 	useEffect(() => {
@@ -99,7 +113,9 @@ export const GlossaryMain: React.FC<GlossaryMainProps> = ({ className = '' }) =>
 											'flex h-[30px] w-[30px] items-center justify-center rounded-[5px] bg-[#E6E6E6] text-sm text-primary',
 										)}
 									>
-										{resultWord.term[language][0]}
+										{resultWord.keyword
+											? resultWord.keyword[language]
+											: resultWord.term[language][0]}
 									</div>
 									<Typography className='!text-sm text-primary'>
 										{resultWord.term[language]}
