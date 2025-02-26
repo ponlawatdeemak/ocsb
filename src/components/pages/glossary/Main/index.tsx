@@ -43,11 +43,11 @@ export const GlossaryMain: React.FC<GlossaryMainProps> = ({ className = '' }) =>
 				<div className='flex h-[60px] w-full items-center rounded-[15px_15px_0px_0px] bg-primary-light px-6 py-5'>
 					<Typography className='!text-md text-white'>{t('common:menu.glossary')}</Typography>
 				</div>
-				<div className='flex flex-col gap-6 rounded-[0px_0px_15px_15px] bg-white p-6'>
+				<div className='flex flex-col gap-6 rounded-[0px_0px_15px_15px] bg-white p-6 max-lg:px-4'>
 					<div className='flex flex-col gap-[6px]'>
-						<Typography className='!text-sm'>{t('um:search.keyword')}</Typography>
+						<Typography className='!text-xs'>{t('um:search.keyword')}</Typography>
 						<OutlinedInput
-							className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
+							className='[&_fieldset]:rounded-[5px] [&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
 							placeholder={t('fillKeyword')}
 							value={keyword}
 							onChange={(e) => {
@@ -56,7 +56,7 @@ export const GlossaryMain: React.FC<GlossaryMainProps> = ({ className = '' }) =>
 						/>
 					</div>
 					<div className='flex flex-col gap-[6px]'>
-						<Typography className='!text-sm'>{t('letter')}</Typography>
+						<Typography className='!text-xs'>{t('letter')}</Typography>
 						<div className='flex w-full flex-wrap gap-2'>
 							{letters[language].map((item) => (
 								<button
