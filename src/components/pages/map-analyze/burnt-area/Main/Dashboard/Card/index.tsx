@@ -244,7 +244,12 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	}, [hideData, inSugarCaneArea, language, t])
 
 	return (
-		<Box className={classNames('flex h-full w-[300px] min-w-0 flex-col bg-white', className)}>
+		<Box
+			className={classNames(
+				'flex h-full w-[100%] min-w-[100%] flex-col bg-white md:w-[300px] md:min-w-0',
+				className,
+			)}
+		>
 			<button
 				className={classNames(
 					'flex h-fit w-full items-start justify-between bg-[#EBF5FF] px-5 py-4 hover:cursor-pointer',

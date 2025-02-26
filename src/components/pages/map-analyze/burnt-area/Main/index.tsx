@@ -9,6 +9,7 @@ import { DateObject } from 'react-multi-date-picker'
 import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
 import useMapStore from '@/components/common/map/store/map'
+import SwipeableEdgeDrawer from './Drawer'
 
 const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
 
@@ -213,6 +214,16 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					isBurntBurntAreaDataLoading={isBurntBurntAreaDataLoading}
 					isPlantBurntAreaDataLoading={isPlantBurntAreaDataLoading}
 					onMapExtentChange={setMapExtent}
+				/>
+				<SwipeableEdgeDrawer
+					selectedArea={selectedArea}
+					handleClickAdd={handleClickAdd}
+					handleClickDelete={handleClickDelete}
+					selectedCard={selectedCard}
+					handleSelectCard={handleSelectCard}
+					mapTypeArray={mapTypeArray}
+					selectedHotspots={selectedHotspots}
+					selectedDateRange={selectedDateRange}
 				/>
 			</Box>
 		</Box>

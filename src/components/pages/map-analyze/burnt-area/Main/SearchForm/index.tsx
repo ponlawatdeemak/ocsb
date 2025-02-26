@@ -6,7 +6,6 @@ import useResponsive from '@/hook/responsive'
 import {
 	Autocomplete,
 	Box,
-	Button,
 	FormControl,
 	IconButton,
 	Input,
@@ -28,7 +27,6 @@ import service from '@/api'
 import { Clear } from '@mui/icons-material'
 import { debounce } from 'lodash'
 import { defaultCurrentDateRange } from '..'
-import zIndex from '@mui/material/styles/zIndex'
 
 export interface OptionType {
 	id: string
@@ -312,7 +310,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 							)
 						} else {
 							return (
-								<Button
+								<button
 									key={item.code}
 									className={classNames(
 										'h-[38px] !truncate !rounded-[5px] !px-4 !py-2.5 !text-sm !font-normal !shadow-none',
@@ -320,11 +318,10 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 										{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
 									)}
 									name={item.code}
-									variant='contained'
 									onClick={handleChange}
 								>
 									{item.label[language]}
-								</Button>
+								</button>
 							)
 						}
 					})}
