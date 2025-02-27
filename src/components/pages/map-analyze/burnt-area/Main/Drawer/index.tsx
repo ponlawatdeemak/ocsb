@@ -9,7 +9,6 @@ import { useTranslation } from 'next-i18next'
 import { OptionType } from '../SearchForm'
 import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 import DashboardCardMain from '../Dashboard/Card'
-import { useState } from 'react'
 import classNames from 'classnames'
 
 const drawerBleeding = 40
@@ -33,6 +32,8 @@ const SwipeableEdgeDrawer = ({
 	mapTypeArray,
 	selectedHotspots,
 	selectedDateRange,
+	openDrawer,
+	toggleDrawer,
 }: {
 	selectedArea: { id: string; admOption: OptionType | null }[]
 	handleClickAdd: () => void
@@ -42,16 +43,13 @@ const SwipeableEdgeDrawer = ({
 	mapTypeArray: mapTypeCode[]
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
+	openDrawer: boolean
+	toggleDrawer: (newOpen: boolean) => void
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common'])
-	const [open, setOpen] = useState(false)
-
-	const toggleDrawer = (newOpen: boolean) => {
-		setOpen(newOpen)
-	}
 
 	return (
-		<div className='bg-white'>
+		<div className='bg-white md:hidden'>
 			<CssBaseline />
 			<Global
 				styles={{
@@ -63,7 +61,7 @@ const SwipeableEdgeDrawer = ({
 			/>
 			<SwipeableDrawer
 				anchor='bottom'
-				open={open}
+				open={openDrawer}
 				onClose={() => toggleDrawer(false)}
 				onOpen={() => {
 					if (selectedArea.length === 0) {
@@ -110,6 +108,7 @@ const SwipeableEdgeDrawer = ({
 								mapTypeArray={mapTypeArray}
 								selectedHotspots={selectedHotspots}
 								selectedDateRange={selectedDateRange}
+								className={classNames({ '!w-[100%]': selectedArea.length === 1 })}
 							/>
 						))}
 					</div>

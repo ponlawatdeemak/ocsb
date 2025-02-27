@@ -289,23 +289,27 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 					</Paper>
 				</Box>
 
-				<Box className='flex w-[74%] items-center gap-4'>
+				<Box className='flex w-full items-center gap-4 md:w-[74%]'>
 					{mapType.map((item) => {
 						if (item.code === mapTypeCode.hotspots) {
 							return (
 								<MultipleSelectCheckmarks
 									key={item.code}
 									name={item.code}
-									className={classNames('[&_.MuiInputBase-root]:!border-none', {
-										'[&_.MuiInputBase-root]:!bg-[#EBF5FF] [&_.MuiSelect-select>div]:!text-primary [&_.MuiSvgIcon-root]:!text-primary':
-											mapTypeArray.includes(mapTypeCode.hotspots),
-										'[&_.MuiInputBase-root]:!bg-white [&_.MuiSelect-select>div]:!text-black [&_.MuiSvgIcon-root]:!text-black':
-											!mapTypeArray.includes(mapTypeCode.hotspots),
-									})}
+									className={classNames(
+										'text-center !text-xs max-md:w-full [&_.MuiInputBase-root]:!border-none [&_.MuiSelect-select>div]:!text-xs',
+										{
+											'[&_.MuiInputBase-root]:!bg-[#EBF5FF] [&_.MuiSelect-select>div]:!text-primary [&_.MuiSvgIcon-root]:!text-primary':
+												mapTypeArray.includes(mapTypeCode.hotspots),
+											'[&_.MuiInputBase-root]:!bg-white [&_.MuiSelect-select>div]:!text-black [&_.MuiSvgIcon-root]:!text-black':
+												!mapTypeArray.includes(mapTypeCode.hotspots),
+										},
+									)}
 									options={hotspotOptions}
 									multipleSelected={selectedHotspots}
 									onChange={handleChange}
 									fixedRenderValue={item.label[language]}
+									optionsClassName='[&_p]:!text-xs [&_.MuiSvgIcon-root]:w-4 [&_.MuiSvgIcon-root]:h-4 [&_.MuiList-root]:!p-0'
 								/>
 							)
 						} else {
@@ -313,7 +317,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 								<button
 									key={item.code}
 									className={classNames(
-										'h-[38px] !truncate !rounded-[5px] !px-4 !py-2.5 !text-sm !font-normal !shadow-none',
+										'h-[38px] !truncate !rounded-[5px] !px-4 !py-2.5 !text-xs !font-normal !shadow-none max-md:w-full',
 										{ '!bg-[#EBF5FF] !text-primary': mapTypeArray.includes(item.code) },
 										{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
 									)}

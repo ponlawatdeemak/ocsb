@@ -6,6 +6,7 @@ import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
 import { OptionType } from '../SearchForm'
 import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
+import CloseIcon from '@mui/icons-material/Close'
 
 interface BurntDashboardMainProps {
 	selectedArea: { id: string; admOption: OptionType | null }[]
@@ -16,6 +17,8 @@ interface BurntDashboardMainProps {
 	mapTypeArray: mapTypeCode[]
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
+	openDrawer: boolean
+	toggleDrawer: (newOpen: boolean) => void
 	className?: string
 }
 
@@ -28,29 +31,42 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 	mapTypeArray,
 	selectedHotspots,
 	selectedDateRange,
+	openDrawer,
+	toggleDrawer,
 	className = '',
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
 
-	if (selectedArea.length === 0) {
-		return (
+	return (
+		<>
 			<Button
 				className={classNames(
-					'!absolute left-0 top-0 z-[9999] gap-[6px] !rounded-none !px-6 !py-3 !text-sm !font-normal !text-white max-md:!hidden',
+					'!absolute left-0 top-0 z-[2] gap-[6px] !rounded-none !px-6 !py-3 !text-sm !font-normal !text-white max-md:!hidden',
+					{ '!hidden': openDrawer },
 				)}
 				variant='contained'
-				onClick={handleClickAdd}
+				onClick={() => {
+					if (selectedArea.length === 0) {
+						handleClickAdd()
+						toggleDrawer(true)
+					} else {
+						toggleDrawer(true)
+					}
+				}}
 			>
 				<DashboardIcon /> {t('compare')}
 			</Button>
-		)
-	} else {
-		return (
-			<div className={classNames('relative flex h-full gap-[1px]', className)}>
+
+			<div className={classNames('relative flex h-full gap-[1px]', { '!hidden': !openDrawer }, className)}>
 				{selectedArea.map((item) => (
 					<DashboardCardMain
 						key={item.id}
-						handleClickDelete={() => handleClickDelete(item)}
+						handleClickDelete={() => {
+							if (selectedArea.length === 1) {
+								toggleDrawer(false)
+							}
+							handleClickDelete(item)
+						}}
 						isSelectedCard={(selectedCard ?? '') === item.id}
 						handleSelectCard={() => handleSelectCard(item)}
 						area={item}
@@ -59,6 +75,42 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 						selectedDateRange={selectedDateRange}
 					/>
 				))}
+
+				<Tooltip
+					title={t('hideCompare')}
+					placement='right'
+					componentsProps={{
+						tooltip: {
+							sx: {
+								bgcolor: 'white',
+								color: 'black',
+								fontSize: '12px',
+								padding: '8px',
+								boxShadow: '0px 2px 10px -2px rgb(0 0 0 / 0.3)',
+							},
+						},
+						arrow: {
+							sx: {
+								color: 'white',
+							},
+						},
+					}}
+					arrow
+					hidden={!openDrawer}
+				>
+					<Button
+						className={classNames(
+							'!absolute right-[-40px] top-0 z-[1] !max-h-10 !min-h-10 !min-w-10 !max-w-10 !rounded-[0px_5px_5px_0px] !bg-[#EBF5FF] !p-2 !text-primary !shadow-none hover:z-[9999] hover:!shadow',
+						)}
+						variant='contained'
+						onClick={() => {
+							toggleDrawer(false)
+						}}
+					>
+						<CloseIcon className='!h-4 !w-4 pt-[2px] text-primary' />
+					</Button>
+				</Tooltip>
+
 				{selectedArea.length < 4 && (
 					<Tooltip
 						title={t('addCompare')}
@@ -80,10 +132,11 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 							},
 						}}
 						arrow
+						hidden={!openDrawer}
 					>
 						<Button
 							className={classNames(
-								'!absolute right-[-40px] top-0 z-[1] !max-h-10 !min-h-10 !min-w-10 !max-w-10 !rounded-[0px_5px_5px_0px] !bg-[#EBF5FF] !p-2 !text-primary !shadow-none hover:!shadow',
+								'!absolute right-[-40px] top-10 z-[1] !max-h-10 !min-h-10 !min-w-10 !max-w-10 !rounded-[0px_5px_5px_0px] !bg-[#EBF5FF] !p-2 !text-primary !shadow-none hover:z-[9999] hover:!shadow',
 							)}
 							variant='contained'
 							onClick={handleClickAdd}
@@ -93,8 +146,8 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 					</Tooltip>
 				)}
 			</div>
-		)
-	}
+		</>
+	)
 }
 
 export default BurntDashboardMain

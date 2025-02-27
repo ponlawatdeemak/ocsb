@@ -189,7 +189,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	return (
 		<Box className={classNames('', className)}>
 			<Box className='relative flex h-full grow'>
-				<Box className='absolute bottom-12 left-3 z-10 flex items-end gap-4'>
+				<Box className='absolute bottom-[88px] left-3 z-10 flex items-end gap-4 md:bottom-12'>
 					<IconButton
 						className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {
 							'!bg-white': !isCurrentRegionOpen,
@@ -204,7 +204,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						</Box>
 					)}
 				</Box>
-				<Box className='absolute bottom-3 left-3 z-10 flex items-end gap-4'>
+				<Box className='absolute bottom-[52px] left-3 z-10 flex items-end gap-4 md:bottom-3'>
 					<IconButton className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {})}>
 						<CountViewerIcon color='white' />
 					</IconButton>
@@ -212,7 +212,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 				<Box
 					className={classNames(
-						'absolute bottom-3 left-[52px] z-10 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3',
+						'absolute bottom-[52px] left-[52px] z-10 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3 md:bottom-3',
 						{ '!hidden': mapTypeArray.length === 0 },
 					)}
 				>

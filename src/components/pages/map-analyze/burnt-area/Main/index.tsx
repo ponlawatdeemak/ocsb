@@ -25,6 +25,11 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	const [selectedArea, setSelectedArea] = useState<{ id: string; admOption: OptionType | null }[]>([])
 	const [selectedCard, setSelectedCard] = useState<string>()
 	const [mapTypeArray, setMapTypeArray] = useState<mapTypeCode[]>([mapTypeCode.hotspots])
+	const [openDrawer, setOpenDrawer] = useState(false)
+
+	const toggleDrawer = (newOpen: boolean) => {
+		setOpenDrawer(newOpen)
+	}
 
 	const [selectedHotspots, setSelectedHotspots] = useState<hotspotTypeCode[]>(hotspotType.map((type) => type.code))
 	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
@@ -191,7 +196,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				currentDateRange={currentDateRange}
 				handleCurrentDateRange={handleCurrentDateRange}
 			/>
-			<Box className='absolute flex h-full w-full overflow-y-auto md:relative'>
+			<Box className='absolute flex h-full w-full overflow-y-auto max-md:h-[calc(100%-80px)] md:relative'>
 				<BurntDashboardMain
 					selectedArea={selectedArea}
 					handleClickAdd={handleClickAdd}
@@ -201,10 +206,12 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					mapTypeArray={mapTypeArray}
 					selectedHotspots={selectedHotspots}
 					selectedDateRange={selectedDateRange}
+					openDrawer={openDrawer}
+					toggleDrawer={toggleDrawer}
 					className='max-w-[calc(80vw)] max-md:hidden'
 				/>
 				<BurntMapMain
-					className='h-full w-full flex-1'
+					className='w-full flex-1 md:h-full max-md:[&_.maplibregl-ctrl-bottom-right]:bottom-[40px]'
 					mapTypeArray={mapTypeArray}
 					currentAdmOption={searchSelectedAdmOption}
 					hotspotBurntAreaData={mapDataHotSpot}
@@ -224,6 +231,8 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					mapTypeArray={mapTypeArray}
 					selectedHotspots={selectedHotspots}
 					selectedDateRange={selectedDateRange}
+					openDrawer={openDrawer}
+					toggleDrawer={toggleDrawer}
 				/>
 			</Box>
 		</Box>

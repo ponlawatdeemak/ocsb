@@ -27,6 +27,7 @@ interface MultipleSelectCheckmarksProps {
 	fixedRenderValue?: string
 	disabled?: boolean
 	name?: string
+	optionsClassName?: string
 }
 
 const MultipleSelectCheckmarks: React.FC<MultipleSelectCheckmarksProps> = ({
@@ -38,6 +39,7 @@ const MultipleSelectCheckmarks: React.FC<MultipleSelectCheckmarksProps> = ({
 	fixedRenderValue = '',
 	disabled = false,
 	name,
+	optionsClassName,
 }) => {
 	return (
 		<FormControl className={classNames('[&_.Mui-focused]:border-secondary', className)}>
@@ -59,7 +61,8 @@ const MultipleSelectCheckmarks: React.FC<MultipleSelectCheckmarksProps> = ({
 					slotProps: {
 						paper: {
 							className:
-								'mt-1 border-[0.5px] border-solid border-gray p-1 bg-white !rounded-[5px] shadow-[0_3.43px_2.75px_0_rgba(0,0,0,0.02),0_8.69px_6.95px_0_rgba(0,0,0,0.03)]',
+								'mt-1 border-[0.5px] border-solid border-gray p-1 bg-white !rounded-[5px] shadow-[0_3.43px_2.75px_0_rgba(0,0,0,0.02),0_8.69px_6.95px_0_rgba(0,0,0,0.03)]' +
+								` ${optionsClassName}`,
 						},
 					},
 					MenuListProps: {

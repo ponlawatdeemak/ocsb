@@ -246,7 +246,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	return (
 		<Box
 			className={classNames(
-				'flex h-full w-[100%] min-w-[100%] flex-col bg-white md:w-[300px] md:min-w-0',
+				'flex h-full w-[375px] min-w-[375px] flex-col bg-white md:w-[300px] md:min-w-0',
 				className,
 			)}
 		>
@@ -261,7 +261,9 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 				}}
 				onClick={handleSelectCard}
 			>
-				<Typography className='break-all'>{area.admOption?.name[language] ?? t('allRegions')}</Typography>
+				<Typography className='break-all text-start text-primary max-md:!text-md'>
+					{area.admOption?.name[language] ?? t('allRegions')}
+				</Typography>
 				<IconButton
 					onClick={(e) => {
 						e.preventDefault()
@@ -272,7 +274,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 					<CloseIcon className='!h-3 !w-3' />
 				</IconButton>
 			</button>
-			<Box className='overflow-y-auto'>
+			<Box className={classNames('overflow-y-auto', { 'flex grow': isDashBoardDataLoading })}>
 				<div className='flex w-full grow flex-col items-center justify-start py-4'>
 					{isDashBoardDataLoading ? (
 						<div className='flex h-full w-full items-center justify-center'>
@@ -282,7 +284,9 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 						<>
 							{mapTypeArray.includes(mapTypeCode.hotspots) && (
 								<>
-									<Typography className='pb-3 !text-sm'>{t('overview:totalHotspot')}</Typography>
+									<Typography className='pb-3 text-center !text-sm'>
+										{t('overview:totalHotspot')}
+									</Typography>
 									{dashBoardData?.hotspot ? (
 										<>
 											<div className='h-[111px] !max-h-[111px] w-[111px] !max-w-[111px]'>
@@ -314,7 +318,9 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 
 											<Divider flexItem />
 
-											<Typography className='pt-3 !text-sm'>{hotspotBarChartTitle}</Typography>
+											<Typography className='pt-3 text-center !text-sm'>
+												{hotspotBarChartTitle}
+											</Typography>
 											<div className='!min-h-[262px] w-full'>
 												<StackedBarChart
 													chartId={area.id}
@@ -342,7 +348,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 									{mapTypeArray.includes(mapTypeCode.hotspots) && (
 										<Divider flexItem className='!mb-3 !mt-4' />
 									)}
-									<Typography className='pb-3 !text-sm'>
+									<Typography className='pb-3 text-center !text-sm'>
 										{t('overview:burntScar')} ({t(`common:${areaUnit}`)})
 									</Typography>
 									{dashBoardData?.burnArea ? (
@@ -366,7 +372,9 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 										mapTypeArray.includes(mapTypeCode.burnArea)) && (
 										<Divider flexItem className='!mb-3 !mt-4' />
 									)}
-									<Typography className='pb-3 !text-sm'>{t('common:menu.plantingArea')}</Typography>
+									<Typography className='pb-3 text-center !text-sm'>
+										{t('common:menu.plantingArea')}
+									</Typography>
 									{dashBoardData?.plant ? (
 										<>
 											<div className='h-[111px] !max-h-[111px] w-[111px] !max-w-[111px]'>
