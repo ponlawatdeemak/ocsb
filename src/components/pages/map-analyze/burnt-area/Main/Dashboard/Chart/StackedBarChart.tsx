@@ -84,9 +84,7 @@ const StackedBarChart = ({
 				},
 				y: {
 					min: 0,
-					padding: 0,
 					tick: {
-						count: 5,
 						format: (value: number) => nFormatter(value, 2),
 					},
 				},
