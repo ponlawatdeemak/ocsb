@@ -22,6 +22,7 @@ interface DashboardCardMainProps {
 	mapTypeArray: mapTypeCode[]
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
+	openDrawer: boolean
 	className?: string
 }
 
@@ -33,6 +34,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	mapTypeArray,
 	selectedHotspots,
 	selectedDateRange,
+	openDrawer,
 	className = '',
 }) => {
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -74,6 +76,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			}
 			return response.data
 		},
+		enabled: openDrawer === true,
 	})
 
 	//region Hotspot
@@ -242,6 +245,13 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			return t('hotspotInArea')
 		}
 	}, [hideData, inSugarCaneArea, language, t])
+
+	useEffect(() => {
+		if (openDrawer) {
+			setHideData([])
+			setDonutColorHotspot(defaultColorHotspot)
+		}
+	}, [defaultColorHotspot, openDrawer])
 
 	return (
 		<Box

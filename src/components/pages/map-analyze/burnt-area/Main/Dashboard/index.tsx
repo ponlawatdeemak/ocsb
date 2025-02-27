@@ -1,6 +1,6 @@
 import { Button, Tooltip } from '@mui/material'
 import classNames from 'classnames'
-import React from 'react'
+import React, { useMemo } from 'react'
 import DashboardCardMain from './Card'
 import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
@@ -37,6 +37,36 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
 
+	const cards = useMemo(() => {
+		return selectedArea.map((item) => (
+			<DashboardCardMain
+				key={item.id}
+				handleClickDelete={() => {
+					if (selectedArea.length === 1) {
+						toggleDrawer(false)
+					}
+					handleClickDelete(item)
+				}}
+				isSelectedCard={(selectedCard ?? '') === item.id}
+				handleSelectCard={() => handleSelectCard(item)}
+				area={item}
+				mapTypeArray={mapTypeArray}
+				selectedHotspots={selectedHotspots}
+				selectedDateRange={selectedDateRange}
+				openDrawer={openDrawer}
+			/>
+		))
+	}, [
+		handleClickDelete,
+		handleSelectCard,
+		mapTypeArray,
+		openDrawer,
+		selectedArea,
+		selectedDateRange,
+		selectedHotspots,
+		toggleDrawer,
+	])
+
 	return (
 		<>
 			<Button
@@ -58,25 +88,9 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 			</Button>
 
 			<div className={classNames('relative flex h-full gap-[1px]', { '!hidden': !openDrawer }, className)}>
-				{selectedArea.map((item) => (
-					<DashboardCardMain
-						key={item.id}
-						handleClickDelete={() => {
-							if (selectedArea.length === 1) {
-								toggleDrawer(false)
-							}
-							handleClickDelete(item)
-						}}
-						isSelectedCard={(selectedCard ?? '') === item.id}
-						handleSelectCard={() => handleSelectCard(item)}
-						area={item}
-						mapTypeArray={mapTypeArray}
-						selectedHotspots={selectedHotspots}
-						selectedDateRange={selectedDateRange}
-					/>
-				))}
+				{cards}
 
-				<Tooltip
+				{/* <Tooltip
 					title={t('hideCompare')}
 					placement='right'
 					componentsProps={{
@@ -109,7 +123,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 					>
 						<CloseIcon className='!h-4 !w-4 pt-[2px] text-primary' />
 					</Button>
-				</Tooltip>
+				</Tooltip> */}
 
 				{selectedArea.length < 4 && (
 					<Tooltip
@@ -136,7 +150,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 					>
 						<Button
 							className={classNames(
-								'!absolute right-[-40px] top-10 z-[1] !max-h-10 !min-h-10 !min-w-10 !max-w-10 !rounded-[0px_5px_5px_0px] !bg-[#EBF5FF] !p-2 !text-primary !shadow-none hover:z-[9999] hover:!shadow',
+								'!absolute right-[-40px] top-0 z-[1] !max-h-10 !min-h-10 !min-w-10 !max-w-10 !rounded-[0px_5px_5px_0px] !bg-[#EBF5FF] !p-2 !text-primary !shadow-none hover:z-[9999] hover:!shadow',
 							)}
 							variant='contained'
 							onClick={handleClickAdd}

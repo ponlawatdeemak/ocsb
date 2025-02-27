@@ -48,6 +48,7 @@ const SwipeableEdgeDrawer = ({
 	toggleDrawer: (newOpen: boolean) => void
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common'])
+
 	const cards = useMemo(() => {
 		return selectedArea.map((item) => (
 			<DashboardCardMain
@@ -65,14 +66,15 @@ const SwipeableEdgeDrawer = ({
 				selectedHotspots={selectedHotspots}
 				selectedDateRange={selectedDateRange}
 				className={classNames({ '!w-[100%]': selectedArea.length === 1 })}
+				openDrawer={openDrawer}
 			/>
 		))
 	}, [
 		handleClickDelete,
 		handleSelectCard,
 		mapTypeArray,
+		openDrawer,
 		selectedArea,
-		selectedCard,
 		selectedDateRange,
 		selectedHotspots,
 		toggleDrawer,
