@@ -7,7 +7,7 @@ import BurntDashboardMain from './Dashboard'
 import { hotspotType, hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 import { DateObject } from 'react-multi-date-picker'
 import service from '@/api'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import useMapStore from '@/components/common/map/store/map'
 
 const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
@@ -45,6 +45,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				{ signal },
 			),
 		enabled: !!selectedHotspots?.length && (!!searchSelectedAdmOption?.id || !!mapExtent),
+		placeholderData: keepPreviousData,
 	})
 
 	const { data: burntBurntAreaData, isLoading: isBurntBurntAreaDataLoading } = useQuery({
@@ -60,6 +61,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				{ signal },
 			),
 		enabled: mapTypeArray.includes(mapTypeCode.burnArea) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+		placeholderData: keepPreviousData,
 	})
 
 	const { data: plantBurntAreaData, isLoading: isPlantBurntAreaDataLoading } = useQuery({
@@ -75,6 +77,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				{ signal },
 			),
 		enabled: mapTypeArray.includes(mapTypeCode.plant) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+		placeholderData: keepPreviousData,
 	})
 
 	const mapDataHotSpot = useMemo(() => {
@@ -94,6 +97,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	}, [mapTypeArray, burntBurntAreaData])
 
 	const mapDataPlant = useMemo(() => {
+		console.log('👻 plantBurntAreaData: ', plantBurntAreaData)
 		if (mapTypeArray?.includes(mapTypeCode.plant)) {
 			return plantBurntAreaData?.data || []
 		} else {
