@@ -10,6 +10,7 @@ import { OptionType } from '../SearchForm'
 import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 import DashboardCardMain from '../Dashboard/Card'
 import classNames from 'classnames'
+import { useMemo } from 'react'
 
 const drawerBleeding = 40
 
@@ -47,6 +48,35 @@ const SwipeableEdgeDrawer = ({
 	toggleDrawer: (newOpen: boolean) => void
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common'])
+	const cards = useMemo(() => {
+		return selectedArea.map((item) => (
+			<DashboardCardMain
+				key={'mobile-' + item.id}
+				handleClickDelete={() => {
+					if (selectedArea.length === 1) {
+						toggleDrawer(false)
+					}
+					handleClickDelete(item)
+				}}
+				isSelectedCard={(selectedCard ?? '') === item.id}
+				handleSelectCard={() => handleSelectCard(item)}
+				area={{ id: 'mobile-' + item.id, admOption: item.admOption }}
+				mapTypeArray={mapTypeArray}
+				selectedHotspots={selectedHotspots}
+				selectedDateRange={selectedDateRange}
+				className={classNames({ '!w-[100%]': selectedArea.length === 1 })}
+			/>
+		))
+	}, [
+		handleClickDelete,
+		handleSelectCard,
+		mapTypeArray,
+		selectedArea,
+		selectedCard,
+		selectedDateRange,
+		selectedHotspots,
+		toggleDrawer,
+	])
 
 	return (
 		<div className='bg-white md:hidden'>
@@ -92,26 +122,7 @@ const SwipeableEdgeDrawer = ({
 					<Puller />
 				</div>
 				<div className='absolute z-[999] flex h-full w-full flex-col'>
-					<div className='flex grow overflow-auto'>
-						{selectedArea.map((item) => (
-							<DashboardCardMain
-								key={'mobile-' + item.id}
-								handleClickDelete={() => {
-									if (selectedArea.length === 1) {
-										toggleDrawer(false)
-									}
-									handleClickDelete(item)
-								}}
-								isSelectedCard={(selectedCard ?? '') === item.id}
-								handleSelectCard={() => handleSelectCard(item)}
-								area={{ id: 'mobile-' + item.id, admOption: item.admOption }}
-								mapTypeArray={mapTypeArray}
-								selectedHotspots={selectedHotspots}
-								selectedDateRange={selectedDateRange}
-								className={classNames({ '!w-[100%]': selectedArea.length === 1 })}
-							/>
-						))}
-					</div>
+					<div className='flex grow overflow-auto'>{cards}</div>
 					<div className='flex w-full'>
 						<button
 							className='flex w-1/2 items-center justify-center gap-[6px] bg-[#EBF5FF] p-4'

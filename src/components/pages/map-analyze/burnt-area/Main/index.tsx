@@ -26,11 +26,6 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	const [selectedCard, setSelectedCard] = useState<string>()
 	const [mapTypeArray, setMapTypeArray] = useState<mapTypeCode[]>([mapTypeCode.hotspots])
 	const [openDrawer, setOpenDrawer] = useState(false)
-
-	const toggleDrawer = (newOpen: boolean) => {
-		setOpenDrawer(newOpen)
-	}
-
 	const [selectedHotspots, setSelectedHotspots] = useState<hotspotTypeCode[]>(hotspotType.map((type) => type.code))
 	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
 	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
@@ -107,26 +102,36 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 		}
 	}, [mapTypeArray, plantBurntAreaData])
 
-	const handleClickAdd = () => {
+	const toggleDrawer = useCallback((newOpen: boolean) => {
+		setOpenDrawer(newOpen)
+	}, [])
+
+	const handleClickAdd = useCallback(() => {
 		const updateArea = [...selectedArea]
 		updateArea.push({ id: crypto.randomUUID(), admOption: searchSelectedAdmOption })
 		setSelectedArea(updateArea)
-	}
+	}, [searchSelectedAdmOption, selectedArea])
 
-	const handleClickDelete = (item: any) => {
-		const updateArea = [...selectedArea]
-		const index = updateArea.findIndex((area) => area.id === item.id)
-		updateArea.splice(index, 1)
-		setSelectedArea(updateArea)
-	}
+	const handleClickDelete = useCallback(
+		(item: any) => {
+			const updateArea = [...selectedArea]
+			const index = updateArea.findIndex((area) => area.id === item.id)
+			updateArea.splice(index, 1)
+			setSelectedArea(updateArea)
+		},
+		[selectedArea],
+	)
 
-	const handleSelectCard = (item: any) => {
-		setSelectedCard((selected) => (selected === item.id ? undefined : item.id))
-		if (mapLibre && selectedCard !== item.id && item?.admOption?.geometry) {
-			mapLibre.fitBounds(item.admOption.geometry, { padding: 100 })
-			setSearchSelectedAdmOption(item.admOption)
-		}
-	}
+	const handleSelectCard = useCallback(
+		(item: any) => {
+			setSelectedCard((selected) => (selected === item.id ? undefined : item.id))
+			if (mapLibre && selectedCard !== item.id && item?.admOption?.geometry) {
+				mapLibre.fitBounds(item.admOption.geometry, { padding: 100 })
+				setSearchSelectedAdmOption(item.admOption)
+			}
+		},
+		[mapLibre, selectedCard],
+	)
 
 	const handleSelectedAdmOption = useCallback(
 		(value: OptionType | null) => {
