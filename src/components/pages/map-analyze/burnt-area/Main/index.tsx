@@ -31,7 +31,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 
 	const [mapExtent, setMapExtent] = useState<number[][] | null>(null)
 
-	const { data: hotspotBurntAreaData, isLoading: isHotspotBurntAreaDataLoading } = useQuery({
+	const { data: hotspotBurntAreaData, isFetching: isHotspotBurntAreaDataLoading } = useQuery({
 		queryKey: ['getHotspotBurntArea', selectedHotspots, selectedDateRange, searchSelectedAdmOption, mapExtent],
 		queryFn: ({ signal }) =>
 			service.mapAnalyze.getHotspotBurntArea(
@@ -48,7 +48,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 		placeholderData: keepPreviousData,
 	})
 
-	const { data: burntBurntAreaData, isLoading: isBurntBurntAreaDataLoading } = useQuery({
+	const { data: burntBurntAreaData, isFetching: isBurntBurntAreaDataLoading } = useQuery({
 		queryKey: ['getBurntBurntArea', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
 		queryFn: ({ signal }) =>
 			service.mapAnalyze.getBurntBurntArea(
@@ -64,7 +64,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 		placeholderData: keepPreviousData,
 	})
 
-	const { data: plantBurntAreaData, isLoading: isPlantBurntAreaDataLoading } = useQuery({
+	const { data: plantBurntAreaData, isFetching: isPlantBurntAreaDataLoading } = useQuery({
 		queryKey: ['getPlantBurntArea', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
 		queryFn: ({ signal }) =>
 			service.mapAnalyze.getPlantBurntArea(
