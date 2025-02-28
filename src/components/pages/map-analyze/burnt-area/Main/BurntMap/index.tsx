@@ -10,7 +10,7 @@ import {
 	GetHotspotBurntAreaDtoOut,
 	GetPlantBurntAreaDtoOut,
 } from '@interface/dto/brunt-area/brunt-area.dto.out'
-import { IconLayer, PolygonLayer } from '@deck.gl/layers'
+import { GeoJsonLayer, IconLayer, PolygonLayer } from '@deck.gl/layers'
 
 import { getPinHotSpot } from '@/utils/pin'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
@@ -70,6 +70,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	// map event
 	useEffect(() => {
 		if (mapLibre && regionData?.length) {
+			let previousZoom = 0
 			mapLibre.on('moveend', () => {
 				const bound = mapLibre.getBounds()
 				const sw = bound.getSouthWest()
@@ -81,8 +82,18 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					[sw.lng, ne.lat],
 					[sw.lng, sw.lat],
 				]
-				onMapExtentChange(polygon)
 
+				const currentZoom = mapLibre.getZoom()
+
+				if (previousZoom) {
+					if (currentZoom <= previousZoom) {
+						onMapExtentChange(polygon)
+					}
+				} else {
+					onMapExtentChange(polygon)
+				}
+
+				previousZoom = currentZoom
 				const center = mapLibre.getCenter()
 
 				const insideRegion = regionData.find((reg) => {
@@ -137,28 +148,28 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	useEffect(() => {
 		if (mapLibre && overlay) {
 			const layers = [
-				new PolygonLayer({
+				new GeoJsonLayer({
 					id: 'plant',
 					beforeId: 'custom-referer-layer',
-					data: plantBurntAreaData,
+					data: plantBurntAreaData as any,
 					pickable: true,
 					stroked: true,
 					filled: true,
 					lineWidthMinPixels: 1,
-					getPolygon: (d) => d.geometry.coordinates,
+					getPolygon: (d: any) => d.geometry.coordinates,
 					getFillColor: () => [139, 182, 45, 180],
 					getLineColor: () => [139, 182, 45, 180],
 				}),
 
-				new PolygonLayer({
+				new GeoJsonLayer({
 					id: 'burnt',
 					beforeId: 'custom-referer-layer',
-					data: burntBurntAreaData,
+					data: burntBurntAreaData as any,
 					pickable: true,
 					stroked: true,
 					filled: true,
 					lineWidthMinPixels: 1,
-					getPolygon: (d) => d.geometry.coordinates,
+					getPolygon: (d: any) => d.geometry.coordinates,
 					getFillColor: () => [255, 204, 0, 180],
 					getLineColor: () => [255, 204, 0, 180],
 				}),
