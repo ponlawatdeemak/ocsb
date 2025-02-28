@@ -5,15 +5,12 @@ import BurntSearchFormMain, { OptionType } from './SearchForm'
 import BurntMapMain from './BurntMap'
 import BurntDashboardMain from './Dashboard'
 import { hotspotType, hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
-import { DateObject } from 'react-multi-date-picker'
 import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
 import useMapStore from '@/components/common/map/store/map'
 import SwipeableEdgeDrawer from './Drawer'
 
 const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
-
-export const defaultCurrentDateRange: DateObject[] = [new DateObject(), new DateObject()]
 
 interface BurntAreaMainProps {
 	className?: string
@@ -28,7 +25,6 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	const [openDrawer, setOpenDrawer] = useState(false)
 	const [selectedHotspots, setSelectedHotspots] = useState<hotspotTypeCode[]>(hotspotType.map((type) => type.code))
 	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
-	const [currentDateRange, setCurrentDateRange] = useState<DateObject[]>(defaultCurrentDateRange)
 
 	const [mapExtent, setMapExtent] = useState<number[][] | null>(null)
 
@@ -146,10 +142,6 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 		[selectedArea, selectedCard],
 	)
 
-	const handleCurrentDateRange = useCallback((value: DateObject[]) => {
-		setCurrentDateRange(value)
-	}, [])
-
 	const handleChange = useCallback(
 		(event: any) => {
 			event.preventDefault()
@@ -198,8 +190,6 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				mapTypeArray={mapTypeArray}
 				searchSelectedAdmOption={searchSelectedAdmOption}
 				handleSelectedAdmOption={handleSelectedAdmOption}
-				currentDateRange={currentDateRange}
-				handleCurrentDateRange={handleCurrentDateRange}
 			/>
 			<Box className='absolute flex h-full w-full overflow-y-auto max-md:h-[calc(100%-80px)] md:relative'>
 				<BurntDashboardMain
