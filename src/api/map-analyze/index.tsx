@@ -12,6 +12,8 @@ import {
 	GetHotspotBurntAreaDtoOut,
 	GetPlantBurntAreaDtoOut,
 } from '@interface/dto/brunt-area/brunt-area.dto.out'
+import { GetDashboardYieldAreaDtoIn } from '@interface/dto/yield-area/yield-area.dto-in'
+import { GetDashboardYieldAreaDtoOut } from '@interface/dto/yield-area/yield-area.dto-out'
 import { AxiosRequestConfig } from 'axios'
 
 const mapAnalyze = {
@@ -66,6 +68,20 @@ const mapAnalyze = {
 		if (payload.polygon) params.append('polygon', payload.polygon)
 
 		return await api.get(`/brunt-area/plant?${params}`, undefined, axiosOption)
+	},
+
+	getDashBoardYieldArea: async (
+		payload: GetDashboardYieldAreaDtoIn,
+		axiosOption?: AxiosRequestConfig,
+	): Promise<ResponseDto<GetDashboardYieldAreaDtoOut>> => {
+		const params = new URLSearchParams()
+
+		if (payload.startDate) params.append('startDate', payload.startDate)
+		if (payload.endDate) params.append('endDate', payload.endDate)
+		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
+		if (payload.mapType?.length !== 0) payload.mapType?.forEach((item) => params.append('mapType', item))
+
+		return await api.get(`/yield-area/dashboard?${params}`, undefined, axiosOption)
 	},
 }
 
