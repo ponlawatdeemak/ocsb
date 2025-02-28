@@ -59,7 +59,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 			<Typography className='whitespace-nowrap !text-md text-primary max-md:hidden'>
 				{t('map-analyze:hotspotAndBurntAreaAnalysis')}
 			</Typography>
-			<Box id='burnt-area-search-form' className='flex items-center gap-4 max-md:flex-col'>
+			<Box id='search-form' className='flex items-center gap-4 max-md:flex-col'>
 				<Box className='flex w-full items-center gap-4 md:w-[26%]'>
 					<SearchAdminPoly
 						searchSelectedAdmOption={searchSelectedAdmOption}
