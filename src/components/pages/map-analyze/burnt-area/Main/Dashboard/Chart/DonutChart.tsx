@@ -21,6 +21,7 @@ const DonutChart = ({
 	height = 168,
 	width = 168,
 	handleClickOnChart,
+	unit,
 }: {
 	chartId: string
 	columns: any[][]
@@ -29,6 +30,7 @@ const DonutChart = ({
 	height?: number
 	width?: number
 	handleClickOnChart: (name: string) => void
+	unit?: string
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
 
@@ -37,7 +39,7 @@ const DonutChart = ({
 			let tooltipOverview = '<div class="mt-12 bg-white p-2 rounded-md shadow flex flex-col">'
 			data.forEach(
 				(item) =>
-					(tooltipOverview += `<div class="text-[12px]">${item.name} : ${defaultNumber(item.value)} ${t('common:point')}</div>`),
+					(tooltipOverview += `<div class="text-[12px]">${item.name} : ${defaultNumber(item.value)} ${unit ?? t('common:point')}</div>`),
 			)
 
 			tooltipOverview += '</div>'

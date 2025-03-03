@@ -386,6 +386,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 													height={111}
 													width={111}
 													handleClickOnChart={handleClickOnChart}
+													unit={t(areaUnitTranslate)}
 												/>
 											</div>
 											<Typography className='pt-3 !text-lg'>{`${defaultNumber(dashBoardData?.plant?.area[areaUnit] ?? '-')} ${t(areaUnitTranslate)}`}</Typography>
