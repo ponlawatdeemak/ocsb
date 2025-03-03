@@ -6,7 +6,7 @@ import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
 import { OptionType } from '../SearchForm'
 import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
-import CloseIcon from '@mui/icons-material/Close'
+// import CloseIcon from '@mui/icons-material/Close'
 
 interface BurntDashboardMainProps {
 	selectedArea: { id: string; admOption: OptionType | null }[]

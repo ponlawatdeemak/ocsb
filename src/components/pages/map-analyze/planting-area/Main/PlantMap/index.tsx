@@ -5,16 +5,9 @@ import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { OptionType } from '../SearchForm'
-import {
-	GetBurntBurntAreaDtoOut,
-	GetHotspotBurntAreaDtoOut,
-	GetPlantBurntAreaDtoOut,
-} from '@interface/dto/brunt-area/brunt-area.dto.out'
-import { IconLayer, PolygonLayer } from '@deck.gl/layers'
-
-import { getPinHotSpot } from '@/utils/pin'
+import { PolygonLayer } from '@deck.gl/layers'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
-import { mapTypeCode, ResponseLanguage, yieldMapTypeCode } from '@interface/config/app.config'
+import { ResponseLanguage, yieldMapTypeCode } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
@@ -23,24 +16,29 @@ import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
 import { enSuffix } from '@/config/app.config'
 import { Popup } from 'maplibre-gl'
 import { PickingInfo } from '@deck.gl/core'
-import PopupBurnt from './PopupBurnt'
 import CloseIcon from '@mui/icons-material/Close'
 import { GetRepeatAreaLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
 import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
 import { defaultNumber } from '@/utils/text'
+import {
+	GetPlantYieldAreaDtoOut,
+	GetProductYieldAreaDtoOut,
+	GetReplantYieldAreaDtoOut,
+} from '@interface/dto/yield-area/yield-area.dto-out'
+import PopupPlant from './PopupPlant'
 
 interface PlantingMapMainProps {
 	className?: string
 	mapTypeArray: yieldMapTypeCode[]
 	currentAdmOption: OptionType | null
 	selectedRepeatArea: GetRepeatAreaLookupDtoOut | undefined
-	// hotspotBurntAreaData: GetHotspotBurntAreaDtoOut[]
-	// burntBurntAreaData: GetBurntBurntAreaDtoOut[]
-	// plantBurntAreaData: GetPlantBurntAreaDtoOut[]
-	// isHotspotBurntAreaDataLoading: boolean
-	// isBurntBurntAreaDataLoading: boolean
-	// isPlantBurntAreaDataLoading: boolean
+	plantYieldAreaData: GetPlantYieldAreaDtoOut[]
+	productYieldAreaData: GetProductYieldAreaDtoOut[]
+	replantYieldAreaData: GetReplantYieldAreaDtoOut[]
+	isPlantYieldAreaDataLoading: boolean
+	isProductYieldAreaDataLoading: boolean
+	isReplantYieldAreaDataLoading: boolean
 	onMapExtentChange: (polygon: number[][]) => void
 }
 
@@ -49,12 +47,12 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	mapTypeArray,
 	selectedRepeatArea,
 	currentAdmOption,
-	// hotspotBurntAreaData,
-	// burntBurntAreaData,
-	// plantBurntAreaData,
-	// isHotspotBurntAreaDataLoading,
-	// isBurntBurntAreaDataLoading,
-	// isPlantBurntAreaDataLoading,
+	plantYieldAreaData,
+	productYieldAreaData,
+	replantYieldAreaData,
+	isPlantYieldAreaDataLoading,
+	isProductYieldAreaDataLoading,
+	isReplantYieldAreaDataLoading,
 	onMapExtentChange,
 }) => {
 	const { data: session } = useSession()
@@ -64,7 +62,6 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	const quantityLang = `common:${quantityUnit}`
 	const areaLang = `common:${areaUnit}`
 	const { t, i18n } = useTranslation(['map-analyze', 'common'])
-	const language = i18n.language as keyof ResponseLanguage
 
 	const [currentRegion, setCurrentRegion] = useState('')
 	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
@@ -177,37 +174,64 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				new PolygonLayer({
 					id: 'plant',
 					beforeId: 'custom-referer-layer',
-					// data: plantBurntAreaData,
+					data: plantYieldAreaData,
 					pickable: true,
 					stroked: true,
 					filled: true,
 					lineWidthMinPixels: 1,
 					getPolygon: (d) => d.geometry.coordinates,
-					getFillColor: () => [139, 182, 45, 180],
-					getLineColor: () => [139, 182, 45, 180],
+					getFillColor: () => [138, 182, 45, 180],
+					getLineColor: () => [138, 182, 45, 180],
 				}),
 
 				new PolygonLayer({
-					id: 'burnt',
+					id: 'product',
 					beforeId: 'custom-referer-layer',
-					// data: burntBurntAreaData,
+					data: productYieldAreaData,
 					pickable: true,
 					stroked: true,
 					filled: true,
 					lineWidthMinPixels: 1,
 					getPolygon: (d) => d.geometry.coordinates,
-					getFillColor: () => [255, 204, 0, 180],
-					getLineColor: () => [255, 204, 0, 180],
+					getFillColor: (d) => {
+						if (d.properties.product.ton.rai > 15) {
+							return [0, 52, 145, 180]
+						} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
+							return [29, 178, 64, 180]
+						} else if (d.properties.product.ton.rai >= 5 && d.properties.product.ton.rai < 10) {
+							return [240, 233, 39, 180]
+						} else if (d.properties.product.ton.rai < 5) {
+							return [255, 149, 0, 180]
+						} else {
+							return [0, 0, 0, 0]
+						}
+					},
+					getLineColor: (d) => {
+						if (d.properties.product.ton.rai > 15) {
+							return [0, 52, 145, 180]
+						} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
+							return [29, 178, 64, 180]
+						} else if (d.properties.product.ton.rai >= 5 && d.properties.product.ton.rai < 10) {
+							return [240, 233, 39, 180]
+						} else if (d.properties.product.ton.rai < 5) {
+							return [255, 149, 0, 180]
+						} else {
+							return [0, 0, 0, 0]
+						}
+					},
 				}),
-				new IconLayer({
-					id: 'hotspot',
+
+				new PolygonLayer({
+					id: 'replant',
 					beforeId: 'custom-referer-layer',
-					// data: hotspotBurntAreaData,
+					data: replantYieldAreaData,
 					pickable: true,
-					sizeScale: 1,
-					getPosition: (d) => d.geometry.coordinates,
-					getSize: 14,
-					getIcon: () => ({ url: getPinHotSpot(), width: 14, height: 14, mask: false }),
+					stroked: true,
+					filled: true,
+					lineWidthMinPixels: 1,
+					getPolygon: (d) => d.geometry.coordinates,
+					getFillColor: () => [0, 182, 45, 180],
+					getLineColor: () => [0, 182, 45, 180],
 				}),
 			]
 
@@ -217,12 +241,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				getCursor: (state) => (state.isHovering ? 'pointer' : 'default'),
 			})
 		}
-	}, [
-		mapLibre,
-		overlay,
-		//  hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData,
-		onMapClick,
-	])
+	}, [mapLibre, overlay, onMapClick, plantYieldAreaData, productYieldAreaData, replantYieldAreaData])
 
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
@@ -254,7 +273,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 
 				<Box
 					className={classNames(
-						'absolute bottom-[52px] left-[52px] z-10 flex items-center gap-3 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3 md:bottom-3',
+						'absolute bottom-[52px] left-[52px] z-10 flex max-w-[75%] items-center gap-3 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3 md:bottom-3',
 						{ '!hidden': mapTypeArray.length === 0 && selectedRepeatArea === undefined },
 					)}
 				>
@@ -300,9 +319,9 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 
 				<MapView
 					loading={
-						// isHotspotBurntAreaDataLoading ||
-						// isBurntBurntAreaDataLoading ||
-						// isPlantBurntAreaDataLoading ||
+						isPlantYieldAreaDataLoading ||
+						isProductYieldAreaDataLoading ||
+						isReplantYieldAreaDataLoading ||
 						isRegionLoading
 					}
 				/>
@@ -321,7 +340,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 							<CloseIcon className='text-white' sx={{ fontSize: 12 }} />
 						</IconButton>
 					</Box>
-					<PopupBurnt popupData={popupData} />
+					<PopupPlant popupData={popupData} />
 				</div>
 			</Box>
 		</Box>

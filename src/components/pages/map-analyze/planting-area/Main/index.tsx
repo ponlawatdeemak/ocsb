@@ -29,29 +29,74 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 
 	const [mapExtent, setMapExtent] = useState<number[][] | null>(null)
 
-	// const { data: hotspotBurntAreaData, isLoading: isHotspotBurntAreaDataLoading } = useQuery({
-	// 	queryKey: ['getHotspotBurntArea', selectedHotspots, selectedDateRange, searchSelectedAdmOption, mapExtent],
-	// 	queryFn: ({ signal }) =>
-	// 		service.mapAnalyze.getHotspotBurntArea(
-	// 			{
-	// 				inSugarcan: selectedHotspots,
-	// 				startDate: selectedDateRange[0].toISOString().split('T')[0],
-	// 				endDate: selectedDateRange[1].toISOString().split('T')[0],
-	// 				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-	// 				polygon: JSON.stringify(mapExtent ?? ''),
-	// 			},
-	// 			{ signal },
-	// 		),
-	// 	enabled: !!selectedHotspots?.length && (!!searchSelectedAdmOption?.id || !!mapExtent),
-	// })
+	const { data: plantYieldAreaData, isLoading: isPlantYieldAreaDataLoading } = useQuery({
+		queryKey: ['plantYieldAreaData', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
+		queryFn: ({ signal }) =>
+			service.mapAnalyze.getPlantYieldArea(
+				{
+					startDate: selectedDateRange[0].toISOString().split('T')[0],
+					endDate: selectedDateRange[1].toISOString().split('T')[0],
+					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+					polygon: JSON.stringify(mapExtent ?? ''),
+				},
+				{ signal },
+			),
+		enabled: !!mapTypeArray.includes(yieldMapTypeCode.plant) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+	})
 
-	// const mapDataHotSpot = useMemo(() => {
-	// 	if (selectedHotspots?.length) {
-	// 		return hotspotBurntAreaData?.data || []
-	// 	} else {
-	// 		return []
-	// 	}
-	// }, [selectedHotspots, hotspotBurntAreaData])
+	const { data: productYieldAreaData, isLoading: isProductYieldAreaDataLoading } = useQuery({
+		queryKey: ['productYieldAreaData', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
+		queryFn: ({ signal }) =>
+			service.mapAnalyze.getProductYieldArea(
+				{
+					startDate: selectedDateRange[0].toISOString().split('T')[0],
+					endDate: selectedDateRange[1].toISOString().split('T')[0],
+					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+					polygon: JSON.stringify(mapExtent ?? ''),
+				},
+				{ signal },
+			),
+		enabled: !!mapTypeArray.includes(yieldMapTypeCode.product) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+	})
+
+	const { data: replantYieldAreaData, isLoading: isReplantYieldAreaDataLoading } = useQuery({
+		queryKey: ['replantYieldAreaData', selectedRepeatArea, selectedDateRange, searchSelectedAdmOption, mapExtent],
+		queryFn: ({ signal }) =>
+			service.mapAnalyze.getReplantYieldArea(
+				{
+					startDate: selectedDateRange[0].toISOString().split('T')[0],
+					endDate: selectedDateRange[1].toISOString().split('T')[0],
+					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+					polygon: JSON.stringify(mapExtent ?? ''),
+				},
+				{ signal },
+			),
+		enabled: !!selectedRepeatArea && (!!searchSelectedAdmOption?.id || !!mapExtent),
+	})
+
+	const mapDataPlant = useMemo(() => {
+		if (mapTypeArray?.includes(yieldMapTypeCode.plant)) {
+			return plantYieldAreaData?.data || []
+		} else {
+			return []
+		}
+	}, [mapTypeArray, plantYieldAreaData])
+
+	const mapDataProduct = useMemo(() => {
+		if (mapTypeArray?.includes(yieldMapTypeCode.product)) {
+			return productYieldAreaData?.data || []
+		} else {
+			return []
+		}
+	}, [mapTypeArray, productYieldAreaData?.data])
+
+	const mapDataReplant = useMemo(() => {
+		if (selectedRepeatArea) {
+			return replantYieldAreaData?.data || []
+		} else {
+			return []
+		}
+	}, [replantYieldAreaData?.data, selectedRepeatArea])
 
 	const toggleDrawer = useCallback((newOpen: boolean) => {
 		setOpenDrawer(newOpen)
@@ -112,7 +157,6 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 			if (event.target.value) {
 				const { value } = event.target
 
-				// setSelectedHotspots(value)
 				if (value && value.length > 0) {
 					const findIndex = updateMapTypeArray.findIndex((type) => type === event.target.name)
 					if (findIndex === -1) {
@@ -171,12 +215,12 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 					mapTypeArray={mapTypeArray}
 					currentAdmOption={searchSelectedAdmOption}
 					selectedRepeatArea={selectedRepeatArea}
-					// hotspotBurntAreaData={mapDataHotSpot}
-					// burntBurntAreaData={mapDataBurnt}
-					// plantBurntAreaData={mapDataPlant}
-					// isHotspotBurntAreaDataLoading={isHotspotBurntAreaDataLoading}
-					// isBurntBurntAreaDataLoading={isBurntBurntAreaDataLoading}
-					// isPlantBurntAreaDataLoading={isPlantBurntAreaDataLoading}
+					plantYieldAreaData={mapDataPlant}
+					productYieldAreaData={mapDataProduct}
+					replantYieldAreaData={mapDataReplant}
+					isPlantYieldAreaDataLoading={isPlantYieldAreaDataLoading}
+					isProductYieldAreaDataLoading={isProductYieldAreaDataLoading}
+					isReplantYieldAreaDataLoading={isReplantYieldAreaDataLoading}
 					onMapExtentChange={setMapExtent}
 				/>
 				<SwipeableEdgeDrawer

@@ -6,6 +6,7 @@ import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
 import { OptionType } from '../SearchForm'
 import { yieldMapTypeCode } from '@interface/config/app.config'
+// import CloseIcon from '@mui/icons-material/Close'
 
 interface PlantingDashboardMainProps {
 	selectedArea: { id: string; admOption: OptionType | null }[]
