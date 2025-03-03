@@ -5,8 +5,7 @@ import DashboardCardMain from './Card'
 import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
 import { OptionType } from '../SearchForm'
-import { hotspotTypeCode, mapTypeCode, yieldMapTypeCode } from '@interface/config/app.config'
-import CloseIcon from '@mui/icons-material/Close'
+import { yieldMapTypeCode } from '@interface/config/app.config'
 
 interface PlantingDashboardMainProps {
 	selectedArea: { id: string; admOption: OptionType | null }[]
@@ -15,7 +14,6 @@ interface PlantingDashboardMainProps {
 	selectedCard: string | undefined
 	handleSelectCard: (item: any) => void
 	mapTypeArray: yieldMapTypeCode[]
-	// selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
 	openDrawer: boolean
 	toggleDrawer: (newOpen: boolean) => void
@@ -29,7 +27,6 @@ const PlantingDashboardMain: React.FC<PlantingDashboardMainProps> = ({
 	selectedCard,
 	handleSelectCard,
 	mapTypeArray,
-	// selectedHotspots,
 	selectedDateRange,
 	openDrawer,
 	toggleDrawer,

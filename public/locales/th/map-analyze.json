@@ -23,5 +23,7 @@
 		"plantingArea": "พื้นที่ปลูกอ้อย"
 	},
     "lessThan": "น้อยกว่า",
-    "moreThan": "มากกว่า"
+    "moreThan": "มากกว่า",
+    "avgSugarCaneYield": "ผลผลิตอ้อยโดยเฉลี่ย",
+    "noSugarCaneQuantity": "ปริมาณที่ไม่ใช่อ้อย"
 }

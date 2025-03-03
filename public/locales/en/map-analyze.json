@@ -23,5 +23,7 @@
 		"plantingArea": "Planting Area"
 	},
     "lessThan": "Less than",
-    "moreThan": "More than"
+    "moreThan": "More than",
+    "avgSugarCaneYield": "Average Sugar Cane Yield",
+    "noSugarCaneQuantity": "Non Sugar Cane Quantity"
 }

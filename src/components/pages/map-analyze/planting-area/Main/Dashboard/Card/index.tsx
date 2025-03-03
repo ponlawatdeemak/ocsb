@@ -1,23 +1,17 @@
 import { Box, CircularProgress, Divider, IconButton, Typography } from '@mui/material'
 import classNames from 'classnames'
-import React, { useEffect, useMemo, useState } from 'react'
+import React from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import DonutChart from '../Chart/DonutChart'
-import { formatDate } from '@/utils/date'
 import { useTranslation } from 'next-i18next'
 import useAreaUnit from '@/store/area-unit'
 import { defaultNumber } from '@/utils/text'
-import {
-	hotspotType,
-	hotspotTypeCode,
-	mapTypeCode,
-	ResponseLanguage,
-	yieldMapTypeCode,
-} from '@interface/config/app.config'
+import { ResponseLanguage, yieldMapTypeCode } from '@interface/config/app.config'
 import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
 import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
 import { OptionType } from '../../SearchForm'
+import useQuantityUnit from '@/store/quantity-unit'
 
 interface PlantingCardMainProps {
 	handleClickDelete: () => void
@@ -25,7 +19,6 @@ interface PlantingCardMainProps {
 	handleSelectCard: () => void
 	area: { id: string; admOption: OptionType | null }
 	mapTypeArray: yieldMapTypeCode[]
-	// selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
 	openDrawer: boolean
 	className?: string
@@ -37,7 +30,6 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 	handleSelectCard,
 	area,
 	mapTypeArray,
-	// selectedHotspots,
 	selectedDateRange,
 	openDrawer,
 	className = '',
@@ -45,19 +37,9 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
 	const language = i18n.language as keyof ResponseLanguage
 	const { areaUnit } = useAreaUnit()
+	const { quantityUnit } = useQuantityUnit()
 	const areaUnitTranslate = `common:${areaUnit}`
-	const defaultColorHotspot = useMemo(() => {
-		return {
-			[`${hotspotType[0].label.en}`]: '#FF0000',
-			[`${hotspotType[0].label.th}`]: '#FF0000',
-			[`${hotspotType[1].label.en}`]: '#FFC7C7',
-			[`${hotspotType[1].label.th}`]: '#FFC7C7',
-		}
-	}, [])
-
-	const [donutColorHotspot, setDonutColorHotspot] = useState(defaultColorHotspot)
-	const [percent, setPercent] = useState<number>(0)
-	const [hideData, setHideData] = useState<string[]>()
+	const quantityUnitTranslate = `common:${quantityUnit}`
 
 	const { data: dashBoardData, isFetching: isDashBoardDataLoading } = useQuery({
 		queryKey: ['getDashBoardYieldArea', area.admOption, mapTypeArray, selectedDateRange, area.id],
@@ -70,29 +52,15 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 			})
 			return response.data
 		},
-		enabled: openDrawer === true,
+		enabled: openDrawer === true && mapTypeArray.length !== 0,
 	})
 
 	//#region plant
 	const defaultColorPlant = { [t('common:menu.plantingArea')]: '#8AB62D', [t('noPlantingArea')]: '#f5f5f6' }
 	//#endregion
 
-	//#region yield
-	// const defaultColorBurnArea = { [t('overview:burntScar')]: '#F9B936' }
-	// const columnsBurnArea = useMemo(() => {
-	// 	const label = ['x']
-	// 	dashBoardData?.burnArea?.list?.forEach((item) => {
-	// 		label.push(formatDate(new Date(item.date), 'MMM yy', i18n.language))
-	// 	})
-
-	// 	const result: any[][] = [[t('overview:burntScar')]]
-
-	// 	dashBoardData?.burnArea?.list?.forEach((item) => {
-	// 		result[0].push(item?.area?.[areaUnit])
-	// 	})
-
-	// 	return [label, ...result]
-	// }, [areaUnit, i18n.language, dashBoardData?.burnArea?.list, t])
+	//#region product
+	const defaultColorProduct = { [t('overview:SugarCaneQuantity')]: '#40C4FF', [t('noSugarCaneQuantity')]: '#f5f5f6' }
 	//#endregion
 
 	return (
@@ -127,7 +95,7 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 				</IconButton>
 			</button>
 			<Box className={classNames('overflow-y-auto', { 'flex grow': isDashBoardDataLoading })}>
-				<div className='flex w-full grow flex-col items-center justify-start py-4'>
+				<div className='flex w-full grow flex-col items-center justify-start py-5'>
 					{isDashBoardDataLoading ? (
 						<div className='flex h-full w-full items-center justify-center'>
 							<CircularProgress />
@@ -136,9 +104,6 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 						<>
 							{mapTypeArray.includes(yieldMapTypeCode.plant) && (
 								<>
-									{/* {mapTypeArray.includes(yieldMapTypeCode.plant) && (
-										<Divider flexItem className='!mb-3 !mt-4' />
-									)} */}
 									<Typography className='pb-3 text-center !text-sm'>
 										{t('common:menu.plantingArea')}
 									</Typography>
@@ -170,6 +135,69 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 											<Typography className='pt-3 !text-lg'>{`${defaultNumber(dashBoardData?.plant?.area[areaUnit] ?? 0)} ${t(areaUnitTranslate)}`}</Typography>
 											<Typography className='!text-xs text-[#707070]'>
 												{`${t('common:total')} ${defaultNumber(dashBoardData?.plant?.total[areaUnit] ?? 0)} ${t(areaUnitTranslate)}`}
+											</Typography>
+										</>
+									) : (
+										<NoDataDisplay />
+									)}
+								</>
+							)}
+
+							{mapTypeArray.includes(yieldMapTypeCode.product) && (
+								<>
+									{dashBoardData?.product && (
+										<>
+											{mapTypeArray.includes(yieldMapTypeCode.plant) && (
+												<Divider flexItem className='!mb-6 !mt-4' />
+											)}
+
+											<Typography
+												className={classNames('!text-xs text-[#707070]', {
+													'!mt-2': !mapTypeArray.includes(yieldMapTypeCode.plant),
+												})}
+											>
+												{t('avgSugarCaneYield')}
+											</Typography>
+
+											<Typography className='!text-lg'>{`${defaultNumber(dashBoardData.product.average[quantityUnit][areaUnit] ?? 0)} ${t(quantityUnitTranslate)}/${t(areaUnitTranslate)}`}</Typography>
+										</>
+									)}
+
+									{(dashBoardData?.product || mapTypeArray.includes(yieldMapTypeCode.plant)) && (
+										<Divider flexItem className='!mb-4 !mt-6' />
+									)}
+
+									<Typography className='pb-3 text-center !text-sm'>
+										{t('overview:SugarCaneQuantity')}
+									</Typography>
+									{dashBoardData?.product ? (
+										<>
+											<div className='h-[111px] !max-h-[111px] w-[111px] !max-w-[111px]'>
+												<DonutChart
+													columns={[
+														[
+															t('overview:SugarCaneQuantity'),
+															dashBoardData.product.result?.[quantityUnit] ?? 0,
+														],
+														[
+															t('noSugarCaneQuantity'),
+															dashBoardData.product.diffResult?.[quantityUnit] ?? 0,
+														],
+													]}
+													colors={defaultColorProduct}
+													percent={
+														((dashBoardData.product.result[quantityUnit] ?? 0) * 100) /
+															(dashBoardData.product.total[quantityUnit] ?? 0) || 0
+													}
+													chartId={'second-donut-' + area.id}
+													height={111}
+													width={111}
+													tooltipUnit={t(`common:${quantityUnit}`)}
+												/>
+											</div>
+											<Typography className='pt-3 !text-lg'>{`${defaultNumber(dashBoardData.product.result[quantityUnit] ?? 0)} ${t(quantityUnitTranslate)}`}</Typography>
+											<Typography className='!text-xs text-[#707070]'>
+												{`${t('common:total')} ${defaultNumber(dashBoardData.product.total[quantityUnit] ?? 0)} ${t(quantityUnitTranslate)}`}
 											</Typography>
 										</>
 									) : (
