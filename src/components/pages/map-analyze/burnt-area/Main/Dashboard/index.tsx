@@ -62,6 +62,7 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 		mapTypeArray,
 		openDrawer,
 		selectedArea,
+		selectedCard,
 		selectedDateRange,
 		selectedHotspots,
 		toggleDrawer,

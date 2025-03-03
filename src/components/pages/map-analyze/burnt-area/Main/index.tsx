@@ -132,11 +132,13 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	const handleSelectedAdmOption = useCallback(
 		(value: OptionType | null) => {
 			setSearchSelectedAdmOption(value)
-			if (selectedCard) {
+			if (selectedArea.find((area) => area.id === selectedCard)) {
 				const updateArea = [...selectedArea]
 				const index = selectedArea.findIndex((area) => area.id === selectedCard)
 				updateArea[index].admOption = value
 				setSelectedArea(updateArea)
+			} else {
+				setSelectedCard(undefined)
 			}
 		},
 		[selectedArea, selectedCard],

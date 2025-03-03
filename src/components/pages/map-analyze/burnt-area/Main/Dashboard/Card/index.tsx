@@ -76,7 +76,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			}
 			return response.data
 		},
-		enabled: openDrawer === true,
+		enabled: openDrawer === true && mapTypeArray.length !== 0,
 	})
 
 	//region Hotspot
