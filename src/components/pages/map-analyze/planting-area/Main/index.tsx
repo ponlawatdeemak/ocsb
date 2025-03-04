@@ -29,7 +29,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 
 	const [mapExtent, setMapExtent] = useState<number[][] | null>(null)
 
-	const { data: plantYieldAreaData, isLoading: isPlantYieldAreaDataLoading } = useQuery({
+	const { data: plantYieldAreaData, isFetching: isPlantYieldAreaDataLoading } = useQuery({
 		queryKey: ['plantYieldAreaData', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
 		queryFn: ({ signal }) =>
 			service.mapAnalyze.getPlantYieldArea(
@@ -45,7 +45,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 		placeholderData: keepPreviousData,
 	})
 
-	const { data: productYieldAreaData, isLoading: isProductYieldAreaDataLoading } = useQuery({
+	const { data: productYieldAreaData, isFetching: isProductYieldAreaDataLoading } = useQuery({
 		queryKey: ['productYieldAreaData', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
 		queryFn: ({ signal }) =>
 			service.mapAnalyze.getProductYieldArea(
@@ -61,7 +61,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 		placeholderData: keepPreviousData,
 	})
 
-	const { data: replantYieldAreaData, isLoading: isReplantYieldAreaDataLoading } = useQuery({
+	const { data: replantYieldAreaData, isFetching: isReplantYieldAreaDataLoading } = useQuery({
 		queryKey: ['replantYieldAreaData', selectedRepeatArea, selectedDateRange, searchSelectedAdmOption, mapExtent],
 		queryFn: ({ signal }) =>
 			service.mapAnalyze.getReplantYieldArea(

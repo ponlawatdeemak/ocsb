@@ -28,6 +28,7 @@ import {
 } from '@interface/dto/yield-area/yield-area.dto-out'
 import PopupPlant from './PopupPlant'
 import { HeatmapLayer } from '@deck.gl/aggregation-layers'
+import { FillStyleExtension } from '@deck.gl/extensions'
 
 interface PlantingMapMainProps {
 	className?: string
@@ -242,8 +243,25 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					filled: true,
 					lineWidthMinPixels: 1,
 					getPolygon: (d: any) => d.geometry.coordinates,
-					getFillColor: () => [0, 182, 45, 180],
-					getLineColor: () => [0, 182, 45, 180],
+					getFillColor: () => [138, 182, 45, 180],
+					getLineColor: () => [138, 182, 45, 180],
+
+					fillPatternMask: true,
+					fillPatternAtlas: '/images/map/pattern.png',
+					fillPatternMapping: {
+						pattern: {
+							x: 4,
+							y: 4,
+							width: 120,
+							height: 120,
+							mask: true,
+						},
+					},
+					getFillPattern: () => 'pattern',
+					getFillPatternScale: 1,
+					getFillPatternOffset: [0, 0],
+
+					extensions: [new FillStyleExtension({ pattern: true })],
 				}),
 
 				// new HeatmapLayer<BikeRack>({
