@@ -60,7 +60,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			const response = await service.mapAnalyze.getDashBoardBurntArea({
 				startDate: selectedDateRange[0]?.toISOString().split('T')[0],
 				endDate: selectedDateRange[1]?.toISOString().split('T')[0],
-				admC: Number(area.admOption?.id),
+				admC: area.admOption?.id ? Number(area.admOption?.id) : undefined,
 				mapType: mapTypeArray,
 				inSugarcan: selectedHotspots,
 			})
