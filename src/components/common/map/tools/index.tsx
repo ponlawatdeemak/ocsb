@@ -206,13 +206,13 @@ const MapTools: React.FC<MapToolsProps> = ({ onBasemapChanged, onGetLocation, cu
 					</Box>
 				</Tooltip>
 
-				<Tooltip title={t('tools.export')} placement='left' arrow>
+				{/* <Tooltip title={t('tools.export')} placement='left' arrow>
 					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 						<IconButton className='!h-6 !w-6 grow !rounded-none !p-1.5'>
 							<MapExportIcon />
 						</IconButton>
 					</Box>
-				</Tooltip>
+				</Tooltip> */}
 			</Box>
 
 			{/* Basemap Selector */}
