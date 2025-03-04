@@ -2,12 +2,12 @@ import { plantingMapType, ResponseLanguage, yieldMapTypeCode } from '@interface/
 import { useTranslation } from 'next-i18next'
 import { Box, Typography } from '@mui/material'
 import classNames from 'classnames'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
 import DateRangePickerMain from '@/components/shared/DateRangePicker'
 import SearchAdminPoly from '@/components/shared/SearchAdminPoly'
-import FilterSelect, { FilterSelectOptionType } from '@/components/common/select/FilterSelect'
+import FilterSelect from '@/components/common/select/FilterSelect'
 import { GetRepeatAreaLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
 
 export interface OptionType {
@@ -18,7 +18,6 @@ export interface OptionType {
 
 interface PlantingSearchFormMainProps {
 	className?: string
-	// selectedHotspots: hotspotTypeCode[]
 	handleChange: (event: any) => void
 	mapTypeArray: yieldMapTypeCode[]
 	selectedDateRange: Date[]
@@ -31,7 +30,6 @@ interface PlantingSearchFormMainProps {
 
 const PlantingSearchFormMain: React.FC<PlantingSearchFormMainProps> = ({
 	className = '',
-	// selectedHotspots,
 	handleChange,
 	mapTypeArray,
 	selectedDateRange,

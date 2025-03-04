@@ -263,7 +263,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				/>
 				<div
 					ref={popupNode}
-					className={`relative w-full min-w-[300px] flex-col ${!!popupData?.length ? 'flex' : 'hidden'}`}
+					className={`relative w-full min-w-[300px] flex-col ${popupData?.length ? 'flex' : 'hidden'}`}
 				>
 					<Box className='absolute right-1 top-1 flex justify-end'>
 						<IconButton

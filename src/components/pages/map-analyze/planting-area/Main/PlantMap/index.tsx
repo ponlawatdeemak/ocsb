@@ -5,9 +5,9 @@ import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { OptionType } from '../SearchForm'
-import { GeoJsonLayer, PolygonLayer } from '@deck.gl/layers'
+import { GeoJsonLayer } from '@deck.gl/layers'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
-import { ResponseLanguage, yieldMapTypeCode } from '@interface/config/app.config'
+import { yieldMapTypeCode } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
@@ -349,7 +349,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				/>
 				<div
 					ref={popupNode}
-					className={`relative w-full min-w-[300px] flex-col ${!!popupData?.length ? 'flex' : 'hidden'}`}
+					className={`relative w-full min-w-[300px] flex-col ${popupData?.length ? 'flex' : 'hidden'}`}
 				>
 					<Box className='absolute right-1 top-1 flex justify-end'>
 						<IconButton

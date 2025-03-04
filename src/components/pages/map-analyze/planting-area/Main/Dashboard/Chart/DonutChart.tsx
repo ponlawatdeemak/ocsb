@@ -1,7 +1,6 @@
 import 'billboard.js/dist/billboard.css'
 import bb, { donut } from 'billboard.js'
 import { useCallback, useEffect } from 'react'
-import { useTranslation } from 'next-i18next'
 import classNames from 'classnames'
 import { defaultNumber } from '@/utils/text'
 
@@ -32,8 +31,6 @@ const DonutChart = ({
 	handleClickOnChart?: (name: string) => void
 	tooltipUnit: string
 }) => {
-	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
-
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
 			let tooltipOverview = '<div class="mt-12 bg-white p-2 rounded-md shadow flex flex-col">'
@@ -46,7 +43,7 @@ const DonutChart = ({
 
 			return tooltipOverview
 		},
-		[t],
+		[tooltipUnit],
 	)
 
 	useEffect(() => {
