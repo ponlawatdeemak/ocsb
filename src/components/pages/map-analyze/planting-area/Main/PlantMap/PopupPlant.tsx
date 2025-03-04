@@ -18,7 +18,7 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 
 	return (
 		<div>
-			{popupData.map((item) => {
+			{popupData.map((item, index) => {
 				const data = item.object.properties
 				const date = new Date(data.date).toLocaleDateString('en-GB', {
 					day: 'numeric',
@@ -41,10 +41,7 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 					coordinates = centroid(geometry).geometry.coordinates
 				}
 				return (
-					<div
-						key={item.coordinate[0].toString() + item.coordinate[1].toString() + item.layer.id}
-						className={`font-["Prompt","Montserrat"]`}
-					>
+					<div key={'popup-' + index} className={`font-["Prompt","Montserrat"]`}>
 						<Box className={`flex px-4 py-2 text-white`} sx={{ backgroundColor: color }}>
 							<Box className='w-[110px]'>{t('map-analyze:popupBurnt.date')}</Box>
 							<Box>{date}</Box>

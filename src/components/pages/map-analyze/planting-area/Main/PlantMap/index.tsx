@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { OptionType } from '../SearchForm'
-import { PolygonLayer } from '@deck.gl/layers'
+import { GeoJsonLayer, PolygonLayer } from '@deck.gl/layers'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
 import { ResponseLanguage, yieldMapTypeCode } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
@@ -27,6 +27,7 @@ import {
 	GetReplantYieldAreaDtoOut,
 } from '@interface/dto/yield-area/yield-area.dto-out'
 import PopupPlant from './PopupPlant'
+import { HeatmapLayer } from '@deck.gl/aggregation-layers'
 
 interface PlantingMapMainProps {
 	className?: string
@@ -104,6 +105,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	// map event
 	useEffect(() => {
 		if (mapLibre && regionData?.length) {
+			let previousZoom = 0
 			mapLibre.on('moveend', () => {
 				const bound = mapLibre.getBounds()
 				const sw = bound.getSouthWest()
@@ -115,8 +117,18 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					[sw.lng, ne.lat],
 					[sw.lng, sw.lat],
 				]
-				onMapExtentChange(polygon)
 
+				const currentZoom = mapLibre.getZoom()
+
+				if (previousZoom) {
+					if (currentZoom <= previousZoom) {
+						onMapExtentChange(polygon)
+					}
+				} else {
+					onMapExtentChange(polygon)
+				}
+
+				previousZoom = currentZoom
 				const center = mapLibre.getCenter()
 
 				const insideRegion = regionData.find((reg) => {
@@ -171,29 +183,29 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	useEffect(() => {
 		if (mapLibre && overlay) {
 			const layers = [
-				new PolygonLayer({
+				new GeoJsonLayer({
 					id: 'plant',
 					beforeId: 'custom-referer-layer',
-					data: plantYieldAreaData,
+					data: plantYieldAreaData as any,
 					pickable: true,
 					stroked: true,
 					filled: true,
 					lineWidthMinPixels: 1,
-					getPolygon: (d) => d.geometry.coordinates,
+					getPolygon: (d: any) => d.geometry.coordinates,
 					getFillColor: () => [138, 182, 45, 180],
 					getLineColor: () => [138, 182, 45, 180],
 				}),
 
-				new PolygonLayer({
+				new GeoJsonLayer({
 					id: 'product',
 					beforeId: 'custom-referer-layer',
-					data: productYieldAreaData,
+					data: productYieldAreaData as any,
 					pickable: true,
 					stroked: true,
 					filled: true,
 					lineWidthMinPixels: 1,
-					getPolygon: (d) => d.geometry.coordinates,
-					getFillColor: (d) => {
+					getPolygon: (d: any) => d.geometry.coordinates,
+					getFillColor: (d: any) => {
 						if (d.properties.product.ton.rai > 15) {
 							return [0, 52, 145, 180]
 						} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
@@ -206,7 +218,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 							return [0, 0, 0, 0]
 						}
 					},
-					getLineColor: (d) => {
+					getLineColor: (d: any) => {
 						if (d.properties.product.ton.rai > 15) {
 							return [0, 52, 145, 180]
 						} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
@@ -221,18 +233,28 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					},
 				}),
 
-				new PolygonLayer({
+				new GeoJsonLayer({
 					id: 'replant',
 					beforeId: 'custom-referer-layer',
-					data: replantYieldAreaData,
+					data: replantYieldAreaData as any,
 					pickable: true,
 					stroked: true,
 					filled: true,
 					lineWidthMinPixels: 1,
-					getPolygon: (d) => d.geometry.coordinates,
+					getPolygon: (d: any) => d.geometry.coordinates,
 					getFillColor: () => [0, 182, 45, 180],
 					getLineColor: () => [0, 182, 45, 180],
 				}),
+
+				// new HeatmapLayer<BikeRack>({
+				//     id: 'HeatmapLayer',
+				//     data: 'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/sf-bike-parking.json',
+
+				//     aggregation: 'SUM',
+				//     getPosition: (d: BikeRack) => d.COORDINATES,
+				//     getWeight: (d: BikeRack) => d.SPACES,
+				//     radiusPixels: 25
+				//   });
 			]
 
 			overlay.setProps({

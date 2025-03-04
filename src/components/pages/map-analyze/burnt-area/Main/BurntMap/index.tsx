@@ -10,7 +10,7 @@ import {
 	GetHotspotBurntAreaDtoOut,
 	GetPlantBurntAreaDtoOut,
 } from '@interface/dto/brunt-area/brunt-area.dto.out'
-import { GeoJsonLayer, IconLayer, PolygonLayer } from '@deck.gl/layers'
+import { GeoJsonLayer, IconLayer } from '@deck.gl/layers'
 
 import { getPinHotSpot } from '@/utils/pin'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'

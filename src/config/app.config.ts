@@ -49,11 +49,11 @@ export const mapAnalyzeMenuConfig: {
 		label: 'menu.burntArea',
 		path: AppPath.BurntArea,
 	},
-	// {
-	// 	id: 'PlantingArea',
-	// 	label: 'menu.plantingArea',
-	// 	path: AppPath.PlantingArea,
-	// },
+	{
+		id: 'PlantingArea',
+		label: 'menu.plantingArea',
+		path: AppPath.PlantingArea,
+	},
 ]
 
 export const appMenuConfig: {

@@ -4,7 +4,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import PlantingMapMain from './PlantMap'
 import { yieldMapTypeCode } from '@interface/config/app.config'
 import service from '@/api'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import useMapStore from '@/components/common/map/store/map'
 import SwipeableEdgeDrawer from './Drawer'
 import PlantingSearchFormMain, { OptionType } from './SearchForm'
@@ -42,6 +42,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 				{ signal },
 			),
 		enabled: !!mapTypeArray.includes(yieldMapTypeCode.plant) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+		placeholderData: keepPreviousData,
 	})
 
 	const { data: productYieldAreaData, isLoading: isProductYieldAreaDataLoading } = useQuery({
@@ -57,6 +58,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 				{ signal },
 			),
 		enabled: !!mapTypeArray.includes(yieldMapTypeCode.product) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+		placeholderData: keepPreviousData,
 	})
 
 	const { data: replantYieldAreaData, isLoading: isReplantYieldAreaDataLoading } = useQuery({
@@ -68,10 +70,12 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 					endDate: selectedDateRange[1].toISOString().split('T')[0],
 					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
 					polygon: JSON.stringify(mapExtent ?? ''),
+					repeat: selectedRepeatArea?.id,
 				},
 				{ signal },
 			),
 		enabled: !!selectedRepeatArea && (!!searchSelectedAdmOption?.id || !!mapExtent),
+		placeholderData: keepPreviousData,
 	})
 
 	const mapDataPlant = useMemo(() => {

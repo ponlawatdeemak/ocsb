@@ -56,7 +56,7 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 	})
 
 	//#region plant
-	const defaultColorPlant = { [t('common:menu.plantingArea')]: '#8AB62D', [t('noPlantingArea')]: '#f5f5f6' }
+	const defaultColorPlant = { [t('plantingArea')]: '#8AB62D', [t('noPlantingArea')]: '#f5f5f6' }
 	//#endregion
 
 	//#region product
@@ -104,16 +104,14 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 						<>
 							{mapTypeArray.includes(yieldMapTypeCode.plant) && (
 								<>
-									<Typography className='pb-3 text-center !text-sm'>
-										{t('common:menu.plantingArea')}
-									</Typography>
+									<Typography className='pb-3 text-center !text-sm'>{t('plantingArea')}</Typography>
 									{dashBoardData?.plant ? (
 										<>
 											<div className='h-[111px] !max-h-[111px] w-[111px] !max-w-[111px]'>
 												<DonutChart
 													columns={[
 														[
-															t('common:menu.plantingArea'),
+															t('plantingArea'),
 															dashBoardData?.plant?.area?.[areaUnit] ?? 0,
 														],
 														[
