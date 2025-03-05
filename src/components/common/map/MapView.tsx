@@ -12,9 +12,7 @@ import MapTools from './tools'
 import { getPin } from '@/utils/pin'
 
 const CURRENT_LOCATION_ZOOM = 14
-const DEFAULT = {
-	basemap: BasemapType.Google,
-}
+const DEFAULT = { basemap: BasemapType.CartoLight }
 
 export interface MapViewProps extends PropsWithChildren {
 	mapId: string
