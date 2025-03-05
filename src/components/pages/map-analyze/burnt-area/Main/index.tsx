@@ -2,7 +2,7 @@ import { Box } from '@mui/material'
 import classNames from 'classnames'
 import React, { useCallback, useMemo, useState } from 'react'
 import BurntSearchFormMain, { OptionType } from './SearchForm'
-import BurntMapMain from './BurntMap'
+import BurntMapMain, { BURNT_MAP_ID } from './BurntMap'
 import BurntDashboardMain from './Dashboard'
 import { hotspotType, hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 import service from '@/api'
@@ -94,7 +94,6 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	}, [mapTypeArray, burntBurntAreaData])
 
 	const mapDataPlant = useMemo(() => {
-		console.log('👻 plantBurntAreaData: ', plantBurntAreaData)
 		if (mapTypeArray?.includes(mapTypeCode.plant)) {
 			return plantBurntAreaData?.data || []
 		} else {
@@ -124,9 +123,10 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 
 	const handleSelectCard = useCallback(
 		(item: any) => {
+			const burntMap = mapLibre[BURNT_MAP_ID]
 			setSelectedCard((selected) => (selected === item.id ? undefined : item.id))
-			if (mapLibre && selectedCard !== item.id && item?.admOption?.geometry) {
-				mapLibre.fitBounds(item.admOption.geometry, { padding: 100 })
+			if (burntMap && selectedCard !== item.id && item?.admOption?.geometry) {
+				burntMap.fitBounds(item.admOption.geometry, { padding: 100 })
 				setSearchSelectedAdmOption(item.admOption)
 			}
 		},
@@ -210,7 +210,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					className='max-w-[calc(80vw)] max-md:hidden'
 				/>
 				<BurntMapMain
-					className='w-full flex-1 md:h-full max-md:[&_.maplibregl-ctrl-bottom-right]:bottom-[40px]'
+					className='flex w-full flex-1 md:h-full max-md:[&_.maplibregl-ctrl-bottom-right]:bottom-[40px]'
 					mapTypeArray={mapTypeArray}
 					currentAdmOption={searchSelectedAdmOption}
 					hotspotBurntAreaData={mapDataHotSpot}

@@ -7,27 +7,32 @@ import maplibregl, { MapLibreEvent, MapStyleDataEvent, StyleSpecification } from
 import { googleProtocol } from '@/utils/google'
 import { viewState } from './interface/map'
 
-const DeckGLOverlay: FC = () => {
+interface DeckGLOverlayProps {
+	mapId: string
+}
+
+const DeckGLOverlay: React.FC<DeckGLOverlayProps> = ({ mapId }) => {
 	const setOverlay = useMapStore((state) => state.setOverlay)
 	const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay({ interleaved: true }))
 
 	useEffect(() => {
 		if (overlay instanceof MapboxOverlay) {
-			setOverlay(overlay)
+			setOverlay(mapId, overlay)
 		}
 		return () => {
 			overlay.finalize()
 		}
-	}, [overlay, setOverlay])
+	}, [overlay, setOverlay, mapId])
 
 	return null
 }
 
 interface MapLibreProps {
+	mapId: string
 	mapStyle: string | StyleSpecification
 }
 
-const MapLibre: FC<MapLibreProps> = ({ mapStyle }) => {
+const MapLibre: FC<MapLibreProps> = ({ mapId, mapStyle }) => {
 	const { setMapLibre } = useMapStore()
 
 	// initial google basemap style
@@ -38,16 +43,16 @@ const MapLibre: FC<MapLibreProps> = ({ mapStyle }) => {
 	// remove map instance in context
 	useEffect(() => {
 		return () => {
-			setMapLibre(null)
+			setMapLibre(mapId, null)
 		}
-	}, [setMapLibre])
+	}, [setMapLibre, mapId])
 
 	const onLoad = useCallback(
 		(event: MapLibreEvent) => {
 			const map = event.target
-			setMapLibre(map)
+			setMapLibre(mapId, map)
 		},
-		[setMapLibre],
+		[setMapLibre, mapId],
 	)
 
 	const onStyleData = (event: MapStyleDataEvent) => {
@@ -86,7 +91,7 @@ const MapLibre: FC<MapLibreProps> = ({ mapStyle }) => {
 			minPitch={0}
 		>
 			<ScaleControl position='bottom-right' />
-			<DeckGLOverlay />
+			<DeckGLOverlay mapId={mapId} />
 		</Map>
 	)
 }

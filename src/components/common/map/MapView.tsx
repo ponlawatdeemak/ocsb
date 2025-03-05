@@ -17,10 +17,11 @@ const DEFAULT = {
 }
 
 export interface MapViewProps extends PropsWithChildren {
+	mapId: string
 	loading?: boolean
 }
 
-export function MapView({ children, loading }: Readonly<MapViewProps>) {
+export function MapView({ children, mapId, loading }: Readonly<MapViewProps>) {
 	const { getLayer, addLayer, removeLayer, mapLibre } = useMapStore()
 
 	const [basemap, setBasemap] = useState(DEFAULT.basemap)
@@ -45,7 +46,7 @@ export function MapView({ children, loading }: Readonly<MapViewProps>) {
 		(coords: GeolocationCoordinates) => {
 			const layer = getLayer(layerIdConfig.toolCurrentLocation)
 			if (layer) {
-				removeLayer(layerIdConfig.toolCurrentLocation)
+				removeLayer(mapId, layerIdConfig.toolCurrentLocation)
 			} else {
 				const { latitude, longitude } = coords
 				const iconLayer = new IconLayer({
@@ -65,11 +66,11 @@ export function MapView({ children, loading }: Readonly<MapViewProps>) {
 					getSize: 40,
 					getColor: [255, 0, 0],
 				})
-				addLayer(iconLayer)
-				mapLibre?.flyTo({ center: [longitude, latitude], zoom: CURRENT_LOCATION_ZOOM, duration: 3000 })
+				addLayer(mapId, iconLayer)
+				mapLibre[mapId]?.flyTo({ center: [longitude, latitude], zoom: CURRENT_LOCATION_ZOOM, duration: 3000 })
 			}
 		},
-		[getLayer, mapLibre, addLayer, removeLayer],
+		[getLayer, mapLibre, addLayer, removeLayer, mapId],
 	)
 
 	return (
@@ -82,8 +83,13 @@ export function MapView({ children, loading }: Readonly<MapViewProps>) {
 					})}
 				/>
 			)}
-			<MapTools onBasemapChanged={onBasemapChanged} onGetLocation={onGetLocation} currentBaseMap={basemap} />
-			<MapLibre mapStyle={mapStyle} />
+			<MapTools
+				mapId={mapId}
+				onBasemapChanged={onBasemapChanged}
+				onGetLocation={onGetLocation}
+				currentBaseMap={basemap}
+			/>
+			<MapLibre mapId={mapId} mapStyle={mapStyle} />
 
 			{children}
 		</div>
