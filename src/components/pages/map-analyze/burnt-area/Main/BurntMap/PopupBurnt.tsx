@@ -10,6 +10,8 @@ interface Prop {
 const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 	const { t, i18n } = useTranslation(['map-analyze'])
 	const { areaUnit } = useAreaUnit()
+
+	const areaUnitTranslate = `common:${areaUnit}`
 	return (
 		<div>
 			{popupData.map((item) => {
@@ -72,7 +74,9 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 								{!!row3.title && (
 									<Box className='flex'>
 										<Box className='w-[110px] font-bold text-[#003491]'>{row3.title}</Box>
-										<Box>{row3.value}</Box>
+										<Box>
+											{row3.value} {t(areaUnitTranslate)}
+										</Box>
 									</Box>
 								)}
 							</Box>
