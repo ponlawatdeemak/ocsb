@@ -24,16 +24,11 @@ interface Province {
 	description?: string | null
 }
 
-interface Tokens {
-	idToken: string
-	accessToken: string
-	refreshToken: string
-	expiresIn: number
-}
-
 interface UserSession {
 	id: string
 	userId: string
+	accessToken: string
+	refreshToken: string
 	firstName: string
 	lastName: string
 	email: string
@@ -44,7 +39,6 @@ interface UserSession {
 	region: Region
 	regions: Region[]
 	province: Province
-	tokens: Tokens
 	geometry: number[][]
 	hasImage: boolean
 }

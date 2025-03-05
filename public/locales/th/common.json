@@ -100,5 +100,6 @@
 	"region": "ภูมิภาค",
 	"currentRegion": "ภูมิภาคสอน.",
 
-	"processing": "กำลังประมวลผล"
+	"processing": "กำลังประมวลผล",
+	"submit": "ตกลง"
 }

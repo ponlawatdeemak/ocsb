@@ -1,4 +1,6 @@
 import { updateAccessToken } from '@/api/core'
+import LoadingScreen from '@/components/common/loading/LoadingScreen'
+import TokenExpiredDialog from '@/components/shared/TokenExpiredDialog.tsx'
 import { allowGuestPages, AppPath } from '@/config/app.config'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
@@ -11,7 +13,7 @@ interface Props {
 export default function IdentityProvider(props: Props) {
 	const { children } = props
 	const { data: session, status } = useSession()
-	const [initial, setInital] = useState(false)
+	const [initial, setInitial] = useState(false)
 	const router = useRouter()
 
 	const requireLogin = useMemo(() => {
@@ -20,10 +22,10 @@ export default function IdentityProvider(props: Props) {
 
 	useEffect(() => {
 		// session is undefined mean session not successfully loaded yet
-		if (session?.user?.tokens?.accessToken) {
+		if (session?.user?.accessToken) {
 			updateAccessToken({
-				accessToken: session.user.tokens.accessToken,
-				refreshToken: session?.user?.tokens.refreshToken ?? undefined,
+				accessToken: session.user.accessToken,
+				refreshToken: session?.user?.refreshToken ?? undefined,
 				accessType: 'Login',
 			})
 		} else if (session === null || session?.error) {
@@ -39,9 +41,18 @@ export default function IdentityProvider(props: Props) {
 		if (requireLogin && !session && status != 'loading') {
 			router?.push(AppPath.Login)
 		} else {
-			setInital(true)
+			setInitial(true)
 		}
 	}, [requireLogin, status, session, router])
+
+	if (status === 'authenticated' && session.error) {
+		return (
+			<>
+				<LoadingScreen />
+				<TokenExpiredDialog />
+			</>
+		)
+	}
 
 	return initial ? children : <></>
 }
