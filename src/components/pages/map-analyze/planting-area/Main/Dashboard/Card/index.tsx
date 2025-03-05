@@ -66,14 +66,12 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 	return (
 		<Box
 			className={classNames(
-				'flex h-full w-[375px] min-w-[375px] flex-col bg-white md:w-[300px] md:min-w-0',
+				'relative flex h-full w-[375px] min-w-[375px] flex-col bg-white md:w-[300px] md:min-w-0',
 				className,
 			)}
 		>
 			<button
-				className={classNames(
-					'flex h-fit w-full items-start justify-between bg-[#EBF5FF] px-5 py-4 hover:cursor-pointer',
-				)}
+				className={classNames('flex h-fit w-full items-center bg-[#EBF5FF] px-5 py-4 hover:cursor-pointer')}
 				style={{
 					outlineStyle: isSelectedCard ? 'solid' : 'none',
 					outlineOffset: '-3px',
@@ -84,16 +82,18 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 				<Typography className='break-all text-start text-primary max-md:!text-md'>
 					{area.admOption?.name[language] ?? t('allRegions')}
 				</Typography>
-				<IconButton
-					onClick={(e) => {
-						e.preventDefault()
-						e.stopPropagation()
-						handleClickDelete()
-					}}
-				>
-					<CloseIcon className='!h-3 !w-3' />
-				</IconButton>
 			</button>
+			<IconButton
+				className='!absolute right-5 top-4'
+				onClick={(e) => {
+					e.preventDefault()
+					e.stopPropagation()
+					handleClickDelete()
+				}}
+			>
+				<CloseIcon className='!h-3 !w-3' />
+			</IconButton>
+
 			<Box className={classNames('overflow-y-auto', { 'flex grow': isDashBoardDataLoading })}>
 				<div className='flex w-full grow flex-col items-center justify-start py-5'>
 					{isDashBoardDataLoading ? (
