@@ -1,5 +1,5 @@
 import service from '@/api'
-import { refreshAccessToken, updateAccessToken } from '@/api/core'
+import { refreshAccessToken } from '@/api/core'
 import { AppPath } from '@/config/app.config'
 import type { NextAuthOptions } from 'next-auth'
 import NextAuth from 'next-auth'
@@ -27,11 +27,7 @@ export const authOptions: NextAuthOptions = {
 				try {
 					const { email, password } = credentials as any
 					const res = await service.auth.login({ email, password })
-					if (res.data?.id)
-						return {
-							...res.data,
-							tokens: { accessToken: res.data.accessToken, refreshToken: res.data.refreshToken },
-						}
+					if (res.data?.id) return { ...res.data }
 					return null
 				} catch (error: any) {
 					throw new Error(JSON.stringify(error))
@@ -64,6 +60,8 @@ export const authOptions: NextAuthOptions = {
 		maxAge: 60 * 60 * 24 * 30,
 	},
 
+	secret: process.env.NEXTAUTH_SECRET,
+
 	callbacks: {
 		async jwt({ token, user, session, trigger }) {
 			delete token.error
@@ -71,7 +69,7 @@ export const authOptions: NextAuthOptions = {
 				// เมื่อมีการแก้ไข profile ต้องเอาค่าจาก session เข้าไปด้วย
 				return { ...token, ...user, ...session } as JWT
 			}
-			const accessToken = token?.tokens?.accessToken
+			const accessToken = token?.accessToken
 			const jwt = { ...token, ...user }
 			if (accessToken) {
 				try {
@@ -79,10 +77,10 @@ export const authOptions: NextAuthOptions = {
 					const expiredTime = data?.exp
 					const currentTime = Math.floor(Date.now() / 1000)
 					if (currentTime >= expiredTime) {
-						const refreshToken = token?.tokens?.refreshToken
+						const refreshToken = token?.refreshToken
 						const newToken = await refreshAccessToken(refreshToken)
-						if (newToken?.accessToken) jwt.tokens.accessToken = newToken?.accessToken
-						if (newToken?.refreshToken) jwt.tokens.refreshToken = newToken?.refreshToken
+						if (newToken?.accessToken) jwt.accessToken = newToken?.accessToken
+						if (newToken?.refreshToken) jwt.refreshToken = newToken?.refreshToken
 					}
 				} catch (error) {
 					jwt.error = 'RefreshAccessTokenError'
@@ -98,19 +96,6 @@ export const authOptions: NextAuthOptions = {
 				session.user = null as any
 			} else {
 				session.user = user as UserSession
-				const accessToken = token?.tokens?.accessToken
-				if (accessToken) {
-					const userId = token?.id
-					const refreshToken = token?.tokens?.refreshToken
-					updateAccessToken({
-						accessToken,
-						refreshToken,
-						userId,
-						accessType: session.user ? 'Login' : 'Guest',
-					})
-					session.user.tokens.accessToken = accessToken
-					session.user.tokens.refreshToken = refreshToken
-				}
 			}
 
 			return session

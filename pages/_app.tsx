@@ -21,6 +21,7 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session } & SSRConf
 			},
 		},
 	})
+
 	return (
 		<SessionProvider session={pageProps.session}>
 			<QueryClientProvider client={queryClient}>
