@@ -100,5 +100,6 @@
 	"region": "Region",
 	"currentRegion": "Region สอน.",
 
-	"processing": "Processing"
+	"processing": "Processing",
+	"submit": "Submit"
 }
