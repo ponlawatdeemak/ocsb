@@ -75,6 +75,7 @@ const SwipeableEdgeDrawer = ({
 		mapTypeArray,
 		openDrawer,
 		selectedArea,
+		selectedCard,
 		selectedDateRange,
 		selectedHotspots,
 		toggleDrawer,

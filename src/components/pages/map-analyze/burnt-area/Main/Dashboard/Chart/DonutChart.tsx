@@ -46,7 +46,7 @@ const DonutChart = ({
 
 			return tooltipOverview
 		},
-		[t],
+		[t, unit],
 	)
 
 	useEffect(() => {

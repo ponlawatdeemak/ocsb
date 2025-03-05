@@ -61,7 +61,6 @@ const SwipeableEdgeDrawer = ({
 				handleSelectCard={() => handleSelectCard(item)}
 				area={{ id: 'mobile-' + item.id, admOption: item.admOption }}
 				mapTypeArray={mapTypeArray}
-				// selectedHotspots={selectedHotspots}
 				selectedDateRange={selectedDateRange}
 				className={classNames({ '!w-[100%]': selectedArea.length === 1 })}
 				openDrawer={openDrawer}
