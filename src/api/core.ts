@@ -2,7 +2,6 @@ import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 import { APIConfigType, APIService, AppAPI } from './interface'
 import service from '@/api'
 import { defaultText } from '@/utils/text'
-import { getSession } from 'next-auth/react'
 
 const APIConfigs: { [key: string]: APIConfigType } = {
 	[APIService.WebAPI]: {
@@ -19,12 +18,8 @@ const APIConfigs: { [key: string]: APIConfigType } = {
 	},
 }
 
-let _apiAccessToken: string | null = null
-export const getApiAccessToken = () => _apiAccessToken
-
 let apiRefreshToken: string | null = null
 let _apiAccessType: 'Guest' | 'Login' = 'Guest'
-export const getApiAccessType = () => _apiAccessType
 
 let apiUserId: string | null = null
 
@@ -86,19 +81,6 @@ export const refreshAccessToken = async (refreshToken?: string) => {
 	updateAccessToken({ accessToken: newAccessToken, refreshToken: newRefreshToken, accessType: 'Login' })
 	return { accessToken: newAccessToken, refreshToken: newRefreshToken }
 }
-
-axiosInstance.interceptors.request.use(
-	async (config) => {
-		const session = await getSession()
-		if (session && session.user) {
-			config.headers['Authorization'] = `Bearer ${session.user.accessToken}`
-		}
-		return config
-	},
-	(error) => {
-		return Promise.reject(error)
-	},
-)
 
 axiosInstance.interceptors.response.use(
 	(response) => {
@@ -163,13 +145,11 @@ export function updateAccessToken({
 }) {
 	if (accessToken) {
 		axiosInstance.defaults.headers.common.authorization = 'Bearer ' + accessToken
-		_apiAccessToken = accessToken
 		if (refreshToken) apiRefreshToken = refreshToken
 		if (userId) apiUserId = userId
 		_apiAccessType = accessType
 	} else {
 		axiosInstance.defaults.headers.common.authorization = null
-		_apiAccessToken = null
 		apiUserId = null
 		apiRefreshToken = null
 	}

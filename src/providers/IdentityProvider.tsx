@@ -22,26 +22,31 @@ export default function IdentityProvider(props: Props) {
 
 	useEffect(() => {
 		// session is undefined mean session not successfully loaded yet
-		if (session?.user?.accessToken) {
-			updateAccessToken({
-				accessToken: session.user.accessToken,
-				refreshToken: session?.user?.refreshToken ?? undefined,
-				accessType: 'Login',
-			})
-		} else if (session === null || session?.error) {
-			updateAccessToken({
-				accessToken: '',
-				refreshToken: '',
-				accessType: 'Guest',
-			})
+
+		if (session !== undefined) {
+			if (session?.user?.accessToken) {
+				updateAccessToken({
+					accessToken: session.user.accessToken,
+					refreshToken: session?.user?.refreshToken ?? undefined,
+					accessType: 'Login',
+				})
+			} else if (session === null || session?.error) {
+				updateAccessToken({
+					accessToken: '',
+					refreshToken: '',
+					accessType: 'Guest',
+				})
+			}
 		}
 	}, [session])
 
 	useEffect(() => {
-		if (requireLogin && !session && status != 'loading') {
-			router?.push(AppPath.Login)
-		} else {
-			setInitial(true)
+		if (session !== undefined) {
+			if (requireLogin && !session && status != 'loading') {
+				router?.push(AppPath.Login)
+			} else {
+				setInitial(true)
+			}
 		}
 	}, [requireLogin, status, session, router])
 
