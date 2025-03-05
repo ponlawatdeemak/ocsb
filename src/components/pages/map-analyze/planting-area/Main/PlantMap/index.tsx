@@ -27,8 +27,8 @@ import {
 	GetReplantYieldAreaDtoOut,
 } from '@interface/dto/yield-area/yield-area.dto-out'
 import PopupPlant from './PopupPlant'
-import { HeatmapLayer } from '@deck.gl/aggregation-layers'
 import { FillStyleExtension } from '@deck.gl/extensions'
+export const PLANTING_MAP_ID = 'planting-map'
 
 interface PlantingMapMainProps {
 	className?: string
@@ -58,7 +58,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	onMapExtentChange,
 }) => {
 	const { data: session } = useSession()
-	const { mapLibre, overlay } = useMapStore()
+	const { mapLibre, overlays } = useMapStore()
 	const { areaUnit } = useAreaUnit()
 	const { quantityUnit } = useQuantityUnit()
 	const quantityLang = `common:${quantityUnit}`
@@ -76,6 +76,9 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 		queryKey: ['getRegion'],
 		queryFn: () => service.lookup.getRegion(),
 	})
+
+	const plantingMap = useMemo(() => mapLibre[PLANTING_MAP_ID], [mapLibre])
+	const plantingOverlay = useMemo(() => overlays[PLANTING_MAP_ID], [overlays])
 
 	const yieldLegendNumber = useMemo(() => {
 		if (quantityUnit === QuantityUnitKey.Ton) {
@@ -105,10 +108,10 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 
 	// map event
 	useEffect(() => {
-		if (mapLibre && regionData?.length) {
+		if (plantingMap && regionData?.length) {
 			let previousZoom = 0
-			mapLibre.on('moveend', () => {
-				const bound = mapLibre.getBounds()
+			plantingMap.on('moveend', () => {
+				const bound = plantingMap.getBounds()
 				const sw = bound.getSouthWest()
 				const ne = bound.getNorthEast()
 				const polygon = [
@@ -119,7 +122,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					[sw.lng, sw.lat],
 				]
 
-				const currentZoom = mapLibre.getZoom()
+				const currentZoom = plantingMap.getZoom()
 
 				if (previousZoom) {
 					if (currentZoom <= previousZoom) {
@@ -130,7 +133,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				}
 
 				previousZoom = currentZoom
-				const center = mapLibre.getCenter()
+				const center = plantingMap.getCenter()
 
 				const insideRegion = regionData.find((reg) => {
 					let result = false
@@ -151,38 +154,38 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				}
 			})
 		}
-	}, [mapLibre, onMapExtentChange, regionData, i18n])
+	}, [mapLibre, onMapExtentChange, regionData, i18n, plantingMap])
 
 	// zoom to search area or default user region
 	useEffect(() => {
-		if (mapLibre) {
+		if (plantingMap) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
 			if (userGeometry) {
-				mapLibre.fitBounds(userGeometry, { padding: 100 })
+				plantingMap.fitBounds(userGeometry, { padding: 100 })
 			}
 		}
-	}, [mapLibre, currentAdmOption?.geometry, session?.user?.geometry])
+	}, [mapLibre, currentAdmOption?.geometry, session?.user?.geometry, plantingMap])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
-			if (mapLibre && overlay) {
-				const pickItem = overlay.pickMultipleObjects(info)
+			if (plantingMap && plantingOverlay) {
+				const pickItem = plantingOverlay.pickMultipleObjects(info)
 				if (popupNode.current && pickItem.length) {
 					popup
 						?.setLngLat(info.coordinate as [number, number])
 						.setDOMContent(popupNode.current)
-						.addTo(mapLibre)
+						.addTo(plantingMap)
 
 					setPopupData(pickItem)
 				}
 			}
 		},
-		[mapLibre, overlay, popup],
+		[plantingMap, plantingOverlay, popup],
 	)
 
 	// update layer
 	useEffect(() => {
-		if (mapLibre && overlay) {
+		if (mapLibre && plantingOverlay) {
 			const layers = [
 				new GeoJsonLayer({
 					id: 'plant',
@@ -275,13 +278,13 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				//   });
 			]
 
-			overlay.setProps({
+			plantingOverlay.setProps({
 				layers: [layers],
 				onClick: onMapClick,
 				getCursor: (state) => (state.isHovering ? 'pointer' : 'default'),
 			})
 		}
-	}, [mapLibre, overlay, onMapClick, plantYieldAreaData, productYieldAreaData, replantYieldAreaData])
+	}, [mapLibre, onMapClick, plantYieldAreaData, productYieldAreaData, replantYieldAreaData, plantingOverlay])
 
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
@@ -358,6 +361,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				</Box>
 
 				<MapView
+					mapId={PLANTING_MAP_ID}
 					loading={
 						isPlantYieldAreaDataLoading ||
 						isProductYieldAreaDataLoading ||
