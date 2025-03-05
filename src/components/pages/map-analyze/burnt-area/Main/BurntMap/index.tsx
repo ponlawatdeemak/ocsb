@@ -125,11 +125,11 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	useEffect(() => {
 		if (mapLibre) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
-		if (burntMap && userGeometry) {
-			burntMap.fitBounds(userGeometry, { padding: 100 })
+			if (burntMap && userGeometry) {
+				burntMap.fitBounds(userGeometry, { padding: 100 })
 			}
 		}
-	}, [mapLibre, currentAdmOption?.geometry, session?.user?.geometry])
+	}, [mapLibre, currentAdmOption?.geometry, session?.user?.geometry, burntMap])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {

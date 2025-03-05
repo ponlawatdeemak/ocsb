@@ -35,13 +35,13 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 				} else if (item.layer.id === 'burnt') {
 					color = '#FBBF07'
 					row3.title = t('map-analyze:popupBurnt.burntScar')
-					const areaData = data.area[areaUnit] as Number
+					const areaData = data.area[areaUnit] as number
 					row3.value = Number(areaData.toFixed(2)).toLocaleString()
 					coordinates = centroid(geometry).geometry.coordinates
 				} else if (item.layer.id === 'plant') {
 					color = '#8AB62D'
 					row3.title = t('map-analyze:popupBurnt.plantingArea')
-					const areaData = data.area[areaUnit] as Number
+					const areaData = data.area[areaUnit] as number
 					row3.value = Number(areaData.toFixed(2)).toLocaleString()
 					coordinates = centroid(geometry).geometry.coordinates
 				}

@@ -89,6 +89,12 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 									<>
 										<Box className='flex'>
 											<Box className='w-[110px] font-bold text-[#003491]'>
+												{t('plantingArea')}
+											</Box>
+											<Box>{`${defaultNumber(data.area[areaUnit])} ${t(areaUnitTranslate)}`}</Box>
+										</Box>
+										<Box className='flex'>
+											<Box className='w-[110px] font-bold text-[#003491]'>
 												{t('overview:sugarCaneYield')}
 											</Box>
 											<Box>{`${defaultNumber(data.product[quantityUnit][areaUnit])} ${t(quantityUnitTranslate)}/${t(areaUnitTranslate)}`}</Box>
