@@ -3,34 +3,39 @@ import { Layer } from '@deck.gl/core'
 import type { MapboxOverlay } from '@deck.gl/mapbox'
 
 export type MapStore = {
-	mapLibre: maplibregl.Map | null
-	setMapLibre: (value: maplibregl.Map | null) => void
-	overlay?: MapboxOverlay
-	setOverlay: (value: MapboxOverlay) => void
-	layers: Layer[]
-	addLayer: (value: Layer) => void
-	setLayers: (value: Layer[]) => void
-	getLayer: (value: string) => Layer | undefined
-	removeLayer: (value: string) => void
+	mapLibre: Record<string, maplibregl.Map | null>
+	setMapLibre: (id: string, value: maplibregl.Map | null) => void
+
+	overlays: Record<string, MapboxOverlay | null>
+	setOverlay: (id: string, overlay: MapboxOverlay | null) => void
+
+	layers: Record<string, Layer[]>
+	addLayer: (id: string, layer: Layer) => void
+	setLayers: (id: string, layers: Layer[]) => void
+	getLayer: (id: string) => Layer | undefined
+	removeLayer: (id: string, layerId: string) => void
 }
 
 export const useMapStore = create<MapStore>()((set, get) => ({
-	mapLibre: null,
-	setMapLibre: (value) => set((state) => ({ ...state, mapLibre: value })),
-	overlay: undefined,
-	setOverlay: (overlay) => set((state) => ({ ...state, overlay })),
-	layers: [],
-	addLayer: (layer) => set((state) => ({ ...state, layers: [...state.layers, layer] })),
-	setLayers: (layers) => set((state) => ({ ...state, layers })),
-	getLayer: (layerId: string): Layer | undefined => {
-		const layer = get().layers.find((layer) => layer instanceof Layer && layer.id === layerId)
-		return layer instanceof Layer ? layer : undefined
+	mapLibre: {},
+	setMapLibre: (id, value) => set((state) => ({ ...state, mapLibre: { ...state.mapLibre, [id]: value } })),
+
+	overlays: {},
+	setOverlay: (id, overlay) => set((state) => ({ ...state, overlays: { ...state.overlays, [id]: overlay } })),
+
+	layers: {},
+	addLayer: (id, layer) =>
+		set((state) => ({ ...state, layers: { ...state.layers, [id]: [...(state.layers[id] || []), layer] } })),
+	setLayers: (id, layers) => set((state) => ({ ...state, layers: { ...state.layers, [id]: layers } })),
+	getLayer: (id) => {
+		const layers = get().layers[id]
+		return layers ? layers[0] : undefined
 	},
 
-	removeLayer: (layerId) =>
+	removeLayer: (id, layerId) =>
 		set((state) => ({
 			...state,
-			layers: state.layers.filter((layer) => !(layer instanceof Layer && layer.id === layerId)),
+			layers: { ...state.layers, [id]: (state.layers[id] || []).filter((layer) => layer.id !== layerId) },
 		})),
 }))
 

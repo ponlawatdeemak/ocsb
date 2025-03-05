@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Box, ToggleButton, ToggleButtonGroup, IconButton, Popover, ButtonGroup, Tooltip } from '@mui/material'
 import { useTranslation } from 'next-i18next'
 import {
 	MapCurrentLocationIcon,
-	MapExportIcon,
 	MapExtentIcon,
 	MapLayersIcon,
 	MapMeasureIcon,
@@ -31,12 +30,13 @@ enum MeasureMode {
 }
 
 interface MapToolsProps {
+	mapId: string
 	onBasemapChanged?: (basemap: BasemapType) => void
 	onGetLocation?: (coords: GeolocationCoordinates) => void
 	currentBaseMap: BasemapType
 }
 
-const MapTools: React.FC<MapToolsProps> = ({ onBasemapChanged, onGetLocation, currentBaseMap }) => {
+const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocation, currentBaseMap }) => {
 	const { t } = useTranslation()
 	const { mapLibre, getLayer, removeLayer } = useMapStore()
 
@@ -49,23 +49,25 @@ const MapTools: React.FC<MapToolsProps> = ({ onBasemapChanged, onGetLocation, cu
 	const [measureMode, setMeasureMode] = useState<MeasureMode | null>(null)
 	const [anchorMeasure, setAnchorMeasure] = useState<HTMLButtonElement | null>(null)
 
+	const map = useMemo(() => mapLibre[mapId], [mapLibre, mapId])
+
 	const handleResetBearing = useCallback(() => {
-		if (mapLibre) {
-			mapLibre.rotateTo(0, { duration: 500 })
+		if (map) {
+			map.rotateTo(0, { duration: 500 })
 		}
-	}, [mapLibre])
+	}, [map])
 
 	const handleZoomIn = useCallback(() => {
-		if (mapLibre) {
-			mapLibre.zoomIn({ duration: 200 })
+		if (map) {
+			map.zoomIn({ duration: 200 })
 		}
-	}, [mapLibre])
+	}, [map])
 
 	const handleZoomOut = useCallback(() => {
-		if (mapLibre) {
-			mapLibre.zoomOut({ duration: 200 })
+		if (map) {
+			map.zoomOut({ duration: 200 })
 		}
-	}, [mapLibre])
+	}, [map])
 
 	const handleBasemapChanged = useCallback(
 		(basemap: BasemapType) => {
@@ -78,15 +80,15 @@ const MapTools: React.FC<MapToolsProps> = ({ onBasemapChanged, onGetLocation, cu
 	)
 
 	const handleExtentLocation = useCallback(() => {
-		if (mapLibre) {
+		if (map) {
 			const layer = getLayer(layerIdConfig.toolCurrentLocation)
 
 			if (layer) {
-				removeLayer(layerIdConfig.toolCurrentLocation)
+				removeLayer(mapId, layerIdConfig.toolCurrentLocation)
 			}
-			mapLibre.fitBounds(thaiExtent, { duration: 3000 })
+			map.fitBounds(thaiExtent, { duration: 3000 })
 		}
-	}, [mapLibre, getLayer, removeLayer])
+	}, [map, mapId, getLayer, removeLayer])
 
 	const handleCurrentLocation = useCallback(() => {
 		if (navigator.geolocation) {
@@ -117,28 +119,28 @@ const MapTools: React.FC<MapToolsProps> = ({ onBasemapChanged, onGetLocation, cu
 	)
 
 	const handleBearingChange = useCallback(() => {
-		if (mapLibre) {
-			setBearing(mapLibre.getBearing())
+		if (map) {
+			setBearing(map.getBearing())
 		}
-	}, [mapLibre])
+	}, [map])
 
 	useEffect(() => {
-		if (mapLibre) {
+		if (map) {
 			// Update bearing state when the map rotates
-			mapLibre.on('rotate', handleBearingChange)
+			map.on('rotate', handleBearingChange)
 		}
 
 		return () => {
-			if (mapLibre) {
-				mapLibre.off('rotate', handleBearingChange)
+			if (map) {
+				map.off('rotate', handleBearingChange)
 			}
 		}
-	}, [mapLibre, handleBearingChange])
+	}, [map, handleBearingChange])
 
 	return (
 		<>
 			{/* Tools Controls */}
-			<Box className='absolute right-4 top-[140px] z-10 flex flex-col gap-2 md:right-6 md:top-2.5 [&_button]:bg-white'>
+			<Box className='map-tools absolute right-4 top-[140px] z-10 flex flex-col gap-2 md:right-6 md:top-2.5 [&_button]:bg-white'>
 				<Tooltip title={t('tools.compass')} placement='left' arrow>
 					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 						<IconButton
@@ -312,9 +314,9 @@ const MapTools: React.FC<MapToolsProps> = ({ onBasemapChanged, onGetLocation, cu
 				</Box>
 			</Popover>
 
-			{mapLibre && (
+			{map && (
 				<Measurement
-					map={mapLibre}
+					map={map}
 					mode={measureMode}
 					open={showMeasure}
 					onClickClose={() => {

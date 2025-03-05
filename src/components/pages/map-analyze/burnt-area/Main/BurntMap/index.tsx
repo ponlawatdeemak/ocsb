@@ -25,6 +25,7 @@ import { Popup } from 'maplibre-gl'
 import { PickingInfo } from '@deck.gl/core'
 import PopupBurnt from './PopupBurnt'
 import CloseIcon from '@mui/icons-material/Close'
+export const BURNT_MAP_ID = 'burnt-map'
 
 interface BurntMapMainProps {
 	className?: string
@@ -52,7 +53,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	onMapExtentChange,
 }) => {
 	const { data: session } = useSession()
-	const { mapLibre, overlay } = useMapStore()
+	const { mapLibre, overlays } = useMapStore()
 	const { t, i18n } = useTranslation(['map-analyze', 'common'])
 
 	const [currentRegion, setCurrentRegion] = useState('')
@@ -67,12 +68,15 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		queryFn: () => service.lookup.getRegion(),
 	})
 
+	const burntMap = useMemo(() => mapLibre[BURNT_MAP_ID], [mapLibre])
+	const burntOverlay = useMemo(() => overlays[BURNT_MAP_ID], [overlays])
+
 	// map event
 	useEffect(() => {
-		if (mapLibre && regionData?.length) {
+		if (burntMap && regionData?.length) {
 			let previousZoom = 0
-			mapLibre.on('moveend', () => {
-				const bound = mapLibre.getBounds()
+			burntMap.on('moveend', () => {
+				const bound = burntMap.getBounds()
 				const sw = bound.getSouthWest()
 				const ne = bound.getNorthEast()
 				const polygon = [
@@ -83,7 +87,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					[sw.lng, sw.lat],
 				]
 
-				const currentZoom = mapLibre.getZoom()
+				const currentZoom = burntMap.getZoom()
 
 				if (previousZoom) {
 					if (currentZoom <= previousZoom) {
@@ -94,7 +98,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				}
 
 				previousZoom = currentZoom
-				const center = mapLibre.getCenter()
+				const center = burntMap.getCenter()
 
 				const insideRegion = regionData.find((reg) => {
 					let result = false
@@ -115,38 +119,38 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				}
 			})
 		}
-	}, [mapLibre, onMapExtentChange, regionData, i18n])
+	}, [burntMap, onMapExtentChange, regionData, i18n])
 
 	// zoom to search area or default user region
 	useEffect(() => {
 		if (mapLibre) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
-			if (userGeometry) {
-				mapLibre.fitBounds(userGeometry, { padding: 100 })
+		if (burntMap && userGeometry) {
+			burntMap.fitBounds(userGeometry, { padding: 100 })
 			}
 		}
 	}, [mapLibre, currentAdmOption?.geometry, session?.user?.geometry])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
-			if (mapLibre && overlay) {
-				const pickItem = overlay.pickMultipleObjects(info)
+			if (burntMap && burntOverlay) {
+				const pickItem = burntOverlay.pickMultipleObjects(info)
 				if (popupNode.current && pickItem.length) {
 					popup
 						?.setLngLat(info.coordinate as [number, number])
 						.setDOMContent(popupNode.current)
-						.addTo(mapLibre)
+						.addTo(burntMap)
 
 					setPopupData(pickItem)
 				}
 			}
 		},
-		[mapLibre, overlay, popup],
+		[burntMap, burntOverlay, popup],
 	)
 
 	// update layer
 	useEffect(() => {
-		if (mapLibre && overlay) {
+		if (mapLibre && burntOverlay) {
 			const layers = [
 				new GeoJsonLayer({
 					id: 'plant',
@@ -185,13 +189,13 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				}),
 			]
 
-			overlay.setProps({
+			burntOverlay.setProps({
 				layers: [layers],
 				onClick: onMapClick,
 				getCursor: (state) => (state.isHovering ? 'pointer' : 'default'),
 			})
 		}
-	}, [mapLibre, overlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData, onMapClick])
+	}, [mapLibre, burntOverlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData, onMapClick])
 
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
@@ -254,6 +258,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				</Box>
 
 				<MapView
+					mapId={BURNT_MAP_ID}
 					loading={
 						isHotspotBurntAreaDataLoading ||
 						isBurntBurntAreaDataLoading ||
