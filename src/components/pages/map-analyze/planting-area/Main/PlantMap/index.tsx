@@ -28,6 +28,8 @@ import {
 } from '@interface/dto/yield-area/yield-area.dto-out'
 import PopupPlant from './PopupPlant'
 import { FillStyleExtension } from '@deck.gl/extensions'
+import centroid from '@turf/centroid'
+import { Feature, GeoJsonProperties, Geometry } from 'geojson'
 export const PLANTING_MAP_ID = 'planting-map'
 
 interface PlantingMapMainProps {
@@ -264,19 +266,8 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					getFillPattern: () => 'pattern',
 					getFillPatternScale: 1,
 					getFillPatternOffset: [0, 0],
-
 					extensions: [new FillStyleExtension({ pattern: true })],
 				}),
-
-				// new HeatmapLayer<BikeRack>({
-				//     id: 'HeatmapLayer',
-				//     data: 'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/sf-bike-parking.json',
-
-				//     aggregation: 'SUM',
-				//     getPosition: (d: BikeRack) => d.COORDINATES,
-				//     getWeight: (d: BikeRack) => d.SPACES,
-				//     radiusPixels: 25
-				//   });
 			]
 
 			plantingOverlay.setProps({
@@ -285,60 +276,68 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				getCursor: (state) => (state.isHovering ? 'pointer' : 'default'),
 			})
 			//#endregion
+		}
+	}, [onMapClick, plantYieldAreaData, productYieldAreaData, replantYieldAreaData, plantingOverlay, plantingMap])
 
+	useEffect(() => {
+		if (plantingMap) {
 			//#region heatmap layer
-			if (!plantingMap.getSource('earthquakes')) {
-				plantingMap.addSource('earthquakes', {
+
+			//update heat data
+			if (plantingMap?.getSource('heat') && plantingMap?.getLayer('heat-layer')) {
+				plantingMap.removeLayer('heat-layer')
+				plantingMap.removeSource('heat')
+			}
+
+			if (!plantingMap.getSource('heat') && productYieldAreaData.length > 0) {
+				plantingMap.addSource('heat', {
 					type: 'geojson',
-					data: 'https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson',
+					data: {
+						type: 'FeatureCollection',
+						features: productYieldAreaData.map((item) => {
+							return {
+								...item,
+								geometry: {
+									type: 'Point',
+									coordinates: centroid(item.geometry as any).geometry.coordinates,
+								},
+							}
+						}) as Feature<Geometry, GeoJsonProperties>[],
+					},
 				})
 			}
-			if (!plantingMap.getLayer('earthquakes-heat')) {
-				plantingMap.addLayer(
-					{
-						id: 'earthquakes-heat',
-						type: 'heatmap',
-						source: 'earthquakes',
-						maxzoom: 9,
-						paint: {
-							// Increase the heatmap weight based on frequency and property magnitude
-							'heatmap-weight': ['interpolate', ['linear'], ['get', 'mag'], 0, 0, 6, 1],
-							// Increase the heatmap color weight weight by zoom level
-							// heatmap-intensity is a multiplier on top of heatmap-weight
-							'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 9, 3],
-							// Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
-							// Begin color ramp at 0-stop with a 0-transparancy color
-							// to create a blur-like effect.
-							'heatmap-color': [
-								'interpolate',
-								['linear'],
-								['heatmap-density'],
-								0,
-								'rgba(33,102,172,0)',
-								0.2,
-								'rgb(103,169,207)',
-								0.4,
-								'rgb(209,229,240)',
-								0.6,
-								'rgb(253,219,199)',
-								0.8,
-								'rgb(239,138,98)',
-								1,
-								'rgb(178,24,43)',
-							],
-							// Adjust the heatmap radius by zoom level
-							'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 9, 20],
-							// Transition from heatmap to circle layer by zoom level
-							'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 7, 1, 9, 0],
-						},
+			if (!plantingMap.getLayer('heat-layer') && productYieldAreaData.length > 0) {
+				plantingMap.addLayer({
+					id: 'heat-layer',
+					type: 'heatmap',
+					source: 'heat',
+					maxzoom: 9,
+					paint: {
+						'heatmap-color': [
+							'interpolate',
+							['linear'],
+							['heatmap-density'],
+							0,
+							'rgba(33,102,172,0)',
+							0.2,
+							'rgb(103,169,207)',
+							0.4,
+							'rgb(209,229,240)',
+							0.6,
+							'rgb(253,219,199)',
+							0.8,
+							'rgb(239,138,98)',
+							1,
+							'rgb(178,24,43)',
+						],
+						'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 1, 6, 3, 9, 8],
+						'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 8, 1, 9, 0],
 					},
-					'custom-referer-layer',
-				)
+				})
 			}
-
 			//#endregion
 		}
-	}, [mapLibre, onMapClick, plantYieldAreaData, productYieldAreaData, replantYieldAreaData, plantingOverlay])
+	}, [plantYieldAreaData, plantingMap, plantingOverlay, productYieldAreaData, replantYieldAreaData])
 
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)

@@ -1,7 +1,7 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
 import React, { useCallback, useMemo, useState } from 'react'
-import PlantingMapMain from './PlantMap'
+import PlantingMapMain, { PLANTING_MAP_ID } from './PlantMap'
 import { yieldMapTypeCode } from '@interface/config/app.config'
 import service from '@/api'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
@@ -124,9 +124,10 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 
 	const handleSelectCard = useCallback(
 		(item: any) => {
+			const plantingMap = mapLibre[PLANTING_MAP_ID]
 			setSelectedCard((selected) => (selected === item.id ? undefined : item.id))
-			if (mapLibre && selectedCard !== item.id && item?.admOption?.geometry) {
-				mapLibre.fitBounds(item.admOption.geometry, { padding: 100 })
+			if (plantingMap && selectedCard !== item.id && item?.admOption?.geometry) {
+				plantingMap.fitBounds(item.admOption.geometry, { padding: 100 })
 				setSearchSelectedAdmOption(item.admOption)
 			}
 		},
