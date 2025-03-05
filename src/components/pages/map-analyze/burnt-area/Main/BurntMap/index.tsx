@@ -1,6 +1,6 @@
 import MapView from '@/components/common/map/MapView'
 import useMapStore from '@/components/common/map/store/map'
-import { Box, IconButton, Typography } from '@mui/material'
+import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -10,7 +10,7 @@ import {
 	GetHotspotBurntAreaDtoOut,
 	GetPlantBurntAreaDtoOut,
 } from '@interface/dto/brunt-area/brunt-area.dto.out'
-import { GeoJsonLayer, IconLayer, PolygonLayer } from '@deck.gl/layers'
+import { GeoJsonLayer, IconLayer } from '@deck.gl/layers'
 
 import { getPinHotSpot } from '@/utils/pin'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
@@ -25,7 +25,13 @@ import { Popup } from 'maplibre-gl'
 import { PickingInfo } from '@deck.gl/core'
 import PopupBurnt from './PopupBurnt'
 import CloseIcon from '@mui/icons-material/Close'
+import { MapExportIcon } from '@/components/svg/MenuIcon'
+import PrintMapDialog from './PrintMapDialog'
+import { captureMapImage } from '@/utils/capture'
+import html2canvas from 'html2canvas'
+
 export const BURNT_MAP_ID = 'burnt-map'
+const BURNT_MINI_MAP_ID = 'burnt-mini-map'
 
 interface BurntMapMainProps {
 	className?: string
@@ -62,6 +68,14 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const popupNode = useRef<HTMLDivElement>(null)
 	const [popupData, setPopupData] = useState<any[]>([])
 	const popup = useMemo(() => new Popup({ closeOnClick: false, closeButton: false }), [])
+
+	const [openPrintMapDialog, setOpenPrintMapDialog] = useState<boolean>(false)
+	const [isCapturing, setIsCapturing] = useState<boolean>(false)
+
+	const burntMapRef = useRef(null)
+	const burntMiniMapRef = useRef(null)
+	const [burntMapImage, setBurntMapImage] = useState<string>('')
+	const [burntMiniMapImage, setBurntMiniMapImage] = useState<string>('')
 
 	const { data: regionData, isPending: isRegionLoading } = useQuery({
 		queryKey: ['getRegion'],
@@ -123,13 +137,11 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	// zoom to search area or default user region
 	useEffect(() => {
-		if (mapLibre) {
-			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
+		const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
 		if (burntMap && userGeometry) {
 			burntMap.fitBounds(userGeometry, { padding: 100 })
-			}
 		}
-	}, [mapLibre, currentAdmOption?.geometry, session?.user?.geometry])
+	}, [burntMap, currentAdmOption?.geometry, session?.user?.geometry])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
@@ -197,13 +209,68 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		}
 	}, [mapLibre, burntOverlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData, onMapClick])
 
+	const handlePrintMapDialogOpen = useCallback(async () => {
+		try {
+			setIsCapturing(true)
+
+			await new Promise((resolve) => setTimeout(resolve, 300)) // Ensure maps are rendered
+
+			if (!burntMapRef.current || !burntMiniMapRef.current) {
+				console.error('Error: One or both map containers are missing.')
+				setIsCapturing(false)
+				return
+			}
+
+			// Capture maps
+			const [canvas1, canvas2] = await Promise.all([
+				html2canvas(burntMapRef.current, { useCORS: true }),
+				html2canvas(burntMiniMapRef.current, { useCORS: true }),
+			])
+
+			// Convert to Base64
+			setBurntMapImage(canvas1.toDataURL('image/png'))
+			setBurntMiniMapImage(canvas2.toDataURL('image/png'))
+
+			setOpenPrintMapDialog(true)
+		} catch (error) {
+			console.error('Export failed!', error)
+		} finally {
+			setIsCapturing(false)
+		}
+	}, [])
+
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
 	}, [isCurrentRegionOpen])
 
 	return (
 		<Box className={classNames('', className)}>
-			<Box className='relative flex h-full grow'>
+			<Box className='absolute right-4 top-[356px] z-10 flex md:right-6 md:top-[226px] [&_button]:bg-white'>
+				<Tooltip title={t('common:tools.export')} placement='left' arrow>
+					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
+						<IconButton
+							className='!h-6 !w-6 grow !rounded-none !p-1.5 [&_path]:stroke-black'
+							onClick={handlePrintMapDialogOpen}
+						>
+							<MapExportIcon />
+						</IconButton>
+					</Box>
+				</Tooltip>
+
+				<PrintMapDialog
+					open={openPrintMapDialog}
+					burntMapImage={burntMapImage}
+					burntMiniMapImage={burntMiniMapImage}
+					loading={isCapturing}
+					onClose={() => setOpenPrintMapDialog(false)}
+				/>
+			</Box>
+			<Box
+				ref={burntMapRef}
+				className={classNames('relative flex h-full w-full grow', {
+					'!absolute left-[-9999px] top-[-9999px]': isCapturing,
+				})}
+			>
 				<Box className='absolute bottom-[88px] left-3 z-10 flex items-end gap-4 md:bottom-12'>
 					<IconButton
 						className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {
@@ -283,6 +350,14 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					</Box>
 					<PopupBurnt popupData={popupData} />
 				</div>
+			</Box>
+
+			{/* Static hidden divs for maps */}
+			<Box
+				ref={burntMiniMapRef}
+				className='absolute left-[-9999px] top-[-9999px] flex aspect-[215/287] w-full grow [&_.map-tools]:hidden [&_.maplibregl-control-container]:hidden'
+			>
+				<MapView mapId={BURNT_MINI_MAP_ID} />
 			</Box>
 		</Box>
 	)
