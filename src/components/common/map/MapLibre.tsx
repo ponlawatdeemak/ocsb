@@ -82,6 +82,7 @@ const MapLibre: FC<MapLibreProps> = ({ mapId, mapStyle }) => {
 			antialias
 			initialViewState={viewState}
 			mapStyle={mapStyle}
+			preserveDrawingBuffer={true}
 			onLoad={onLoad}
 			onStyleData={onStyleData}
 			touchZoomRotate={true}
