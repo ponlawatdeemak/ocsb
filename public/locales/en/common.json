@@ -101,5 +101,8 @@
 	"currentRegion": "Region สอน.",
 
 	"processing": "Processing",
-	"submit": "Submit"
+	"submit": "Submit",
+	"and": "and",
+	"mapDisplayData": "Map Displaying Data on",
+	"date": "Date"
 }
