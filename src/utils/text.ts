@@ -7,3 +7,7 @@ export function defaultNumber(value: number | string, digit: number = 2) {
 		? value.toLocaleString(undefined, { maximumFractionDigits: digit, minimumFractionDigits: 0 })
 		: ''
 }
+
+export function nFormatter(num: number, digits = 2) {
+	return num.toLocaleString(undefined, { notation: 'compact', maximumFractionDigits: digits })
+}
