@@ -227,7 +227,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 				<Box
 					className={classNames(
-						'absolute bottom-[52px] left-[52px] z-10 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3 md:bottom-3',
+						'absolute bottom-[52px] left-[52px] z-10 flex max-w-[60%] items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3 md:bottom-3',
 						{ '!hidden': mapTypeArray.length === 0 },
 					)}
 				>
