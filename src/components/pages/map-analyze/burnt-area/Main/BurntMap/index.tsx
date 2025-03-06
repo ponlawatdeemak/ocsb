@@ -14,7 +14,7 @@ import { GeoJsonLayer, IconLayer } from '@deck.gl/layers'
 
 import { getPinHotSpot } from '@/utils/pin'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
-import { mapTypeCode } from '@interface/config/app.config'
+import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
@@ -56,6 +56,8 @@ interface BurntMapMainProps {
 	className?: string
 	mapTypeArray: mapTypeCode[]
 	currentAdmOption: OptionType | null
+	selectedHotspots: hotspotTypeCode[]
+	selectedDateRange: Date[]
 	hotspotBurntAreaData: GetHotspotBurntAreaDtoOut[]
 	burntBurntAreaData: GetBurntBurntAreaDtoOut[]
 	plantBurntAreaData: GetPlantBurntAreaDtoOut[]
@@ -69,6 +71,8 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	className = '',
 	mapTypeArray,
 	currentAdmOption,
+	selectedHotspots,
+	selectedDateRange,
 	hotspotBurntAreaData,
 	burntBurntAreaData,
 	plantBurntAreaData,
@@ -407,6 +411,11 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						burntMapImage={burntMapImage}
 						burntMiniMapImage={burntMiniMapImage}
 						endBounds={endBounds}
+						mapTypeArray={mapTypeArray}
+						mapLegendArray={mapLegendArray}
+						currentAdmOption={currentAdmOption}
+						selectedDateRange={selectedDateRange}
+						selectedHotspots={selectedHotspots}
 						loading={isCapturing}
 						onClose={() => setOpenPrintMapDialog(false)}
 					/>

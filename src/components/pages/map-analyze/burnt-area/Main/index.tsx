@@ -213,6 +213,8 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					className='flex w-full flex-1 md:h-full max-md:[&_.maplibregl-ctrl-bottom-right]:bottom-[40px]'
 					mapTypeArray={mapTypeArray}
 					currentAdmOption={searchSelectedAdmOption}
+					selectedHotspots={selectedHotspots}
+					selectedDateRange={selectedDateRange}
 					hotspotBurntAreaData={mapDataHotSpot}
 					burntBurntAreaData={mapDataBurnt}
 					plantBurntAreaData={mapDataPlant}

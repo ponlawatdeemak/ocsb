@@ -13,9 +13,17 @@ import {
 import classNames from 'classnames'
 import { useTranslation } from 'next-i18next'
 import React, { useMemo } from 'react'
-import { EndBoundsType } from '..'
+import { EndBoundsType, MapLegendType } from '..'
 import useMapStore from '@/components/common/map/store/map'
 import { BasemapType } from '@/components/common/map/interface/map'
+import { hotspotTypeCode, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
+import { Languages } from '@/enum'
+import { OptionType } from '../../SearchForm'
+import service from '@/api'
+import { useQuery } from '@tanstack/react-query'
+import { defaultNumber } from '@/utils/text'
+import useAreaUnit from '@/store/area-unit'
+import { formatDate } from '@/utils/date'
 
 const GRID_COLS = 4
 const GRID_ROWS = 3
@@ -26,6 +34,11 @@ interface PrintMapDialogProps {
 	burntMapImage: string
 	burntMiniMapImage: string
 	endBounds: EndBoundsType
+	mapTypeArray: mapTypeCode[]
+	mapLegendArray: MapLegendType[]
+	currentAdmOption: OptionType | null
+	selectedDateRange: Date[]
+	selectedHotspots: hotspotTypeCode[]
 	loading: boolean
 	onClose: () => void
 }
@@ -36,11 +49,39 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	burntMapImage,
 	burntMiniMapImage,
 	endBounds,
+	mapTypeArray,
+	mapLegendArray,
+	currentAdmOption,
+	selectedDateRange,
+	selectedHotspots,
 	loading = false,
 	onClose,
 }) => {
 	const { basemap } = useMapStore()
-	const { t } = useTranslation(['map-analyze', 'common'])
+	const { areaUnit } = useAreaUnit()
+	const { t, i18n } = useTranslation(['common', 'map-anlyze'])
+	const language = i18n.language as keyof ResponseLanguage
+
+	const { data: mapTypeData, isFetching: isMapTypeDataLoading } = useQuery({
+		queryKey: [
+			'getDashBoardBurntAreaPrintMap',
+			selectedDateRange,
+			currentAdmOption,
+			mapTypeArray,
+			selectedHotspots,
+		],
+		queryFn: async () => {
+			const response = await service.mapAnalyze.getDashBoardBurntArea({
+				startDate: selectedDateRange[0]?.toISOString().split('T')[0],
+				endDate: selectedDateRange[1]?.toISOString().split('T')[0],
+				admC: currentAdmOption?.id ? Number(currentAdmOption.id) : undefined,
+				mapType: mapTypeArray,
+				inSugarcan: selectedHotspots,
+			})
+			return response.data
+		},
+		enabled: !!open,
+	})
 
 	const gridColsArray = useMemo(
 		() =>
@@ -68,6 +109,28 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 		[endBounds.ymax, endBounds.ymin],
 	)
 
+	const displayDialogTitle = useMemo(() => {
+		const mapType = mapLegendArray.map((item, index) => {
+			if (mapLegendArray.length > 1 && index === mapLegendArray.length - 1) {
+				return t('and') + (language === Languages.EN ? ' ' : '') + item.title
+			}
+
+			return item.title
+		})
+
+		return t('mapDisplayData') + (language === Languages.EN ? ' ' : '') + mapType.join(' ')
+	}, [mapLegendArray, t])
+
+	const displaySelectedDateRange = useMemo(() => {
+		if (selectedDateRange[0].toString() === selectedDateRange[1].toString()) {
+			return selectedDateRange[0] ? formatDate(selectedDateRange[0], 'dd MMMM yyyy', language) : ''
+		} else {
+			const startDate = selectedDateRange[0] ? formatDate(selectedDateRange[0], 'dd MMMM yyyy', language) : ''
+			const endDate = selectedDateRange[1] ? formatDate(selectedDateRange[1], 'dd MMMM yyyy', language) : ''
+			return `${startDate} - ${endDate}`
+		}
+	}, [selectedDateRange, language])
+
 	return (
 		<Dialog
 			className={classNames('', className)}
@@ -82,15 +145,13 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 			}}
 		>
 			<DialogTitle className='flex items-center gap-2 !py-3 max-lg:!px-5'>
-				<Typography className='flex-1 !text-md !leading-5 text-white'>
-					{'แผนที่แสดงข้อมูลจุดความร้อน ร่องรอยเผาไหม้ และพื้นที่ปลูกอ้อย'}
-				</Typography>
+				<Typography className='flex-1 !text-md !leading-5 text-white'>{displayDialogTitle}</Typography>
 				<IconButton className='!p-1.5' aria-label='close' onClick={onClose}>
 					<Close className='text-white' />
 				</IconButton>
 			</DialogTitle>
 			<DialogContent className='flex h-full w-full flex-col justify-between rounded-[15px] bg-white !py-4 max-lg:!px-4'>
-				{loading ? (
+				{loading || isMapTypeDataLoading ? (
 					<div className='flex h-full w-full items-center justify-center'>
 						<CircularProgress />
 					</div>
@@ -162,9 +223,10 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								})}
 							</Box>
 							<Typography className='w-full flex-1 !text-2xs !leading-5 text-[#707070] max-lg:hidden'>
-								{
-									'จุดความร้อนจากดาวเทียม  VIIRS, MODIS / ร่องรอยเผาไหม้จากการวิเคราะห์ข้อมูลดาวเทียม Sentinel-2 / พื้นที่ปลูกอ้อยจากการวิเคราะห์ข้อมูลดาวเทียม Sentinel-1, Sentinel-2 (วันที่ 19 ธันวาคม 2567 - 5 มกราคม 2568)'
-								}
+								{(language === Languages.TH
+									? 'จุดความร้อนจากดาวเทียม  VIIRS, MODIS / ร่องรอยเผาไหม้จากการวิเคราะห์ข้อมูลดาวเทียม Sentinel-2 / พื้นที่ปลูกอ้อยจากการวิเคราะห์ข้อมูลดาวเทียม Sentinel-1, Sentinel-2'
+									: 'Hotspots from VIIRS, MODIS satellites / Burn scars analyzed from Sentinel-2 satellite data / Sugarcane plantation areas analyzed from Sentinel-1, Sentinel-2 satellite data') +
+									` (${displaySelectedDateRange})`}
 							</Typography>
 						</Box>
 						<Box className='flex h-full w-full flex-col items-center lg:w-[22%]'>
@@ -182,44 +244,50 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 							</Box>
 							<Box className='flex w-full flex-1 flex-col items-center justify-between gap-5 bg-[#E6E6E6] p-4'>
 								<Box className='flex w-full flex-col gap-2 lg:gap-1.5'>
-									<Box className='flex w-full items-center'>
+									<Box className='flex w-full'>
 										<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
-											{'วันที่'}
+											{t('date')}
 										</Typography>
 										<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
-											{'24 ตุลาคม 2567'}
+											{formatDate(Date.now(), 'dd MMMM yyyy', language)}
 										</Typography>
 									</Box>
-									<Box className='flex w-full items-center'>
-										<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
-											{'จุดความร้อน'}
-										</Typography>
-										<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
-											{'8 จุด'}
-										</Typography>
-									</Box>
-									<Box className='flex w-full items-center'>
-										<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
-											{'ร่องรอยเผาไหม้'}
-										</Typography>
-										<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
-											{'50 ไร่'}
-										</Typography>
-									</Box>
-									<Box className='flex w-full items-center'>
-										<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
-											{'พื้นที่ปลูกอ้อย'}
-										</Typography>
-										<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
-											{'1,250 ไร่'}
-										</Typography>
-									</Box>
+									{mapTypeData?.hotspot && (
+										<Box className='flex w-full'>
+											<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
+												{t('map-analyze:hotspot')}
+											</Typography>
+											<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
+												{`${defaultNumber(mapTypeData.hotspot.total)} ${t('point')}`}
+											</Typography>
+										</Box>
+									)}
+									{mapTypeData?.burnArea && (
+										<Box className='flex w-full'>
+											<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
+												{t('map-analyze:burntScar')}
+											</Typography>
+											<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
+												{`${defaultNumber(mapTypeData.burnArea?.list?.reduce((total, item) => total + (item.area?.[areaUnit] ?? 0), 0) ?? 0)} ${t('common:' + areaUnit)}`}
+											</Typography>
+										</Box>
+									)}
+									{mapTypeData?.plant && (
+										<Box className='flex w-full'>
+											<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
+												{t('map-analyze:plantingArea')}
+											</Typography>
+											<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
+												{`${defaultNumber(mapTypeData.plant?.area?.[areaUnit] ?? 0)} ${t('common:' + areaUnit)}`}
+											</Typography>
+										</Box>
+									)}
 								</Box>
 								<Box className='flex w-full flex-col gap-6 lg:gap-3'>
 									<Typography className='!text-sm text-[#707070] lg:!text-2xs'>
-										{
-											'กลุ่มเทคโนโลยีสารสนเทศและการสื่อสาร สำนักงานคณะกรรมการอ้อยและน้ำตาลทราย 0-2430-6813 ต่อ 3825'
-										}
+										{language === Languages.TH
+											? 'กลุ่มเทคโนโลยีสารสนเทศและการสื่อสาร  0-2430-6813 ต่อ 3825'
+											: 'Information and Communication Technology Group, Office of the Cane and Sugar Board, 0-2430-6813 extension 3825'}
 									</Typography>
 									<Box className='flex w-full items-center justify-between'>
 										<Button
