@@ -1,12 +1,4 @@
-import {
-	Autocomplete,
-	AutocompleteProps,
-	FormControl,
-	FormHelperText,
-	FormLabel,
-	OutlinedInput,
-	Paper,
-} from '@mui/material'
+import { Autocomplete, AutocompleteProps, FormControl, FormHelperText, FormLabel, OutlinedInput } from '@mui/material'
 import { FormikProps } from 'formik'
 import React from 'react'
 
@@ -41,9 +33,9 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
 				{...props}
 				options={options}
 				size={size}
-				PaperComponent={({ children }) => (
-					<Paper className='border-[1px] border-solid border-gray'>{children}</Paper>
-				)}
+				slotProps={{
+					paper: { className: 'border-[1px] border-solid border-gray' },
+				}}
 				value={options.find((option) => option.value === formik?.values[name]) || null}
 				onChange={(event, newValue) => {
 					return formik?.setFieldValue(name, newValue ? newValue.value : null)

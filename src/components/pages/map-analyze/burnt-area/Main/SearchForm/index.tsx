@@ -1,7 +1,7 @@
 import MultipleSelectCheckmarks, { MultipleSelectedType } from '@/components/common/select/MultipleSelectCheckmarks'
 import { hotspotType, hotspotTypeCode, mapType, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import classNames from 'classnames'
 import React, { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'

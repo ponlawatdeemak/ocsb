@@ -62,10 +62,10 @@ const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({
 		<React.Fragment>
 			<List className='w-full !p-0' component='nav'>
 				{appMenuConfig.map((menu) =>
-					!!menu.access?.length ? (
+					menu.access?.length ? (
 						canAccess(menu.access) && (
 							<React.Fragment key={menu.id}>
-								{(menu.children?.length || 0) > 0 ? (
+								{(menu.children?.length ?? 0) > 0 ? (
 									<React.Fragment>
 										<ListItemButton
 											className='cursor-pointer !border-0 !border-b !border-solid !border-gray !p-2'

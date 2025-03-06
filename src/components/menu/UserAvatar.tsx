@@ -1,5 +1,5 @@
 import { AppPath, enSuffix } from '@/config/app.config'
-import { Box, Divider, Menu, MenuItem, Popover, Typography } from '@mui/material'
+import { Box, Divider, Menu, MenuItem, Typography } from '@mui/material'
 import Avatar from '@mui/material/Avatar'
 import { Session } from 'next-auth'
 import { useTranslation } from 'next-i18next'

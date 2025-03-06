@@ -5,9 +5,9 @@ import * as _ from 'lodash'
 
 const lookup = {
 	get: async (payload: GetLookupDtoIn) => {
-		const where = `&where=${payload?.where || ''}`
-		const sort = `&sort=${payload?.sort || ''}`
-		const order = `&order=${payload?.order || ''}`
+		const where = `&where=${payload?.where ?? ''}`
+		const sort = `&sort=${payload?.sort ?? ''}`
+		const order = `&order=${payload?.order ?? ''}`
 
 		const res = await api.get(`/lookup?name=${payload.name}${where ?? ''}${sort ?? ''}${order ?? ''}`)
 		const data = res?.data?.map((el: any) => _.mapKeys(el, (val, key) => _.camelCase(key)))

@@ -22,28 +22,44 @@ import {
 } from '@interface/dto/overview/overview.dto-out'
 
 const overview = {
-	getSummaryOverview: async (payload: GetSummaryOverviewDtoIn): Promise<ResponseDto<GetSummaryOverviewDtoOut>> =>
-		await api.get(`/overview/summary?${payload.id && `id=${payload.id}`}`),
+	getSummaryOverview: async (payload: GetSummaryOverviewDtoIn): Promise<ResponseDto<GetSummaryOverviewDtoOut>> => {
+		const id = `id=${payload.id}`
+		return await api.get(`/overview/summary?${payload.id && id}`)
+	},
 	getHeatPointsOverview: async (
 		payload: GetHeatPointsOverviewDtoIn,
-	): Promise<ResponseDto<GetHeatPointsOverviewDtoOut[]>> =>
-		await api.get(`/overview/heat-points?${payload.id && `id=${payload.id}`}`),
+	): Promise<ResponseDto<GetHeatPointsOverviewDtoOut[]>> => {
+		const id = `id=${payload.id}`
+		return await api.get(`/overview/heat-points?${payload.id && id}`)
+	},
 	getHeatPointsSugarcaneOverview: async (
 		payload: GetHeatPointsSugarcaneOverviewDtoIn,
-	): Promise<ResponseDto<GetHeatPointsSugarcaneOverviewDtoOut[]>> =>
-		await api.get(`/overview/heat-points-sugarcane?${payload.id && `id=${payload.id}`}`),
-	getBurntOverview: async (payload: GetBurntOverviewDtoIn): Promise<ResponseDto<GetBurntOverviewDtoOut[]>> =>
-		await api.get(`/overview/burnt?${payload.id && `id=${payload.id}`}`),
-	getPlantOverview: async (payload: GetPlantOverviewDtoIn): Promise<ResponseDto<GetPlantOverviewDtoOut>> =>
-		await api.get(`/overview/plant?${payload.id && `id=${payload.id}`}`),
-	getProductOverview: async (payload: GetProductOverviewDtoIn): Promise<ResponseDto<GetProductOverviewDtoOut[]>> =>
-		await api.get(`/overview/product?${payload.id && `id=${payload.id}`}`),
+	): Promise<ResponseDto<GetHeatPointsSugarcaneOverviewDtoOut[]>> => {
+		const id = `id=${payload.id}`
+		return await api.get(`/overview/heat-points-sugarcane?${payload.id && id}`)
+	},
+	getBurntOverview: async (payload: GetBurntOverviewDtoIn): Promise<ResponseDto<GetBurntOverviewDtoOut[]>> => {
+		const id = `id=${payload.id}`
+		return await api.get(`/overview/burnt?${payload.id && id}`)
+	},
+	getPlantOverview: async (payload: GetPlantOverviewDtoIn): Promise<ResponseDto<GetPlantOverviewDtoOut>> => {
+		const id = `id=${payload.id}`
+		return await api.get(`/overview/plant?${payload.id && id}`)
+	},
+	getProductOverview: async (payload: GetProductOverviewDtoIn): Promise<ResponseDto<GetProductOverviewDtoOut[]>> => {
+		const id = `id=${payload.id}`
+		return await api.get(`/overview/product?${payload.id && id}`)
+	},
 	getProductPredictOverview: async (
 		payload: GetProductPredictOverviewDtoIn,
-	): Promise<ResponseDto<GetProductPredictOverviewDtoOut[]>> =>
-		await api.get(`/overview/product-predict?${payload.id && `id=${payload.id}`}`),
-	getReplantOverview: async (payload: GetReplantOverviewDtoIn): Promise<ResponseDto<GetReplantOverviewDtoOut[]>> =>
-		await api.get(`/overview/replant?${payload.id && `id=${payload.id}`}`),
+	): Promise<ResponseDto<GetProductPredictOverviewDtoOut[]>> => {
+		const id = `id=${payload.id}`
+		return await api.get(`/overview/product-predict?${payload.id && id}`)
+	},
+	getReplantOverview: async (payload: GetReplantOverviewDtoIn): Promise<ResponseDto<GetReplantOverviewDtoOut[]>> => {
+		const id = `id=${payload.id}`
+		return await api.get(`/overview/replant?${payload.id && id}`)
+	},
 }
 
 export default overview

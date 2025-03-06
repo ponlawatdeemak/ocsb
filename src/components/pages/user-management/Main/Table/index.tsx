@@ -398,7 +398,6 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
 															row.role_role_id as UserRole,
 														)
 													}
-													role='checkbox'
 													aria-checked={isItemSelected}
 													tabIndex={-1}
 													key={row.users_user_id}

@@ -17,6 +17,7 @@ import { layerIdConfig, thaiExtent } from '@/config/app.config'
 import { NavigationOutlined } from '@mui/icons-material'
 import PolygonMeasure from './measurement/PolygonMeasure'
 import LineMeasure from './measurement/LineMeasure'
+import Image from 'next/image'
 
 const basemapList: BaseMap[] = [
 	{ label: 'hybrid', value: BasemapType.Google, image: '/images/map/basemap_hybrid.png' },
@@ -254,8 +255,10 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 								className='!m-0 flex flex-col !rounded-[3px] !p-0'
 								value={item.value}
 							>
-								<img
+								<Image
 									src={item.image}
+									width={28}
+									height={28}
 									className={classNames('h-7 w-7 rounded-[3px]', {
 										'border border-primary': item.value === basemapList[currentBaseMap].value,
 									})}
