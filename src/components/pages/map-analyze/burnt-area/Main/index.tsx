@@ -197,7 +197,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				searchSelectedAdmOption={searchSelectedAdmOption}
 				handleSelectedAdmOption={handleSelectedAdmOption}
 			/>
-			<Box className='absolute flex h-full w-full overflow-y-auto max-md:h-[calc(100%-80px)] md:relative'>
+			<Box className='absolute flex h-full w-full overflow-y-auto overflow-x-hidden max-md:h-[calc(100%-80px)] md:relative'>
 				<BurntDashboardMain
 					selectedArea={selectedArea}
 					handleClickAdd={handleClickAdd}

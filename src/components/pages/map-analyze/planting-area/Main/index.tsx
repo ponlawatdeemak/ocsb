@@ -202,7 +202,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 				selectedRepeatArea={selectedRepeatArea}
 				handleSelectedRepeatArea={handleSelectedRepeatArea}
 			/>
-			<Box className='absolute flex h-full w-full overflow-y-auto max-md:h-[calc(100%-80px)] md:relative'>
+			<Box className='absolute flex h-full w-full overflow-y-auto overflow-x-hidden max-md:h-[calc(100%-80px)] md:relative'>
 				<PlantingDashboardMain
 					selectedArea={selectedArea}
 					handleClickAdd={handleClickAdd}
