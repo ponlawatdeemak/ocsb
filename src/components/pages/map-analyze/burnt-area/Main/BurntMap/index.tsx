@@ -123,13 +123,13 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	// zoom to search area or default user region
 	useEffect(() => {
-		if (mapLibre) {
+		if (burntMap) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
-		if (burntMap && userGeometry) {
-			burntMap.fitBounds(userGeometry, { padding: 100 })
+			if (userGeometry) {
+				burntMap.fitBounds(userGeometry, { padding: 100 })
 			}
 		}
-	}, [mapLibre, currentAdmOption?.geometry, session?.user?.geometry])
+	}, [burntMap, currentAdmOption?.geometry, session?.user?.geometry])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
@@ -150,7 +150,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	// update layer
 	useEffect(() => {
-		if (mapLibre && burntOverlay) {
+		if (burntMap && burntOverlay) {
 			const layers = [
 				new GeoJsonLayer({
 					id: 'plant',
@@ -195,7 +195,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				getCursor: (state) => (state.isHovering ? 'pointer' : 'default'),
 			})
 		}
-	}, [mapLibre, burntOverlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData, onMapClick])
+	}, [burntMap, burntOverlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData, onMapClick])
 
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
