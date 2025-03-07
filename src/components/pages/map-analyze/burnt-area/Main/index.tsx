@@ -128,6 +128,8 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 			if (burntMap && selectedCard !== item.id && item?.admOption?.geometry) {
 				burntMap.fitBounds(item.admOption.geometry, { padding: 100 })
 				setSearchSelectedAdmOption(item.admOption)
+			} else if (!item?.admOption?.geometry) {
+				setSearchSelectedAdmOption(null)
 			}
 		},
 		[mapLibre, selectedCard],

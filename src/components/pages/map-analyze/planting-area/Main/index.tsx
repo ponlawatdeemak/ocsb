@@ -129,6 +129,8 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 			if (plantingMap && selectedCard !== item.id && item?.admOption?.geometry) {
 				plantingMap.fitBounds(item.admOption.geometry, { padding: 100 })
 				setSearchSelectedAdmOption(item.admOption)
+			} else if (!item?.admOption?.geometry) {
+				setSearchSelectedAdmOption(null)
 			}
 		},
 		[mapLibre, selectedCard],
