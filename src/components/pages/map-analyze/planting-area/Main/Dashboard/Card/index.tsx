@@ -12,6 +12,7 @@ import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
 import { OptionType } from '../../SearchForm'
 import useQuantityUnit from '@/store/quantity-unit'
+import { AreaUnitKey, QuantityUnitKey } from '@/enum'
 
 interface PlantingCardMainProps {
 	handleClickDelete: () => void
@@ -40,6 +41,7 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 	const { quantityUnit } = useQuantityUnit()
 	const areaUnitTranslate = `common:${areaUnit}`
 	const quantityUnitTranslate = `common:${quantityUnit}`
+	const avgSugarCaneYieldFractions = quantityUnit === QuantityUnitKey.Ton && areaUnit === AreaUnitKey.Sqm ? 6 : 2
 
 	const { data: dashBoardData, isFetching: isDashBoardDataLoading } = useQuery({
 		queryKey: ['getDashBoardYieldArea', area.admOption, mapTypeArray, selectedDateRange, area.id],
@@ -157,7 +159,7 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 												{t('avgSugarCaneYield')}
 											</Typography>
 
-											<Typography className='!text-lg'>{`${defaultNumber(dashBoardData.product.average[quantityUnit][areaUnit] ?? 0)} ${t(quantityUnitTranslate)}/${t(areaUnitTranslate)}`}</Typography>
+											<Typography className='!text-lg'>{`${defaultNumber(dashBoardData.product.average[quantityUnit][areaUnit] ?? 0, avgSugarCaneYieldFractions)} ${t(quantityUnitTranslate)}/${t(areaUnitTranslate)}`}</Typography>
 										</>
 									)}
 
