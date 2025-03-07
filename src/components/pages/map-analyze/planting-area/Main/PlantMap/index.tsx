@@ -160,13 +160,13 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 
 	// zoom to search area or default user region
 	useEffect(() => {
-		if (plantingMap) {
+		if (plantingMap && regionData?.length) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
 			if (userGeometry) {
 				plantingMap.fitBounds(userGeometry, { padding: 100 })
 			}
 		}
-	}, [currentAdmOption?.geometry, session?.user?.geometry, plantingMap])
+	}, [currentAdmOption?.geometry, session?.user?.geometry, plantingMap, regionData?.length])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {

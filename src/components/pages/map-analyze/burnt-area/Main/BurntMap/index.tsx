@@ -123,13 +123,13 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	// zoom to search area or default user region
 	useEffect(() => {
-		if (burntMap) {
+		if (burntMap && regionData?.length) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
 			if (userGeometry) {
 				burntMap.fitBounds(userGeometry, { padding: 100 })
 			}
 		}
-	}, [burntMap, currentAdmOption?.geometry, session?.user?.geometry])
+	}, [burntMap, currentAdmOption?.geometry, regionData?.length, session?.user?.geometry])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
