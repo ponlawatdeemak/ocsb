@@ -83,31 +83,45 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	const plantingMap = useMemo(() => mapLibre[PLANTING_MAP_ID], [mapLibre])
 	const plantingOverlay = useMemo(() => overlays[PLANTING_MAP_ID], [overlays])
 
+	const tonPerSqm = useMemo(() => ({ fifteen: 0.009375, ten: 0.00625, five: 0.003125, nine: 0.005625 }), [])
+	const tonPerSqkm = useMemo(() => ({ fifteen: 9375, ten: 6250, five: 3125, nine: 5625 }), [])
+	const tonPerRai = useMemo(() => ({ fifteen: 15, ten: 10, five: 5, nine: 9 }), [])
+	const tonPerHexa = useMemo(() => ({ fifteen: 93.75, ten: 62.5, five: 31.25, nine: 56.25 }), [])
+
+	const kgPerSqm = useMemo(() => ({ fifteen: 9.375, ten: 6.25, five: 3.125, nine: 5.625 }), [])
+	const kgPerSqkm = useMemo(() => ({ fifteen: 9375000, ten: 6250000, five: 3125000, nine: 5625000 }), [])
+	const kgPerRai = useMemo(() => ({ fifteen: 15000, ten: 10000, five: 5000, nine: 9000 }), [])
+	const kgPerHexa = useMemo(() => ({ fifteen: 93750, ten: 62500, five: 31250, nine: 56250 }), [])
+
 	const yieldLegendNumber = useMemo(() => {
 		if (quantityUnit === QuantityUnitKey.Ton) {
 			if (areaUnit === AreaUnitKey.Sqm) {
-				return { 15: 0.009375, 10: 0.00625, 5: 0.003125, 9: 0.005625 }
+				return tonPerSqm
 			} else if (areaUnit === AreaUnitKey.Sqkm) {
-				return { 15: 9375, 10: 6250, 5: 3125, 9: 5625 }
+				return tonPerSqkm
 			} else if (areaUnit === AreaUnitKey.Rai) {
-				return { 15: 15, 10: 10, 5: 5, 9: 9 }
+				return tonPerRai
 			} else if (areaUnit === AreaUnitKey.Hexa) {
-				return { 15: 93.75, 10: 62.5, 5: 31.25, 9: 56.25 }
+				return tonPerHexa
+			} else {
+				return { fifteen: '-', ten: '-', five: '-', nine: '-' }
 			}
 		} else if (quantityUnit === QuantityUnitKey.Kilogram) {
 			if (areaUnit === AreaUnitKey.Sqm) {
-				return { 15: 9.375, 10: 6.25, 5: 3.125, 9: 5.625 }
+				return kgPerSqm
 			} else if (areaUnit === AreaUnitKey.Sqkm) {
-				return { 15: 9375000, 10: 6250000, 5: 3125000, 9: 5625000 }
+				return kgPerSqkm
 			} else if (areaUnit === AreaUnitKey.Rai) {
-				return { 15: 15000, 10: 10000, 5: 5000, 9: 9000 }
+				return kgPerRai
 			} else if (areaUnit === AreaUnitKey.Hexa) {
-				return { 15: 93750, 10: 62500, 5: 31250, 9: 56250 }
+				return kgPerHexa
+			} else {
+				return { fifteen: '-', ten: '-', five: '-', nine: '-' }
 			}
 		} else {
-			return { 15: '-', 10: '-', 5: '-', 9: '-' }
+			return { fifteen: '-', ten: '-', five: '-', nine: '-' }
 		}
-	}, [areaUnit, quantityUnit])
+	}, [areaUnit, kgPerHexa, kgPerRai, kgPerSqkm, kgPerSqm, quantityUnit, tonPerHexa, tonPerRai, tonPerSqkm, tonPerSqm])
 
 	// map event
 	useEffect(() => {
@@ -383,19 +397,19 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					>
 						<Box className={'flex items-center gap-1.5'}>
 							<Box className='h-3 w-3 rounded-full bg-[#003491]'></Box>
-							<Typography className='!text-2xs text-black'>{`${t('moreThan')} ${defaultNumber(yieldLegendNumber![15], 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+							<Typography className='!text-2xs text-black'>{`${t('moreThan')} ${defaultNumber(yieldLegendNumber.fifteen, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
 						</Box>
 						<Box className={'flex items-center gap-1.5'}>
 							<Box className='h-3 w-3 rounded-full bg-[#1DB240]'></Box>
-							<Typography className='!text-2xs text-black'>{`${defaultNumber(yieldLegendNumber![10], 6)}-${defaultNumber(yieldLegendNumber![15], 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+							<Typography className='!text-2xs text-black'>{`${defaultNumber(yieldLegendNumber.ten, 6)}-${defaultNumber(yieldLegendNumber.fifteen, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
 						</Box>
 						<Box className={'flex items-center gap-1.5'}>
 							<Box className='h-3 w-3 rounded-full bg-[#F0E927]'></Box>
-							<Typography className='!text-2xs text-black'>{`${defaultNumber(yieldLegendNumber![5], 6)}-${defaultNumber(yieldLegendNumber![9], 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+							<Typography className='!text-2xs text-black'>{`${defaultNumber(yieldLegendNumber.five, 6)}-${defaultNumber(yieldLegendNumber.nine, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
 						</Box>
 						<Box className={'flex items-center gap-1.5'}>
 							<Box className='h-3 w-3 rounded-full bg-[#FF9500]'></Box>
-							<Typography className='!text-2xs text-black'>{`${t('lessThan')} ${defaultNumber(yieldLegendNumber![5], 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+							<Typography className='!text-2xs text-black'>{`${t('lessThan')} ${defaultNumber(yieldLegendNumber.five, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
 						</Box>
 					</Box>
 					<Box
