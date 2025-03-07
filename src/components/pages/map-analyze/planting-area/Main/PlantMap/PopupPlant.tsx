@@ -1,8 +1,10 @@
+import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
 import { defaultNumber } from '@/utils/text'
 import { Box } from '@mui/material'
 import centroid from '@turf/centroid'
+import classNames from 'classnames'
 import { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -15,7 +17,10 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 	const { quantityUnit } = useQuantityUnit()
 	const areaUnitTranslate = `common:${areaUnit}`
 	const quantityUnitTranslate = `common:${quantityUnit}`
-
+	const sugarCaneYieldFractions = quantityUnit === QuantityUnitKey.Ton && areaUnit === AreaUnitKey.Sqm ? 6 : 2
+	const topicStyle = classNames('min-w-[110px] max-w-[110px] font-bold text-[#003491]', {
+		'min-w-[140px] !max-w-[140px]': i18n.language === Languages.EN,
+	})
 	return (
 		<div>
 			{popupData.map((item, index) => {
@@ -49,16 +54,12 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 						<Box>
 							<Box className='flex flex-col px-4 py-2'>
 								<Box className='flex'>
-									<Box className='w-[110px] font-bold text-[#003491]'>
-										{t('map-analyze:popupBurnt.address')}
-									</Box>
+									<Box className={topicStyle}>{t('map-analyze:popupBurnt.address')}</Box>
 									<Box>{data.adm[i18n.language]}</Box>
 								</Box>
 
 								<Box className='flex'>
-									<Box className='w-[110px] font-bold text-[#003491]'>
-										{t('map-analyze:popupBurnt.coordinates')}
-									</Box>
+									<Box className={topicStyle}>{t('map-analyze:popupBurnt.coordinates')}</Box>
 									<Box>
 										{coordinates
 											.map((item: number) => item.toFixed(6))
@@ -69,18 +70,14 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 
 								{(item.layer.id === 'plant' || item.layer.id === 'replant') && (
 									<Box className='flex'>
-										<Box className='w-[110px] font-bold text-[#003491]'>
-											{t('map-analyze:popupBurnt.plantingArea')}
-										</Box>
+										<Box className={topicStyle}>{t('map-analyze:popupBurnt.plantingArea')}</Box>
 										<Box>{`${defaultNumber(data.area[areaUnit])} ${t(areaUnitTranslate)}`}</Box>
 									</Box>
 								)}
 
 								{item.layer.id === 'replant' && (
 									<Box className='flex'>
-										<Box className='w-[110px] font-bold text-[#003491]'>
-											{t('map-analyze:replantingArea')}
-										</Box>
+										<Box className={topicStyle}>{t('map-analyze:replantingArea')}</Box>
 										<Box>{`${data.repeat} ${t('common:year')}`}</Box>
 									</Box>
 								)}
@@ -88,21 +85,15 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 								{item.layer.id === 'product' && (
 									<>
 										<Box className='flex'>
-											<Box className='w-[110px] font-bold text-[#003491]'>
-												{t('plantingArea')}
-											</Box>
+											<Box className={topicStyle}>{t('plantingArea')}</Box>
 											<Box>{`${defaultNumber(data.area[areaUnit])} ${t(areaUnitTranslate)}`}</Box>
 										</Box>
 										<Box className='flex'>
-											<Box className='w-[110px] font-bold text-[#003491]'>
-												{t('overview:sugarCaneYield')}
-											</Box>
-											<Box>{`${defaultNumber(data.product[quantityUnit][areaUnit])} ${t(quantityUnitTranslate)}/${t(areaUnitTranslate)}`}</Box>
+											<Box className={topicStyle}>{t('overview:sugarCaneYield')}</Box>
+											<Box>{`${defaultNumber(data.product[quantityUnit][areaUnit], sugarCaneYieldFractions)} ${t(quantityUnitTranslate)}/${t(areaUnitTranslate)}`}</Box>
 										</Box>
 										<Box className='flex'>
-											<Box className='w-[110px] font-bold text-[#003491]'>
-												{t('overview:SugarCaneQuantity')}
-											</Box>
+											<Box className={topicStyle}>{t('overview:SugarCaneQuantity')}</Box>
 											<Box>{`${defaultNumber(data.volumn[quantityUnit])} ${t(quantityUnitTranslate)}`}</Box>
 										</Box>
 									</>

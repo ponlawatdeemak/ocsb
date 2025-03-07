@@ -1,6 +1,8 @@
+import { Languages } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
 import { Box } from '@mui/material'
 import centroid from '@turf/centroid'
+import classNames from 'classnames'
 import { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -10,11 +12,14 @@ interface Prop {
 const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 	const { t, i18n } = useTranslation(['map-analyze'])
 	const { areaUnit } = useAreaUnit()
-
 	const areaUnitTranslate = `common:${areaUnit}`
+	const topicStyle = classNames('min-w-[110px] max-w-[110px] font-bold text-[#003491]', {
+		'min-w-[140px] !max-w-[140px]': i18n.language === Languages.EN,
+	})
+
 	return (
 		<div>
-			{popupData.map((item) => {
+			{popupData.map((item, index) => {
 				const data = item.object.properties
 				const date = new Date(data.date).toLocaleDateString('en-GB', {
 					day: 'numeric',
@@ -46,7 +51,7 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 					coordinates = centroid(geometry).geometry.coordinates
 				}
 				return (
-					<div key={data.id} className={`font-["Prompt","Montserrat"]`}>
+					<div key={'popup-' + index} className={`font-["Prompt","Montserrat"]`}>
 						<Box className={`bg-[${color}] flex px-4 py-2 text-white`}>
 							<Box className='w-[110px]'>{t('map-analyze:popupBurnt.date')}</Box>
 							<Box>{date}</Box>
@@ -54,16 +59,12 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 						<Box>
 							<Box className='flex flex-col px-4 py-2'>
 								<Box className='flex'>
-									<Box className='w-[110px] font-bold text-[#003491]'>
-										{t('map-analyze:popupBurnt.address')}
-									</Box>
+									<Box className={topicStyle}>{t('map-analyze:popupBurnt.address')}</Box>
 									<Box>{`${data.adm3[i18n.language]} ${data.adm2[i18n.language]} ${data.adm1[i18n.language]}`}</Box>
 								</Box>
 
 								<Box className='flex'>
-									<Box className='w-[110px] font-bold text-[#003491]'>
-										{t('map-analyze:popupBurnt.coordinates')}
-									</Box>
+									<Box className={topicStyle}>{t('map-analyze:popupBurnt.coordinates')}</Box>
 									<Box>
 										{coordinates
 											.map((item: number) => item.toFixed(6))
@@ -73,7 +74,7 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 								</Box>
 								{!!row3.title && (
 									<Box className='flex'>
-										<Box className='w-[110px] font-bold text-[#003491]'>{row3.title}</Box>
+										<Box className={topicStyle}>{row3.title}</Box>
 										<Box>
 											{row3.value} {t(areaUnitTranslate)}
 										</Box>
