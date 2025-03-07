@@ -4,16 +4,16 @@ import React, { useMemo } from 'react'
 import DashboardCardMain from './Card'
 import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
-import { OptionType } from '../SearchForm'
 import { yieldMapTypeCode } from '@interface/config/app.config'
+import { SelectedArea } from '..'
 // import CloseIcon from '@mui/icons-material/Close'
 
 interface PlantingDashboardMainProps {
-	selectedArea: { id: string; admOption: OptionType | null }[]
+	selectedArea: SelectedArea[]
 	handleClickAdd: () => void
-	handleClickDelete: (item: any) => void
+	handleClickDelete: (item: SelectedArea) => void
 	selectedCard: string | undefined
-	handleSelectCard: (item: any) => void
+	handleSelectCard: (item: SelectedArea) => void
 	mapTypeArray: yieldMapTypeCode[]
 	selectedDateRange: Date[]
 	openDrawer: boolean

@@ -4,13 +4,12 @@ import React, { useMemo } from 'react'
 import DashboardCardMain from './Card'
 import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
-import { OptionType } from '../SearchForm'
 import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 import { SelectedArea } from '..'
 // import CloseIcon from '@mui/icons-material/Close'
 
 interface BurntDashboardMainProps {
-	selectedArea: { id: string; admOption: OptionType | null }[]
+	selectedArea: SelectedArea[]
 	handleClickAdd: () => void
 	handleClickDelete: (item: SelectedArea) => void
 	selectedCard: string | undefined

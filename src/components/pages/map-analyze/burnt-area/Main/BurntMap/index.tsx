@@ -62,7 +62,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
 
 	const popupNode = useRef<HTMLDivElement>(null)
-	const [popupData, setPopupData] = useState<any[]>([])
+	const [popupData, setPopupData] = useState<PickingInfo[]>([])
 	const popup = useMemo(() => new Popup({ closeOnClick: false, closeButton: false }), [])
 
 	const { data: regionData, isPending: isRegionLoading } = useQuery({

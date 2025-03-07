@@ -11,6 +11,7 @@ import { yieldMapTypeCode } from '@interface/config/app.config'
 import DashboardCardMain from '../Dashboard/Card'
 import classNames from 'classnames'
 import { useMemo } from 'react'
+import { SelectedArea } from '..'
 
 const drawerBleeding = 40
 
@@ -37,9 +38,9 @@ const SwipeableEdgeDrawer = ({
 }: {
 	selectedArea: { id: string; admOption: OptionType | null }[]
 	handleClickAdd: () => void
-	handleClickDelete: (item: any) => void
+	handleClickDelete: (item: SelectedArea) => void
 	selectedCard: string | undefined
-	handleSelectCard: (item: any) => void
+	handleSelectCard: (item: SelectedArea) => void
 	mapTypeArray: yieldMapTypeCode[]
 	selectedDateRange: Date[]
 	openDrawer: boolean

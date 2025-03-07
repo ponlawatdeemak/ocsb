@@ -10,15 +10,15 @@ import { ResponseLanguage, yieldMapTypeCode } from '@interface/config/app.config
 import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
 import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
-import { OptionType } from '../../SearchForm'
 import useQuantityUnit from '@/store/quantity-unit'
 import { AreaUnitKey, QuantityUnitKey } from '@/enum'
+import { SelectedArea } from '../..'
 
 interface PlantingCardMainProps {
 	handleClickDelete: () => void
 	isSelectedCard: boolean
 	handleSelectCard: () => void
-	area: { id: string; admOption: OptionType | null }
+	area: SelectedArea
 	mapTypeArray: yieldMapTypeCode[]
 	selectedDateRange: Date[]
 	openDrawer: boolean

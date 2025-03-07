@@ -2,6 +2,7 @@ import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
 import { defaultNumber } from '@/utils/text'
+import { PickingInfo } from '@deck.gl/core'
 import { Box } from '@mui/material'
 import centroid from '@turf/centroid'
 import classNames from 'classnames'
@@ -9,7 +10,7 @@ import { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 interface Prop {
-	popupData: any[]
+	popupData: PickingInfo[]
 }
 const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -35,13 +36,13 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 				let color = ''
 				const geometry = item.object.geometry
 
-				if (item.layer.id === 'plant') {
+				if (item.layer?.id === 'plant') {
 					color = '#8AB62D'
 					coordinates = centroid(geometry).geometry.coordinates
-				} else if (item.layer.id === 'product') {
+				} else if (item.layer?.id === 'product') {
 					color = '#40C4FF'
 					coordinates = centroid(geometry).geometry.coordinates
-				} else if (item.layer.id === 'replant') {
+				} else if (item.layer?.id === 'replant') {
 					color = '#A7A7A7'
 					coordinates = centroid(geometry).geometry.coordinates
 				}
@@ -68,21 +69,21 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 									</Box>
 								</Box>
 
-								{(item.layer.id === 'plant' || item.layer.id === 'replant') && (
+								{(item.layer?.id === 'plant' || item.layer?.id === 'replant') && (
 									<Box className='flex'>
 										<Box className={topicStyle}>{t('map-analyze:popupBurnt.plantingArea')}</Box>
 										<Box>{`${defaultNumber(data.area[areaUnit])} ${t(areaUnitTranslate)}`}</Box>
 									</Box>
 								)}
 
-								{item.layer.id === 'replant' && (
+								{item.layer?.id === 'replant' && (
 									<Box className='flex'>
 										<Box className={topicStyle}>{t('map-analyze:replantingArea')}</Box>
 										<Box>{`${data.repeat} ${t('common:year')}`}</Box>
 									</Box>
 								)}
 
-								{item.layer.id === 'product' && (
+								{item.layer?.id === 'product' && (
 									<>
 										<Box className='flex'>
 											<Box className={topicStyle}>{t('plantingArea')}</Box>

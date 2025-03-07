@@ -1,5 +1,6 @@
 import { Languages } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
+import { PickingInfo } from '@deck.gl/core'
 import { Box } from '@mui/material'
 import centroid from '@turf/centroid'
 import classNames from 'classnames'
@@ -7,7 +8,7 @@ import { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 interface Prop {
-	popupData: any[]
+	popupData: PickingInfo[]
 }
 const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 	const { t, i18n } = useTranslation(['map-analyze'])
@@ -34,16 +35,16 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 					title: '',
 					value: '',
 				}
-				if (item.layer.id === 'hotspot') {
+				if (item.layer?.id === 'hotspot') {
 					color = '#FF0000'
 					coordinates = geometry.coordinates
-				} else if (item.layer.id === 'burnt') {
+				} else if (item.layer?.id === 'burnt') {
 					color = '#FBBF07'
 					row3.title = t('map-analyze:popupBurnt.burntScar')
 					const areaData = data.area[areaUnit] as number
 					row3.value = Number(areaData.toFixed(2)).toLocaleString()
 					coordinates = centroid(geometry).geometry.coordinates
-				} else if (item.layer.id === 'plant') {
+				} else if (item.layer?.id === 'plant') {
 					color = '#8AB62D'
 					row3.title = t('map-analyze:popupBurnt.plantingArea')
 					const areaData = data.area[areaUnit] as number

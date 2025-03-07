@@ -12,13 +12,13 @@ import { hotspotType, hotspotTypeCode, mapTypeCode, ResponseLanguage } from '@in
 import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
 import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
-import { OptionType } from '../../SearchForm'
+import { SelectedArea } from '../..'
 
 interface DashboardCardMainProps {
 	handleClickDelete: () => void
 	isSelectedCard: boolean
 	handleSelectCard: () => void
-	area: { id: string; admOption: OptionType | null }
+	area: SelectedArea
 	mapTypeArray: mapTypeCode[]
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
