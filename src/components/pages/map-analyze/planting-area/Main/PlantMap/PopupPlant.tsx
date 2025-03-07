@@ -23,7 +23,7 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 	})
 	return (
 		<div>
-			{popupData.map((item, index) => {
+			{popupData.toReversed().map((item, index) => {
 				const data = item.object.properties
 				const date = new Date(data.date).toLocaleDateString('en-GB', {
 					day: 'numeric',
