@@ -22,7 +22,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 	const [searchSelectedAdmOption, setSearchSelectedAdmOption] = useState<OptionType | null>(null)
 	const [selectedArea, setSelectedArea] = useState<{ id: string; admOption: OptionType | null }[]>([])
 	const [selectedCard, setSelectedCard] = useState<string>()
-	const [mapTypeArray, setMapTypeArray] = useState<yieldMapTypeCode[]>([])
+	const [mapTypeArray, setMapTypeArray] = useState<yieldMapTypeCode[]>([yieldMapTypeCode.plant])
 	const [openDrawer, setOpenDrawer] = useState(false)
 	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
 	const [selectedRepeatArea, setSelectedRepeatArea] = useState<GetRepeatAreaLookupDtoOut>()
