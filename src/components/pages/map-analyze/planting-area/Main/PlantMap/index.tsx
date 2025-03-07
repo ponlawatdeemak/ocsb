@@ -17,7 +17,7 @@ import { enSuffix } from '@/config/app.config'
 import { Popup } from 'maplibre-gl'
 import { PickingInfo } from '@deck.gl/core'
 import CloseIcon from '@mui/icons-material/Close'
-import { GetRepeatAreaLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
+import { GetLookupDtoOut, GetRepeatAreaLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
 import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
 import { defaultNumber } from '@/utils/text'
@@ -67,7 +67,8 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	const areaLang = `common:${areaUnit}`
 	const { t, i18n } = useTranslation(['map-analyze', 'common'])
 
-	const [currentRegion, setCurrentRegion] = useState('')
+	const currentRegionLanguageKey = `regionName${Languages.TH === i18n.language ? '' : enSuffix}`
+	const [currentRegion, setCurrentRegion] = useState<GetLookupDtoOut>()
 	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
 
 	const popupNode = useRef<HTMLDivElement>(null)
@@ -147,13 +148,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					}
 					return result
 				})
-				if (insideRegion) {
-					const regionName = insideRegion[
-						`regionName${Languages.TH === i18n.language ? '' : enSuffix}`
-					] as string
-
-					setCurrentRegion(regionName)
-				}
+				setCurrentRegion(insideRegion)
 			})
 		}
 	}, [onMapExtentChange, regionData, i18n, plantingMap])
@@ -357,7 +352,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					</IconButton>
 					{isCurrentRegionOpen && currentRegion && (
 						<Box className='flex flex-col gap-1 rounded-[5px] bg-white p-2'>
-							<Typography className='!text-2xs text-black'>{`${t('common:currentRegion')} : ${currentRegion}`}</Typography>
+							<Typography className='!text-2xs text-black'>{`${t('common:currentRegion')} : ${currentRegion[currentRegionLanguageKey]}`}</Typography>
 						</Box>
 					)}
 				</Box>
