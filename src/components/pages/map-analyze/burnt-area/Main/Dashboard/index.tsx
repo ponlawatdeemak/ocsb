@@ -6,14 +6,15 @@ import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
 import { OptionType } from '../SearchForm'
 import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
+import { SelectedArea } from '..'
 // import CloseIcon from '@mui/icons-material/Close'
 
 interface BurntDashboardMainProps {
 	selectedArea: { id: string; admOption: OptionType | null }[]
 	handleClickAdd: () => void
-	handleClickDelete: (item: any) => void
+	handleClickDelete: (item: SelectedArea) => void
 	selectedCard: string | undefined
-	handleSelectCard: (item: any) => void
+	handleSelectCard: (item: SelectedArea) => void
 	mapTypeArray: mapTypeCode[]
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]

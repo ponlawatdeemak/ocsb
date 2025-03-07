@@ -12,7 +12,10 @@ import PlantingDashboardMain from './Dashboard'
 import { GetRepeatAreaLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
 
 const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
-
+export interface SelectedArea {
+	id: string
+	admOption: OptionType | null
+}
 interface PlantingAreaMainProps {
 	className?: string
 }
@@ -20,7 +23,7 @@ interface PlantingAreaMainProps {
 export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = '' }) => {
 	const { mapLibre } = useMapStore()
 	const [searchSelectedAdmOption, setSearchSelectedAdmOption] = useState<OptionType | null>(null)
-	const [selectedArea, setSelectedArea] = useState<{ id: string; admOption: OptionType | null }[]>([])
+	const [selectedArea, setSelectedArea] = useState<SelectedArea[]>([])
 	const [selectedCard, setSelectedCard] = useState<string>()
 	const [mapTypeArray, setMapTypeArray] = useState<yieldMapTypeCode[]>([yieldMapTypeCode.plant])
 	const [openDrawer, setOpenDrawer] = useState(false)
@@ -113,7 +116,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 	}, [searchSelectedAdmOption, selectedArea])
 
 	const handleClickDelete = useCallback(
-		(item: any) => {
+		(item: SelectedArea) => {
 			const updateArea = [...selectedArea]
 			const index = updateArea.findIndex((area) => area.id === item.id)
 			updateArea.splice(index, 1)
@@ -123,7 +126,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 	)
 
 	const handleSelectCard = useCallback(
-		(item: any) => {
+		(item: SelectedArea) => {
 			const plantingMap = mapLibre[PLANTING_MAP_ID]
 			setSelectedCard((selected) => (selected === item.id ? undefined : item.id))
 			if (plantingMap && selectedCard !== item.id && item?.admOption?.geometry) {
@@ -155,37 +158,19 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 		setSelectedRepeatArea(value)
 	}, [])
 
-	const handleChange = useCallback(
-		(event: any) => {
+	const handleChangeMapTypeArray = useCallback(
+		(event: React.MouseEvent<HTMLButtonElement>) => {
 			event.preventDefault()
 			event.stopPropagation()
 			const updateMapTypeArray = [...mapTypeArray]
 
-			if (event.target.value) {
-				const { value } = event.target
-
-				if (value && value.length > 0) {
-					const findIndex = updateMapTypeArray.findIndex((type) => type === event.target.name)
-					if (findIndex === -1) {
-						updateMapTypeArray.push(event.target.name)
-						setMapTypeArray(updateMapTypeArray)
-					}
-				} else if (!value || value.length === 0) {
-					const findIndex = updateMapTypeArray.findIndex((type) => type === event.target.name)
-					if (findIndex !== -1) {
-						updateMapTypeArray.splice(findIndex, 1)
-						setMapTypeArray(updateMapTypeArray)
-					}
-				}
+			const findIndex = updateMapTypeArray.findIndex((type) => type === event.currentTarget.name)
+			if (findIndex === -1) {
+				updateMapTypeArray.push(event.currentTarget.name as yieldMapTypeCode)
+				setMapTypeArray(updateMapTypeArray)
 			} else {
-				const findIndex = updateMapTypeArray.findIndex((type) => type === event.target.name)
-				if (findIndex === -1) {
-					updateMapTypeArray.push(event.target.name)
-					setMapTypeArray(updateMapTypeArray)
-				} else {
-					updateMapTypeArray.splice(findIndex, 1)
-					setMapTypeArray(updateMapTypeArray)
-				}
+				updateMapTypeArray.splice(findIndex, 1)
+				setMapTypeArray(updateMapTypeArray)
 			}
 		},
 		[mapTypeArray],
@@ -197,7 +182,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 				className='relative z-10 w-full'
 				selectedDateRange={selectedDateRange}
 				onSelectedDateRange={(selectedDateRange: Date[]) => setSelectedDateRange(selectedDateRange)}
-				handleChange={handleChange}
+				handleChangeMapTypeArray={handleChangeMapTypeArray}
 				mapTypeArray={mapTypeArray}
 				searchSelectedAdmOption={searchSelectedAdmOption}
 				handleSelectedAdmOption={handleSelectedAdmOption}

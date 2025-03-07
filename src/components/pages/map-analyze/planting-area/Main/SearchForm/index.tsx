@@ -18,7 +18,7 @@ export interface OptionType {
 
 interface PlantingSearchFormMainProps {
 	className?: string
-	handleChange: (event: any) => void
+	handleChangeMapTypeArray: (event: React.MouseEvent<HTMLButtonElement>) => void
 	mapTypeArray: yieldMapTypeCode[]
 	selectedDateRange: Date[]
 	onSelectedDateRange: (selectedDateRange: Date[]) => void
@@ -30,7 +30,7 @@ interface PlantingSearchFormMainProps {
 
 const PlantingSearchFormMain: React.FC<PlantingSearchFormMainProps> = ({
 	className = '',
-	handleChange,
+	handleChangeMapTypeArray,
 	mapTypeArray,
 	selectedDateRange,
 	onSelectedDateRange,
@@ -87,7 +87,7 @@ const PlantingSearchFormMain: React.FC<PlantingSearchFormMainProps> = ({
 									{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
 								)}
 								name={item.code}
-								onClick={handleChange}
+								onClick={handleChangeMapTypeArray}
 							>
 								{item.label[language]}
 							</button>

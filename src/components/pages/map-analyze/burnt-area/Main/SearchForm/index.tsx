@@ -18,7 +18,7 @@ export interface OptionType {
 interface BurntSearchFormMainProps {
 	className?: string
 	selectedHotspots: hotspotTypeCode[]
-	handleChange: (event: any) => void
+	handleChangeMapTypeArray: (event: any) => void
 	mapTypeArray: mapTypeCode[]
 	selectedDateRange: Date[]
 	onSelectedDateRange: (selectedDateRange: Date[]) => void
@@ -29,7 +29,7 @@ interface BurntSearchFormMainProps {
 const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	className = '',
 	selectedHotspots,
-	handleChange,
+	handleChangeMapTypeArray,
 	mapTypeArray,
 	selectedDateRange,
 	onSelectedDateRange,
@@ -93,7 +93,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 									)}
 									options={hotspotOptions}
 									multipleSelected={selectedHotspots}
-									onChange={handleChange}
+									onChange={handleChangeMapTypeArray}
 									fixedRenderValue={item.label[language]}
 									optionsClassName='[&_p]:!text-xs [&_.MuiSvgIcon-root]:w-4 [&_.MuiSvgIcon-root]:h-4 [&_.MuiList-root]:!p-0'
 								/>
@@ -108,7 +108,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 										{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
 									)}
 									name={item.code}
-									onClick={handleChange}
+									onClick={handleChangeMapTypeArray}
 								>
 									{item.label[language]}
 								</button>
