@@ -76,5 +76,9 @@
 		"contentDnd": "ไฟล์แนบรูปแบบ .CSV",
 		"invalidFileType": "นามสกุลไฟล์ไม่ถูกต้อง",
 		"fileSizeLimitExceed": "ขนาดไฟล์ต้องไม่เกิน 15 MB"
-	}
+	},
+    "previous": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "page": "หน้า",
+    "of": "จาก"
 }

@@ -7,7 +7,7 @@ interface SVGProps {
 	color?: string
 }
 
-export const DefaultAvatarIcon: React.FC<SVGProps> = ({ width = 24, height = 24, fill = 'black' }) => {
+export const DefaultAvatarIcon: React.FC<SVGProps> = ({ width = 24, height = 24, fill = 'black', color = '' }) => {
 	return (
 		<svg width={width} height={height} viewBox='0 0 36 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
 			<path
@@ -18,7 +18,7 @@ export const DefaultAvatarIcon: React.FC<SVGProps> = ({ width = 24, height = 24,
 	)
 }
 
-export const BackIcon: React.FC<SVGProps> = ({ width = 26, height = 26, fill = 'black' }) => {
+export const BackIcon: React.FC<SVGProps> = ({ width = 26, height = 26, fill = 'black', color = '' }) => {
 	return (
 		<svg width={width} height={height} viewBox='0 0 26 26' fill='none' xmlns='http://www.w3.org/2000/svg'>
 			<circle cx='13' cy='13' r='13' fill='white' />
@@ -34,7 +34,7 @@ export const BackIcon: React.FC<SVGProps> = ({ width = 26, height = 26, fill = '
 	)
 }
 
-export const CsvIcon: React.FC<SVGProps> = () => {
+export const CsvIcon: React.FC<SVGProps> = ({ width = 36, height = 42, fill = '', color = '' }) => {
 	return (
 		<svg xmlns='http://www.w3.org/2000/svg' width='36' height='41' viewBox='0 0 36 41' fill='none'>
 			<g clipPath='url(#clip0_533_3845)'>
@@ -70,7 +70,7 @@ export const CsvIcon: React.FC<SVGProps> = () => {
 	)
 }
 
-export const DeleteIcon: React.FC<SVGProps> = () => {
+export const DeleteIcon: React.FC<SVGProps> = ({ width = 62, height = 62, fill = '', color = '' }) => {
 	return (
 		<svg xmlns='http://www.w3.org/2000/svg' width='62' height='62' viewBox='0 0 62 62' fill='none'>
 			<path
@@ -111,7 +111,7 @@ export const DeleteIcon: React.FC<SVGProps> = () => {
 	)
 }
 
-export const CalendarIcon: React.FC<SVGProps> = ({ width = 18, height = 18, fill = 'none' }) => {
+export const CalendarIcon: React.FC<SVGProps> = ({ width = 18, height = 18, fill = 'none', color = '' }) => {
 	return (
 		<svg width={width} height={height} viewBox='0 0 18 18' fill={fill} xmlns='http://www.w3.org/2000/svg'>
 			<path
@@ -124,7 +124,7 @@ export const CalendarIcon: React.FC<SVGProps> = ({ width = 18, height = 18, fill
 	)
 }
 
-export const SearchInputIcon: React.FC<SVGProps> = ({ width = 16, height = 16, fill = 'none' }) => {
+export const SearchInputIcon: React.FC<SVGProps> = ({ width = 16, height = 16, fill = 'none', color = '' }) => {
 	return (
 		<svg width={width} height={height} viewBox='0 0 16 16' fill={fill} xmlns='http://www.w3.org/2000/svg'>
 			<path

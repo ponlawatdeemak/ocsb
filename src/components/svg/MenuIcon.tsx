@@ -439,7 +439,7 @@ export const AddDashboardIcon: React.FC<SVGProps> = ({ width = 12, height = 23, 
 	)
 }
 
-export const DashboardIcon: React.FC<SVGProps> = ({ width = 12, height = 12 }) => {
+export const DashboardIcon: React.FC<SVGProps> = ({ width = 12, height = 12, fill = '' }) => {
 	return (
 		<svg width={width} height={height} viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'>
 			<g clipPath='url(#clip0_1235_4283)'>
