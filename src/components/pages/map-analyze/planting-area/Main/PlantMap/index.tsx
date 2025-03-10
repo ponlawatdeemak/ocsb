@@ -11,7 +11,7 @@ import { yieldMapTypeCode } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
+import { booleanPointInPolygon, centroid } from '@turf/turf'
 import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
 import { enSuffix } from '@/config/app.config'
 import { Popup } from 'maplibre-gl'
@@ -28,7 +28,7 @@ import {
 } from '@interface/dto/yield-area/yield-area.dto-out'
 import PopupPlant from './PopupPlant'
 import { FillStyleExtension } from '@deck.gl/extensions'
-import centroid from '@turf/centroid'
+
 import { Feature, GeoJsonProperties, Geometry } from 'geojson'
 export const PLANTING_MAP_ID = 'planting-map'
 
