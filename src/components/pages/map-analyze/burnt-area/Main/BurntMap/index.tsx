@@ -94,6 +94,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	const [endBounds, setEndBounds] = useState<EndBoundsType>(endBoundsDefault)
 	const [miniMapExtent, setMiniMapExtent] = useState<number[][] | null>(null)
+	const [burntMapGeometry, setBurntMapGeometry] = useState<number[][] | null>(null)
 
 	const { data: regionData, isPending: isRegionLoading } = useQuery({
 		queryKey: ['getRegion'],
@@ -111,12 +112,18 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				const bound = burntMap.getBounds()
 				const sw = bound.getSouthWest()
 				const ne = bound.getNorthEast()
+
 				const polygon = [
 					[sw.lng, sw.lat],
 					[ne.lng, sw.lat],
 					[ne.lng, ne.lat],
 					[sw.lng, ne.lat],
 					[sw.lng, sw.lat],
+				]
+
+				const geometry = [
+					[sw.lng, sw.lat],
+					[ne.lng, ne.lat],
 				]
 
 				setEndBounds({
@@ -126,6 +133,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					ymax: bound.getNorth(),
 				})
 				setMiniMapExtent(polygon)
+				setBurntMapGeometry(geometry)
 
 				const currentZoom = burntMap.getZoom()
 
@@ -344,6 +352,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						burntBurntAreaData={burntBurntAreaData}
 						plantBurntAreaData={plantBurntAreaData}
 						defaultMiniMapExtent={miniMapExtent}
+						burntMapGeometry={burntMapGeometry}
 						onClose={() => setOpenPrintMapDialog(false)}
 					/>
 				</Box>

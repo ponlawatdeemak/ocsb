@@ -65,6 +65,7 @@ interface PrintMapDialogProps {
 	burntBurntAreaData: GetBurntBurntAreaDtoOut[]
 	plantBurntAreaData: GetPlantBurntAreaDtoOut[]
 	defaultMiniMapExtent: number[][] | null
+	burntMapGeometry: number[][] | null
 	loading?: boolean
 	onClose: () => void
 }
@@ -80,6 +81,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	burntBurntAreaData,
 	plantBurntAreaData,
 	defaultMiniMapExtent,
+	burntMapGeometry,
 	loading = false,
 	onClose,
 }) => {
@@ -115,6 +117,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 					[sw.lng, ne.lat],
 					[sw.lng, sw.lat],
 				]
+				const currentZoom = burntMapExport.getZoom()
 
 				const hotspotData = findPointsInsideBoundary(hotspotBurntAreaData as any, polygon)
 				const burntAreaData = findPolygonsInsideBoundary(burntBurntAreaData as any, polygon)
@@ -137,11 +140,11 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	// zoom to search area or default user region
 	useEffect(() => {
 		if (burntMapExport) {
-			if (defaultMiniMapExtent) {
-				burntMapExport.fitBounds(defaultMiniMapExtent as LngLatBoundsLike, { padding: 50 })
+			if (burntMapGeometry) {
+				burntMapExport.fitBounds(burntMapGeometry as LngLatBoundsLike, { padding: 0 })
 			}
 		}
-	}, [burntMapExport, defaultMiniMapExtent])
+	}, [burntMapExport, burntMapGeometry])
 
 	// update layer
 	useEffect(() => {
