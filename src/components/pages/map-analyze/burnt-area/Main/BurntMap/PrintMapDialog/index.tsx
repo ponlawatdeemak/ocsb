@@ -656,177 +656,167 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 					</IconButton>
 				</DialogTitle>
 				<DialogContent className='flex h-full w-full flex-col justify-between rounded-[15px] bg-white !py-4'>
-					{loading ? (
-						<div className='flex h-full w-full items-center justify-center'>
-							<CircularProgress />
-						</div>
-					) : (
-						<Box className='flex h-full w-full items-center gap-6'>
-							<Box className='flex h-full flex-1 flex-col gap-4'>
-								<Box className='relative aspect-[738/473] w-full border border-solid border-black p-6'>
-									<Box
-										className='captured-map-image aspect-[688/423] w-full bg-contain'
-										component='img'
-										alt='Burnt Map Image'
-									/>
+					<Box className='flex h-full w-full items-center gap-6'>
+						<Box className='flex h-full flex-1 flex-col gap-4'>
+							<Box className='relative aspect-[738/473] w-full border border-solid border-black p-6'>
+								<Box
+									className='captured-map-image aspect-[688/423] w-full bg-contain'
+									component='img'
+									alt='Burnt Map Image'
+								/>
 
-									{/* Map's legend */}
-									<Box
-										className={classNames(
-											'z-1 absolute bottom-8 left-8 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3',
-											{ '!hidden': mapLegendArray.length === 0 },
-										)}
-									>
-										{mapLegendArray.map((mapLegend) => {
-											return (
-												<Box key={mapLegend.key} className='flex shrink-0 items-center gap-1.5'>
-													{mapLegend.type === mapTypeCode.burnArea ? (
-														<Box className='h-2 w-3 bg-[#F9B936]'></Box>
-													) : (
-														<Box
-															className={classNames('h-3 w-3 rounded-full', {
-																'bg-[#FF0000]': mapLegend.type === mapTypeCode.hotspots,
-																'bg-[#8AB62D]': mapLegend.type === mapTypeCode.plant,
-															})}
-														></Box>
-													)}
-													<Typography className='!text-2xs text-black'>
-														{mapLegend.title}
-													</Typography>
-												</Box>
-											)
-										})}
-									</Box>
-
-									{/* Vertical Lines */}
-									{gridColsArray.map((gridCol) => {
+								{/* Map's legend */}
+								<Box
+									className={classNames(
+										'z-1 absolute bottom-8 left-8 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3',
+										{ '!hidden': mapLegendArray.length === 0 },
+									)}
+								>
+									{mapLegendArray.map((mapLegend) => {
 										return (
-											<React.Fragment key={gridCol.key}>
-												<div
-													className='absolute top-0 h-full w-[1px] bg-black'
-													style={{ left: gridCol.percent + '%' }}
-												/>
-
-												{/* Top Label */}
-												<span
-													className='absolute -top-4 -translate-x-1/2 text-2xs text-black'
-													style={{ left: gridCol.percent + '%' }}
-												>
-													{gridCol.value}
-												</span>
-
-												{/* Bottom Label */}
-												<span
-													className='absolute -bottom-4 -translate-x-1/2 text-2xs text-black'
-													style={{ left: gridCol.percent + '%' }}
-												>
-													{gridCol.value}
-												</span>
-											</React.Fragment>
-										)
-									})}
-
-									{/* Horizontal Lines */}
-									{gridRowsArray.map((gridRow) => {
-										return (
-											<React.Fragment key={gridRow.key}>
-												<div
-													className='absolute left-0 h-[1px] w-full bg-black'
-													style={{ bottom: gridRow.percent + '%' }}
-												/>
-
-												{/* Left Label */}
-												<span
-													className='absolute -left-2 -translate-x-1/2 translate-y-1/2 -rotate-90 transform text-2xs text-black'
-													style={{ bottom: gridRow.percent + '%' }}
-												>
-													{gridRow.value}
-												</span>
-
-												{/* Right Label */}
-												<span
-													className='absolute -right-2 translate-x-1/2 translate-y-1/2 rotate-90 transform text-2xs text-black'
-													style={{ bottom: gridRow.percent + '%' }}
-												>
-													{gridRow.value}
-												</span>
-											</React.Fragment>
+											<Box key={mapLegend.key} className='flex shrink-0 items-center gap-1.5'>
+												{mapLegend.type === mapTypeCode.burnArea ? (
+													<Box className='h-2 w-3 bg-[#F9B936]'></Box>
+												) : (
+													<Box
+														className={classNames('h-3 w-3 rounded-full', {
+															'bg-[#FF0000]': mapLegend.type === mapTypeCode.hotspots,
+															'bg-[#8AB62D]': mapLegend.type === mapTypeCode.plant,
+														})}
+													></Box>
+												)}
+												<Typography className='!text-2xs text-black'>
+													{mapLegend.title}
+												</Typography>
+											</Box>
 										)
 									})}
 								</Box>
-								<Typography className='w-full flex-1 !text-2xs !leading-5 text-[#707070]'>
-									{(language === Languages.TH
-										? 'จุดความร้อนจากดาวเทียม  VIIRS, MODIS / ร่องรอยเผาไหม้จากการวิเคราะห์ข้อมูลดาวเทียม Sentinel-2 / พื้นที่ปลูกอ้อยจากการวิเคราะห์ข้อมูลดาวเทียม Sentinel-1, Sentinel-2'
-										: 'Hotspots from VIIRS, MODIS satellites / Burn scars analyzed from Sentinel-2 satellite data / Sugarcane plantation areas analyzed from Sentinel-1, Sentinel-2 satellite data') +
-										` (${displaySelectedDateRange})`}
-								</Typography>
+
+								{/* Vertical Lines */}
+								{gridColsArray.map((gridCol) => {
+									return (
+										<React.Fragment key={gridCol.key}>
+											<div
+												className='absolute top-0 h-full w-[1px] bg-black'
+												style={{ left: gridCol.percent + '%' }}
+											/>
+
+											{/* Top Label */}
+											<span
+												className='absolute -top-4 -translate-x-1/2 text-2xs text-black'
+												style={{ left: gridCol.percent + '%' }}
+											>
+												{gridCol.value}
+											</span>
+
+											{/* Bottom Label */}
+											<span
+												className='absolute -bottom-4 -translate-x-1/2 text-2xs text-black'
+												style={{ left: gridCol.percent + '%' }}
+											>
+												{gridCol.value}
+											</span>
+										</React.Fragment>
+									)
+								})}
+
+								{/* Horizontal Lines */}
+								{gridRowsArray.map((gridRow) => {
+									return (
+										<React.Fragment key={gridRow.key}>
+											<div
+												className='absolute left-0 h-[1px] w-full bg-black'
+												style={{ bottom: gridRow.percent + '%' }}
+											/>
+
+											{/* Left Label */}
+											<span
+												className='absolute -left-2 -translate-x-1/2 translate-y-1/2 -rotate-90 transform text-2xs text-black'
+												style={{ bottom: gridRow.percent + '%' }}
+											>
+												{gridRow.value}
+											</span>
+
+											{/* Right Label */}
+											<span
+												className='absolute -right-2 translate-x-1/2 translate-y-1/2 rotate-90 transform text-2xs text-black'
+												style={{ bottom: gridRow.percent + '%' }}
+											>
+												{gridRow.value}
+											</span>
+										</React.Fragment>
+									)
+								})}
 							</Box>
-							<Box className='flex h-full w-[22%] flex-col items-center'>
-								<Box className='relative aspect-[215/287]'>
-									<Box
-										className='captured-mini-map-image h-full w-full bg-contain'
-										component='img'
-										alt='Burnt Mini Map Image'
-									/>
+							<Typography className='w-full flex-1 !text-2xs !leading-5 text-[#707070]'>
+								{(language === Languages.TH
+									? 'จุดความร้อนจากดาวเทียม  VIIRS, MODIS / ร่องรอยเผาไหม้จากการวิเคราะห์ข้อมูลดาวเทียม Sentinel-2 / พื้นที่ปลูกอ้อยจากการวิเคราะห์ข้อมูลดาวเทียม Sentinel-1, Sentinel-2'
+									: 'Hotspots from VIIRS, MODIS satellites / Burn scars analyzed from Sentinel-2 satellite data / Sugarcane plantation areas analyzed from Sentinel-1, Sentinel-2 satellite data') +
+									` (${displaySelectedDateRange})`}
+							</Typography>
+						</Box>
+						<Box className='flex h-full w-[22%] flex-col items-center'>
+							<Box className='relative aspect-[215/287]'>
+								<Box
+									className='captured-mini-map-image h-full w-full bg-contain'
+									component='img'
+									alt='Burnt Mini Map Image'
+								/>
 
-									<Box className='absolute right-[5px] top-[5px]'>
-										<MiniMapCompassIcon
-											fill={basemap === BasemapType.CartoLight ? 'black' : 'white'}
-										/>
-									</Box>
+								<Box className='absolute right-[5px] top-[5px]'>
+									<MiniMapCompassIcon fill={basemap === BasemapType.CartoLight ? 'black' : 'white'} />
 								</Box>
-								<Box className='flex w-full flex-1 flex-col items-center justify-between gap-5 bg-[#E6E6E6] p-4'>
-									<Box className='flex w-full flex-col gap-1.5'>
-										<Box className='flex w-full'>
-											<Typography className='w-[50%] !text-2xs text-black'>
-												{t('date')}
-											</Typography>
-											<Typography className='flex-1 !text-2xs !font-bold text-black'>
-												{formatDate(Date.now(), 'dd MMMM yyyy', language)}
-											</Typography>
-										</Box>
-										{mapTypeArray.includes(mapTypeCode.hotspots) && (
-											<Box className='flex w-full'>
-												<Typography className='w-[50%] !text-2xs text-black'>
-													{t('map-analyze:hotspot')}
-												</Typography>
-												<Typography className='flex-1 !text-2xs !font-bold text-black'>
-													{`${defaultNumber(hotspotData.length)} ${t('point')}`}
-												</Typography>
-											</Box>
-										)}
-										{mapTypeArray.includes(mapTypeCode.burnArea) && (
-											<Box className='flex w-full'>
-												<Typography className='w-[50%] !text-2xs text-black'>
-													{t('map-analyze:burntScar')}
-												</Typography>
-												<Typography className='flex-1 !text-2xs !font-bold text-black'>
-													{`${defaultNumber(burntAreaData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
-												</Typography>
-											</Box>
-										)}
-										{mapTypeArray.includes(mapTypeCode.plant) && (
-											<Box className='flex w-full'>
-												<Typography className='w-[50%] !text-2xs text-black'>
-													{t('map-analyze:plantingArea')}
-												</Typography>
-												<Typography className='flex-1 !text-2xs !font-bold text-black'>
-													{`${defaultNumber(plantingData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
-												</Typography>
-											</Box>
-										)}
-									</Box>
+							</Box>
+							<Box className='flex w-full flex-1 flex-col items-center justify-between gap-5 bg-[#E6E6E6] p-4'>
+								<Box className='flex w-full flex-col gap-1.5'>
 									<Box className='flex w-full'>
-										<Typography className='!text-2xs text-[#707070]'>
-											{language === Languages.TH
-												? 'กลุ่มเทคโนโลยีสารสนเทศและการสื่อสาร  0-2430-6813 ต่อ 3825'
-												: 'Information and Communication Technology Group, Office of the Cane and Sugar Board, 0-2430-6813 extension 3825'}
+										<Typography className='w-[50%] !text-2xs text-black'>{t('date')}</Typography>
+										<Typography className='flex-1 !text-2xs !font-bold text-black'>
+											{formatDate(Date.now(), 'dd MMMM yyyy', language)}
 										</Typography>
 									</Box>
+									{mapTypeArray.includes(mapTypeCode.hotspots) && (
+										<Box className='flex w-full'>
+											<Typography className='w-[50%] !text-2xs text-black'>
+												{t('map-analyze:hotspot')}
+											</Typography>
+											<Typography className='flex-1 !text-2xs !font-bold text-black'>
+												{`${defaultNumber(hotspotData.length)} ${t('point')}`}
+											</Typography>
+										</Box>
+									)}
+									{mapTypeArray.includes(mapTypeCode.burnArea) && (
+										<Box className='flex w-full'>
+											<Typography className='w-[50%] !text-2xs text-black'>
+												{t('map-analyze:burntScar')}
+											</Typography>
+											<Typography className='flex-1 !text-2xs !font-bold text-black'>
+												{`${defaultNumber(burntAreaData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
+											</Typography>
+										</Box>
+									)}
+									{mapTypeArray.includes(mapTypeCode.plant) && (
+										<Box className='flex w-full'>
+											<Typography className='w-[50%] !text-2xs text-black'>
+												{t('map-analyze:plantingArea')}
+											</Typography>
+											<Typography className='flex-1 !text-2xs !font-bold text-black'>
+												{`${defaultNumber(plantingData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
+											</Typography>
+										</Box>
+									)}
+								</Box>
+								<Box className='flex w-full'>
+									<Typography className='!text-2xs text-[#707070]'>
+										{language === Languages.TH
+											? 'กลุ่มเทคโนโลยีสารสนเทศและการสื่อสาร  0-2430-6813 ต่อ 3825'
+											: 'Information and Communication Technology Group, Office of the Cane and Sugar Board, 0-2430-6813 extension 3825'}
+									</Typography>
 								</Box>
 							</Box>
 						</Box>
-					)}
+					</Box>
 				</DialogContent>
 			</Dialog>
 		</div>
