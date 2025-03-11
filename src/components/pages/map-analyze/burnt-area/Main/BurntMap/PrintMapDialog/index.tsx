@@ -40,6 +40,7 @@ import { axiosInstance } from '@/api/core'
 import useQuantityUnit from '@/store/quantity-unit'
 import { OptionType } from '../../SearchForm'
 import { thaiExtent } from '@/config/app.config'
+import { useSession } from 'next-auth/react'
 pdfMake.vfs = pdfFonts.vfs
 
 interface NavigatorWithSaveBlob extends Navigator {
@@ -93,7 +94,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	onClose,
 }) => {
 	const { mapLibre, overlays, basemap } = useMapStore()
-
+	const { data: session } = useSession()
 	const { areaUnit } = useAreaUnit()
 	const { quantityUnit } = useQuantityUnit()
 	const { t, i18n } = useTranslation(['common', 'map-anlyze'])
@@ -369,6 +370,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 		const uri = axiosInstance.getUri()
 		const query = new URLSearchParams()
 
+		query.append('accessToken', session?.user.accessToken ?? '')
 		if (selectedDateRange[0]) query.append('startDate', selectedDateRange[0].toISOString().split('T')[0])
 		if (selectedDateRange[1]) query.append('endDate', selectedDateRange[1].toISOString().split('T')[0])
 		if (currentAdmOption !== null) query.append('admC', currentAdmOption.id)
@@ -380,7 +382,16 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 
 		const url = `${uri}/export/hotspot-burnt-area?${query}`
 		window.open(url, '_blank')
-	}, [selectedDateRange, currentAdmOption, areaUnit, quantityUnit, mapExtent, mapTypeArray, selectedHotspots])
+	}, [
+		session?.user.accessToken,
+		selectedDateRange,
+		currentAdmOption,
+		areaUnit,
+		quantityUnit,
+		mapExtent,
+		mapTypeArray,
+		selectedHotspots,
+	])
 
 	return (
 		<div className='relative'>
