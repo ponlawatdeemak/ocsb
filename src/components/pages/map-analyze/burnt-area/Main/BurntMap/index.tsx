@@ -1,6 +1,6 @@
 import MapView from '@/components/common/map/MapView'
 import useMapStore from '@/components/common/map/store/map'
-import { Box, CircularProgress, IconButton, Tooltip, Typography } from '@mui/material'
+import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -27,7 +27,6 @@ import PopupBurnt from './PopupBurnt'
 import CloseIcon from '@mui/icons-material/Close'
 import { MapExportIcon } from '@/components/svg/MenuIcon'
 import PrintMapDialog from './PrintMapDialog'
-import { captureMapImage } from '@/utils/capture'
 
 export interface MapLegendType {
 	key: mapTypeCode
@@ -50,7 +49,6 @@ const endBoundsDefault: EndBoundsType = {
 }
 
 export const BURNT_MAP_ID = 'burnt-map'
-const BURNT_MINI_MAP_ID = 'burnt-mini-map'
 
 interface BurntMapMainProps {
 	className?: string
@@ -93,14 +91,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const popup = useMemo(() => new Popup({ closeOnClick: false, closeButton: false }), [])
 
 	const [openPrintMapDialog, setOpenPrintMapDialog] = useState<boolean>(false)
-	const [isCapturing, setIsCapturing] = useState<boolean>(false)
-
-	const burntMapRef = useRef<HTMLDivElement | null>(null)
-	const burntMiniMapRef = useRef<HTMLDivElement | null>(null)
-	const [burntMapImage, setBurntMapImage] = useState<string>('')
-	const [burntMiniMapImage, setBurntMiniMapImage] = useState<string>('')
 
 	const [endBounds, setEndBounds] = useState<EndBoundsType>(endBoundsDefault)
+	const [miniMapExtent, setMiniMapExtent] = useState<number[][] | null>(null)
 
 	const { data: regionData, isPending: isRegionLoading } = useQuery({
 		queryKey: ['getRegion'],
@@ -132,6 +125,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					ymin: bound.getSouth(),
 					ymax: bound.getNorth(),
 				})
+				setMiniMapExtent(polygon)
 
 				const currentZoom = burntMap.getZoom()
 
@@ -243,62 +237,6 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		}
 	}, [burntMap, burntOverlay, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData, onMapClick])
 
-	const handlePrintMapDialogOpen = useCallback(async () => {
-		try {
-			setIsCapturing(true)
-
-			const burntMapElement = document.getElementById('burnt-map-container')
-
-			if (burntMapElement) {
-				const burntMapToolsElement: HTMLElement | null = burntMapElement.querySelector('.map-tools')
-				const printMapToolElement: HTMLElement | null = burntMapElement.querySelector('.print-map-tool')
-				const currentRegionElement: HTMLElement | null = burntMapElement.querySelector('.current-region')
-				const countViewerElement: HTMLElement | null = burntMapElement.querySelector('.count-viewer')
-				const mapLegendElement: HTMLElement | null = burntMapElement.querySelector('.map-legend')
-
-				if (burntMapToolsElement) burntMapToolsElement.style.visibility = 'hidden'
-				if (printMapToolElement) printMapToolElement.style.visibility = 'hidden'
-				if (currentRegionElement) currentRegionElement.style.visibility = 'hidden'
-				if (countViewerElement) countViewerElement.style.visibility = 'hidden'
-				if (mapLegendElement) mapLegendElement.style.left = '12px'
-			}
-
-			await new Promise((resolve) => setTimeout(resolve, 300)) // Ensure maps are rendered
-
-			// Capture parent divs of both maps
-			const [burntMapImage, burntMiniMapImage] = await Promise.all([
-				captureMapImage(burntMapRef),
-				captureMapImage(burntMiniMapRef),
-			])
-
-			// Store captured images in state
-			setBurntMapImage(burntMapImage ?? '')
-			setBurntMiniMapImage(burntMiniMapImage ?? '')
-
-			setOpenPrintMapDialog(true)
-		} catch (error) {
-			console.error('Export failed!', error)
-		} finally {
-			const burntMapElement = document.getElementById('burnt-map-container')
-
-			if (burntMapElement) {
-				const burntMapToolsElement: HTMLElement | null = burntMapElement.querySelector('.map-tools')
-				const printMapToolElement: HTMLElement | null = burntMapElement.querySelector('.print-map-tool')
-				const currentRegionElement: HTMLElement | null = burntMapElement.querySelector('.current-region')
-				const countViewerElement: HTMLElement | null = burntMapElement.querySelector('.count-viewer')
-				const mapLegendElement: HTMLElement | null = burntMapElement.querySelector('.map-legend')
-
-				if (burntMapToolsElement) burntMapToolsElement.style.visibility = ''
-				if (printMapToolElement) printMapToolElement.style.visibility = ''
-				if (currentRegionElement) currentRegionElement.style.visibility = ''
-				if (countViewerElement) countViewerElement.style.visibility = ''
-				if (mapLegendElement) mapLegendElement.style.left = ''
-			}
-
-			setIsCapturing(false)
-		}
-	}, [])
-
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
 	}, [isCurrentRegionOpen])
@@ -329,19 +267,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	return (
 		<Box className={classNames('', className)}>
-			{isCapturing && (
-				<div className='flex h-full w-full items-center justify-center'>
-					<CircularProgress size={60} />
-				</div>
-			)}
-
-			<Box
-				id='burnt-map-container'
-				ref={burntMapRef}
-				className={classNames('relative flex h-full w-full grow', {
-					'!absolute left-[-9999px] top-[-9999px]': isCapturing,
-				})}
-			>
+			<Box className='relative flex h-full w-full grow'>
 				<Box className='current-region absolute bottom-[88px] left-3 z-10 flex items-end gap-4 md:bottom-12'>
 					<IconButton
 						className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {
@@ -395,7 +321,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 							<IconButton
 								className='!h-6 !w-6 grow !rounded-none !p-1.5 [&_path]:stroke-black'
-								onClick={handlePrintMapDialogOpen}
+								onClick={() => setOpenPrintMapDialog(true)}
 								disabled={
 									isHotspotBurntAreaDataLoading ||
 									isBurntBurntAreaDataLoading ||
@@ -410,15 +336,14 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 					<PrintMapDialog
 						open={openPrintMapDialog}
-						burntMapImage={burntMapImage}
-						burntMiniMapImage={burntMiniMapImage}
-						endBounds={endBounds}
+						defaultMapEndBounds={endBounds}
 						mapTypeArray={mapTypeArray}
 						mapLegendArray={mapLegendArray}
-						currentAdmOption={currentAdmOption}
 						selectedDateRange={selectedDateRange}
-						selectedHotspots={selectedHotspots}
-						loading={isCapturing}
+						hotspotBurntAreaData={hotspotBurntAreaData}
+						burntBurntAreaData={burntBurntAreaData}
+						plantBurntAreaData={plantBurntAreaData}
+						defaultMiniMapExtent={miniMapExtent}
 						onClose={() => setOpenPrintMapDialog(false)}
 					/>
 				</Box>
@@ -450,14 +375,6 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					</Box>
 					<PopupBurnt popupData={popupData} />
 				</div>
-			</Box>
-
-			{/* Static hidden divs for maps */}
-			<Box
-				ref={burntMiniMapRef}
-				className='absolute left-[-9999px] top-[-9999px] flex aspect-[215/287] w-full grow [&_.map-tools]:hidden [&_.maplibregl-control-container]:hidden'
-			>
-				<MapView mapId={BURNT_MINI_MAP_ID} />
 			</Box>
 		</Box>
 	)

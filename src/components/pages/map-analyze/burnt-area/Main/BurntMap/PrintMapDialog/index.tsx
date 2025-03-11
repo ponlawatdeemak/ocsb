@@ -12,109 +12,234 @@ import {
 } from '@mui/material'
 import classNames from 'classnames'
 import { useTranslation } from 'next-i18next'
-import React, { useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { EndBoundsType, MapLegendType } from '..'
 import useMapStore from '@/components/common/map/store/map'
 import { BasemapType } from '@/components/common/map/interface/map'
-import { hotspotTypeCode, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
+import { mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
 import { Languages } from '@/enum'
-import { OptionType } from '../../SearchForm'
-import service from '@/api'
-import { useQuery } from '@tanstack/react-query'
 import { defaultNumber } from '@/utils/text'
 import useAreaUnit from '@/store/area-unit'
 import { formatDate } from '@/utils/date'
+import MapView from '@/components/common/map/MapView'
+import { captureMapWithScale, captureMiniMap, captureScaleImage } from '@/utils/capture'
+import { GeoJsonLayer, IconLayer, PolygonLayer } from '@deck.gl/layers'
+import { getPinHotSpot } from '@/utils/pin'
+import {
+	GetBurntBurntAreaDtoOut,
+	GetHotspotBurntAreaDtoOut,
+	GetPlantBurntAreaDtoOut,
+} from '@interface/dto/brunt-area/brunt-area.dto.out'
+import { Feature, MultiPolygon, Point, Polygon } from 'geojson'
+import { findPointsInsideBoundary, findPolygonsInsideBoundary } from '@/utils/geometry'
+import { LngLatBoundsLike } from 'maplibre-gl'
 import pdfMake from 'pdfmake/build/pdfmake'
 import pdfFonts from 'pdfmake/build/vfs_fonts'
 import html2canvas from 'html2canvas'
 pdfMake.vfs = pdfFonts.vfs
 
-const GRID_COLS = 4
-const GRID_ROWS = 3
-
 interface NavigatorWithSaveBlob extends Navigator {
 	msSaveOrOpenBlob?: (blob: Blob, defaultName?: string) => boolean
 }
 
+const BURNT_MAP_EXPORT = 'burnt-map-export'
+const BURNT_MINI_MAP_EXPORT = 'burnt-mini-map-export'
+
+const GRID_COLS = 4
+const GRID_ROWS = 3
+
+const BURNT_MAP_WIDTH = 688
+const BURNT_MAP_HEIGHT = 423
+const BURNT_MAP_MARGIN = 10
+const BURNT_MINI_MAP_WIDTH = 215
+const BURNT_MINI_MAP_HEIGHT = 287
+
 interface PrintMapDialogProps {
 	className?: string
 	open: boolean
-	burntMapImage: string
-	burntMiniMapImage: string
-	endBounds: EndBoundsType
+	defaultMapEndBounds: EndBoundsType
 	mapTypeArray: mapTypeCode[]
 	mapLegendArray: MapLegendType[]
-	currentAdmOption: OptionType | null
 	selectedDateRange: Date[]
-	selectedHotspots: hotspotTypeCode[]
-	loading: boolean
+	hotspotBurntAreaData: GetHotspotBurntAreaDtoOut[]
+	burntBurntAreaData: GetBurntBurntAreaDtoOut[]
+	plantBurntAreaData: GetPlantBurntAreaDtoOut[]
+	defaultMiniMapExtent: number[][] | null
+	loading?: boolean
 	onClose: () => void
 }
 
 const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	className = '',
 	open,
-	burntMapImage,
-	burntMiniMapImage,
-	endBounds,
+	defaultMapEndBounds,
 	mapTypeArray,
 	mapLegendArray,
-	currentAdmOption,
 	selectedDateRange,
-	selectedHotspots,
+	hotspotBurntAreaData,
+	burntBurntAreaData,
+	plantBurntAreaData,
+	defaultMiniMapExtent,
 	loading = false,
 	onClose,
 }) => {
-	const { basemap } = useMapStore()
+	const { mapLibre, overlays, basemap } = useMapStore()
+
 	const { areaUnit } = useAreaUnit()
 	const { t, i18n } = useTranslation(['common', 'map-anlyze'])
 	const language = i18n.language as keyof ResponseLanguage
 
-	const { data: mapTypeData, isFetching: isMapTypeDataLoading } = useQuery({
-		queryKey: [
-			'getDashBoardBurntAreaPrintMap',
-			selectedDateRange,
-			currentAdmOption,
-			mapTypeArray,
-			selectedHotspots,
-		],
-		queryFn: async () => {
-			const response = await service.mapAnalyze.getDashBoardBurntArea({
-				startDate: selectedDateRange[0]?.toISOString().split('T')[0],
-				endDate: selectedDateRange[1]?.toISOString().split('T')[0],
-				admC: currentAdmOption?.id ? Number(currentAdmOption.id) : undefined,
-				mapType: mapTypeArray,
-				inSugarcan: selectedHotspots,
+	const [mapEndBounds, setMapEndBounds] = useState<EndBoundsType>(defaultMapEndBounds)
+	const [isCapturing, setIsCapturing] = useState<boolean>(false)
+
+	const [hotspotData, setHotspotData] = useState<Feature<Point>[]>([])
+	const [burntAreaData, setBurntAreaData] = useState<Feature<Polygon | MultiPolygon>[]>([])
+	const [plantingData, setPlantingData] = useState<Feature<Polygon | MultiPolygon>[]>([])
+
+	const burntMapExport = useMemo(() => mapLibre[BURNT_MAP_EXPORT], [mapLibre])
+	const burntOverlayExport = useMemo(() => overlays[BURNT_MAP_EXPORT], [overlays])
+	const burntMiniMapExport = useMemo(() => mapLibre[BURNT_MINI_MAP_EXPORT], [mapLibre])
+	const burntMiniOverlayExport = useMemo(() => overlays[BURNT_MINI_MAP_EXPORT], [overlays])
+
+	// map event
+	useEffect(() => {
+		if (burntMapExport) {
+			burntMapExport.on('moveend', () => {
+				const bound = burntMapExport.getBounds()
+				const sw = bound.getSouthWest()
+				const ne = bound.getNorthEast()
+				const polygon = [
+					[sw.lng, sw.lat],
+					[ne.lng, sw.lat],
+					[ne.lng, ne.lat],
+					[sw.lng, ne.lat],
+					[sw.lng, sw.lat],
+				]
+
+				const hotspotData = findPointsInsideBoundary(hotspotBurntAreaData as any, polygon)
+				const burntAreaData = findPolygonsInsideBoundary(burntBurntAreaData as any, polygon)
+				const plantingData = findPolygonsInsideBoundary(plantBurntAreaData as any, polygon)
+
+				setHotspotData(hotspotData)
+				setBurntAreaData(burntAreaData)
+				setPlantingData(plantingData)
+
+				setMapEndBounds({
+					xmin: bound.getWest(),
+					xmax: bound.getEast(),
+					ymin: bound.getSouth(),
+					ymax: bound.getNorth(),
+				})
 			})
-			return response.data
-		},
-		enabled: !!open,
-	})
+		}
+	}, [burntMapExport, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
+
+	// zoom to search area or default user region
+	useEffect(() => {
+		if (burntMapExport) {
+			if (defaultMiniMapExtent) {
+				burntMapExport.fitBounds(defaultMiniMapExtent as LngLatBoundsLike, { padding: 100 })
+			}
+		}
+	}, [burntMapExport, defaultMiniMapExtent])
+
+	// update layer
+	useEffect(() => {
+		if (burntMapExport && burntOverlayExport) {
+			const layers = [
+				new GeoJsonLayer({
+					id: 'plant-export',
+					beforeId: 'custom-referer-layer',
+					data: plantBurntAreaData as any,
+					pickable: true,
+					stroked: true,
+					filled: true,
+					lineWidthMinPixels: 1,
+					getPolygon: (d: any) => d.geometry.coordinates,
+					getFillColor: () => [139, 182, 45, 180],
+					getLineColor: () => [139, 182, 45, 180],
+				}),
+
+				new GeoJsonLayer({
+					id: 'burnt-export',
+					beforeId: 'custom-referer-layer',
+					data: burntBurntAreaData as any,
+					pickable: true,
+					stroked: true,
+					filled: true,
+					lineWidthMinPixels: 1,
+					getPolygon: (d: any) => d.geometry.coordinates,
+					getFillColor: () => [255, 204, 0, 180],
+					getLineColor: () => [255, 204, 0, 180],
+				}),
+				new IconLayer({
+					id: 'hotspot-export',
+					beforeId: 'custom-referer-layer',
+					data: hotspotBurntAreaData,
+					pickable: true,
+					sizeScale: 1,
+					getPosition: (d) => d.geometry.coordinates,
+					getSize: 14,
+					getIcon: () => ({ url: getPinHotSpot(), width: 14, height: 14, mask: false }),
+				}),
+			]
+
+			burntOverlayExport.setProps({ layers: [layers] })
+		}
+	}, [burntMapExport, burntOverlayExport, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
+
+	useEffect(() => {
+		if (burntMiniMapExport && burntMiniOverlayExport) {
+			const layers = [
+				new PolygonLayer({
+					id: 'mini-map-export',
+					data: [
+						{
+							type: 'Feature',
+							geometry: {
+								type: 'Polygon',
+								coordinates: [defaultMiniMapExtent],
+							},
+						},
+					],
+					pickable: true,
+					stroked: true,
+					filled: true,
+					lineWidthMinPixels: 2,
+					getPolygon: (d: any) => d.geometry.coordinates,
+					getFillColor: () => [255, 255, 255, 0],
+					getLineColor: () => [255, 204, 0, 180],
+				}),
+			]
+
+			burntMiniOverlayExport.setProps({ layers: [layers] })
+		}
+	}, [burntMiniMapExport, burntMiniOverlayExport, defaultMiniMapExtent])
 
 	const gridColsArray = useMemo(
 		() =>
 			Array.from({ length: GRID_COLS - 1 }).map((_, index) => {
-				const gap = endBounds.xmax - endBounds.xmin
+				const gap = mapEndBounds.xmax - mapEndBounds.xmin
 				return {
 					key: 'col' + index,
 					percent: ((index + 1) / GRID_COLS) * 100,
-					value: (endBounds.xmin + ((index + 1) / GRID_COLS) * gap).toFixed(5),
+					value: (mapEndBounds.xmin + ((index + 1) / GRID_COLS) * gap).toFixed(5),
 				}
 			}),
-		[endBounds.xmax, endBounds.xmin],
+		[mapEndBounds.xmax, mapEndBounds.xmin],
 	)
 
 	const gridRowsArray = useMemo(
 		() =>
 			Array.from({ length: GRID_ROWS - 1 }).map((_, index) => {
-				const gap = endBounds.ymax - endBounds.ymin
+				const gap = mapEndBounds.ymax - mapEndBounds.ymin
 				return {
 					key: 'row' + index,
 					percent: ((index + 1) / GRID_ROWS) * 100,
-					value: (endBounds.ymin + ((index + 1) / GRID_ROWS) * gap).toFixed(5),
+					value: (mapEndBounds.ymin + ((index + 1) / GRID_ROWS) * gap).toFixed(5),
 				}
 			}),
-		[endBounds.ymax, endBounds.ymin],
+		[mapEndBounds.ymax, mapEndBounds.ymin],
 	)
 
 	const displayDialogTitle = useMemo(() => {
@@ -127,7 +252,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 		})
 
 		return t('mapDisplayData') + (language === Languages.EN ? ' ' : '') + mapType.join(' ')
-	}, [mapLegendArray, t])
+	}, [mapLegendArray, t, language])
 
 	const displaySelectedDateRange = useMemo(() => {
 		if (selectedDateRange[0].toString() === selectedDateRange[1].toString()) {
@@ -191,6 +316,52 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 		}
 	}
 
+	const handleBurntMapPdfExport = useCallback(async () => {
+		try {
+			setIsCapturing(true)
+
+			const burntMap = mapLibre[BURNT_MAP_EXPORT]
+			const burntMiniMap = mapLibre[BURNT_MINI_MAP_EXPORT]
+			const burntMapElement = document.getElementById('burnt-map-export-container')
+			if (!burntMapElement) {
+				console.error('Burnt map export container not found!')
+				return
+			}
+			const scaleElement = burntMapElement.querySelector('.maplibregl-ctrl-scale') as HTMLElement
+
+			if (burntMap && burntMiniMap && scaleElement) {
+				const [mapImage, miniMapImage, scaleMapImage] = await Promise.all([
+					burntMap.getCanvas().toDataURL('image/png'),
+					burntMiniMap.getCanvas().toDataURL('image/png'),
+					captureScaleImage(scaleElement),
+				])
+
+				const burntMapImage = await captureMapWithScale(
+					mapImage,
+					scaleMapImage ?? '',
+					BURNT_MAP_WIDTH,
+					BURNT_MAP_HEIGHT,
+					BURNT_MAP_MARGIN,
+				)
+
+				const burntMiniMapImage = await captureMiniMap(
+					miniMapImage,
+					BURNT_MINI_MAP_WIDTH,
+					BURNT_MINI_MAP_HEIGHT,
+				)
+
+				console.log('burntMapImage', burntMapImage)
+				console.log('burntMiniMapImage', burntMiniMapImage)
+			} else {
+				console.error('Map is not loaded yet!')
+			}
+		} catch (error) {
+			console.error('Error capturing burnt map:', error)
+		} finally {
+			setIsCapturing(false)
+		}
+	}, [mapLibre])
+
 	return (
 		<div className='relative'>
 			<Dialog
@@ -212,20 +383,20 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 					</IconButton>
 				</DialogTitle>
 				<DialogContent className='flex h-full w-full flex-col justify-between rounded-[15px] bg-white !py-4 max-lg:!px-4'>
-					{loading || isMapTypeDataLoading ? (
+					{loading ? (
 						<div className='flex h-full w-full items-center justify-center'>
 							<CircularProgress />
 						</div>
 					) : (
 						<Box className='flex h-full w-full items-center gap-5 max-lg:flex-col lg:gap-6'>
-							<Box className='flex h-full flex-1 flex-col gap-4'>
-								<Box className='relative aspect-[738/473] w-full border border-solid border-black p-6'>
+							<Box className='flex h-full flex-1 flex-col gap-4 max-lg:w-full'>
+								<Box className='relative aspect-[738/473] w-full border border-solid border-black p-4 lg:p-6'>
 									<Box
-										className='aspect-[688/423] w-full'
-										component='img'
-										src={burntMapImage}
-										alt='Burnt Map Image'
-									/>
+										id='burnt-map-export-container'
+										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:hidden'
+									>
+										<MapView mapId={BURNT_MAP_EXPORT} loading={isCapturing} />
+									</Box>
 
 									{/* Map's legend */}
 									<Box
@@ -324,13 +495,14 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								</Typography>
 							</Box>
 							<Box className='flex h-full w-full flex-col items-center lg:w-[22%]'>
-								<Box className='relative aspect-[215/287]'>
-									<Box
-										className='h-full w-full'
-										component='img'
-										src={burntMiniMapImage}
-										alt='Burnt Mini Map Image'
-									/>
+								<Box className='relative aspect-[215/287] w-full'>
+									<Box className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-control-container]:hidden'>
+										<MapView
+											mapId={BURNT_MINI_MAP_EXPORT}
+											loading={isCapturing}
+											isInteractive={false}
+										/>
+									</Box>
 
 									<Box className='absolute right-[5px] top-[5px]'>
 										<MiniMapCompassIcon
@@ -348,33 +520,33 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 												{formatDate(Date.now(), 'dd MMMM yyyy', language)}
 											</Typography>
 										</Box>
-										{mapTypeData?.hotspot && (
+										{mapTypeArray.includes(mapTypeCode.hotspots) && (
 											<Box className='flex w-full'>
 												<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
 													{t('map-analyze:hotspot')}
 												</Typography>
 												<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
-													{`${defaultNumber(mapTypeData.hotspot.total)} ${t('point')}`}
+													{`${defaultNumber(hotspotData.length)} ${t('point')}`}
 												</Typography>
 											</Box>
 										)}
-										{mapTypeData?.burnArea && (
+										{mapTypeArray.includes(mapTypeCode.burnArea) && (
 											<Box className='flex w-full'>
 												<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
 													{t('map-analyze:burntScar')}
 												</Typography>
 												<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
-													{`${defaultNumber(mapTypeData.burnArea?.list?.reduce((total, item) => total + (item.area?.[areaUnit] ?? 0), 0) ?? 0)} ${t('common:' + areaUnit)}`}
+													{`${defaultNumber(burntAreaData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
 												</Typography>
 											</Box>
 										)}
-										{mapTypeData?.plant && (
+										{mapTypeArray.includes(mapTypeCode.plant) && (
 											<Box className='flex w-full'>
 												<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
 													{t('map-analyze:plantingArea')}
 												</Typography>
 												<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
-													{`${defaultNumber(mapTypeData.plant?.area?.[areaUnit] ?? 0)} ${t('common:' + areaUnit)}`}
+													{`${defaultNumber(plantingData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
 												</Typography>
 											</Box>
 										)}
@@ -434,7 +606,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 					</IconButton>
 				</DialogTitle>
 				<DialogContent className='flex h-full w-full flex-col justify-between rounded-[15px] bg-white !py-4'>
-					{loading || isMapTypeDataLoading ? (
+					{loading ? (
 						<div className='flex h-full w-full items-center justify-center'>
 							<CircularProgress />
 						</div>
@@ -565,33 +737,33 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 												{formatDate(Date.now(), 'dd MMMM yyyy', language)}
 											</Typography>
 										</Box>
-										{mapTypeData?.hotspot && (
+										{mapTypeArray.includes(mapTypeCode.hotspots) && (
 											<Box className='flex w-full'>
 												<Typography className='w-[50%] !text-2xs text-black'>
 													{t('map-analyze:hotspot')}
 												</Typography>
 												<Typography className='flex-1 !text-2xs !font-bold text-black'>
-													{`${defaultNumber(mapTypeData.hotspot.total)} ${t('point')}`}
+													{`${defaultNumber(hotspotData.length)} ${t('point')}`}
 												</Typography>
 											</Box>
 										)}
-										{mapTypeData?.burnArea && (
+										{mapTypeArray.includes(mapTypeCode.burnArea) && (
 											<Box className='flex w-full'>
 												<Typography className='w-[50%] !text-2xs text-black'>
 													{t('map-analyze:burntScar')}
 												</Typography>
 												<Typography className='flex-1 !text-2xs !font-bold text-black'>
-													{`${defaultNumber(mapTypeData.burnArea?.list?.reduce((total, item) => total + (item.area?.[areaUnit] ?? 0), 0) ?? 0)} ${t('common:' + areaUnit)}`}
+													{`${defaultNumber(burntAreaData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
 												</Typography>
 											</Box>
 										)}
-										{mapTypeData?.plant && (
+										{mapTypeArray.includes(mapTypeCode.plant) && (
 											<Box className='flex w-full'>
 												<Typography className='w-[50%] !text-2xs text-black'>
 													{t('map-analyze:plantingArea')}
 												</Typography>
 												<Typography className='flex-1 !text-2xs !font-bold text-black'>
-													{`${defaultNumber(mapTypeData.plant?.area?.[areaUnit] ?? 0)} ${t('common:' + areaUnit)}`}
+													{`${defaultNumber(plantingData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
 												</Typography>
 											</Box>
 										)}
