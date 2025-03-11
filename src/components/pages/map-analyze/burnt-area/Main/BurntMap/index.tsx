@@ -60,7 +60,8 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	const currentRegionLanguageKey = `regionName${Languages.TH === i18n.language ? '' : enSuffix}`
 	const [currentRegion, setCurrentRegion] = useState<GetLookupDtoOut>()
-	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
+	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState(true)
+	const [defaultZoomComplete, setDefaultZoomComplete] = useState(false)
 
 	const popupNode = useRef<HTMLDivElement>(null)
 	const [popupData, setPopupData] = useState<PickingInfo[]>([])
@@ -127,11 +128,12 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	useEffect(() => {
 		if (burntMap) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
-			if (userGeometry) {
+			if (userGeometry && !defaultZoomComplete) {
 				burntMap.fitBounds(userGeometry, { padding: 100 })
+				setDefaultZoomComplete(true)
 			}
 		}
-	}, [burntMap, currentAdmOption?.geometry, session?.user?.geometry])
+	}, [burntMap, currentAdmOption?.geometry, session?.user?.geometry, defaultZoomComplete])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
