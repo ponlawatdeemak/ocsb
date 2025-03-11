@@ -363,7 +363,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								<Box className='relative aspect-[738/473] w-full border border-solid border-black p-4 lg:p-6'>
 									<Box
 										id='burnt-map-export-container'
-										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:hidden [&_.maplibregl-ctrl-bottom-right]:!z-[0]'
+										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:max-sm:!my-0 [&_.maplibregl-compact]:max-sm:!box-border [&_.maplibregl-compact]:max-sm:!h-4 [&_.maplibregl-compact]:max-sm:!min-h-0 [&_.maplibregl-compact]:max-sm:!pr-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!h-[16px] [&_.maplibregl-ctrl-attrib-button]:max-sm:!w-[16px] [&_.maplibregl-ctrl-attrib-button]:max-sm:!bg-contain [&_.maplibregl-ctrl-attrib-inner]:max-sm:text-[8px] [&_.maplibregl-ctrl-attrib-inner]:max-sm:leading-[12px] [&_.maplibregl-ctrl-bottom-right]:!z-[0] [&_.maplibregl-ctrl-bottom-right]:max-sm:!mb-[26px] [&_.maplibregl-ctrl-scale]:max-sm:!mb-1 [&_.maplibregl-ctrl-scale]:sm:!mb-0'
 									>
 										<MapView mapId={BURNT_MAP_EXPORT} loading={isCapturing} />
 									</Box>
@@ -371,7 +371,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 									{/* Map's legend */}
 									<Box
 										className={classNames(
-											'z-1 absolute bottom-[22px] left-[22px] flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-[3px] pl-[5px] pr-[7px] sm:py-1 sm:pl-2 sm:pr-3 lg:bottom-8 lg:left-8',
+											'z-1 absolute bottom-[22px] left-[22px] flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-[5px] pr-[7px] sm:pl-2 sm:pr-3 lg:bottom-8 lg:left-8',
 											{ '!hidden': mapLegendArray.length === 0 },
 										)}
 									>
