@@ -3,13 +3,11 @@ import { Box, IconButton, SelectChangeEvent, Typography } from '@mui/material'
 
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 
-import turfArea from '@turf/area'
-import turfLength from '@turf/length'
-
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useTranslation } from 'next-i18next'
 import { Close } from '@mui/icons-material'
 import FilterSelect, { FilterSelectOptionType } from '@/components/common/select/FilterSelect'
+import { area, length } from '@turf/turf'
 
 enum MeasureMode {
 	Line,
@@ -112,7 +110,7 @@ const Measurement = ({
 			const data = draw.getAll()
 
 			if (data.features.length > 0) {
-				const area = turfLength(data, { units: 'meters' })
+				const area = length(data, { units: 'meters' })
 
 				if (data) {
 					setTotalDistance(area)
@@ -128,11 +126,9 @@ const Measurement = ({
 	const updateArea = useCallback(
 		(e: any) => {
 			const data = draw.getAll()
-
 			if (data.features.length > 0) {
-				const area = turfArea(data)
-
-				setTotalDistance(area)
+				const temp = area(data)
+				setTotalDistance(temp)
 			}
 			if (e.type === 'draw.delete') {
 				draw.changeMode('draw_polygon')

@@ -1,7 +1,7 @@
 import MultipleSelectCheckmarks, { MultipleSelectedType } from '@/components/common/select/MultipleSelectCheckmarks'
 import { hotspotType, hotspotTypeCode, mapType, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import classNames from 'classnames'
 import React, { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -18,7 +18,7 @@ export interface OptionType {
 interface BurntSearchFormMainProps {
 	className?: string
 	selectedHotspots: hotspotTypeCode[]
-	handleChange: (event: any) => void
+	handleChangeMapTypeArray: (event: any) => void
 	mapTypeArray: mapTypeCode[]
 	selectedDateRange: Date[]
 	onSelectedDateRange: (selectedDateRange: Date[]) => void
@@ -29,7 +29,7 @@ interface BurntSearchFormMainProps {
 const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	className = '',
 	selectedHotspots,
-	handleChange,
+	handleChangeMapTypeArray,
 	mapTypeArray,
 	selectedDateRange,
 	onSelectedDateRange,
@@ -59,7 +59,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 			<Typography className='whitespace-nowrap !text-md text-primary max-md:hidden'>
 				{t('map-analyze:hotspotAndBurntAreaAnalysis')}
 			</Typography>
-			<Box id='burnt-area-search-form' className='flex items-center gap-4 max-md:flex-col'>
+			<Box id='search-form' className='flex items-center gap-4 max-md:flex-col'>
 				<Box className='flex w-full items-center gap-4 md:w-[26%]'>
 					<SearchAdminPoly
 						searchSelectedAdmOption={searchSelectedAdmOption}
@@ -93,7 +93,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 									)}
 									options={hotspotOptions}
 									multipleSelected={selectedHotspots}
-									onChange={handleChange}
+									onChange={handleChangeMapTypeArray}
 									fixedRenderValue={item.label[language]}
 									optionsClassName='[&_p]:!text-xs [&_.MuiSvgIcon-root]:w-4 [&_.MuiSvgIcon-root]:h-4 [&_.MuiList-root]:!p-0'
 								/>
@@ -108,7 +108,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 										{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
 									)}
 									name={item.code}
-									onClick={handleChange}
+									onClick={handleChangeMapTypeArray}
 								>
 									{item.label[language]}
 								</button>

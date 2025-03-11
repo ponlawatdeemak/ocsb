@@ -35,8 +35,8 @@ interface DateRangePickerMainProps {
 	responsiveType: 'desktop' | 'mobile'
 	selectedDateRange: Date[]
 	onSelectedDateRange: (selectedDateRange: Date[]) => void
-	burnAreaCalendarData: string[]
-	isBurnAreaCalendarDataLoading: boolean
+	burnAreaCalendarData?: string[]
+	isBurnAreaCalendarDataLoading?: boolean
 }
 
 const DateRangePickerMain: React.FC<DateRangePickerMainProps> = ({
@@ -76,7 +76,7 @@ const DateRangePickerMain: React.FC<DateRangePickerMainProps> = ({
 	}, [t])
 
 	const handleCalendarPopoverClick = useCallback(() => {
-		const burntAreaSearchFormElement = document.getElementById('burnt-area-search-form') as HTMLElement
+		const burntAreaSearchFormElement = document.getElementById('search-form') as HTMLElement
 		const mobileCalendarBtnElement = burntAreaSearchFormElement.querySelector(
 			'#mobile-calendar-btn',
 		) as HTMLButtonElement
@@ -235,7 +235,7 @@ const DateRangePickerMain: React.FC<DateRangePickerMainProps> = ({
 							'[&_svg>path]:stroke-white': Boolean(calendarDesktopPopoverAnchorEl),
 						})}
 						onClick={handleCalendarPopoverClick}
-						disabled={isBurnAreaCalendarDataLoading}
+						disabled={isBurnAreaCalendarDataLoading ?? false}
 					>
 						<CalendarIcon />
 					</IconButton>
@@ -257,7 +257,7 @@ const DateRangePickerMain: React.FC<DateRangePickerMainProps> = ({
 							'[&_svg>path]:stroke-white': Boolean(calendarMobilePopoverAnchorEl),
 						})}
 						onClick={handleCalendarPopoverClick}
-						disabled={isBurnAreaCalendarDataLoading}
+						disabled={isBurnAreaCalendarDataLoading ?? false}
 					>
 						<CalendarIcon />
 					</IconButton>

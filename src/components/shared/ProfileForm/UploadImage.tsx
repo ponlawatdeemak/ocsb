@@ -1,9 +1,8 @@
-import { mdiAccountOutline, mdiDeleteOutline, mdiTrayArrowUp } from '@mdi/js'
+import { mdiAccountOutline, mdiDeleteOutline } from '@mdi/js'
 import Icon from '@mdi/react'
-import { Avatar, Button, FormHelperText } from '@mui/material'
+import { Avatar } from '@mui/material'
 import { FormikProps } from 'formik'
 import React, { ChangeEvent, useEffect, useState } from 'react'
-import { useTranslation } from 'next-i18next'
 // import { PictureIcon } from '@/components/svg/MenuIcon'
 
 export interface UploadImageProps {
@@ -23,11 +22,10 @@ const UploadImage: React.FC<UploadImageProps> = ({
 	disabled = false,
 	...props
 }) => {
-	const { t } = useTranslation()
 	const maxImageSize = 3 * 1024 * 1024
 	const [image, setImage] = useState<string | null>(null)
 	const { i18n, tReady, ...uploadProps } = props
-	const [showInvalidFile, setShowInvalidFile] = useState(false)
+	// const [showInvalidFile, setShowInvalidFile] = useState(false)
 
 	useEffect(() => {
 		const formikValue = formik.values[name]
@@ -50,11 +48,11 @@ const UploadImage: React.FC<UploadImageProps> = ({
 			if (validImageTypes.includes(imageType) && imageSize <= maxImageSize) {
 				formik.setFieldValue(name, selectedImage)
 				setImage(URL.createObjectURL(selectedImage))
-				setShowInvalidFile(false)
+				// setShowInvalidFile(false)
 			} else {
 				formik.setFieldValue(name, null)
 				setImage(null)
-				setShowInvalidFile(true)
+				// setShowInvalidFile(true)
 			}
 		} else {
 			formik.setFieldValue(name, null)
@@ -73,39 +71,33 @@ const UploadImage: React.FC<UploadImageProps> = ({
 
 	return (
 		<div className={className}>
-			<>
-				{image ? (
-					<Avatar
-						src={image}
-						alt='Profile Image'
-						className='bg-success-light h-[120px] w-[120px]'
-						onError={handleImageError}
+			{image ? (
+				<Avatar
+					src={image}
+					alt='Profile Image'
+					className='bg-success-light h-[120px] w-[120px]'
+					onError={handleImageError}
+				/>
+			) : (
+				<Avatar className='relative h-[120px] w-[120px] !bg-[#CCCCCC]'>
+					<Icon path={defaultImage} size={'100px'} className='text-white' />
+					<input
+						type='file'
+						accept='image/png, image/jpeg'
+						className='absolute h-full w-full cursor-pointer rounded-full bg-black text-black opacity-0 hover:opacity-70 [&::file-selector-button]:hidden'
+						onChange={handleImageChange}
+						{...uploadProps}
 					/>
-				) : (
-					<Avatar className='relative h-[120px] w-[120px] !bg-[#CCCCCC]'>
-						<Icon path={defaultImage} size={'100px'} className='text-white' />
-						<input
-							type='file'
-							accept='image/png, image/jpeg'
-							className='absolute h-full w-full cursor-pointer rounded-full bg-black text-black opacity-0 hover:opacity-70 [&::file-selector-button]:hidden'
-							onChange={handleImageChange}
-							{...uploadProps}
-						/>
-					</Avatar>
-				)}
+				</Avatar>
+			)}
 
-				{image && (
-					<div className='absolute box-border flex h-[153px] w-[153px] items-center justify-center rounded-full bg-black opacity-0 transition hover:opacity-70'>
-						<div onClick={handleDeleteClick}>
-							<Icon
-								path={mdiDeleteOutline}
-								size={1}
-								className='!color-[#2F7A59] cursor-pointer text-white'
-							/>
-						</div>
-					</div>
-				)}
-			</>
+			{image && (
+				<div className='absolute box-border flex h-[153px] w-[153px] items-center justify-center rounded-full bg-black opacity-0 transition hover:opacity-70'>
+					<button onClick={handleDeleteClick}>
+						<Icon path={mdiDeleteOutline} size={1} className='!color-[#2F7A59] cursor-pointer text-white' />
+					</button>
+				</div>
+			)}
 		</div>
 	)
 }

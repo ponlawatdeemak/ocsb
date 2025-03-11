@@ -31,6 +31,7 @@ const SplineChart = ({
 	const { areaUnit } = useAreaUnit()
 	const { t, i18n } = useTranslation(['overview', 'common'])
 	const { isDesktopXl } = useResponsive()
+	const paddingRight = i18n.language === Languages.TH ? 25 : 50
 
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
@@ -90,7 +91,7 @@ const SplineChart = ({
 			},
 			padding: {
 				top: 0,
-				right: isDesktopXl ? (i18n.language === Languages.TH ? 25 : 50) : 0,
+				right: isDesktopXl ? paddingRight : 0,
 				bottom: isDesktopXl ? 5 : 35,
 				left: areaUnit === AreaUnitKey.Sqm ? 70 : 50,
 			},
@@ -108,7 +109,7 @@ const SplineChart = ({
 				},
 			},
 		})
-	}, [areaUnit, colors, columns, generateTooltips, i18n.language, isDesktopXl, legendId, lines])
+	}, [areaUnit, colors, columns, generateTooltips, i18n.language, isDesktopXl, legendId, lines, paddingRight])
 
 	return (
 		<Box className={classNames('relative flex h-full w-full grow flex-col', className)}>

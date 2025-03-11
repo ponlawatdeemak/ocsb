@@ -7,7 +7,7 @@ import { AddDashboardIcon } from '@/components/svg/MenuIcon'
 import CloseIcon from '@mui/icons-material/Close'
 import { useTranslation } from 'next-i18next'
 import { OptionType } from '../SearchForm'
-import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
+import { yieldMapTypeCode } from '@interface/config/app.config'
 import DashboardCardMain from '../Dashboard/Card'
 import classNames from 'classnames'
 import { useMemo } from 'react'
@@ -32,7 +32,6 @@ const SwipeableEdgeDrawer = ({
 	selectedCard,
 	handleSelectCard,
 	mapTypeArray,
-	selectedHotspots,
 	selectedDateRange,
 	openDrawer,
 	toggleDrawer,
@@ -42,8 +41,7 @@ const SwipeableEdgeDrawer = ({
 	handleClickDelete: (item: SelectedArea) => void
 	selectedCard: string | undefined
 	handleSelectCard: (item: SelectedArea) => void
-	mapTypeArray: mapTypeCode[]
-	selectedHotspots: hotspotTypeCode[]
+	mapTypeArray: yieldMapTypeCode[]
 	selectedDateRange: Date[]
 	openDrawer: boolean
 	toggleDrawer: (newOpen: boolean) => void
@@ -64,7 +62,6 @@ const SwipeableEdgeDrawer = ({
 				handleSelectCard={() => handleSelectCard(item)}
 				area={{ id: 'mobile-' + item.id, admOption: item.admOption }}
 				mapTypeArray={mapTypeArray}
-				selectedHotspots={selectedHotspots}
 				selectedDateRange={selectedDateRange}
 				className={classNames({ '!w-[100%]': selectedArea.length === 1 })}
 				openDrawer={openDrawer}
@@ -78,7 +75,6 @@ const SwipeableEdgeDrawer = ({
 		selectedArea,
 		selectedCard,
 		selectedDateRange,
-		selectedHotspots,
 		toggleDrawer,
 	])
 

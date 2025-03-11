@@ -117,7 +117,6 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 					[sw.lng, ne.lat],
 					[sw.lng, sw.lat],
 				]
-				const currentZoom = burntMapExport.getZoom()
 
 				const hotspotData = findPointsInsideBoundary(hotspotBurntAreaData as any, polygon)
 				const burntAreaData = findPolygonsInsideBoundary(burntBurntAreaData as any, polygon)

@@ -26,7 +26,7 @@ export async function googleProtocol(
 
 	let value: Promise<Session> | Session | undefined = sessions[sessionKey]
 	if (!value) {
-		value = new Promise(async (resolve) => {
+		value = new Promise((resolve) => {
 			const mapType = url.hostname
 			const layerType = url.searchParams.get('layerType')
 			const overlay = url.searchParams.get('overlay')
@@ -45,25 +45,29 @@ export async function googleProtocol(
 				sessionRequest.overlay = overlay === 'true'
 			}
 
-			try {
-				const response = await fetch(`https://tile.googleapis.com/v1/createSession?key=${key}`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(sessionRequest),
-					signal: abortController?.signal, // If abortController is provided, include it in the signal
-				})
+			const createSession = async () => {
+				try {
+					const response = await fetch(`https://tile.googleapis.com/v1/createSession?key=${key}`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify(sessionRequest),
+						signal: abortController?.signal, // If abortController is provided, include it in the signal
+					})
 
-				if (!response.ok) {
-					throw new Error(`Failed to create session: ${response.statusText}`)
+					if (!response.ok) {
+						throw new Error(`Failed to create session: ${response.statusText}`)
+					}
+
+					const result = await response.json()
+					sessions[sessionKey] = result.session
+					resolve(result.session)
+				} catch (error) {
+					console.error('Error creating session:', error)
+					// Handle error appropriately (e.g., reject promise, throw exception)
 				}
-
-				const result = await response.json()
-				sessions[sessionKey] = result.session
-				resolve(result.session)
-			} catch (error) {
-				console.error('Error creating session:', error)
-				// Handle error appropriately (e.g., reject promise, throw exception)
 			}
+
+			createSession()
 		})
 		sessions[sessionKey] = value // Store the promise while it's being fetched
 		await value

@@ -11,7 +11,10 @@ import useMapStore from '@/components/common/map/store/map'
 import SwipeableEdgeDrawer from './Drawer'
 
 const defaultSelectedDateRange: Date[] = [new Date(), new Date()]
-
+export interface SelectedArea {
+	id: string
+	admOption: OptionType | null
+}
 interface BurntAreaMainProps {
 	className?: string
 }
@@ -19,7 +22,7 @@ interface BurntAreaMainProps {
 export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) => {
 	const { mapLibre } = useMapStore()
 	const [searchSelectedAdmOption, setSearchSelectedAdmOption] = useState<OptionType | null>(null)
-	const [selectedArea, setSelectedArea] = useState<{ id: string; admOption: OptionType | null }[]>([])
+	const [selectedArea, setSelectedArea] = useState<SelectedArea[]>([])
 	const [selectedCard, setSelectedCard] = useState<string>()
 	const [mapTypeArray, setMapTypeArray] = useState<mapTypeCode[]>([mapTypeCode.hotspots])
 	const [openDrawer, setOpenDrawer] = useState(false)
@@ -112,7 +115,7 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	}, [searchSelectedAdmOption, selectedArea])
 
 	const handleClickDelete = useCallback(
-		(item: any) => {
+		(item: SelectedArea) => {
 			const updateArea = [...selectedArea]
 			const index = updateArea.findIndex((area) => area.id === item.id)
 			updateArea.splice(index, 1)
@@ -122,12 +125,14 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	)
 
 	const handleSelectCard = useCallback(
-		(item: any) => {
+		(item: SelectedArea) => {
 			const burntMap = mapLibre[BURNT_MAP_ID]
 			setSelectedCard((selected) => (selected === item.id ? undefined : item.id))
 			if (burntMap && selectedCard !== item.id && item?.admOption?.geometry) {
 				burntMap.fitBounds(item.admOption.geometry, { padding: 100 })
 				setSearchSelectedAdmOption(item.admOption)
+			} else if (!item?.admOption?.geometry) {
+				setSearchSelectedAdmOption(null)
 			}
 		},
 		[mapLibre, selectedCard],
@@ -136,17 +141,19 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	const handleSelectedAdmOption = useCallback(
 		(value: OptionType | null) => {
 			setSearchSelectedAdmOption(value)
-			if (selectedCard) {
+			if (selectedArea.find((area) => area.id === selectedCard)) {
 				const updateArea = [...selectedArea]
 				const index = selectedArea.findIndex((area) => area.id === selectedCard)
 				updateArea[index].admOption = value
 				setSelectedArea(updateArea)
+			} else {
+				setSelectedCard(undefined)
 			}
 		},
 		[selectedArea, selectedCard],
 	)
 
-	const handleChange = useCallback(
+	const handleChangeMapTypeArray = useCallback(
 		(event: any) => {
 			event.preventDefault()
 			event.stopPropagation()
@@ -190,12 +197,12 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 				selectedDateRange={selectedDateRange}
 				onSelectedDateRange={(selectedDateRange: Date[]) => setSelectedDateRange(selectedDateRange)}
 				selectedHotspots={selectedHotspots}
-				handleChange={handleChange}
+				handleChangeMapTypeArray={handleChangeMapTypeArray}
 				mapTypeArray={mapTypeArray}
 				searchSelectedAdmOption={searchSelectedAdmOption}
 				handleSelectedAdmOption={handleSelectedAdmOption}
 			/>
-			<Box className='absolute flex h-full w-full overflow-y-auto max-md:h-[calc(100%-80px)] md:relative'>
+			<Box className='absolute flex h-full w-full overflow-y-auto overflow-x-hidden max-md:h-[calc(100%-80px)] md:relative'>
 				<BurntDashboardMain
 					selectedArea={selectedArea}
 					handleClickAdd={handleClickAdd}

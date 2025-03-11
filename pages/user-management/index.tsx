@@ -15,7 +15,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => ({
 	props: {
 		...(await serverSideTranslations(
 			context.locale ?? DEFAULT_LOCALE,
-			['common', 'um'],
+			['common', 'um', 'auth'],
 			nextI18NextConfig as UserConfig,
 		)),
 	},

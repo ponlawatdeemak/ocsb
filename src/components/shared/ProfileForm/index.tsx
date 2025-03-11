@@ -60,6 +60,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 	const { isDesktop } = useResponsive()
 	const checkBoxerrorMessage = formik?.touched.regions && formik?.errors.regions
 	const { data: session } = useSession()
+	const positionNameKey = `positionName-${i18n.language ? '' : i18n.language}`
+	const positionNameKeyCamel = `${_.camelCase(positionNameKey)}`
 
 	const isEditRole = useMemo(() => {
 		if (session?.user) {
@@ -102,12 +104,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 				const newValue = [...formik.values.regions]
 				newValue.splice(toDelIndex, 1)
 				formik.setFieldValue('regions', newValue)
-			} else {
-				if (formik.values.regions) {
-					const newValue = [...formik.values.regions]
-					newValue.push(Number(event.target.value))
-					formik.setFieldValue('regions', newValue)
-				}
+			} else if (formik.values.regions) {
+				const newValue = [...formik.values.regions]
+				newValue.push(Number(event.target.value))
+				formik.setFieldValue('regions', newValue)
 			}
 		},
 		[formik],
@@ -158,7 +158,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 									: `${t('um:profile.firstName')} - ${t('um:profile.lastName')}`}
 								<br />
 								{formik.values.position
-									? `${(positionLookupData as any[])?.find((item) => item.positionId === formik.values.position)?.[`${_.camelCase(`positionName-${i18n.language ? '' : i18n.language}`)}`]}` ||
+									? `${(positionLookupData as any[])?.find((item) => item.positionId === formik.values.position)?.[positionNameKeyCamel]}` ||
 										''
 									: t('um:profile.position')}
 							</Typography>

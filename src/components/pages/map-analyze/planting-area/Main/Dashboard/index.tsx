@@ -4,32 +4,30 @@ import React, { useMemo } from 'react'
 import DashboardCardMain from './Card'
 import { AddDashboardIcon, DashboardIcon } from '@/components/svg/MenuIcon'
 import { useTranslation } from 'next-i18next'
-import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
+import { yieldMapTypeCode } from '@interface/config/app.config'
 import { SelectedArea } from '..'
 // import CloseIcon from '@mui/icons-material/Close'
 
-interface BurntDashboardMainProps {
+interface PlantingDashboardMainProps {
 	selectedArea: SelectedArea[]
 	handleClickAdd: () => void
 	handleClickDelete: (item: SelectedArea) => void
 	selectedCard: string | undefined
 	handleSelectCard: (item: SelectedArea) => void
-	mapTypeArray: mapTypeCode[]
-	selectedHotspots: hotspotTypeCode[]
+	mapTypeArray: yieldMapTypeCode[]
 	selectedDateRange: Date[]
 	openDrawer: boolean
 	toggleDrawer: (newOpen: boolean) => void
 	className?: string
 }
 
-const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
+const PlantingDashboardMain: React.FC<PlantingDashboardMainProps> = ({
 	selectedArea,
 	handleClickAdd,
 	handleClickDelete,
 	selectedCard,
 	handleSelectCard,
 	mapTypeArray,
-	selectedHotspots,
 	selectedDateRange,
 	openDrawer,
 	toggleDrawer,
@@ -51,7 +49,6 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 				handleSelectCard={() => handleSelectCard(item)}
 				area={item}
 				mapTypeArray={mapTypeArray}
-				selectedHotspots={selectedHotspots}
 				selectedDateRange={selectedDateRange}
 				openDrawer={openDrawer}
 			/>
@@ -64,7 +61,6 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 		selectedArea,
 		selectedCard,
 		selectedDateRange,
-		selectedHotspots,
 		toggleDrawer,
 	])
 
@@ -165,4 +161,4 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 	)
 }
 
-export default BurntDashboardMain
+export default PlantingDashboardMain

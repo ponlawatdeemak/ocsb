@@ -17,7 +17,7 @@ interface CalendarMobilePopoverMainProps {
 	calendarType: CalendarType | false
 	calendarTap: CalendarTapType[]
 	currentDateRange: DateObject[]
-	burnAreaCalendarData: string[]
+	burnAreaCalendarData?: string[]
 	displayCurretnDateRange: React.JSX.Element
 	handleCalendarTypeExpanded: (panel: CalendarType) => (event: React.SyntheticEvent, isExpanded: boolean) => void
 	onCurrentDateRangeChange: (values: DateObject[]) => void
@@ -161,7 +161,7 @@ const CalendarMobilePopoverMain: React.FC<CalendarMobilePopoverMainProps> = ({
 										onChange={onChange}
 										mapDays={({ date }) => {
 											const isBurntDate = burnAreaCalendarData
-												.map((burntDate) => burntDate.toString())
+												?.map((burntDate) => burntDate.toString())
 												.includes(date?.format('YYYY-MM-DD').toString())
 
 											return {
@@ -202,12 +202,14 @@ const CalendarMobilePopoverMain: React.FC<CalendarMobilePopoverMainProps> = ({
 												{t('calendar.currentDate')}
 											</Typography>
 										</Box>
-										<Box className='flex items-center gap-1'>
-											<Box className='h-[7px] w-[7px] rounded-full bg-[#FF0000]'></Box>
-											<Typography className='!text-2xs text-black'>
-												{t('calendar.burntDate')}
-											</Typography>
-										</Box>
+										{burnAreaCalendarData && (
+											<Box className='flex items-center gap-1'>
+												<Box className='h-[7px] w-[7px] rounded-full bg-[#FF0000]'></Box>
+												<Typography className='!text-2xs text-black'>
+													{t('calendar.burntDate')}
+												</Typography>
+											</Box>
+										)}
 									</Box>
 								)}
 

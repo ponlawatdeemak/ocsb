@@ -18,7 +18,6 @@ import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
 import { Languages } from '@/enum'
 import { enSuffix } from '@/config/app.config'
 import { Popup } from 'maplibre-gl'
@@ -48,6 +47,9 @@ const endBoundsDefault: EndBoundsType = {
 	ymax: 0,
 }
 
+import { GetLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
+import { booleanContains, booleanPointInPolygon, polygon } from '@turf/turf'
+import { Feature, GeoJsonProperties, Polygon } from 'geojson'
 export const BURNT_MAP_ID = 'burnt-map'
 
 interface BurntMapMainProps {
@@ -83,11 +85,13 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const { mapLibre, overlays } = useMapStore()
 	const { t, i18n } = useTranslation(['map-analyze', 'common'])
 
-	const [currentRegion, setCurrentRegion] = useState('')
-	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
+	const currentRegionLanguageKey = `regionName${Languages.TH === i18n.language ? '' : enSuffix}`
+	const [currentRegion, setCurrentRegion] = useState<GetLookupDtoOut>()
+	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState(true)
+	const [defaultZoomComplete, setDefaultZoomComplete] = useState(false)
 
 	const popupNode = useRef<HTMLDivElement>(null)
-	const [popupData, setPopupData] = useState<any[]>([])
+	const [popupData, setPopupData] = useState<PickingInfo[]>([])
 	const popup = useMemo(() => new Popup({ closeOnClick: false, closeButton: false }), [])
 
 	const [openPrintMapDialog, setOpenPrintMapDialog] = useState<boolean>(false)
@@ -104,16 +108,15 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const burntMap = useMemo(() => mapLibre[BURNT_MAP_ID], [mapLibre])
 	const burntOverlay = useMemo(() => overlays[BURNT_MAP_ID], [overlays])
 
-	// map event
+	// map extent effect
 	useEffect(() => {
-		if (burntMap && regionData?.length) {
-			let previousZoom = 0
+		if (burntMap) {
+			let prevPolygon: Feature<Polygon, GeoJsonProperties> | null = null
 			burntMap.on('moveend', () => {
-				const bound = burntMap.getBounds()
-				const sw = bound.getSouthWest()
-				const ne = bound.getNorthEast()
-
-				const polygon = [
+				const currentBound = burntMap.getBounds()
+				const sw = currentBound.getSouthWest()
+				const ne = currentBound.getNorthEast()
+				const extent = [
 					[sw.lng, sw.lat],
 					[ne.lng, sw.lat],
 					[ne.lng, ne.lat],
@@ -127,27 +130,33 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				]
 
 				setEndBounds({
-					xmin: bound.getWest(),
-					xmax: bound.getEast(),
-					ymin: bound.getSouth(),
-					ymax: bound.getNorth(),
+					xmin: currentBound.getWest(),
+					xmax: currentBound.getEast(),
+					ymin: currentBound.getSouth(),
+					ymax: currentBound.getNorth(),
 				})
-				setMiniMapExtent(polygon)
+				setMiniMapExtent(extent)
 				setBurntMapGeometry(geometry)
 
-				const currentZoom = burntMap.getZoom()
-
-				if (previousZoom) {
-					if (currentZoom <= previousZoom) {
-						onMapExtentChange(polygon)
+				const turfPolygon = polygon([extent])
+				if (prevPolygon) {
+					if (!booleanContains(prevPolygon, turfPolygon)) {
+						onMapExtentChange(extent)
+						prevPolygon = turfPolygon
 					}
 				} else {
-					onMapExtentChange(polygon)
+					onMapExtentChange(extent)
+					prevPolygon = turfPolygon
 				}
+			})
+		}
+	}, [burntMap, onMapExtentChange, i18n])
 
-				previousZoom = currentZoom
+	// current region effect
+	useEffect(() => {
+		if (burntMap && regionData?.length) {
+			burntMap.on('moveend', () => {
 				const center = burntMap.getCenter()
-
 				const insideRegion = regionData.find((reg) => {
 					let result = false
 					if (reg.geometry) {
@@ -158,13 +167,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					}
 					return result
 				})
-				if (insideRegion) {
-					const regionName = insideRegion[
-						`regionName${Languages.TH === i18n.language ? '' : enSuffix}`
-					] as string
-
-					setCurrentRegion(regionName)
-				}
+				setCurrentRegion(insideRegion)
 			})
 		}
 	}, [burntMap, onMapExtentChange, regionData, i18n])
@@ -173,11 +176,12 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	useEffect(() => {
 		if (burntMap) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
-			if (userGeometry) {
+			if (userGeometry && !defaultZoomComplete) {
 				burntMap.fitBounds(userGeometry, { padding: 100 })
+				setDefaultZoomComplete(true)
 			}
 		}
-	}, [burntMap, currentAdmOption?.geometry, session?.user?.geometry])
+	}, [burntMap, currentAdmOption?.geometry, session?.user?.geometry, defaultZoomComplete])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
@@ -288,7 +292,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 					{isCurrentRegionOpen && currentRegion && (
 						<Box className='flex flex-col gap-1 rounded-[5px] bg-white p-2'>
-							<Typography className='!text-2xs text-black'>{`${t('common:currentRegion')} : ${currentRegion}`}</Typography>
+							<Typography className='!text-2xs text-black'>{`${t('common:currentRegion')} : ${currentRegion[currentRegionLanguageKey]}`}</Typography>
 						</Box>
 					)}
 				</Box>
@@ -301,8 +305,8 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 				<Box
 					className={classNames(
-						'map-legend absolute bottom-[52px] left-[52px] z-10 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3 md:bottom-3',
-						{ '!hidden': mapLegendArray.length === 0 },
+						'absolute bottom-[52px] left-[52px] z-10 flex max-w-[60%] items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3 md:bottom-3',
+						{ '!hidden': mapTypeArray.length === 0 },
 					)}
 				>
 					{mapLegendArray.map((mapLegend) => {

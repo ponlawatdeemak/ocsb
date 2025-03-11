@@ -12,13 +12,13 @@ import { hotspotType, hotspotTypeCode, mapTypeCode, ResponseLanguage } from '@in
 import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
 import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
-import { OptionType } from '../../SearchForm'
+import { SelectedArea } from '../..'
 
 interface DashboardCardMainProps {
 	handleClickDelete: () => void
 	isSelectedCard: boolean
 	handleSelectCard: () => void
-	area: { id: string; admOption: OptionType | null }
+	area: SelectedArea
 	mapTypeArray: mapTypeCode[]
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
@@ -60,7 +60,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			const response = await service.mapAnalyze.getDashBoardBurntArea({
 				startDate: selectedDateRange[0]?.toISOString().split('T')[0],
 				endDate: selectedDateRange[1]?.toISOString().split('T')[0],
-				admC: Number(area.admOption?.id),
+				admC: area.admOption?.id ? Number(area.admOption?.id) : undefined,
 				mapType: mapTypeArray,
 				inSugarcan: selectedHotspots,
 			})
@@ -76,7 +76,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			}
 			return response.data
 		},
-		enabled: openDrawer === true,
+		enabled: openDrawer === true && mapTypeArray.length !== 0,
 	})
 
 	//region Hotspot
@@ -256,14 +256,12 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	return (
 		<Box
 			className={classNames(
-				'flex h-full w-[375px] min-w-[375px] flex-col bg-white md:w-[300px] md:min-w-0',
+				'relative flex h-full w-[375px] min-w-[375px] flex-col bg-white md:w-[300px] md:min-w-0',
 				className,
 			)}
 		>
 			<button
-				className={classNames(
-					'flex h-fit w-full items-start justify-between bg-[#EBF5FF] px-5 py-4 hover:cursor-pointer',
-				)}
+				className={classNames('flex h-fit w-full items-center bg-[#EBF5FF] px-5 py-4 hover:cursor-pointer')}
 				style={{
 					outlineStyle: isSelectedCard ? 'solid' : 'none',
 					outlineOffset: '-3px',
@@ -274,16 +272,17 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 				<Typography className='break-all text-start text-primary max-md:!text-md'>
 					{area.admOption?.name[language] ?? t('allRegions')}
 				</Typography>
-				<IconButton
-					onClick={(e) => {
-						e.preventDefault()
-						e.stopPropagation()
-						handleClickDelete()
-					}}
-				>
-					<CloseIcon className='!h-3 !w-3' />
-				</IconButton>
 			</button>
+			<IconButton
+				className='!absolute right-5 top-4'
+				onClick={(e) => {
+					e.preventDefault()
+					e.stopPropagation()
+					handleClickDelete()
+				}}
+			>
+				<CloseIcon className='!h-3 !w-3' />
+			</IconButton>
 			<Box className={classNames('overflow-y-auto', { 'flex grow': isDashBoardDataLoading })}>
 				<div className='flex w-full grow flex-col items-center justify-start py-4'>
 					{isDashBoardDataLoading ? (

@@ -1,7 +1,6 @@
 import 'billboard.js/dist/billboard.css'
 import bb, { donut } from 'billboard.js'
 import { useCallback, useEffect } from 'react'
-import { useTranslation } from 'next-i18next'
 import classNames from 'classnames'
 import { defaultNumber } from '@/utils/text'
 
@@ -21,7 +20,7 @@ const DonutChart = ({
 	height = 168,
 	width = 168,
 	handleClickOnChart,
-	unit,
+	tooltipUnit,
 }: {
 	chartId: string
 	columns: any[][]
@@ -29,24 +28,22 @@ const DonutChart = ({
 	percent: number
 	height?: number
 	width?: number
-	handleClickOnChart: (name: string) => void
-	unit?: string
+	handleClickOnChart?: (name: string) => void
+	tooltipUnit: string
 }) => {
-	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
-
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
 			let tooltipOverview = '<div class="mt-12 bg-white p-2 rounded-md shadow flex flex-col">'
 			data.forEach(
 				(item) =>
-					(tooltipOverview += `<div class="text-[12px]">${item.name} : ${defaultNumber(item.value)} ${unit ?? t('common:point')}</div>`),
+					(tooltipOverview += `<div class="text-[12px]">${item.name} : ${defaultNumber(item.value)} ${tooltipUnit}</div>`),
 			)
 
 			tooltipOverview += '</div>'
 
 			return tooltipOverview
 		},
-		[t, unit],
+		[tooltipUnit],
 	)
 
 	useEffect(() => {
@@ -58,7 +55,7 @@ const DonutChart = ({
 				colors: colors ?? {},
 				order: null,
 				onclick: function (d) {
-					handleClickOnChart(d.name ?? '')
+					handleClickOnChart?.(d.name ?? '')
 				},
 			},
 			donut: {
