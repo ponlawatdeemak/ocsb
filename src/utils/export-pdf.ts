@@ -6,10 +6,6 @@ export const exportPdf = async ({ dialogDiv, fileName }: { dialogDiv: HTMLDivEle
 		throw new Error('exportPdf failed.')
 	}
 
-	const style = document.createElement('style')
-	document.head.appendChild(style)
-	style.sheet?.insertRule('body > div:last-child img { display: inline-block; }')
-
 	const dataURL = await captureMapImage(dialogDiv)
 
 	const a4Width = 841

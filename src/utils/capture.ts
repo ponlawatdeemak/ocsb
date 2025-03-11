@@ -87,8 +87,8 @@ export const captureMapWithScale = async (
 				ctx.drawImage(img1, 0, 0, width, height)
 				const scaleWidth = img2.width / dpr
 				const scaleHeight = img2.height / dpr
-				const scaleX = width - scaleWidth - margin * dpr // Right: 10px
-				const scaleY = height - scaleHeight - margin * dpr // Bottom: 10px
+				const scaleX = width - scaleWidth - margin // Right: 10px
+				const scaleY = height - scaleHeight - margin // Bottom: 10px
 				ctx.drawImage(img2, scaleX, scaleY, scaleWidth, scaleHeight)
 				resolve(ctx.canvas.toDataURL('image/png'))
 			}

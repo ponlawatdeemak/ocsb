@@ -138,7 +138,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	useEffect(() => {
 		if (burntMapExport) {
 			if (defaultMiniMapExtent) {
-				burntMapExport.fitBounds(defaultMiniMapExtent as LngLatBoundsLike, { padding: 100 })
+				burntMapExport.fitBounds(defaultMiniMapExtent as LngLatBoundsLike, { padding: 50 })
 			}
 		}
 	}, [burntMapExport, defaultMiniMapExtent])
@@ -198,7 +198,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 							type: 'Feature',
 							geometry: {
 								type: 'Polygon',
-								coordinates: [defaultMiniMapExtent],
+								coordinates: defaultMiniMapExtent ? [defaultMiniMapExtent] : [],
 							},
 						},
 					],
@@ -264,18 +264,13 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 		}
 	}, [selectedDateRange, language])
 
-	const exportBurntPdf = async () => {
-		try {
-			const dialogDiv: HTMLDivElement | null = document.querySelector('.hidden-dialog .MuiDialog-paper')
-			await exportPdf({ dialogDiv: dialogDiv, fileName: 'burnt_map' })
-		} catch (error) {
-			console.error(error)
-		}
-	}
-
 	const handleBurntMapPdfExport = useCallback(async () => {
 		try {
 			setIsCapturing(true)
+
+			const style = document.createElement('style')
+			document.head.appendChild(style)
+			style.sheet?.insertRule('body > div:last-child img { display: inline-block; }')
 
 			const burntMap = mapLibre[BURNT_MAP_EXPORT]
 			const burntMiniMap = mapLibre[BURNT_MINI_MAP_EXPORT]
@@ -307,8 +302,24 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 					BURNT_MINI_MAP_HEIGHT,
 				)
 
-				console.log('burntMapImage', burntMapImage)
-				console.log('burntMiniMapImage', burntMiniMapImage)
+				const capturedBurntMapElement = document.querySelector('.captured-map-image') as HTMLImageElement
+				const capturedBurntMiniMapElement = document.querySelector(
+					'.captured-mini-map-image',
+				) as HTMLImageElement
+
+				if (capturedBurntMapElement && capturedBurntMiniMapElement) {
+					capturedBurntMapElement.src = burntMapImage
+					capturedBurntMiniMapElement.src = burntMiniMapImage
+					await new Promise((resolve) => setTimeout(resolve, 100))
+				} else {
+					console.error('Image element not found!')
+				}
+
+				const dialogDiv: HTMLDivElement | null = document.querySelector('.hidden-dialog .MuiDialog-paper')
+
+				if (dialogDiv) {
+					await exportPdf({ dialogDiv: dialogDiv, fileName: 'burnt_map' })
+				}
 			} else {
 				console.error('Map is not loaded yet!')
 			}
@@ -519,7 +530,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 												className='flex h-[38px] w-[84px] items-center gap-1.5 !rounded-[5px] !bg-white !px-5 !py-2.5 !shadow-none hover:!shadow-none [&_.MuiButton-icon]:m-0'
 												variant='contained'
 												startIcon={<PdfIcon />}
-												onClick={exportBurntPdf}
+												onClick={handleBurntMapPdfExport}
 											>
 												<Box className='!text-xs text-primary'>{'PDF'}</Box>
 											</Button>
@@ -572,9 +583,8 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 							<Box className='flex h-full flex-1 flex-col gap-4'>
 								<Box className='relative aspect-[738/473] w-full border border-solid border-black p-6'>
 									<Box
-										className='aspect-[688/423] w-full'
+										className='captured-map-image aspect-[688/423] w-full bg-contain'
 										component='img'
-										src={''}
 										alt='Burnt Map Image'
 									/>
 
@@ -672,9 +682,8 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 							<Box className='flex h-full w-[22%] flex-col items-center'>
 								<Box className='relative aspect-[215/287]'>
 									<Box
-										className='h-full w-full'
+										className='captured-mini-map-image h-full w-full bg-contain'
 										component='img'
-										src={''}
 										alt='Burnt Mini Map Image'
 									/>
 
