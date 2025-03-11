@@ -35,7 +35,7 @@ import { findPointsInsideBoundary, findPolygonsInsideBoundary } from '@/utils/ge
 import { LngLatBoundsLike } from 'maplibre-gl'
 import pdfMake from 'pdfmake/build/pdfmake'
 import pdfFonts from 'pdfmake/build/vfs_fonts'
-import html2canvas from 'html2canvas'
+import { exportPdf } from '@/utils/export-pdf'
 pdfMake.vfs = pdfFonts.vfs
 
 interface NavigatorWithSaveBlob extends Navigator {
@@ -264,53 +264,10 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 		}
 	}, [selectedDateRange, language])
 
-	const exportPdf = async () => {
+	const exportBurntPdf = async () => {
 		try {
-			const style = document.createElement('style')
-			document.head.appendChild(style)
-			style.sheet?.insertRule('body > div:last-child img { display: inline-block; }')
-
-			const dialogDiv = document.querySelector('.hidden-dialog .MuiDialog-paper') as HTMLDivElement
-			if (dialogDiv) {
-				const canvas = await html2canvas(dialogDiv, {
-					useCORS: true,
-					allowTaint: true,
-					scale: 2,
-				})
-				const dataURL = canvas.toDataURL('image/png')
-
-				const a4Width = 841
-				const dialogRatio = dialogDiv.clientWidth / dialogDiv.clientHeight
-				const pdfPageMargin = 40
-				const dialogImageWidth = a4Width - pdfPageMargin * 2
-
-				const docDefinition: any = {
-					pageSize: 'A4',
-					pageOrientation: 'landscape',
-					content: [
-						{
-							image: dataURL,
-							width: dialogImageWidth,
-							height: dialogImageWidth / dialogRatio,
-							alignment: 'center',
-							margin: [0, pdfPageMargin / dialogRatio, 0, 0],
-						},
-					],
-				}
-
-				pdfMake.createPdf(docDefinition).getBlob((blob: Blob) => {
-					const url = URL.createObjectURL(blob)
-					const a = document.createElement('a')
-					a.href = url
-					a.download = 'burnt_map.pdf'
-					document.body.appendChild(a)
-					a.click()
-					document.body.removeChild(a)
-					URL.revokeObjectURL(url)
-				})
-			} else {
-				throw new Error()
-			}
+			const dialogDiv: HTMLDivElement | null = document.querySelector('.hidden-dialog .MuiDialog-paper')
+			await exportPdf({ dialogDiv: dialogDiv, fileName: 'burnt_map' })
 		} catch (error) {
 			console.error(error)
 		}
@@ -562,7 +519,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 												className='flex h-[38px] w-[84px] items-center gap-1.5 !rounded-[5px] !bg-white !px-5 !py-2.5 !shadow-none hover:!shadow-none [&_.MuiButton-icon]:m-0'
 												variant='contained'
 												startIcon={<PdfIcon />}
-												onClick={exportPdf}
+												onClick={exportBurntPdf}
 											>
 												<Box className='!text-xs text-primary'>{'PDF'}</Box>
 											</Button>

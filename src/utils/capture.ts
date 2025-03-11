@@ -1,10 +1,10 @@
 import html2canvas from 'html2canvas'
 
-export const captureMapImage = async (divRef: React.RefObject<HTMLDivElement>) => {
-	if (!divRef.current) return null
+export const captureMapImage = async (div: HTMLDivElement) => {
+	if (!div) return null
 
 	try {
-		const canvas = await html2canvas(divRef.current, {
+		const canvas = await html2canvas(div, {
 			useCORS: true,
 			allowTaint: true,
 			scale: 2,
