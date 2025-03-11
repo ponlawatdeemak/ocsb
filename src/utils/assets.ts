@@ -97,7 +97,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'Harvesting without burning, focusing on green harvesting.',
-			th: 'วิธีการเก็บเกี่ยวอ้อยโดยไม่เผาเน้นการเก็บเกี่ยวแบบสีเขียว',
+			th: 'วิธีการเก็บเกี่ยวโดยไม่เผาเน้นการเก็บเกี่ยวสีเขียว',
 		},
 	},
 	{
@@ -108,7 +108,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'Categories used to describe land suitability for sugarcane cultivation.',
-			th: 'การจัดประเภทที่ดินที่เหมาะสมสำหรับการปลูกอ้อย',
+			th: 'การจัดประเภทที่ดินที่เหมาะสำหรับการปลูกอ้อย',
 		},
 	},
 	{
@@ -141,7 +141,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'The act of setting fields on fire shortly before harvesting.',
-			th: 'การจุดไฟในไร่อ้อยในช่วงก่อนการเก็บเกี่ยว',
+			th: 'การจุดไฟเผาอ้อยในพื้นที่ก่อนเก็บเกี่ยว',
 		},
 	},
 	{
@@ -188,7 +188,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'Fine ash particles released into the air during burning.',
-			th: 'เถ้าขนาดเล็กที่ปลิวอยู่ในอากาศในระหว่างการเผา',
+			th: 'เถ้าขนาดเล็กที่ปล่อยสู่อากาศในระหว่างการเผา',
 		},
 	},
 	{
@@ -235,7 +235,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'Sugarcane harvested post-burning.',
-			th: 'ปริมาณอ้อยที่เก็บเกี่ยวหลังจากการเผา',
+			th: 'ปริมาณอ้อยที่เก็บเกี่ยวหลังการเผา',
 		},
 	},
 	{
@@ -290,7 +290,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'Regions designated for irrigation or drainage critical for farming.',
-			th: 'พื้นที่สำหรับการชลประทานหรือการระบายน้ำที่สำคัญสำหรับการทำไร่อ้อย',
+			th: 'พื้นที่สำหรับชลประทานหรือการระบายน้ำที่สำคัญสำหรับการทำไร่อ้อย',
 		},
 	},
 	{
@@ -301,7 +301,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'Fields where sugarcane is deliberately burned for harvesting.',
-			th: 'พื้นที่ที่ทำการเผาอ้อยอยู่เพื่อให้ง่ายต่อการเก็บเกี่ยว',
+			th: 'พื้นที่ที่มีการเผาอ้อยเพื่อให้ง่ายต่อการเก็บเกี่ยว',
 		},
 	},
 	{
@@ -323,7 +323,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'The total land area where sugarcane is actively grown.',
-			th: 'พื้นที่ทั้งหมดที่ใช้สำหรับการปลูกอ้อย',
+			th: 'พื้นที่ทั้งหมดที่ใช้สำหรับปลูกอ้อย',
 		},
 	},
 	{
@@ -334,7 +334,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'Land allocated for rotating crops other than sugarcane.',
-			th: 'พื้นที่สำหรับปลูกพืชชนิดอื่นเพื่อหมุนเวียนความอุดมสมบูรณ์ของดิน',
+			th: 'พื้นที่สำหรับปลูกพืชชนิดอื่นเพื่อเพิ่มความอุดมสมบูรณ์ของดิน',
 		},
 	},
 	{
@@ -359,7 +359,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'Units like Rai, Hectare, and Square Wah used for land measurement.',
-			th: 'หน่วยที่ใช้ในการวัดพื้นที่เช่น ไร่ เฮกตาร์ และตารางวา',
+			th: 'หน่วยที่ใช้ในการวัดพื้นที่ เช่น ไร่ เฮกตาร์ และตารางวา',
 		},
 	},
 	{
@@ -380,8 +380,8 @@ export const glossary = [
 			th: 'Atmospheric Correction',
 		},
 		definition: {
-			en: 'The process of removing atmospheric influences (eg, aerosols, water vapor) to improve image clarity.',
-			th: 'กระบวนการลบผลกระทบจากชั้นบรรยากาศ (เช่น ละอองลอย ไอน้ำ) เพื่อปรับปรุงความชัดเจนของภาพ',
+			en: 'The process of removing atmospheric influences (e.g., aerosols, water vapor) to retrieve surface reflectance.',
+			th: 'กระบวนการลบผลกระทบจากชั้นบรรยากาศ (เช่น ฝุ่นละออง, ไอน้ำ) เพื่อดึงข้อมูลการสะท้อนแสงที่พื้นผิว',
 		},
 	},
 	{
@@ -391,8 +391,8 @@ export const glossary = [
 			th: 'Atmospheric Correction',
 		},
 		definition: {
-			en: 'The process of removing the effects of the atmosphere (e.g., scattering, absorption) from satellite imagery.',
-			th: 'กระบวนการลบผลกระทบจากชั้นบรรยากาศ (เช่น การกระเจิง การดูดซับ) ออกจากภาพถ่ายดาวเทียม',
+			en: 'The process of removing the effects of the atmosphere (e.g., scattering, absorption) from satellite imagery to improve accuracy in surface measurements.',
+			th: 'กระบวนการในการลบผลกระทบจากชั้นบรรยากาศ (เช่น การกระจายแสง, การดูดซับ) ออกจากภาพดาวเทียมเพื่อเพิ่มความแม่นยำในการวัดพื้นผิว.',
 		},
 	},
 	{
@@ -402,8 +402,8 @@ export const glossary = [
 			th: 'Band',
 		},
 		definition: {
-			en: 'A specific range of wavelengths detected by a sensor. Satellites often have multiple bands for different types of analysis.',
-			th: 'ช่วงความยาวคลื่นเฉพาะที่เซ็นเซอร์ตรวจจับได้ ดาวเทียมมักจะมีหลายแบนด์สำหรับการวิเคราะห์ประเภทต่างๆ',
+			en: 'A specific range of wavelengths detected by a sensor. Satellites often have multiple bands for different types of data, such as visible, infrared, or thermal bands.',
+			th: 'ช่วงความยาวคลื่นเฉพาะที่เซ็นเซอร์สามารถตรวจจับได้ ดาวเทียมมักจะมีหลายแบนด์สำหรับข้อมูลประเภทต่างๆ เช่น แสงที่มองเห็น, อินฟราเรด หรือแถบความร้อน.',
 		},
 	},
 	{
@@ -414,7 +414,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'The radar frequency band used by Sentinel-1, operating at 5.405 GHz.',
-			th: 'ช่วงความถี่เรดาร์ที่ใช้โดย Sentinel-1 ทำงานที่ 5.405 GHz',
+			th: 'ย่านความถี่เรดาร์ที่ใช้โดย Sentinel-1 ทำงานที่ 5.405 GHz',
 		},
 	},
 	{
@@ -425,7 +425,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'Identifying and masking cloud-covered pixels to ensure accurate analysis.',
-			th: 'การระบุและปิดบังพิกเซลที่ปกคลุมด้วยเมฆเพื่อให้มั่นใจในการวิเคราะห์ที่แม่นยำ',
+			th: 'การระบุและปิดกั้นพิกเซลที่ถูกปกคลุมด้วยเมฆเพื่อให้การวิเคราะห์มีความแม่นยำ',
 		},
 	},
 	{
@@ -436,7 +436,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'A process to remove cloudy pixels for better image analysis.',
-			th: 'กระบวนการลบพิกเซลเมฆเพื่อให้วิเคราะห์ภาพได้ดีขึ้น',
+			th: 'กระบวนการลบพิกเซลเมฆเพื่อวิเคราะห์ภาพได้ดีขึ้น',
 		},
 	},
 	{
@@ -446,8 +446,8 @@ export const glossary = [
 			th: 'Cloud Masking',
 		},
 		definition: {
-			en: 'The process of identifying and removing cloud cover from satellite imagery for clearer analysis.',
-			th: 'กระบวนการระบุและลบการปกคลุมของเมฆออกจากภาพถ่ายดาวเทียมเพื่อการวิเคราะห์ที่ชัดเจนยิ่งขึ้น',
+			en: "The process of identifying and removing cloud cover from satellite imagery to allow better analysis of the Earth's surface.",
+			th: 'กระบวนการในการระบุและลบการปกคลุมของเมฆออกจากภาพดาวเทียมเพื่อให้การวิเคราะห์พื้นผิวโลกได้ดีขึ้น.',
 		},
 	},
 	{
@@ -458,7 +458,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'An EU Earth observation program providing accurate environmental monitoring and security information.',
-			th: 'โครงการสำรวจโลกของสหภาพยุโรปเพื่อให้ข้อมูลการติดตามสิ่งแวดล้อมและความมั่นคง',
+			th: 'โครงการสำรวจโลกของสหภาพยุโรปเพื่อให้ข้อมูลการติดตามสิ่งแวดล้อมและความมั่นคงที่ถูกต้องและเข้าถึงง่าย',
 		},
 	},
 	{
@@ -469,7 +469,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'A multidimensional array of data from satellite imagery, typically with axes representing time, space, and spectral bands.',
-			th: 'อาร์เรย์ข้อมูลหลายมิติจากภาพถ่ายดาวเทียม โดยทั่วไปจะมีแกนแสดงเวลา พื้นที่ และแถบสเปกตรัม',
+			th: 'อาเรย์ข้อมูลหลายมิติจากภาพดาวเทียม ซึ่งโดยทั่วไปจะมีแกนแสดงเวลา, พื้นที่ และแบนด์สเปกตรัม.',
 		},
 	},
 	{
@@ -480,7 +480,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'Rapid mapping during floods, landslides, and other disasters.',
-			th: 'การทำแผนที่อย่างรวดเร็วระหว่างน้ำท่วม ดินถล่ม และภัยพิบัติอื่นๆ',
+			th: 'การทำแผนที่อย่างรวดเร็วระหว่างน้ำท่วม ดินถล่ม และภัยพิบัติอื่น ๆ',
 		},
 	},
 	{
@@ -490,8 +490,8 @@ export const glossary = [
 			th: 'Earth Observation Satellites',
 		},
 		definition: {
-			en: "Satellites that monitor the Earth's environment and land use, often used for climate studies.",
-			th: 'ดาวเทียมที่ตรวจสอบสภาพแวดล้อมของโลกและการใช้ที่ดิน มักใช้สำหรับการศึกษาด้านสภาพภูมิอากาศ',
+			en: "Satellites that monitor the Earth's environment and land use, often used for weather forecasting, disaster management, and resource management.",
+			th: 'ดาวเทียมที่ใช้ในการตรวจสอบสิ่งแวดล้อมของโลกและการใช้ที่ดิน ซึ่งมักใช้ในการพยากรณ์อากาศ, การจัดการภัยพิบัติ และการจัดการทรัพยากร.',
 		},
 	},
 	{
@@ -501,8 +501,8 @@ export const glossary = [
 			th: 'Georeferencing',
 		},
 		definition: {
-			en: 'The process of aligning satellite imagery with real-world coordinates so that it can be accurately located on a map.',
-			th: 'กระบวนการในการจัดแนวภาพดาวเทียมให้ตรงกับพิกัดบนโลกจริง เพื่อให้สามารถระบุตำแหน่งได้อย่างแม่นยำบนแผนที่',
+			en: 'The process of aligning satellite imagery with real-world coordinates so that the spatial data can be accurately mapped.',
+			th: 'กระบวนการในการจัดแนวภาพดาวเทียมให้ตรงกับพิกัดจริงบนโลก เพื่อให้ข้อมูลทางพื้นที่สามารถนำไปทำแผนที่ได้อย่างถูกต้อง.',
 		},
 	},
 	{
@@ -512,8 +512,8 @@ export const glossary = [
 			th: 'Geostationary Orbit (GEO)',
 		},
 		definition: {
-			en: "An orbit where a satellite remains fixed over one point on Earth's surface, typically used for communication and weather satellites.",
-			th: 'วงโคจรที่ดาวเทียมจะอยู่นิ่งเหนือจุดเดียวบนพื้นผิวโลก มักใช้สำหรับดาวเทียมสื่อสารและดาวเทียมตรวจอากาศ',
+			en: 'An orbit where a satellite remains fixed over one point on Earth’s surface, commonly used for weather satellites.',
+			th: 'วงโคจรที่ดาวเทียมจะอยู่นิ่งอยู่เหนือจุดเดียวบนพื้นผิวโลก มักจะใช้สำหรับดาวเทียมตรวจสภาพอากาศ.',
 		},
 	},
 	{
@@ -534,8 +534,8 @@ export const glossary = [
 			th: 'Granule',
 		},
 		definition: {
-			en: 'A tile of Sentinel-2 data, typically 100 km x 100 km, defined by the Universal Transverse Mercator (UTM) system.',
-			th: '1 แผ่นข้อมูล Sentinel-2 ขนาด 100 กม. x 100 กม. ที่กำหนดโดยระบบพิกัด Universal Transverse Mercator',
+			en: 'A tile of Sentinel-2 data, typically 100 km x 100 km, defined by the Universal Transverse Mercator (UTM) grid.',
+			th: 'แผ่นข้อมูลของ Sentinel-2 ขนาด 100 กม. x 100 กม. ที่กำหนดโดยระบบพิกัด Universal Transverse Mercator (UTM)',
 		},
 	},
 	{
@@ -545,8 +545,8 @@ export const glossary = [
 			th: 'Ground Resolution',
 		},
 		definition: {
-			en: 'The size of the area represented by one pixel in a satellite image, determining the level of detail visible.',
-			th: 'ขนาดของพื้นที่ที่แสดงโดยหนึ่งพิกเซลในภาพดาวเทียม ซึ่งกำหนดระดับรายละเอียดที่มองเห็นได้',
+			en: 'The size of the area represented by one pixel in a satellite image.',
+			th: 'ขนาดของพื้นที่ที่แสดงโดยแต่ละพิกเซลในภาพดาวเทียม.',
 		},
 	},
 	{
@@ -557,7 +557,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'A location on Earth that communicates with satellites to send commands or receive data.',
-			th: 'สถานีบนโลกที่สื่อสารกับดาวเทียมเพื่อส่งคำสั่งหรือรับข้อมูล',
+			th: 'สถานีบนโลกที่ใช้ในการสื่อสารกับดาวเทียมเพื่อส่งคำสั่งหรือรับข้อมูล.',
 		},
 	},
 	{
@@ -567,8 +567,8 @@ export const glossary = [
 			th: 'Hyperspectral Imaging',
 		},
 		definition: {
-			en: 'Capturing a continuous range of bands across the electromagnetic spectrum, allowing for very detailed spectral analysis.',
-			th: 'การเก็บข้อมูลจากแบนด์ต่อเนื่องทั่วสเปกตรัมแม่เหล็กไฟฟ้า ทำให้สามารถวิเคราะห์สเปกตรัมได้อย่างละเอียดมาก',
+			en: 'Capturing a continuous range of bands across the electromagnetic spectrum, often providing more detailed information than multispectral.',
+			th: 'การเก็บข้อมูลจากแบนด์ที่ต่อเนื่องในสเปกตรัมแม่เหล็กไฟฟ้า ซึ่งมักให้ข้อมูลที่ละเอียดกว่าการเก็บข้อมูลแบบมัลติสเปกตรัม.',
 		},
 	},
 	{
@@ -578,8 +578,8 @@ export const glossary = [
 			th: 'InSAR (Interferometric Synthetic Aperture Radar)',
 		},
 		definition: {
-			en: 'A technique used to detect ground displacement or topographic changes by analyzing radar signals from satellites.',
-			th: 'เทคนิคที่ใช้ในการตรวจจับการเคลื่อนที่ของพื้นดินหรือการเปลี่ยนแปลงทางภูมิประเทศโดยการวิเคราะห์สัญญาณเรดาร์จากดาวเทียม',
+			en: 'A technique used to detect ground displacement or topographic changes by comparing radar images taken at different times.',
+			th: 'เทคนิคที่ใช้ในการตรวจจับการเคลื่อนที่ของพื้นดินหรือการเปลี่ยนแปลงทางภูมิประเทศโดยการเปรียบเทียบภาพเรดาร์ที่ถ่ายในช่วงเวลาต่างๆ.',
 		},
 	},
 	{
@@ -589,8 +589,8 @@ export const glossary = [
 			th: 'Interferometry (InSAR)',
 		},
 		definition: {
-			en: 'A technique using Sentinel-1 data to detect ground movements, like earthquakes and subsidence.',
-			th: 'เทคนิคใช้ข้อมูล Sentinel-1 เพื่อตรวจจับการเคลื่อนไหวของพื้นดิน เช่น แผ่นดินไหวและดินทรุด',
+			en: 'A technique using Sentinel-1 data to detect ground movements, like earthquakes and landslides.',
+			th: 'เทคนิคใช้ข้อมูล Sentinel-1 เพื่อตรวจจับการเคลื่อนไหวของพื้นดิน เช่น แผ่นดินไหวและดินถล่ม',
 		},
 	},
 	{
@@ -600,8 +600,8 @@ export const glossary = [
 			th: 'Level-1C',
 		},
 		definition: {
-			en: 'Sentinel-2 products that are top-of-atmosphere reflectance, orthorectified, and geometrically corrected.',
-			th: 'Sentinel-2 ผลิตภัณฑ์ที่เป็นการสะท้อนแสงที่ชั้นบรรยากาศและได้รับการปรับให้ตรงกับภูมิประเทศและแก้ไขทางเรขาคณิต',
+			en: 'Sentinel-2 products that are top-of-atmosphere reflectance, orthorectified, and georeferenced.',
+			th: 'ผลิตภัณฑ์ Sentinel-2 ที่เป็นการสะท้อนแสงที่ชั้นบรรยากาศและได้รับการปรับให้ตรงกับแผนที่และพิกัดแล้ว',
 		},
 	},
 	{
@@ -611,8 +611,8 @@ export const glossary = [
 			th: 'Level-2A',
 		},
 		definition: {
-			en: 'Sentinel 2 products processed to bottom-of-atmosphere reflectance (surface reflectance).',
-			th: 'Sentinel-2 ผลิตภัณฑ์ที่ประมวลผลเป็นการสะท้อนแสงที่พื้นผิว (Surface Reflectance)',
+			en: 'Sentinel-2 products processed to bottom-of-atmosphere reflectance (surface reflectance), accounting for atmospheric effects.',
+			th: 'ผลิตภัณฑ์ Sentinel-2 ที่ได้รับการปรับแก้การสะท้อนแสงที่ชั้นพื้นผิว (Surface Reflectance) ซึ่งได้ทำการลบผลกระทบจากชั้นบรรยากาศแล้ว',
 		},
 	},
 	{
@@ -622,8 +622,8 @@ export const glossary = [
 			th: 'Low Earth Orbit (LEO)',
 		},
 		definition: {
-			en: "An orbit close to Earth's surface, typically used for Earth observation satellites.",
-			th: 'วงโคจรที่อยู่ใกล้กับพื้นผิวโลก โดยทั่วไปใช้สำหรับดาวเทียมสำรวจโลก',
+			en: "An orbit close to Earth's surface, typically used for Earth observation satellites. Satellites in LEO often provide higher-resolution data but have a smaller coverage area.",
+			th: 'วงโคจรที่อยู่ใกล้กับพื้นผิวโลก โดยทั่วไปจะใช้สำหรับดาวเทียมตรวจสังเกตโลก ดาวเทียมในวงโคจร LEO มักให้ข้อมูลที่มีความละเอียดสูงแต่ครอบคลุมพื้นที่ได้เล็กกว่า.',
 		},
 	},
 	{
@@ -634,7 +634,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'An orbit used by satellites like those for GPS, positioned between LEO and GEO.',
-			th: 'วงโคจรที่ใช้โดยดาวเทียมเช่น GPS ซึ่งอยู่ระหว่าง LEO และ GEO',
+			th: 'วงโคจรที่ใช้สำหรับดาวเทียมเช่น GPS ตั้งอยู่ระหว่าง LEO และ GEO.',
 		},
 	},
 	{
@@ -645,7 +645,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'The imaging sensor onboard Sentinel-2, capturing data in 13 spectral bands.',
-			th: 'เซ็นเซอร์ถ่ายภาพบนดาวเทียม Sentinel-2 ที่จับข้อมูลใน 13 แถบสเปกตรัม',
+			th: 'เซ็นเซอร์ภาพบนดาวเทียม Sentinel-2 ที่จับข้อมูลใน 13 แถบสเปกตรัม',
 		},
 	},
 	{
@@ -655,8 +655,8 @@ export const glossary = [
 			th: 'Multispectral Imaging',
 		},
 		definition: {
-			en: 'A method that captures data from multiple bands of the electromagnetic spectrum (e.g., visible, infrared), providing more detailed information than single-band imaging.',
-			th: 'วิธีการเก็บข้อมูลจากหลายแบนด์ในสเปกตรัมแม่เหล็กไฟฟ้า (เช่น แสงที่มองเห็นได้ อินฟราเรด) ให้ข้อมูลรายละเอียดมากกว่าการถ่ายภาพแบบแบนด์เดียว',
+			en: 'A method that captures data from multiple bands of the electromagnetic spectrum (e.g., visible, near-infrared, short-wave infrared).',
+			th: 'วิธีการที่เก็บข้อมูลจากหลายแบนด์ในสเปกตรัมแม่เหล็กไฟฟ้า (เช่น แสงที่มองเห็น, อินฟราเรดใกล้, อินฟราเรดคลื่นสั้น).',
 		},
 	},
 	{
@@ -667,7 +667,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'The primary sensor on Sentinel-2 capturing images in 13 spectral bands.',
-			th: 'เซ็นเซอร์หลักบน Sentinel-2 ถ่ายภาพในแถบสเปกตรัม 13 แถบ',
+			th: 'เซ็นเซอร์หลักบน Sentinel-2 ที่ถ่ายภาพในแถบสเปกตรัม 13 แถบ',
 		},
 	},
 	{
@@ -689,7 +689,7 @@ export const glossary = [
 		},
 		definition: {
 			en: "A common vegetation index derived from Sentinel-2's red and near-infrared bands.",
-			th: 'ดัชนีพืชพรรณทั่วไปที่ได้มาจากแถบสีแดงและอินฟราเรดใกล้ของ Sentinel-2',
+			th: 'ดัชนีพืชพรรณที่ใช้บ่อย ซึ่งคำนวณจากแถบแสงสีแดงและใกล้อินฟราเรดของ Sentinel-2',
 		},
 	},
 	{
@@ -699,8 +699,8 @@ export const glossary = [
 			th: 'NDVI (Normalized Difference Vegetation Index)',
 		},
 		definition: {
-			en: 'An index used to measure and monitor vegetation health by analyzing the difference between near-infrared and red light.',
-			th: 'ดัชนีที่ใช้ในการวัดและตรวจสอบสุขภาพของพืชโดยการวิเคราะห์ความแตกต่างระหว่างแสงอินฟราเรดใกล้และแสงสีแดง',
+			en: 'An index used to measure and monitor vegetation health by analyzing the difference between visible and infrared light reflected by plants.',
+			th: 'ดัชนีที่ใช้ในการวัดและติดตามสุขภาพของพืชโดยการวิเคราะห์ความแตกต่างระหว่างแสงที่มองเห็นและแสงอินฟราเรดที่สะท้อนจากพืช.',
 		},
 	},
 	{
@@ -710,8 +710,8 @@ export const glossary = [
 			th: 'Observation Modes',
 		},
 		definition: {
-			en: 'Different imaging modes (IW, EW, SM, WV) tailored to specific application needs.',
-			th: 'โหมดการถ่ายภาพแตกต่างกัน (IW, EW, SM, WV) ที่ปรับให้เหมาะสมกับความต้องการใช้งาน',
+			en: 'Different imaging modes (IW, EW, SM, WV) tailored to specific observation needs.',
+			th: 'โหมดการถ่ายภาพที่แตกต่างกัน (IW, EW, SM, WV) ที่ปรับให้เหมาะสมกับความต้องการสังเกต',
 		},
 	},
 	{
@@ -721,8 +721,8 @@ export const glossary = [
 			th: 'Optical Imaging',
 		},
 		definition: {
-			en: 'High-resolution images from Sentinel-2 focused on visible and infrared light.',
-			th: 'ภาพความละเอียดสูงจาก Sentinel-2 ในแถบแสงมองเห็นและอินฟราเรด',
+			en: 'High-resolution images from Sentinel-2 focused on visible and infrared bands.',
+			th: 'ภาพความละเอียดสูงจาก Sentinel-2 เน้นแถบแสงที่มองเห็นและอินฟราเรด',
 		},
 	},
 	{
@@ -732,8 +732,8 @@ export const glossary = [
 			th: 'Orbit',
 		},
 		definition: {
-			en: 'The path a satellite follows around Earth or another body in space, often elliptical.',
-			th: 'เส้นทางที่ดาวเทียมเคลื่อนที่รอบโลกหรือวัตถุอื่นในอวกาศ มักจะเป็นวงรี',
+			en: 'The path a satellite follows around Earth or another body in space, often classified by altitude and purpose (e.g., Low Earth Orbit (LEO), Geostationary Orbit (GEO)).',
+			th: 'เส้นทางที่ดาวเทียมเคลื่อนที่ไปรอบๆ โลกหรือดาวเคราะห์อื่น ๆ ซึ่งมักจะมีการจำแนกตามความสูงและวัตถุประสงค์ (เช่น Low Earth Orbit (LEO), Geostationary Orbit (GEO)).',
 		},
 	},
 	{
@@ -743,8 +743,8 @@ export const glossary = [
 			th: 'Polar Orbit',
 		},
 		definition: {
-			en: "A type of low Earth orbit that passes over the poles, allowing the satellite to view the entire Earth's surface.",
-			th: 'วงโคจรแบบ Low Earth Orbit ที่ผ่านขั้วโลก ทำให้ดาวเทียมสามารถมองเห็นพื้นผิวโลกทั้งหมดได้',
+			en: "A type of low Earth orbit that passes over the poles, allowing the satellite to observe the entire Earth's surface over time.",
+			th: 'วงโคจรประเภทหนึ่งที่ผ่านขั้วโลก ซึ่งทำให้ดาวเทียมสามารถสังเกตพื้นผิวของโลกได้ทั่วทุกมุมในช่วงเวลาหนึ่ง.',
 		},
 	},
 	{
@@ -754,8 +754,8 @@ export const glossary = [
 			th: 'Polarization',
 		},
 		definition: {
-			en: 'The orientation of radar waves (eg VV, VH, HH, HV) for enhanced data interpretation.',
-			th: 'การวางแนวคลื่นเรดาร์ (เช่น VV, VH, HH, HV) เพื่อให้ข้อมูลมีศักยภาพมากขึ้น',
+			en: 'The orientation of radar waves (e.g., VV, VH, HH, HV) for enhanced data capabilities.',
+			th: 'การวางแนวคลื่นเรดาร์ (เช่น VV, VH, HH, HV) เพื่อเพิ่มศักยภาพของข้อมูล',
 		},
 	},
 	{
@@ -765,8 +765,8 @@ export const glossary = [
 			th: 'Remote Sensing',
 		},
 		definition: {
-			en: 'The process of gathering data about an object or area without making physical contact.',
-			th: 'กระบวนการในการเก็บข้อมูลเกี่ยวกับวัตถุหรือพื้นที่โดยไม่สัมผัสกับวัตถุโดยตรง',
+			en: 'The process of gathering data about an object or area without making physical contact, often using satellites or aircraft equipped with sensors.',
+			th: 'กระบวนการในการเก็บข้อมูลเกี่ยวกับวัตถุหรือพื้นที่โดยไม่สัมผัสกับวัตถุโดยตรง โดยทั่วไปจะใช้ดาวเทียมหรือเครื่องบินที่ติดตั้งเซ็นเซอร์.',
 		},
 	},
 	{
@@ -776,8 +776,8 @@ export const glossary = [
 			th: 'Resampling',
 		},
 		definition: {
-			en: 'The process of aligning all Sentinel-2 bands to the same spatial resolution (eg, 10m, 20m, or 60m).',
-			th: 'กระบวนการจัดแถวแถบ Sentinel-2 ให้มีความละเอียดทางพื้นที่เดียวกัน (เช่น 10m, 20m, หรือ 60m)',
+			en: 'The process of aligning all Sentinel-2 bands to the same spatial resolution (e.g., 10m, 20m, or 60m).',
+			th: 'กระบวนการจัดแถวแถบของ Sentinel-2 ให้มีความละเอียดทางพื้นที่เท่ากัน (เช่น 10m, 20m, หรือ 60m)',
 		},
 	},
 	{
@@ -787,8 +787,8 @@ export const glossary = [
 			th: 'Resolution',
 		},
 		definition: {
-			en: 'The smallest detail that a sensor can detect. This can be spatial (how small an object can be seen), spectral (the range of wavelengths a sensor can detect), or temporal (how often a sensor revisits an area).',
-			th: 'รายละเอียดที่เล็กที่สุดที่เซ็นเซอร์สามารถตรวจจับได้ ซึ่งอาจเป็นการวัดเชิงพื้นที่ (ขนาดวัตถุที่เล็กที่สุดที่มองเห็นได้) เชิงสเปกตรัม (ช่วงความยาวคลื่นที่เซ็นเซอร์ตรวจจับได้) หรือเชิงเวลา (ความถี่ที่เซ็นเซอร์กลับมายังพื้นที่เดิม)',
+			en: "The smallest detail that a sensor can detect. This can be spatial (how small an object the sensor can detect), spectral (range of wavelengths the sensor can detect), temporal (frequency of image capture), or radiometric (the sensor's ability to distinguish variations in intensity).",
+			th: 'รายละเอียดที่เล็กที่สุดที่เซ็นเซอร์สามารถตรวจจับได้ ซึ่งอาจจะเป็นการวัดเชิงพื้นที่ (ขนาดของวัตถุที่เซ็นเซอร์ตรวจจับได้), สเปกตรัม (ช่วงความยาวคลื่นที่เซ็นเซอร์สามารถตรวจจับได้), เวลา (ความถี่ในการจับภาพ), หรือรังสี (ความสามารถของเซ็นเซอร์ในการแยกแยะความแตกต่างของความเข้ม).',
 		},
 	},
 	{
@@ -809,8 +809,8 @@ export const glossary = [
 			th: 'Satellite',
 		},
 		definition: {
-			en: 'A human-made object placed into orbit around Earth or another celestial body, used for various purposes.',
-			th: 'วัตถุที่มนุษย์สร้างขึ้นและถูกส่งขึ้นไปในวงโคจรรอบโลกหรือดาวเคราะห์อื่นๆ เพื่อใช้ในวัตถุประสงค์ต่างๆ',
+			en: 'A human-made object placed into orbit around Earth or another celestial body for various purposes, such as communication, weather monitoring, and Earth observation.',
+			th: 'วัตถุที่มนุษย์สร้างขึ้นและถูกส่งขึ้นไปในวงโคจรรอบโลกหรือดาวเคราะห์อื่นๆ เพื่อใช้ในวัตถุประสงค์ต่างๆ เช่น การสื่อสาร, การตรวจสอบสภาพอากาศ, และการสังเกตการณ์โลก.',
 		},
 	},
 	{
@@ -820,8 +820,8 @@ export const glossary = [
 			th: 'Sensor',
 		},
 		definition: {
-			en: 'A device onboard a satellite that captures information, such as optical, infrared, or radar data.',
-			th: 'อุปกรณ์ที่ติดตั้งบนดาวเทียมเพื่อเก็บข้อมูล เช่น ข้อมูลแสง อินฟราเรด หรือเรดาร์',
+			en: "A device onboard a satellite that captures information, such as optical, infrared, or radar data, about the Earth's surface.",
+			th: 'อุปกรณ์ที่ติดตั้งบนดาวเทียมเพื่อเก็บข้อมูล เช่น ข้อมูลแสง, อินฟราเรด หรือเรดาร์เกี่ยวกับพื้นผิวโลก.',
 		},
 	},
 	{
@@ -853,8 +853,8 @@ export const glossary = [
 			th: 'Spatial Resolution',
 		},
 		definition: {
-			en: 'The level of detail in an image, represented by the size of the smallest object that can be distinguished.',
-			th: 'ระดับรายละเอียดในภาพ แสดงโดยขนาดของวัตถุที่เล็กที่สุดที่สามารถแยกแยะได้',
+			en: 'The level of detail in an image, represented by the size of the smallest object the sensor can detect, often measured in meters.',
+			th: 'ระดับรายละเอียดในภาพที่แสดงโดยขนาดของวัตถุที่เล็กที่สุดที่เซ็นเซอร์สามารถตรวจจับได้ โดยทั่วไปจะวัดเป็นเมตร.',
 		},
 	},
 	{
@@ -864,8 +864,8 @@ export const glossary = [
 			th: 'Spectral Resolution',
 		},
 		definition: {
-			en: 'The ability of a sensor to distinguish different wavelengths or colors of light.',
-			th: 'ความสามารถของเซ็นเซอร์ในการแยกแยะความยาวคลื่นหรือสีของแสงที่แตกต่างกัน',
+			en: 'The ability of a sensor to distinguish different wavelengths or colors of light, which affects its ability to detect specific features on Earth, such as vegetation or water bodies.',
+			th: 'ความสามารถของเซ็นเซอร์ในการแยกแยะความยาวคลื่นที่แตกต่างกัน หรือสีของแสง ซึ่งส่งผลต่อความสามารถในการตรวจจับคุณสมบัติต่าง ๆ บนโลก เช่น พืชหรือแหล่งน้ำ.',
 		},
 	},
 	{
@@ -875,8 +875,8 @@ export const glossary = [
 			th: 'Supervised Classification',
 		},
 		definition: {
-			en: 'A machine learning technique applied to Sentinel-2 data to classify land cover.',
-			th: 'เทคนิคการเรียนรู้ของเครื่องที่ใช้กับข้อมูล Sentinel-2 เพื่อจำแนกประเภทของการใช้ที่ดิน',
+			en: 'A machine learning technique applied to Sentinel-2 data to classify land cover types based on labeled training data.',
+			th: 'เทคนิคการเรียนรู้ของเครื่องที่ใช้กับข้อมูล Sentinel-2 เพื่อจำแนกประเภทของการใช้ที่ดินโดยใช้ข้อมูลที่มีการฝึกสอน',
 		},
 	},
 	{
@@ -887,7 +887,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'A spectral range in Sentinel-2 used for detecting water content and soil properties.',
-			th: 'ช่วงสเปกตรัมใน Sentinel-2 ใช้สำหรับการตรวจจับปริมาณน้ำและคุณสมบัติของดิน',
+			th: 'ช่วงสเปกตรัมใน Sentinel-2 ที่ใช้ในการตรวจจับปริมาณน้ำและคุณสมบัติของดิน',
 		},
 	},
 	{
@@ -897,8 +897,8 @@ export const glossary = [
 			th: 'Synthetic Aperture Radar (SAR)',
 		},
 		definition: {
-			en: "A radar system used on satellites that captures high-resolution images of Earth's surface, even in cloudy conditions.",
-			th: 'ระบบเรดาร์ที่ใช้บนดาวเทียมเพื่อเก็บภาพพื้นผิวโลกที่มีความละเอียดสูง แม้ในสภาพที่มีเมฆมาก',
+			en: "A radar system used on satellites that captures high-resolution images of the Earth's surface, even through clouds or at night.",
+			th: 'ระบบเรดาร์ที่ใช้บนดาวเทียมเพื่อจับภาพพื้นผิวโลกที่มีความละเอียดสูง แม้ในช่วงที่มีเมฆหรือในเวลากลางคืน.',
 		},
 	},
 	{
@@ -909,7 +909,7 @@ export const glossary = [
 		},
 		definition: {
 			en: 'The frequency at which a satellite revisits the same area, impacting its ability to monitor changes over time.',
-			th: 'ความถี่ที่ดาวเทียมกลับมายังพื้นที่เดิม ซึ่งส่งผลต่อความสามารถในการติดตามการเปลี่ยนแปลงเมื่อเวลาผ่านไป',
+			th: 'ความถี่ที่ดาวเทียมจะกลับมาสังเกตพื้นที่เดียวกัน ซึ่งส่งผลต่อความสามารถในการติดตามการเปลี่ยนแปลงของพื้นที่ในช่วงเวลาต่างๆ.',
 		},
 	},
 	{
