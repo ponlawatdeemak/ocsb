@@ -84,18 +84,18 @@ export const appMenuConfig: {
 			UserRole.StaffReg4,
 		],
 	},
-	// {
-	// 	id: 'About',
-	// 	label: 'menu.about',
-	// 	path: AppPath.About,
-	// 	access: [],
-	// },
-	// {
-	// 	id: 'Glossary',
-	// 	label: 'menu.glossary',
-	// 	path: AppPath.Glossary,
-	// 	access: [],
-	// },
+	{
+		id: 'About',
+		label: 'menu.about',
+		path: AppPath.About,
+		access: [],
+	},
+	{
+		id: 'Glossary',
+		label: 'menu.glossary',
+		path: AppPath.Glossary,
+		access: [],
+	},
 	{
 		id: 'Setting',
 		label: 'menu.setting',
