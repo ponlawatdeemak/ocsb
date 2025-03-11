@@ -36,6 +36,7 @@ import { LngLatBoundsLike } from 'maplibre-gl'
 import pdfMake from 'pdfmake/build/pdfmake'
 import pdfFonts from 'pdfmake/build/vfs_fonts'
 import { exportPdf } from '@/utils/export-pdf'
+import { axiosInstance } from '@/api/core'
 pdfMake.vfs = pdfFonts.vfs
 
 interface NavigatorWithSaveBlob extends Navigator {
@@ -68,6 +69,7 @@ interface PrintMapDialogProps {
 	burntMapGeometry: number[][] | null
 	loading?: boolean
 	onClose: () => void
+	handleBurntMapCsvExport: (polygon: number[][]) => Promise<void>
 }
 
 const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
@@ -84,6 +86,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	burntMapGeometry,
 	loading = false,
 	onClose,
+	handleBurntMapCsvExport,
 }) => {
 	const { mapLibre, overlays, basemap } = useMapStore()
 
@@ -94,6 +97,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	const [mapEndBounds, setMapEndBounds] = useState<EndBoundsType>(defaultMapEndBounds)
 	const [isCapturing, setIsCapturing] = useState<boolean>(false)
 
+	const [polygon, setPolygon] = useState<number[][]>([])
 	const [hotspotData, setHotspotData] = useState<Feature<Point>[]>([])
 	const [burntAreaData, setBurntAreaData] = useState<Feature<Polygon | MultiPolygon>[]>([])
 	const [plantingData, setPlantingData] = useState<Feature<Polygon | MultiPolygon>[]>([])
@@ -122,6 +126,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 				const burntAreaData = findPolygonsInsideBoundary(burntBurntAreaData as any, polygon)
 				const plantingData = findPolygonsInsideBoundary(plantBurntAreaData as any, polygon)
 
+				setPolygon(polygon)
 				setHotspotData(hotspotData)
 				setBurntAreaData(burntAreaData)
 				setPlantingData(plantingData)
@@ -332,6 +337,10 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 		}
 	}, [mapLibre])
 
+	const onBurntMapCsvExportClick = useCallback(async () => {
+		handleBurntMapCsvExport(polygon)
+	}, [handleBurntMapCsvExport, polygon])
+
 	return (
 		<div className='relative'>
 			<Dialog
@@ -537,11 +546,27 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 												<Box className='!text-xs text-primary'>{'PDF'}</Box>
 											</Button>
 											<Button
-												className='flex h-[38px] w-[84px] items-center gap-1.5 !rounded-[5px] !bg-white !px-5 !py-2.5 !shadow-none hover:!shadow-none [&_.MuiButton-icon]:m-0'
+												className={classNames(
+													'flex h-[38px] w-[84px] items-center gap-1.5 !rounded-[5px] !px-5 !py-2.5 !shadow-none hover:!shadow-none [&_.MuiButton-icon]:m-0',
+													{
+														'!bg-white': mapTypeArray.length > 0,
+														'!bg-background': mapTypeArray.length === 0,
+													},
+												)}
 												variant='contained'
-												startIcon={<CsvIcon />}
+												startIcon={
+													<CsvIcon fill={mapTypeArray.length === 0 ? '#d6d6d6' : ''} />
+												}
+												onClick={onBurntMapCsvExportClick}
+												disabled={mapTypeArray.length === 0}
 											>
-												<Box className='!text-xs text-primary'>{'CSV'}</Box>
+												<Box
+													className={classNames('!text-xs text-primary', {
+														'!text-gray': mapTypeArray.length === 0,
+													})}
+												>
+													{'CSV'}
+												</Box>
 											</Button>
 										</Box>
 									</Box>
