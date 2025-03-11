@@ -47,6 +47,9 @@ const endBoundsDefault: EndBoundsType = {
 	ymax: 0,
 }
 
+export const LONGITUDE_OFFSET = 0.5
+export const LATITUDE_OFFSET = 0.25
+
 import { GetLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
 import { booleanContains, booleanPointInPolygon, polygon } from '@turf/turf'
 import { Feature, GeoJsonProperties, Polygon } from 'geojson'
@@ -130,13 +133,22 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					[ne.lng, ne.lat],
 				]
 
+				const currentCenter = burntMap.getCenter()
+				const miniMapExtent = [
+					[currentCenter.lng - LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
+					[currentCenter.lng + LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
+					[currentCenter.lng + LONGITUDE_OFFSET, currentCenter.lat + LATITUDE_OFFSET],
+					[currentCenter.lng - LONGITUDE_OFFSET, currentCenter.lat + LATITUDE_OFFSET],
+					[currentCenter.lng - LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
+				]
+				setMiniMapExtent(miniMapExtent)
+
 				setEndBounds({
 					xmin: currentBound.getWest(),
 					xmax: currentBound.getEast(),
 					ymin: currentBound.getSouth(),
 					ymax: currentBound.getNorth(),
 				})
-				setMiniMapExtent(extent)
 				setBurntMapGeometry(geometry)
 
 				const turfPolygon = polygon([extent])
@@ -280,7 +292,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	return (
 		<Box className={classNames('', className)}>
-			<Box className='relative flex h-full w-full grow'>
+			<Box className='relative flex h-full w-full grow [&_.maplibregl-ctrl-bottom-right]:max-sm:mb-[90px]'>
 				<Box className='current-region absolute bottom-[88px] left-3 z-10 flex items-end gap-4 md:bottom-12'>
 					<IconButton
 						className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {

@@ -13,7 +13,7 @@ import {
 import classNames from 'classnames'
 import { useTranslation } from 'next-i18next'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { EndBoundsType, MapLegendType } from '..'
+import { EndBoundsType, LATITUDE_OFFSET, LONGITUDE_OFFSET, MapLegendType } from '..'
 import useMapStore from '@/components/common/map/store/map'
 import { BasemapType } from '@/components/common/map/interface/map'
 import { hotspotTypeCode, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
@@ -22,7 +22,7 @@ import { defaultNumber } from '@/utils/text'
 import useAreaUnit from '@/store/area-unit'
 import { formatDate } from '@/utils/date'
 import MapView from '@/components/common/map/MapView'
-import { captureMapWithScale, captureMiniMap, captureScaleImage } from '@/utils/capture'
+import { captureMapControlImage, captureMapWithControl } from '@/utils/capture'
 import { GeoJsonLayer, IconLayer, PolygonLayer } from '@deck.gl/layers'
 import { getPinHotSpot } from '@/utils/pin'
 import {
@@ -39,6 +39,7 @@ import { exportPdf } from '@/utils/export-pdf'
 import { axiosInstance } from '@/api/core'
 import useQuantityUnit from '@/store/quantity-unit'
 import { OptionType } from '../../SearchForm'
+import { thaiExtent } from '@/config/app.config'
 pdfMake.vfs = pdfFonts.vfs
 
 interface NavigatorWithSaveBlob extends Navigator {
@@ -53,7 +54,6 @@ const GRID_ROWS = 3
 
 const BURNT_MAP_WIDTH = 688
 const BURNT_MAP_HEIGHT = 423
-const BURNT_MAP_MARGIN = 10
 const BURNT_MINI_MAP_WIDTH = 215
 const BURNT_MINI_MAP_HEIGHT = 287
 
@@ -100,9 +100,10 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	const language = i18n.language as keyof ResponseLanguage
 
 	const [mapEndBounds, setMapEndBounds] = useState<EndBoundsType>(defaultMapEndBounds)
+	const [mapExtent, setMapExtent] = useState<number[][]>([])
+	const [miniMapExtent, setMiniMapExtent] = useState<number[][] | null>(defaultMiniMapExtent)
 	const [isCapturing, setIsCapturing] = useState<boolean>(false)
 
-	const [polygon, setPolygon] = useState<number[][]>([])
 	const [hotspotData, setHotspotData] = useState<Feature<Point>[]>([])
 	const [burntAreaData, setBurntAreaData] = useState<Feature<Polygon | MultiPolygon>[]>([])
 	const [plantingData, setPlantingData] = useState<Feature<Polygon | MultiPolygon>[]>([])
@@ -119,19 +120,29 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 				const bound = burntMapExport.getBounds()
 				const sw = bound.getSouthWest()
 				const ne = bound.getNorthEast()
-				const polygon = [
+				const extent = [
 					[sw.lng, sw.lat],
 					[ne.lng, sw.lat],
 					[ne.lng, ne.lat],
 					[sw.lng, ne.lat],
 					[sw.lng, sw.lat],
 				]
+				setMapExtent(extent)
 
-				const hotspotData = findPointsInsideBoundary(hotspotBurntAreaData as any, polygon)
-				const burntAreaData = findPolygonsInsideBoundary(burntBurntAreaData as any, polygon)
-				const plantingData = findPolygonsInsideBoundary(plantBurntAreaData as any, polygon)
+				const currentCenter = burntMapExport.getCenter()
+				const miniMapExtent = [
+					[currentCenter.lng - LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
+					[currentCenter.lng + LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
+					[currentCenter.lng + LONGITUDE_OFFSET, currentCenter.lat + LATITUDE_OFFSET],
+					[currentCenter.lng - LONGITUDE_OFFSET, currentCenter.lat + LATITUDE_OFFSET],
+					[currentCenter.lng - LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
+				]
+				setMiniMapExtent(miniMapExtent)
 
-				setPolygon(polygon)
+				const hotspotData = findPointsInsideBoundary(hotspotBurntAreaData as any, extent)
+				const burntAreaData = findPolygonsInsideBoundary(burntBurntAreaData as any, extent)
+				const plantingData = findPolygonsInsideBoundary(plantBurntAreaData as any, extent)
+
 				setHotspotData(hotspotData)
 				setBurntAreaData(burntAreaData)
 				setPlantingData(plantingData)
@@ -146,7 +157,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 		}
 	}, [burntMapExport, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
 
-	// zoom to search area or default user region
+	// initial burnt map zoom
 	useEffect(() => {
 		if (burntMapExport) {
 			if (burntMapGeometry) {
@@ -154,6 +165,13 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 			}
 		}
 	}, [burntMapExport, burntMapGeometry])
+
+	// initial burnt mini map zoom
+	useEffect(() => {
+		if (burntMiniMapExport) {
+			burntMiniMapExport.fitBounds(thaiExtent, { padding: 0 })
+		}
+	}, [burntMiniMapExport])
 
 	// update layer
 	useEffect(() => {
@@ -201,7 +219,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	}, [burntMapExport, burntOverlayExport, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
 
 	useEffect(() => {
-		if (burntMiniMapExport && burntMiniOverlayExport) {
+		if (burntMiniMapExport && burntMiniOverlayExport && miniMapExtent) {
 			const layers = [
 				new PolygonLayer({
 					id: 'mini-map-export',
@@ -210,7 +228,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 							type: 'Feature',
 							geometry: {
 								type: 'Polygon',
-								coordinates: defaultMiniMapExtent ? [defaultMiniMapExtent] : [],
+								coordinates: [miniMapExtent],
 							},
 						},
 					],
@@ -226,7 +244,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 
 			burntMiniOverlayExport.setProps({ layers: [layers] })
 		}
-	}, [burntMiniMapExport, burntMiniOverlayExport, defaultMiniMapExtent])
+	}, [burntMiniMapExport, burntMiniOverlayExport, miniMapExtent])
 
 	const gridColsArray = useMemo(
 		() =>
@@ -287,29 +305,34 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 			const burntMap = mapLibre[BURNT_MAP_EXPORT]
 			const burntMiniMap = mapLibre[BURNT_MINI_MAP_EXPORT]
 			const burntMapElement = document.getElementById('burnt-map-export-container')
-			if (!burntMapElement) {
+			const burntMiniMapElement = document.getElementById('burnt-mini-map-export-container')
+			if (!burntMapElement || !burntMiniMapElement) {
 				console.error('Burnt map export container not found!')
 				return
 			}
-			const scaleElement = burntMapElement.querySelector('.maplibregl-ctrl-scale') as HTMLElement
+			const burntMapControlElement = burntMapElement.querySelector('.maplibregl-ctrl-bottom-right') as HTMLElement
+			const burntMiniMapControlElement = burntMiniMapElement.querySelector(
+				'.maplibregl-ctrl-bottom-right',
+			) as HTMLElement
 
-			if (burntMap && burntMiniMap && scaleElement) {
-				const [mapImage, miniMapImage, scaleMapImage] = await Promise.all([
+			if (burntMap && burntMiniMap && burntMapControlElement && burntMiniMapControlElement) {
+				const [mapImage, miniMapImage, burntMapControlImage, burntMiniMapControlImage] = await Promise.all([
 					burntMap.getCanvas().toDataURL('image/png'),
 					burntMiniMap.getCanvas().toDataURL('image/png'),
-					captureScaleImage(scaleElement),
+					captureMapControlImage(burntMapControlElement),
+					captureMapControlImage(burntMiniMapControlElement),
 				])
 
-				const burntMapImage = await captureMapWithScale(
+				const burntMapImage = await captureMapWithControl(
 					mapImage,
-					scaleMapImage ?? '',
+					burntMapControlImage ?? '',
 					BURNT_MAP_WIDTH,
 					BURNT_MAP_HEIGHT,
-					BURNT_MAP_MARGIN,
 				)
 
-				const burntMiniMapImage = await captureMiniMap(
+				const burntMiniMapImage = await captureMapWithControl(
 					miniMapImage,
+					burntMiniMapControlImage ?? '',
 					BURNT_MINI_MAP_WIDTH,
 					BURNT_MINI_MAP_HEIGHT,
 				)
@@ -351,13 +374,13 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 		if (currentAdmOption !== null) query.append('admC', currentAdmOption.id)
 		if (areaUnit !== null) query.append('area', areaUnit)
 		if (quantityUnit !== null) query.append('weight', quantityUnit)
-		if (polygon.length !== 0) query.append('polygon', JSON.stringify(polygon))
+		if (mapExtent.length !== 0) query.append('polygon', JSON.stringify(mapExtent))
 		if (mapTypeArray.length !== 0) mapTypeArray.forEach((item) => query.append('mapType', item))
 		if (selectedHotspots.length !== 0) selectedHotspots.forEach((item) => query.append('inSugarcan', item))
 
 		const url = `${uri}/export/hotspot-burnt-area?${query}`
 		window.open(url, '_blank')
-	}, [selectedDateRange, currentAdmOption, areaUnit, quantityUnit, polygon, mapTypeArray, selectedHotspots])
+	}, [selectedDateRange, currentAdmOption, areaUnit, quantityUnit, mapExtent, mapTypeArray, selectedHotspots])
 
 	return (
 		<div className='relative'>
@@ -390,7 +413,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								<Box className='relative aspect-[738/473] w-full border border-solid border-black p-4 lg:p-6'>
 									<Box
 										id='burnt-map-export-container'
-										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:max-sm:!my-0 [&_.maplibregl-compact]:max-sm:!box-border [&_.maplibregl-compact]:max-sm:!h-4 [&_.maplibregl-compact]:max-sm:!min-h-0 [&_.maplibregl-compact]:max-sm:!pr-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!h-[16px] [&_.maplibregl-ctrl-attrib-button]:max-sm:!w-[16px] [&_.maplibregl-ctrl-attrib-button]:max-sm:!bg-contain [&_.maplibregl-ctrl-attrib-inner]:max-sm:text-[8px] [&_.maplibregl-ctrl-attrib-inner]:max-sm:leading-[12px] [&_.maplibregl-ctrl-bottom-right]:!z-[0] [&_.maplibregl-ctrl-bottom-right]:max-sm:!mb-[26px] [&_.maplibregl-ctrl-scale]:max-sm:!mb-1 [&_.maplibregl-ctrl-scale]:sm:!mb-0'
+										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:max-sm:!box-border [&_.maplibregl-compact]:max-sm:!h-4 [&_.maplibregl-compact]:max-sm:!min-h-0 [&_.maplibregl-compact]:max-sm:!pr-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!h-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!w-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!bg-contain [&_.maplibregl-ctrl-attrib-inner]:max-sm:text-[8px] [&_.maplibregl-ctrl-attrib-inner]:max-sm:leading-3 [&_.maplibregl-ctrl-bottom-right]:!z-[0] [&_.maplibregl-ctrl-bottom-right]:max-sm:!mb-[22px] [&_.maplibregl-ctrl-scale]:!mb-0'
 									>
 										<MapView mapId={BURNT_MAP_EXPORT} loading={isCapturing} />
 									</Box>
@@ -493,7 +516,10 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 							</Box>
 							<Box className='flex h-full w-full flex-col items-center lg:w-[22%]'>
 								<Box className='relative aspect-[215/287] w-full'>
-									<Box className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-control-container]:hidden'>
+									<Box
+										id='burnt-mini-map-export-container'
+										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-ctrl-attrib-inner]:text-[6px] [&_.maplibregl-ctrl-scale]:hidden'
+									>
 										<MapView
 											mapId={BURNT_MINI_MAP_EXPORT}
 											loading={isCapturing}

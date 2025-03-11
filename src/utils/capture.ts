@@ -17,7 +17,7 @@ export const captureMapImage = async (div: HTMLDivElement) => {
 	}
 }
 
-export const captureScaleImage = async (scaleElement: HTMLElement) => {
+export const captureMapControlImage = async (scaleElement: HTMLElement) => {
 	if (!scaleElement) return null
 
 	// Get device pixel ratio (DPR) for high-resolution capture
@@ -38,36 +38,11 @@ export const captureScaleImage = async (scaleElement: HTMLElement) => {
 	}
 }
 
-export const captureMiniMap = async (base64Map: string, width: number, height: number): Promise<string> => {
-	return new Promise((resolve): void => {
-		// Get device pixel ratio (DPR) for high-resolution capture
-		const dpr = window.devicePixelRatio || 1
-
-		const finalCanvas = document.createElement('canvas')
-		finalCanvas.width = width * dpr // Adjust based on DPR
-		finalCanvas.height = height * dpr
-		const ctx = finalCanvas.getContext('2d')
-		const img1 = new Image()
-
-		const imgLoad = (): void => {
-			if (ctx) {
-				ctx.scale(dpr, dpr)
-				ctx.drawImage(img1, 0, 0, width, height)
-				resolve(ctx.canvas.toDataURL('image/png'))
-			}
-		}
-
-		img1.onload = imgLoad
-		img1.src = base64Map
-	})
-}
-
-export const captureMapWithScale = async (
+export const captureMapWithControl = async (
 	base64Map: string,
 	base64Swipe: string,
 	width: number,
 	height: number,
-	margin: number,
 ): Promise<string> => {
 	return new Promise((resolve): void => {
 		// Get device pixel ratio (DPR) for high-resolution capture
@@ -87,8 +62,8 @@ export const captureMapWithScale = async (
 				ctx.drawImage(img1, 0, 0, width, height)
 				const scaleWidth = img2.width / dpr
 				const scaleHeight = img2.height / dpr
-				const scaleX = width - scaleWidth - margin // Right: 10px
-				const scaleY = height - scaleHeight - margin // Bottom: 10px
+				const scaleX = width - scaleWidth
+				const scaleY = height - scaleHeight
 				ctx.drawImage(img2, scaleX, scaleY, scaleWidth, scaleHeight)
 				resolve(ctx.canvas.toDataURL('image/png'))
 			}
