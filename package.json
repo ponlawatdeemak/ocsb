@@ -32,6 +32,7 @@
 		"@turf/centroid": "^7.2.0",
 		"@turf/length": "^7.1.0",
 		"@types/pdfmake": "^0.2.11",
+		"@turf/turf": "^7.2.0",
 		"axios": "1.7.7",
 		"billboard.js": "^3.13.0",
 		"classnames": "^2.5.1",
