@@ -16,9 +16,10 @@ const CURRENT_LOCATION_ZOOM = 14
 export interface MapViewProps extends PropsWithChildren {
 	mapId: string
 	loading?: boolean
+	isInteractive?: boolean
 }
 
-export function MapView({ children, mapId, loading }: Readonly<MapViewProps>) {
+export function MapView({ children, mapId, loading, isInteractive = true }: Readonly<MapViewProps>) {
 	const { getLayer, addLayer, removeLayer, mapLibre, basemap, setBasemap } = useMapStore()
 
 	const mapStyle = useMemo(() => {
@@ -87,7 +88,7 @@ export function MapView({ children, mapId, loading }: Readonly<MapViewProps>) {
 				onGetLocation={onGetLocation}
 				currentBaseMap={basemap}
 			/>
-			<MapLibre mapId={mapId} mapStyle={mapStyle} />
+			<MapLibre mapId={mapId} mapStyle={mapStyle} isInteractive={isInteractive} />
 
 			{children}
 		</div>
