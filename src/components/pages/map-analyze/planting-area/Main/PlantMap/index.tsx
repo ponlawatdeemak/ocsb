@@ -1,6 +1,6 @@
 import MapView from '@/components/common/map/MapView'
 import useMapStore from '@/components/common/map/store/map'
-import { Box, IconButton, Typography } from '@mui/material'
+import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -14,7 +14,7 @@ import service from '@/api'
 import { booleanContains, booleanPointInPolygon, centroid, polygon } from '@turf/turf'
 import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
 import { enSuffix } from '@/config/app.config'
-import { Popup } from 'maplibre-gl'
+import { LngLatBoundsLike, Popup } from 'maplibre-gl'
 import { PickingInfo } from '@deck.gl/core'
 import CloseIcon from '@mui/icons-material/Close'
 import { GetLookupDtoOut, GetRepeatAreaLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
@@ -30,6 +30,32 @@ import PopupPlant from './PopupPlant'
 import { FillStyleExtension } from '@deck.gl/extensions'
 
 import { Feature, GeoJsonProperties, Geometry, Polygon } from 'geojson'
+import { MapExportIcon } from '@/components/svg/MenuIcon'
+import PrintPlantMapDialog from './PrintMapDialog'
+
+export interface MapLegendType {
+	key: yieldMapTypeCode
+	type: yieldMapTypeCode
+	title: string
+}
+
+export interface EndBoundsType {
+	xmin: number
+	xmax: number
+	ymin: number
+	ymax: number
+}
+
+const endBoundsDefault: EndBoundsType = {
+	xmin: 0,
+	xmax: 0,
+	ymin: 0,
+	ymax: 0,
+}
+
+export const LONGITUDE_OFFSET = 0.5
+export const LATITUDE_OFFSET = 0.25
+
 export const PLANTING_MAP_ID = 'planting-map'
 
 interface PlantingMapMainProps {
@@ -37,6 +63,7 @@ interface PlantingMapMainProps {
 	mapTypeArray: yieldMapTypeCode[]
 	currentAdmOption: OptionType | null
 	selectedRepeatArea: GetRepeatAreaLookupDtoOut | undefined
+	selectedDateRange: Date[]
 	plantYieldAreaData: GetPlantYieldAreaDtoOut[]
 	productYieldAreaData: GetProductYieldAreaDtoOut[]
 	replantYieldAreaData: GetReplantYieldAreaDtoOut[]
@@ -50,6 +77,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	className = '',
 	mapTypeArray,
 	selectedRepeatArea,
+	selectedDateRange,
 	currentAdmOption,
 	plantYieldAreaData,
 	productYieldAreaData,
@@ -70,11 +98,19 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	const currentRegionLanguageKey = `regionName${Languages.TH === i18n.language ? '' : enSuffix}`
 	const [currentRegion, setCurrentRegion] = useState<GetLookupDtoOut>()
 	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState(true)
+
 	const [defaultZoomComplete, setDefaultZoomComplete] = useState(false)
+	const [userRegionGeometry, setUserRegionGeometry] = useState<LngLatBoundsLike | null>(null)
 
 	const popupNode = useRef<HTMLDivElement>(null)
 	const [popupData, setPopupData] = useState<PickingInfo[]>([])
 	const popup = useMemo(() => new Popup({ closeOnClick: false, closeButton: false }), [])
+
+	const [openPrintMapDialog, setOpenPrintMapDialog] = useState<boolean>(false)
+
+	const [endBounds, setEndBounds] = useState<EndBoundsType>(endBoundsDefault)
+	const [miniMapExtent, setMiniMapExtent] = useState<number[][] | null>(null)
+	const [plantMapGeometry, setPlantMapGeometry] = useState<number[][] | null>(null)
 
 	const { data: regionData, isPending: isRegionLoading } = useQuery({
 		queryKey: ['getRegion'],
@@ -139,6 +175,30 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					[sw.lng, ne.lat],
 					[sw.lng, sw.lat],
 				]
+
+				const geometry = [
+					[sw.lng, sw.lat],
+					[ne.lng, ne.lat],
+				]
+
+				const currentCenter = plantingMap.getCenter()
+				const miniMapExtent = [
+					[currentCenter.lng - LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
+					[currentCenter.lng + LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
+					[currentCenter.lng + LONGITUDE_OFFSET, currentCenter.lat + LATITUDE_OFFSET],
+					[currentCenter.lng - LONGITUDE_OFFSET, currentCenter.lat + LATITUDE_OFFSET],
+					[currentCenter.lng - LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
+				]
+				setMiniMapExtent(miniMapExtent)
+
+				setEndBounds({
+					xmin: currentBound.getWest(),
+					xmax: currentBound.getEast(),
+					ymin: currentBound.getSouth(),
+					ymax: currentBound.getNorth(),
+				})
+				setPlantMapGeometry(geometry)
+
 				const turfPolygon = polygon([extent])
 				if (prevPolygon) {
 					if (!booleanContains(prevPolygon, turfPolygon)) {
@@ -173,16 +233,27 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 		}
 	}, [plantingMap, onMapExtentChange, regionData, i18n])
 
-	// zoom to search area or default user region
+	// zoom to default user region
 	useEffect(() => {
-		if (plantingMap) {
-			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
+		if (plantingMap && regionData && session?.user.geometry) {
+			const userGeometry = session?.user?.geometry as LngLatBoundsLike
 			if (userGeometry && !defaultZoomComplete) {
 				plantingMap.fitBounds(userGeometry, { padding: 100 })
 				setDefaultZoomComplete(true)
+				setUserRegionGeometry(userGeometry)
 			}
 		}
-	}, [plantingMap, currentAdmOption?.geometry, session?.user?.geometry, defaultZoomComplete])
+	}, [plantingMap, regionData, session?.user?.geometry, defaultZoomComplete])
+
+	// zoom to search area
+	useEffect(() => {
+		if (plantingMap) {
+			const userGeometry = currentAdmOption?.geometry ?? userRegionGeometry
+			if (userGeometry) {
+				plantingMap.fitBounds(userGeometry, { padding: 100 })
+			}
+		}
+	}, [plantingMap, currentAdmOption?.geometry, userRegionGeometry])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
@@ -359,9 +430,37 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
 	}, [isCurrentRegionOpen])
 
+	const mapLegendArray: MapLegendType[] = useMemo(() => {
+		const typeArray = [...mapTypeArray]
+		if (selectedRepeatArea) {
+			typeArray.push(yieldMapTypeCode.repeat)
+		}
+		return typeArray.map((mapType) => {
+			let key, type, title
+			switch (mapType) {
+				case yieldMapTypeCode.plant:
+					key = yieldMapTypeCode.plant
+					type = yieldMapTypeCode.plant
+					title = t('plantingArea')
+					break
+				case yieldMapTypeCode.product:
+					key = yieldMapTypeCode.product
+					type = yieldMapTypeCode.product
+					title = t('sugarCaneYield')
+					break
+				case yieldMapTypeCode.repeat:
+					key = yieldMapTypeCode.repeat
+					type = yieldMapTypeCode.repeat
+					title = t('replantingArea')
+					break
+			}
+			return { key, type, title }
+		})
+	}, [mapTypeArray, selectedRepeatArea, t])
+
 	return (
 		<Box className={classNames('', className)}>
-			<Box className='relative flex h-full grow'>
+			<Box className='relative flex h-full w-full grow [&_.maplibregl-ctrl-bottom-right]:max-sm:mb-[90px]'>
 				<Box className='absolute bottom-[88px] left-3 z-10 flex items-end gap-4 md:bottom-12'>
 					<IconButton
 						className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {
@@ -371,12 +470,14 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					>
 						<RegionPinIcon color={isCurrentRegionOpen ? 'white' : '#003491'} />
 					</IconButton>
+
 					{isCurrentRegionOpen && currentRegion && (
 						<Box className='flex flex-col gap-1 rounded-[5px] bg-white p-2'>
 							<Typography className='!text-2xs text-black'>{`${t('common:currentRegion')} : ${currentRegion[currentRegionLanguageKey]}`}</Typography>
 						</Box>
 					)}
 				</Box>
+
 				<Box className='absolute bottom-[52px] left-3 z-10 flex items-end gap-4 md:bottom-3'>
 					<IconButton className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {})}>
 						<CountViewerIcon color='white' />
@@ -427,6 +528,42 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 						<Box className='h-3 w-3 rotate-[45deg] rounded-full bg-[repeating-linear-gradient(to_right,#8AB62D_0px,#8AB62D_1px,#ffffff_1px,#ffffff_2px)]'></Box>
 						<Typography className='!text-2xs text-black'>{`${t('replantingArea')} ${selectedRepeatArea?.name ?? '-'} ${t('common:year')}`}</Typography>
 					</Box>
+				</Box>
+
+				<Box className='absolute right-4 top-[356px] z-10 flex md:right-6 md:top-[226px] [&_button]:bg-white'>
+					<Tooltip title={t('common:tools.export')} placement='left' arrow>
+						<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
+							<IconButton
+								className='!h-6 !w-6 grow !rounded-none !p-1.5 [&_path]:stroke-black'
+								onClick={() => setOpenPrintMapDialog(true)}
+								disabled={
+									isPlantYieldAreaDataLoading ||
+									isProductYieldAreaDataLoading ||
+									isReplantYieldAreaDataLoading ||
+									isRegionLoading
+								}
+							>
+								<MapExportIcon />
+							</IconButton>
+						</Box>
+					</Tooltip>
+
+					<PrintPlantMapDialog
+						open={openPrintMapDialog}
+						currentAdmOption={currentAdmOption}
+						selectedRepeatArea={selectedRepeatArea}
+						defaultMapEndBounds={endBounds}
+						mapTypeArray={mapTypeArray}
+						mapLegendArray={mapLegendArray}
+						yieldLegendNumber={yieldLegendNumber}
+						selectedDateRange={selectedDateRange}
+						plantYieldAreaData={plantYieldAreaData}
+						productYieldAreaData={productYieldAreaData}
+						replantYieldAreaData={replantYieldAreaData}
+						defaultMiniMapExtent={miniMapExtent}
+						plantMapGeometry={plantMapGeometry}
+						onClose={() => setOpenPrintMapDialog(false)}
+					/>
 				</Box>
 
 				<MapView

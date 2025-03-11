@@ -1,5 +1,12 @@
-import { CsvIcon, MiniMapCompassIcon, PdfIcon } from '@/components/svg/MenuIcon'
-import { Close } from '@mui/icons-material'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { OptionType } from '../../SearchForm'
+import { ResponseLanguage, yieldMapTypeCode } from '@interface/config/app.config'
+import { EndBoundsType, LATITUDE_OFFSET, LONGITUDE_OFFSET, MapLegendType } from '..'
+import {
+	GetPlantYieldAreaDtoOut,
+	GetProductYieldAreaDtoOut,
+	GetReplantYieldAreaDtoOut,
+} from '@interface/dto/yield-area/yield-area.dto-out'
 import {
 	Box,
 	Button,
@@ -11,93 +18,87 @@ import {
 	Typography,
 } from '@mui/material'
 import classNames from 'classnames'
-import { useTranslation } from 'next-i18next'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { EndBoundsType, LATITUDE_OFFSET, LONGITUDE_OFFSET, MapLegendType } from '..'
-import useMapStore from '@/components/common/map/store/map'
-import { BasemapType } from '@/components/common/map/interface/map'
-import { hotspotTypeCode, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
-import { Languages } from '@/enum'
-import { defaultNumber } from '@/utils/text'
-import useAreaUnit from '@/store/area-unit'
-import { formatDate } from '@/utils/date'
+import { Close } from '@mui/icons-material'
 import MapView from '@/components/common/map/MapView'
-import { captureMapControlImage, captureMapWithControl } from '@/utils/capture'
-import { GeoJsonLayer, IconLayer, PolygonLayer } from '@deck.gl/layers'
-import { getPinHotSpot } from '@/utils/pin'
-import {
-	GetBurntBurntAreaDtoOut,
-	GetHotspotBurntAreaDtoOut,
-	GetPlantBurntAreaDtoOut,
-} from '@interface/dto/brunt-area/brunt-area.dto.out'
-import { Feature, MultiPolygon, Point, Polygon } from 'geojson'
-import { findPointsInsideBoundary, findPolygonsInsideBoundary } from '@/utils/geometry'
+import useMapStore from '@/components/common/map/store/map'
+import { useSession } from 'next-auth/react'
+import useAreaUnit from '@/store/area-unit'
+import useQuantityUnit from '@/store/quantity-unit'
+import { useTranslation } from 'next-i18next'
+import { Feature, GeoJsonProperties, Geometry, MultiPolygon, Polygon } from 'geojson'
+import { Languages } from '@/enum'
+import { formatDate } from '@/utils/date'
+import { defaultNumber } from '@/utils/text'
+import { GetRepeatAreaLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
+import { CsvIcon, MiniMapCompassIcon, PdfIcon } from '@/components/svg/MenuIcon'
+import { BasemapType } from '@/components/common/map/interface/map'
+import { findPolygonsInsideBoundary } from '@/utils/geometry'
 import { LngLatBoundsLike } from 'maplibre-gl'
+import { thaiExtent } from '@/config/app.config'
+import { GeoJsonLayer, PolygonLayer } from '@deck.gl/layers'
 import pdfMake from 'pdfmake/build/pdfmake'
 import pdfFonts from 'pdfmake/build/vfs_fonts'
+import { captureMapControlImage, captureMapWithControl } from '@/utils/capture'
 import { exportPdf } from '@/utils/export-pdf'
-import { axiosInstance } from '@/api/core'
-import useQuantityUnit from '@/store/quantity-unit'
-import { OptionType } from '../../SearchForm'
-import { thaiExtent } from '@/config/app.config'
-import { useSession } from 'next-auth/react'
+import { FillStyleExtension } from '@deck.gl/extensions'
+import { centroid } from '@turf/turf'
 pdfMake.vfs = pdfFonts.vfs
 
-interface NavigatorWithSaveBlob extends Navigator {
-	msSaveOrOpenBlob?: (blob: Blob, defaultName?: string) => boolean
-}
-
-const BURNT_MAP_EXPORT = 'burnt-map-export'
-const BURNT_MINI_MAP_EXPORT = 'burnt-mini-map-export'
+const PLANT_MAP_EXPORT = 'plant-map-export'
+const PLANT_MINI_MAP_EXPORT = 'plant-mini-map-export'
 
 const GRID_COLS = 4
 const GRID_ROWS = 3
 
-const BURNT_MAP_WIDTH = 688
-const BURNT_MAP_HEIGHT = 423
-const BURNT_MINI_MAP_WIDTH = 215
-const BURNT_MINI_MAP_HEIGHT = 287
+const PLANT_MAP_WIDTH = 688
+const PLANT_MAP_HEIGHT = 423
+const PLANT_MINI_MAP_WIDTH = 215
+const PLANT_MINI_MAP_HEIGHT = 287
 
-interface PrintBurntMapDialogProps {
+interface PrintPlantMapDialogProps {
 	className?: string
 	open: boolean
 	currentAdmOption: OptionType | null
-	selectedHotspots: hotspotTypeCode[]
+	selectedRepeatArea: GetRepeatAreaLookupDtoOut | undefined
 	defaultMapEndBounds: EndBoundsType
-	mapTypeArray: mapTypeCode[]
+	mapTypeArray: yieldMapTypeCode[]
 	mapLegendArray: MapLegendType[]
+	yieldLegendNumber: any
 	selectedDateRange: Date[]
-	hotspotBurntAreaData: GetHotspotBurntAreaDtoOut[]
-	burntBurntAreaData: GetBurntBurntAreaDtoOut[]
-	plantBurntAreaData: GetPlantBurntAreaDtoOut[]
+	plantYieldAreaData: GetPlantYieldAreaDtoOut[]
+	productYieldAreaData: GetProductYieldAreaDtoOut[]
+	replantYieldAreaData: GetReplantYieldAreaDtoOut[]
 	defaultMiniMapExtent: number[][] | null
-	burntMapGeometry: number[][] | null
+	plantMapGeometry: number[][] | null
 	loading?: boolean
 	onClose: () => void
 }
 
-const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
+const PrintPlantMapDialog: React.FC<PrintPlantMapDialogProps> = ({
 	className = '',
 	open,
 	currentAdmOption,
-	selectedHotspots,
+	selectedRepeatArea,
 	defaultMapEndBounds,
 	mapTypeArray,
 	mapLegendArray,
+	yieldLegendNumber,
 	selectedDateRange,
-	hotspotBurntAreaData,
-	burntBurntAreaData,
-	plantBurntAreaData,
+	plantYieldAreaData,
+	productYieldAreaData,
+	replantYieldAreaData,
 	defaultMiniMapExtent,
-	burntMapGeometry,
-	loading = false,
+	plantMapGeometry,
+	loading,
 	onClose,
 }) => {
 	const { mapLibre, overlays, basemap } = useMapStore()
 	const { data: session } = useSession()
 	const { areaUnit } = useAreaUnit()
 	const { quantityUnit } = useQuantityUnit()
-	const { t, i18n } = useTranslation(['common', 'map-anlyze'])
+	const quantityLang = `common:${quantityUnit}`
+	const areaLang = `common:${areaUnit}`
+	const { t, i18n } = useTranslation(['map-analyze', 'common'])
 	const language = i18n.language as keyof ResponseLanguage
 
 	const [mapEndBounds, setMapEndBounds] = useState<EndBoundsType>(defaultMapEndBounds)
@@ -105,20 +106,20 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 	const [miniMapExtent, setMiniMapExtent] = useState<number[][] | null>(defaultMiniMapExtent)
 	const [isCapturing, setIsCapturing] = useState<boolean>(false)
 
-	const [hotspotData, setHotspotData] = useState<Feature<Point>[]>([])
-	const [burntAreaData, setBurntAreaData] = useState<Feature<Polygon | MultiPolygon>[]>([])
-	const [plantingData, setPlantingData] = useState<Feature<Polygon | MultiPolygon>[]>([])
+	const [plantData, setPlantData] = useState<Feature<Polygon | MultiPolygon>[]>([])
+	const [productData, setProductData] = useState<Feature<Polygon | MultiPolygon>[]>([])
+	const [replantData, setReplantData] = useState<Feature<Polygon | MultiPolygon>[]>([])
 
-	const burntMapExport = useMemo(() => mapLibre[BURNT_MAP_EXPORT], [mapLibre])
-	const burntOverlayExport = useMemo(() => overlays[BURNT_MAP_EXPORT], [overlays])
-	const burntMiniMapExport = useMemo(() => mapLibre[BURNT_MINI_MAP_EXPORT], [mapLibre])
-	const burntMiniOverlayExport = useMemo(() => overlays[BURNT_MINI_MAP_EXPORT], [overlays])
+	const plantMapExport = useMemo(() => mapLibre[PLANT_MAP_EXPORT], [mapLibre])
+	const plantOverlayExport = useMemo(() => overlays[PLANT_MAP_EXPORT], [overlays])
+	const plantMiniMapExport = useMemo(() => mapLibre[PLANT_MINI_MAP_EXPORT], [mapLibre])
+	const plantMiniOverlayExport = useMemo(() => overlays[PLANT_MINI_MAP_EXPORT], [overlays])
 
 	// map event
 	useEffect(() => {
-		if (burntMapExport) {
-			burntMapExport.on('moveend', () => {
-				const bound = burntMapExport.getBounds()
+		if (plantMapExport) {
+			plantMapExport.on('moveend', () => {
+				const bound = plantMapExport.getBounds()
 				const sw = bound.getSouthWest()
 				const ne = bound.getNorthEast()
 				const extent = [
@@ -130,7 +131,7 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 				]
 				setMapExtent(extent)
 
-				const currentCenter = burntMapExport.getCenter()
+				const currentCenter = plantMapExport.getCenter()
 				const miniMapExtent = [
 					[currentCenter.lng - LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
 					[currentCenter.lng + LONGITUDE_OFFSET, currentCenter.lat - LATITUDE_OFFSET],
@@ -140,13 +141,13 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 				]
 				setMiniMapExtent(miniMapExtent)
 
-				const hotspotData = findPointsInsideBoundary(hotspotBurntAreaData as any, extent)
-				const burntAreaData = findPolygonsInsideBoundary(burntBurntAreaData as any, extent)
-				const plantingData = findPolygonsInsideBoundary(plantBurntAreaData as any, extent)
+				const plantData = findPolygonsInsideBoundary(plantYieldAreaData as any, extent)
+				const productData = findPolygonsInsideBoundary(productYieldAreaData as any, extent)
+				const replantData = findPolygonsInsideBoundary(replantYieldAreaData as any, extent)
 
-				setHotspotData(hotspotData)
-				setBurntAreaData(burntAreaData)
-				setPlantingData(plantingData)
+				setPlantData(plantData)
+				setProductData(productData)
+				setReplantData(replantData)
 
 				setMapEndBounds({
 					xmin: bound.getWest(),
@@ -156,71 +157,176 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 				})
 			})
 		}
-	}, [burntMapExport, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
+	}, [plantMapExport, plantYieldAreaData, productYieldAreaData, replantYieldAreaData])
 
-	// initial burnt map zoom
+	// initial plant map zoom
 	useEffect(() => {
-		if (burntMapExport) {
-			if (burntMapGeometry) {
-				burntMapExport.fitBounds(burntMapGeometry as LngLatBoundsLike, { padding: 0 })
+		if (plantMapExport) {
+			if (plantMapGeometry) {
+				plantMapExport.fitBounds(plantMapGeometry as LngLatBoundsLike, { padding: 0 })
 			}
 		}
-	}, [burntMapExport, burntMapGeometry])
+	}, [plantMapExport, plantMapGeometry])
 
-	// initial burnt mini map zoom
+	// initial plant mini map zoom
 	useEffect(() => {
-		if (burntMiniMapExport) {
-			burntMiniMapExport.fitBounds(thaiExtent, { padding: 0 })
+		if (plantMiniMapExport) {
+			plantMiniMapExport.fitBounds(thaiExtent, { padding: 0 })
 		}
-	}, [burntMiniMapExport])
+	}, [plantMiniMapExport])
 
 	// update layer
 	useEffect(() => {
-		if (burntMapExport && burntOverlayExport) {
+		if (plantMapExport && plantOverlayExport) {
+			//#region deck.gl layer
 			const layers = [
 				new GeoJsonLayer({
 					id: 'plant-export',
 					beforeId: 'custom-referer-layer',
-					data: plantBurntAreaData as any,
+					data: plantYieldAreaData as any,
 					pickable: true,
 					stroked: true,
 					filled: true,
 					lineWidthMinPixels: 1,
 					getPolygon: (d: any) => d.geometry.coordinates,
-					getFillColor: () => [139, 182, 45, 180],
-					getLineColor: () => [139, 182, 45, 180],
+					getFillColor: () => [138, 182, 45, 180],
+					getLineColor: () => [138, 182, 45, 180],
 				}),
 
 				new GeoJsonLayer({
-					id: 'burnt-export',
+					id: 'product-export',
 					beforeId: 'custom-referer-layer',
-					data: burntBurntAreaData as any,
+					data: productYieldAreaData as any,
 					pickable: true,
 					stroked: true,
 					filled: true,
 					lineWidthMinPixels: 1,
 					getPolygon: (d: any) => d.geometry.coordinates,
-					getFillColor: () => [255, 204, 0, 180],
-					getLineColor: () => [255, 204, 0, 180],
+					getFillColor: (d: any) => {
+						if (d.properties.product.ton.rai > 15) {
+							return [0, 52, 145, 180]
+						} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
+							return [29, 178, 64, 180]
+						} else if (d.properties.product.ton.rai >= 5 && d.properties.product.ton.rai < 10) {
+							return [240, 233, 39, 180]
+						} else if (d.properties.product.ton.rai < 5) {
+							return [255, 149, 0, 180]
+						} else {
+							return [0, 0, 0, 0]
+						}
+					},
+					getLineColor: (d: any) => {
+						if (d.properties.product.ton.rai > 15) {
+							return [0, 52, 145, 180]
+						} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
+							return [29, 178, 64, 180]
+						} else if (d.properties.product.ton.rai >= 5 && d.properties.product.ton.rai < 10) {
+							return [240, 233, 39, 180]
+						} else if (d.properties.product.ton.rai < 5) {
+							return [255, 149, 0, 180]
+						} else {
+							return [0, 0, 0, 0]
+						}
+					},
 				}),
-				new IconLayer({
-					id: 'hotspot-export',
+
+				new GeoJsonLayer({
+					id: 'replant-export',
 					beforeId: 'custom-referer-layer',
-					data: hotspotBurntAreaData,
+					data: replantYieldAreaData as any,
 					pickable: true,
-					sizeScale: 1,
-					getPosition: (d) => d.geometry.coordinates,
-					getSize: 14,
-					getIcon: () => ({ url: getPinHotSpot(), width: 14, height: 14, mask: false }),
+					stroked: true,
+					filled: true,
+					lineWidthMinPixels: 1,
+					getPolygon: (d: any) => d.geometry.coordinates,
+					getFillColor: () => [138, 182, 45, 180],
+					getLineColor: () => [138, 182, 45, 180],
+
+					fillPatternMask: true,
+					fillPatternAtlas: '/images/map/pattern.png',
+					fillPatternMapping: {
+						pattern: {
+							x: 4,
+							y: 4,
+							width: 120,
+							height: 120,
+							mask: true,
+						},
+					},
+					getFillPattern: () => 'pattern',
+					getFillPatternScale: 1,
+					getFillPatternOffset: [0, 0],
+					extensions: [new FillStyleExtension({ pattern: true })],
 				}),
 			]
 
-			burntOverlayExport.setProps({ layers: [layers] })
+			plantOverlayExport.setProps({ layers: [layers] })
+			//#endregion
 		}
-	}, [burntMapExport, burntOverlayExport, hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
+	}, [plantYieldAreaData, productYieldAreaData, replantYieldAreaData, plantMapExport, plantOverlayExport])
 
 	useEffect(() => {
-		if (burntMiniMapExport && burntMiniOverlayExport && miniMapExtent) {
+		if (plantMapExport) {
+			//#region heatmap layer
+
+			//update heat data
+			if (plantMapExport?.getSource('heat') && plantMapExport?.getLayer('heat-layer-export')) {
+				plantMapExport.removeLayer('heat-layer-export')
+				plantMapExport.removeSource('heat')
+			}
+
+			if (!plantMapExport.getSource('heat') && productYieldAreaData.length > 0) {
+				plantMapExport.addSource('heat', {
+					type: 'geojson',
+					data: {
+						type: 'FeatureCollection',
+						features: productYieldAreaData.map((item) => {
+							return {
+								...item,
+								geometry: {
+									type: 'Point',
+									coordinates: centroid(item.geometry as any).geometry.coordinates,
+								},
+							}
+						}) as Feature<Geometry, GeoJsonProperties>[],
+					},
+				})
+			}
+			if (!plantMapExport.getLayer('heat-layer-export') && productYieldAreaData.length > 0) {
+				plantMapExport.addLayer({
+					id: 'heat-layer-export',
+					type: 'heatmap',
+					source: 'heat',
+					maxzoom: 9,
+					paint: {
+						'heatmap-color': [
+							'interpolate',
+							['linear'],
+							['heatmap-density'],
+							0,
+							'rgba(33,102,172,0)',
+							0.2,
+							'rgb(103,169,207)',
+							0.4,
+							'rgb(209,229,240)',
+							0.6,
+							'rgb(253,219,199)',
+							0.8,
+							'rgb(239,138,98)',
+							1,
+							'rgb(178,24,43)',
+						],
+						'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 1, 6, 3, 9, 8],
+						'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 8, 1, 9, 0],
+					},
+				})
+			}
+			//#endregion
+		}
+	}, [plantYieldAreaData, plantMapExport, plantOverlayExport, productYieldAreaData, replantYieldAreaData])
+
+	useEffect(() => {
+		if (plantMiniMapExport && plantMiniOverlayExport && miniMapExtent) {
 			const layers = [
 				new PolygonLayer({
 					id: 'mini-map-export',
@@ -243,9 +349,9 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 				}),
 			]
 
-			burntMiniOverlayExport.setProps({ layers: [layers] })
+			plantMiniOverlayExport.setProps({ layers: [layers] })
 		}
-	}, [burntMiniMapExport, burntMiniOverlayExport, miniMapExtent])
+	}, [plantMiniMapExport, plantMiniOverlayExport, miniMapExtent])
 
 	const gridColsArray = useMemo(
 		() =>
@@ -276,13 +382,13 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 	const displayDialogTitle = useMemo(() => {
 		const mapType = mapLegendArray.map((item, index) => {
 			if (mapLegendArray.length > 1 && index === mapLegendArray.length - 1) {
-				return t('and') + (language === Languages.EN ? ' ' : '') + item.title
+				return t('common:and') + (language === Languages.EN ? ' ' : '') + item.title
 			}
 
 			return item.title
 		})
 
-		return t('mapDisplayData') + (language === Languages.EN ? ' ' : '') + mapType.join(' ')
+		return t('common:mapDisplayData') + (language === Languages.EN ? ' ' : '') + mapType.join(' ')
 	}, [mapLegendArray, t, language])
 
 	const displaySelectedDateRange = useMemo(() => {
@@ -295,7 +401,7 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 		}
 	}, [selectedDateRange, language])
 
-	const handleBurntMapPdfExport = useCallback(async () => {
+	const handlePlantMapPdfExport = useCallback(async () => {
 		try {
 			setIsCapturing(true)
 
@@ -303,49 +409,49 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 			document.head.appendChild(style)
 			style.sheet?.insertRule('body > div:last-child img { display: inline-block; }')
 
-			const burntMap = mapLibre[BURNT_MAP_EXPORT]
-			const burntMiniMap = mapLibre[BURNT_MINI_MAP_EXPORT]
-			const burntMapElement = document.getElementById('burnt-map-export-container')
-			const burntMiniMapElement = document.getElementById('burnt-mini-map-export-container')
-			if (!burntMapElement || !burntMiniMapElement) {
-				console.error('Burnt map export container not found!')
+			const plantMap = mapLibre[PLANT_MAP_EXPORT]
+			const plantMiniMap = mapLibre[PLANT_MINI_MAP_EXPORT]
+			const plantMapElement = document.getElementById('plant-map-export-container')
+			const plantMiniMapElement = document.getElementById('plant-mini-map-export-container')
+			if (!plantMapElement || !plantMiniMapElement) {
+				console.error('Plant map export container not found!')
 				return
 			}
-			const burntMapControlElement = burntMapElement.querySelector('.maplibregl-ctrl-bottom-right') as HTMLElement
-			const burntMiniMapControlElement = burntMiniMapElement.querySelector(
+			const plantMapControlElement = plantMapElement.querySelector('.maplibregl-ctrl-bottom-right') as HTMLElement
+			const plantMiniMapControlElement = plantMiniMapElement.querySelector(
 				'.maplibregl-ctrl-bottom-right',
 			) as HTMLElement
 
-			if (burntMap && burntMiniMap && burntMapControlElement && burntMiniMapControlElement) {
-				const [mapImage, miniMapImage, burntMapControlImage, burntMiniMapControlImage] = await Promise.all([
-					burntMap.getCanvas().toDataURL('image/png'),
-					burntMiniMap.getCanvas().toDataURL('image/png'),
-					captureMapControlImage(burntMapControlElement),
-					captureMapControlImage(burntMiniMapControlElement),
+			if (plantMap && plantMiniMap && plantMapControlElement && plantMiniMapControlElement) {
+				const [mapImage, miniMapImage, plantMapControlImage, plantMiniMapControlImage] = await Promise.all([
+					plantMap.getCanvas().toDataURL('image/png'),
+					plantMiniMap.getCanvas().toDataURL('image/png'),
+					captureMapControlImage(plantMapControlElement),
+					captureMapControlImage(plantMiniMapControlElement),
 				])
 
-				const burntMapImage = await captureMapWithControl(
+				const plantMapImage = await captureMapWithControl(
 					mapImage,
-					burntMapControlImage ?? '',
-					BURNT_MAP_WIDTH,
-					BURNT_MAP_HEIGHT,
+					plantMapControlImage ?? '',
+					PLANT_MAP_WIDTH,
+					PLANT_MAP_HEIGHT,
 				)
 
-				const burntMiniMapImage = await captureMapWithControl(
+				const plantMiniMapImage = await captureMapWithControl(
 					miniMapImage,
-					burntMiniMapControlImage ?? '',
-					BURNT_MINI_MAP_WIDTH,
-					BURNT_MINI_MAP_HEIGHT,
+					plantMiniMapControlImage ?? '',
+					PLANT_MINI_MAP_WIDTH,
+					PLANT_MINI_MAP_HEIGHT,
 				)
 
-				const capturedBurntMapElement = document.querySelector('.captured-map-image') as HTMLImageElement
-				const capturedBurntMiniMapElement = document.querySelector(
+				const capturedPlantMapElement = document.querySelector('.captured-map-image') as HTMLImageElement
+				const capturedPlantMiniMapElement = document.querySelector(
 					'.captured-mini-map-image',
 				) as HTMLImageElement
 
-				if (capturedBurntMapElement && capturedBurntMiniMapElement) {
-					capturedBurntMapElement.src = burntMapImage
-					capturedBurntMiniMapElement.src = burntMiniMapImage
+				if (capturedPlantMapElement && capturedPlantMiniMapElement) {
+					capturedPlantMapElement.src = plantMapImage
+					capturedPlantMiniMapElement.src = plantMiniMapImage
 					await new Promise((resolve) => setTimeout(resolve, 100))
 				} else {
 					console.error('Image element not found!')
@@ -354,44 +460,17 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 				const dialogDiv: HTMLDivElement | null = document.querySelector('.hidden-dialog .MuiDialog-paper')
 
 				if (dialogDiv) {
-					await exportPdf({ dialogDiv: dialogDiv, fileName: 'burnt_map' })
+					await exportPdf({ dialogDiv: dialogDiv, fileName: 'plant_map' })
 				}
 			} else {
 				console.error('Map is not loaded yet!')
 			}
 		} catch (error) {
-			console.error('Error capturing burnt map:', error)
+			console.error('Error capturing plant map:', error)
 		} finally {
 			setIsCapturing(false)
 		}
 	}, [mapLibre])
-
-	const handleBurntMapCsvExport = useCallback(async () => {
-		const uri = axiosInstance.getUri()
-		const query = new URLSearchParams()
-
-		query.append('accessToken', session?.user.accessToken ?? '')
-		if (selectedDateRange[0]) query.append('startDate', selectedDateRange[0].toISOString().split('T')[0])
-		if (selectedDateRange[1]) query.append('endDate', selectedDateRange[1].toISOString().split('T')[0])
-		if (currentAdmOption !== null) query.append('admC', currentAdmOption.id)
-		if (areaUnit !== null) query.append('area', areaUnit)
-		if (quantityUnit !== null) query.append('weight', quantityUnit)
-		if (mapExtent.length !== 0) query.append('polygon', JSON.stringify(mapExtent))
-		if (mapTypeArray.length !== 0) mapTypeArray.forEach((item) => query.append('mapType', item))
-		if (selectedHotspots.length !== 0) selectedHotspots.forEach((item) => query.append('inSugarcan', item))
-
-		const url = `${uri}/export/hotspot-burnt-area?${query}`
-		window.open(url, '_blank')
-	}, [
-		session?.user.accessToken,
-		selectedDateRange,
-		currentAdmOption,
-		areaUnit,
-		quantityUnit,
-		mapExtent,
-		mapTypeArray,
-		selectedHotspots,
-	])
 
 	return (
 		<div className='relative'>
@@ -423,43 +502,62 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 							<Box className='flex h-full flex-1 flex-col gap-4 max-lg:w-full'>
 								<Box className='relative aspect-[738/473] w-full border border-solid border-black p-4 lg:p-6'>
 									<Box
-										id='burnt-map-export-container'
-										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:max-sm:!box-border [&_.maplibregl-compact]:max-sm:!h-4 [&_.maplibregl-compact]:max-sm:!min-h-0 [&_.maplibregl-compact]:max-sm:!pr-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!h-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!w-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!bg-contain [&_.maplibregl-ctrl-attrib-inner]:max-sm:text-[8px] [&_.maplibregl-ctrl-attrib-inner]:max-sm:leading-3 [&_.maplibregl-ctrl-bottom-right]:!z-[0] [&_.maplibregl-ctrl-bottom-right]:max-sm:!mb-[22px] [&_.maplibregl-ctrl-scale]:!mb-0'
+										id='plant-map-export-container'
+										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:!mb-[42px] [&_.maplibregl-compact]:max-sm:!box-border [&_.maplibregl-compact]:max-sm:!h-4 [&_.maplibregl-compact]:max-sm:!min-h-0 [&_.maplibregl-compact]:max-sm:!pr-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!h-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!w-4 [&_.maplibregl-ctrl-attrib-button]:max-sm:!bg-contain [&_.maplibregl-ctrl-attrib-inner]:max-sm:text-[8px] [&_.maplibregl-ctrl-attrib-inner]:max-sm:leading-3 [&_.maplibregl-ctrl-bottom-right]:!z-[0] [&_.maplibregl-ctrl-scale]:!mb-0'
 									>
-										<MapView mapId={BURNT_MAP_EXPORT} />
+										<MapView mapId={PLANT_MAP_EXPORT} />
 									</Box>
 
 									{/* Map's legend */}
 									<Box
 										className={classNames(
-											'z-1 absolute bottom-[22px] left-[22px] flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-[5px] pr-[7px] sm:pl-2 sm:pr-3 lg:bottom-8 lg:left-8',
-											{ '!hidden': mapLegendArray.length === 0 },
+											'z-1 absolute bottom-[22px] left-[22px] flex max-w-[calc(100%-48px)] items-center gap-3 overflow-auto rounded-[5px] bg-white py-1 pl-[5px] pr-[7px] sm:pl-2 sm:pr-3 lg:bottom-8 lg:left-8 lg:max-w-[calc(100%-68px)]',
+											{
+												'!hidden':
+													mapTypeArray.length === 0 && selectedRepeatArea === undefined,
+											},
 										)}
 									>
-										{mapLegendArray.map((mapLegend) => {
-											return (
-												<Box key={mapLegend.key} className='flex shrink-0 items-center gap-1.5'>
-													{mapLegend.type === mapTypeCode.burnArea ? (
-														<Box className='h-1 w-2 bg-[#F9B936] sm:h-2 sm:w-3'></Box>
-													) : (
-														<Box
-															className={classNames(
-																'h-2 w-2 rounded-full sm:h-3 sm:w-3',
-																{
-																	'bg-[#FF0000]':
-																		mapLegend.type === mapTypeCode.hotspots,
-																	'bg-[#8AB62D]':
-																		mapLegend.type === mapTypeCode.plant,
-																},
-															)}
-														></Box>
-													)}
-													<Typography className='!text-[8px] text-black max-sm:!leading-none sm:!text-2xs'>
-														{mapLegend.title}
-													</Typography>
-												</Box>
-											)
-										})}
+										<Box
+											className={classNames('hidden shrink-0 items-center gap-1.5', {
+												'!flex': mapTypeArray.includes(yieldMapTypeCode.plant),
+											})}
+										>
+											<Box className='h-3 w-3 rounded-full bg-[#8AB62D]'></Box>
+											<Typography className='!text-2xs text-black'>
+												{t('plantingArea')}
+											</Typography>
+										</Box>
+										<Box
+											className={classNames('hidden shrink-0 items-center gap-3', {
+												'!flex': mapTypeArray.includes(yieldMapTypeCode.product),
+											})}
+										>
+											<Box className={'flex items-center gap-1.5'}>
+												<Box className='h-3 w-3 rounded-full bg-[#003491]'></Box>
+												<Typography className='!text-2xs text-black'>{`${t('moreThan')} ${defaultNumber(yieldLegendNumber.fifteen, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+											</Box>
+											<Box className={'flex items-center gap-1.5'}>
+												<Box className='h-3 w-3 rounded-full bg-[#1DB240]'></Box>
+												<Typography className='!text-2xs text-black'>{`${defaultNumber(yieldLegendNumber.ten, 6)}-${defaultNumber(yieldLegendNumber.fifteen, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+											</Box>
+											<Box className={'flex items-center gap-1.5'}>
+												<Box className='h-3 w-3 rounded-full bg-[#F0E927]'></Box>
+												<Typography className='!text-2xs text-black'>{`${defaultNumber(yieldLegendNumber.five, 6)}-${defaultNumber(yieldLegendNumber.nine, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+											</Box>
+											<Box className={'flex items-center gap-1.5'}>
+												<Box className='h-3 w-3 rounded-full bg-[#FF9500]'></Box>
+												<Typography className='!text-2xs text-black'>{`${t('lessThan')} ${defaultNumber(yieldLegendNumber.five, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+											</Box>
+										</Box>
+										<Box
+											className={classNames('hidden shrink-0 items-center gap-1.5', {
+												'!flex': selectedRepeatArea,
+											})}
+										>
+											<Box className='h-3 w-3 rotate-[45deg] rounded-full bg-[repeating-linear-gradient(to_right,#8AB62D_0px,#8AB62D_1px,#ffffff_1px,#ffffff_2px)]'></Box>
+											<Typography className='!text-2xs text-black'>{`${t('replantingArea')} ${selectedRepeatArea?.name ?? '-'} ${t('common:year')}`}</Typography>
+										</Box>
 									</Box>
 
 									{/* Vertical Lines */}
@@ -528,10 +626,10 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 							<Box className='flex h-full w-full flex-col items-center lg:w-[22%]'>
 								<Box className='relative aspect-[215/287] w-full'>
 									<Box
-										id='burnt-mini-map-export-container'
+										id='plant-mini-map-export-container'
 										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-ctrl-attrib-inner]:text-[6px] [&_.maplibregl-ctrl-scale]:hidden'
 									>
-										<MapView mapId={BURNT_MINI_MAP_EXPORT} isInteractive={false} />
+										<MapView mapId={PLANT_MINI_MAP_EXPORT} isInteractive={false} />
 									</Box>
 
 									<Box className='absolute right-[5px] top-[5px]'>
@@ -544,39 +642,39 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 									<Box className='flex w-full flex-col gap-2 lg:gap-1.5'>
 										<Box className='flex w-full'>
 											<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
-												{t('date')}
+												{t('common:date')}
 											</Typography>
 											<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
 												{formatDate(Date.now(), 'dd MMMM yyyy', language)}
 											</Typography>
 										</Box>
-										{mapTypeArray.includes(mapTypeCode.hotspots) && (
+										{mapLegendArray.map((item) => item.type).includes(yieldMapTypeCode.plant) && (
 											<Box className='flex w-full'>
 												<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
-													{t('map-analyze:hotspot')}
+													{t('plantingArea')}
 												</Typography>
 												<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
-													{`${defaultNumber(hotspotData.length)} ${t('point')}`}
+													{`${defaultNumber(plantData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
 												</Typography>
 											</Box>
 										)}
-										{mapTypeArray.includes(mapTypeCode.burnArea) && (
+										{mapLegendArray.map((item) => item.type).includes(yieldMapTypeCode.product) && (
 											<Box className='flex w-full'>
 												<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
-													{t('map-analyze:burntScar')}
+													{t('sugarCaneYield')}
 												</Typography>
 												<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
-													{`${defaultNumber(burntAreaData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
+													{`${defaultNumber(productData.reduce((total, item) => total + (item.properties?.volumn?.[quantityUnit] ?? 0), 0))} ${t('common:' + quantityUnit)}`}
 												</Typography>
 											</Box>
 										)}
-										{mapTypeArray.includes(mapTypeCode.plant) && (
+										{mapLegendArray.map((item) => item.type).includes(yieldMapTypeCode.repeat) && (
 											<Box className='flex w-full'>
 												<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
-													{t('map-analyze:plantingArea')}
+													{t('replantingArea')}
 												</Typography>
 												<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
-													{`${defaultNumber(plantingData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
+													{`${defaultNumber(replantData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
 												</Typography>
 											</Box>
 										)}
@@ -592,7 +690,7 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 												className='flex h-[38px] w-[84px] items-center gap-1.5 !rounded-[5px] !bg-white !px-5 !py-2.5 !shadow-none hover:!shadow-none [&_.MuiButton-icon]:m-0'
 												variant='contained'
 												startIcon={<PdfIcon />}
-												onClick={handleBurntMapPdfExport}
+												onClick={handlePlantMapPdfExport}
 												disabled={isCapturing}
 											>
 												<Box className='!text-xs text-primary'>{'PDF'}</Box>
@@ -601,20 +699,20 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 												className={classNames(
 													'flex h-[38px] w-[84px] items-center gap-1.5 !rounded-[5px] !px-5 !py-2.5 !shadow-none hover:!shadow-none [&_.MuiButton-icon]:m-0',
 													{
-														'!bg-white': mapTypeArray.length > 0,
-														'!bg-background': mapTypeArray.length === 0,
+														'!bg-white': mapLegendArray.length > 0,
+														'!bg-background': mapLegendArray.length === 0,
 													},
 												)}
 												variant='contained'
 												startIcon={
-													<CsvIcon fill={mapTypeArray.length === 0 ? '#d6d6d6' : ''} />
+													<CsvIcon fill={mapLegendArray.length === 0 ? '#d6d6d6' : ''} />
 												}
-												onClick={handleBurntMapCsvExport}
-												disabled={mapTypeArray.length === 0 || isCapturing}
+												// onClick={handleBurntMapCsvExport}
+												disabled={mapLegendArray.length === 0 || isCapturing}
 											>
 												<Box
 													className={classNames('!text-xs text-primary', {
-														'!text-gray': mapTypeArray.length === 0,
+														'!text-gray': mapLegendArray.length === 0,
 													})}
 												>
 													{'CSV'}
@@ -659,35 +757,56 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 								<Box
 									className='captured-map-image aspect-[688/423] w-full bg-contain'
 									component='img'
-									alt='Burnt Map Image'
+									alt='Plant Map Image'
 								/>
 
 								{/* Map's legend */}
 								<Box
 									className={classNames(
-										'z-1 absolute bottom-8 left-8 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3',
-										{ '!hidden': mapLegendArray.length === 0 },
+										'z-1 absolute bottom-8 left-8 flex max-w-[calc(100%-68px)] items-center gap-3 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3',
+										{
+											'!hidden': mapTypeArray.length === 0 && selectedRepeatArea === undefined,
+										},
 									)}
 								>
-									{mapLegendArray.map((mapLegend) => {
-										return (
-											<Box key={mapLegend.key} className='flex shrink-0 items-center gap-1.5'>
-												{mapLegend.type === mapTypeCode.burnArea ? (
-													<Box className='h-2 w-3 bg-[#F9B936]'></Box>
-												) : (
-													<Box
-														className={classNames('h-3 w-3 rounded-full', {
-															'bg-[#FF0000]': mapLegend.type === mapTypeCode.hotspots,
-															'bg-[#8AB62D]': mapLegend.type === mapTypeCode.plant,
-														})}
-													></Box>
-												)}
-												<Typography className='!text-2xs text-black'>
-													{mapLegend.title}
-												</Typography>
-											</Box>
-										)
-									})}
+									<Box
+										className={classNames('hidden shrink-0 items-center gap-1.5', {
+											'!flex': mapTypeArray.includes(yieldMapTypeCode.plant),
+										})}
+									>
+										<Box className='h-3 w-3 rounded-full bg-[#8AB62D]'></Box>
+										<Typography className='!text-2xs text-black'>{t('plantingArea')}</Typography>
+									</Box>
+									<Box
+										className={classNames('hidden shrink-0 items-center gap-3', {
+											'!flex': mapTypeArray.includes(yieldMapTypeCode.product),
+										})}
+									>
+										<Box className={'flex items-center gap-1.5'}>
+											<Box className='h-3 w-3 rounded-full bg-[#003491]'></Box>
+											<Typography className='!text-2xs text-black'>{`${t('moreThan')} ${defaultNumber(yieldLegendNumber.fifteen, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+										</Box>
+										<Box className={'flex items-center gap-1.5'}>
+											<Box className='h-3 w-3 rounded-full bg-[#1DB240]'></Box>
+											<Typography className='!text-2xs text-black'>{`${defaultNumber(yieldLegendNumber.ten, 6)}-${defaultNumber(yieldLegendNumber.fifteen, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+										</Box>
+										<Box className={'flex items-center gap-1.5'}>
+											<Box className='h-3 w-3 rounded-full bg-[#F0E927]'></Box>
+											<Typography className='!text-2xs text-black'>{`${defaultNumber(yieldLegendNumber.five, 6)}-${defaultNumber(yieldLegendNumber.nine, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+										</Box>
+										<Box className={'flex items-center gap-1.5'}>
+											<Box className='h-3 w-3 rounded-full bg-[#FF9500]'></Box>
+											<Typography className='!text-2xs text-black'>{`${t('lessThan')} ${defaultNumber(yieldLegendNumber.five, 6)} ${t(quantityLang)}/${t(areaLang)}`}</Typography>
+										</Box>
+									</Box>
+									<Box
+										className={classNames('hidden shrink-0 items-center gap-1.5', {
+											'!flex': selectedRepeatArea,
+										})}
+									>
+										<Box className='h-3 w-3 rotate-[45deg] rounded-full bg-[repeating-linear-gradient(to_right,#8AB62D_0px,#8AB62D_1px,#ffffff_1px,#ffffff_2px)]'></Box>
+										<Typography className='!text-2xs text-black'>{`${t('replantingArea')} ${selectedRepeatArea?.name ?? '-'} ${t('common:year')}`}</Typography>
+									</Box>
 								</Box>
 
 								{/* Vertical Lines */}
@@ -758,7 +877,7 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 								<Box
 									className='captured-mini-map-image h-full w-full bg-contain'
 									component='img'
-									alt='Burnt Mini Map Image'
+									alt='Plant Mini Map Image'
 								/>
 
 								<Box className='absolute right-[5px] top-[5px]'>
@@ -768,38 +887,40 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 							<Box className='flex w-full flex-1 flex-col items-center justify-between gap-5 bg-[#E6E6E6] p-4'>
 								<Box className='flex w-full flex-col gap-1.5'>
 									<Box className='flex w-full'>
-										<Typography className='w-[50%] !text-2xs text-black'>{t('date')}</Typography>
+										<Typography className='w-[50%] !text-2xs text-black'>
+											{t('common:date')}
+										</Typography>
 										<Typography className='flex-1 !text-2xs !font-bold text-black'>
 											{formatDate(Date.now(), 'dd MMMM yyyy', language)}
 										</Typography>
 									</Box>
-									{mapTypeArray.includes(mapTypeCode.hotspots) && (
+									{mapLegendArray.map((item) => item.type).includes(yieldMapTypeCode.plant) && (
 										<Box className='flex w-full'>
 											<Typography className='w-[50%] !text-2xs text-black'>
-												{t('map-analyze:hotspot')}
+												{t('plantingArea')}
 											</Typography>
 											<Typography className='flex-1 !text-2xs !font-bold text-black'>
-												{`${defaultNumber(hotspotData.length)} ${t('point')}`}
+												{`${defaultNumber(plantData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
 											</Typography>
 										</Box>
 									)}
-									{mapTypeArray.includes(mapTypeCode.burnArea) && (
+									{mapLegendArray.map((item) => item.type).includes(yieldMapTypeCode.product) && (
 										<Box className='flex w-full'>
 											<Typography className='w-[50%] !text-2xs text-black'>
-												{t('map-analyze:burntScar')}
+												{t('sugarCaneYield')}
 											</Typography>
 											<Typography className='flex-1 !text-2xs !font-bold text-black'>
-												{`${defaultNumber(burntAreaData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
+												{`${defaultNumber(productData.reduce((total, item) => total + (item.properties?.volumn?.[quantityUnit] ?? 0), 0))} ${t('common:' + quantityUnit)}`}
 											</Typography>
 										</Box>
 									)}
-									{mapTypeArray.includes(mapTypeCode.plant) && (
+									{mapLegendArray.map((item) => item.type).includes(yieldMapTypeCode.repeat) && (
 										<Box className='flex w-full'>
 											<Typography className='w-[50%] !text-2xs text-black'>
-												{t('map-analyze:plantingArea')}
+												{t('replantingArea')}
 											</Typography>
 											<Typography className='flex-1 !text-2xs !font-bold text-black'>
-												{`${defaultNumber(plantingData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
+												{`${defaultNumber(replantData.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
 											</Typography>
 										</Box>
 									)}
@@ -820,4 +941,4 @@ const PrintBurntMapDialog: React.FC<PrintBurntMapDialogProps> = ({
 	)
 }
 
-export default PrintBurntMapDialog
+export default PrintPlantMapDialog

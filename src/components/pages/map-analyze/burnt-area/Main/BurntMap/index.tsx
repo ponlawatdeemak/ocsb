@@ -25,7 +25,10 @@ import { PickingInfo } from '@deck.gl/core'
 import PopupBurnt from './PopupBurnt'
 import CloseIcon from '@mui/icons-material/Close'
 import { MapExportIcon } from '@/components/svg/MenuIcon'
-import PrintMapDialog from './PrintMapDialog'
+import { GetLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
+import { booleanContains, booleanPointInPolygon, polygon } from '@turf/turf'
+import { Feature, GeoJsonProperties, Polygon } from 'geojson'
+import PrintBurntMapDialog from './PrintMapDialog'
 
 export interface MapLegendType {
 	key: mapTypeCode
@@ -49,10 +52,6 @@ const endBoundsDefault: EndBoundsType = {
 
 export const LONGITUDE_OFFSET = 0.5
 export const LATITUDE_OFFSET = 0.25
-
-import { GetLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
-import { booleanContains, booleanPointInPolygon, polygon } from '@turf/turf'
-import { Feature, GeoJsonProperties, Polygon } from 'geojson'
 
 export const BURNT_MAP_ID = 'burnt-map'
 
@@ -306,7 +305,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	return (
 		<Box className={classNames('', className)}>
 			<Box className='relative flex h-full w-full grow [&_.maplibregl-ctrl-bottom-right]:max-sm:mb-[90px]'>
-				<Box className='current-region absolute bottom-[88px] left-3 z-10 flex items-end gap-4 md:bottom-12'>
+				<Box className='absolute bottom-[88px] left-3 z-10 flex items-end gap-4 md:bottom-12'>
 					<IconButton
 						className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {
 							'!bg-white': !isCurrentRegionOpen,
@@ -323,7 +322,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					)}
 				</Box>
 
-				<Box className='count-viewer absolute bottom-[52px] left-3 z-10 flex items-end gap-4 md:bottom-3'>
+				<Box className='absolute bottom-[52px] left-3 z-10 flex items-end gap-4 md:bottom-3'>
 					<IconButton className={classNames('h-6 w-6 !rounded-[5px] !bg-primary !p-1', {})}>
 						<CountViewerIcon color='white' />
 					</IconButton>
@@ -354,7 +353,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					})}
 				</Box>
 
-				<Box className='print-map-tool absolute right-4 top-[356px] z-10 flex md:right-6 md:top-[226px] [&_button]:bg-white'>
+				<Box className='absolute right-4 top-[356px] z-10 flex md:right-6 md:top-[226px] [&_button]:bg-white'>
 					<Tooltip title={t('common:tools.export')} placement='left' arrow>
 						<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 							<IconButton
@@ -372,7 +371,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						</Box>
 					</Tooltip>
 
-					<PrintMapDialog
+					<PrintBurntMapDialog
 						open={openPrintMapDialog}
 						currentAdmOption={currentAdmOption}
 						selectedHotspots={selectedHotspots}
