@@ -69,7 +69,8 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 
 	const currentRegionLanguageKey = `regionName${Languages.TH === i18n.language ? '' : enSuffix}`
 	const [currentRegion, setCurrentRegion] = useState<GetLookupDtoOut>()
-	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState<boolean>(true)
+	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState(true)
+	const [defaultZoomComplete, setDefaultZoomComplete] = useState(false)
 
 	const popupNode = useRef<HTMLDivElement>(null)
 	const [popupData, setPopupData] = useState<PickingInfo[]>([])
@@ -176,11 +177,12 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	useEffect(() => {
 		if (plantingMap) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
-			if (userGeometry) {
+			if (userGeometry && !defaultZoomComplete) {
 				plantingMap.fitBounds(userGeometry, { padding: 100 })
+				setDefaultZoomComplete(true)
 			}
 		}
-	}, [plantingMap, currentAdmOption?.geometry, session?.user?.geometry])
+	}, [plantingMap, currentAdmOption?.geometry, session?.user?.geometry, defaultZoomComplete])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
