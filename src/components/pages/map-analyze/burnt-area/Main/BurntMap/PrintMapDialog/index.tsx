@@ -16,7 +16,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { EndBoundsType, MapLegendType } from '..'
 import useMapStore from '@/components/common/map/store/map'
 import { BasemapType } from '@/components/common/map/interface/map'
-import { mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
+import { hotspotTypeCode, mapTypeCode, ResponseLanguage } from '@interface/config/app.config'
 import { Languages } from '@/enum'
 import { defaultNumber } from '@/utils/text'
 import useAreaUnit from '@/store/area-unit'
@@ -37,6 +37,8 @@ import pdfMake from 'pdfmake/build/pdfmake'
 import pdfFonts from 'pdfmake/build/vfs_fonts'
 import { exportPdf } from '@/utils/export-pdf'
 import { axiosInstance } from '@/api/core'
+import useQuantityUnit from '@/store/quantity-unit'
+import { OptionType } from '../../SearchForm'
 pdfMake.vfs = pdfFonts.vfs
 
 interface NavigatorWithSaveBlob extends Navigator {
@@ -58,6 +60,8 @@ const BURNT_MINI_MAP_HEIGHT = 287
 interface PrintMapDialogProps {
 	className?: string
 	open: boolean
+	currentAdmOption: OptionType | null
+	selectedHotspots: hotspotTypeCode[]
 	defaultMapEndBounds: EndBoundsType
 	mapTypeArray: mapTypeCode[]
 	mapLegendArray: MapLegendType[]
@@ -69,12 +73,13 @@ interface PrintMapDialogProps {
 	burntMapGeometry: number[][] | null
 	loading?: boolean
 	onClose: () => void
-	handleBurntMapCsvExport: (polygon: number[][]) => Promise<void>
 }
 
 const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	className = '',
 	open,
+	currentAdmOption,
+	selectedHotspots,
 	defaultMapEndBounds,
 	mapTypeArray,
 	mapLegendArray,
@@ -86,11 +91,11 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	burntMapGeometry,
 	loading = false,
 	onClose,
-	handleBurntMapCsvExport,
 }) => {
 	const { mapLibre, overlays, basemap } = useMapStore()
 
 	const { areaUnit } = useAreaUnit()
+	const { quantityUnit } = useQuantityUnit()
 	const { t, i18n } = useTranslation(['common', 'map-anlyze'])
 	const language = i18n.language as keyof ResponseLanguage
 
@@ -337,9 +342,22 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 		}
 	}, [mapLibre])
 
-	const onBurntMapCsvExportClick = useCallback(async () => {
-		handleBurntMapCsvExport(polygon)
-	}, [handleBurntMapCsvExport, polygon])
+	const handleBurntMapCsvExport = useCallback(async () => {
+		const uri = axiosInstance.getUri()
+		const query = new URLSearchParams()
+
+		if (selectedDateRange[0]) query.append('startDate', selectedDateRange[0].toISOString().split('T')[0])
+		if (selectedDateRange[1]) query.append('endDate', selectedDateRange[1].toISOString().split('T')[0])
+		if (currentAdmOption !== null) query.append('admC', currentAdmOption.id)
+		if (areaUnit !== null) query.append('area', areaUnit)
+		if (quantityUnit !== null) query.append('weight', quantityUnit)
+		if (polygon.length !== 0) query.append('polygon', JSON.stringify(polygon))
+		if (mapTypeArray.length !== 0) mapTypeArray.forEach((item) => query.append('mapType', item))
+		if (selectedHotspots.length !== 0) selectedHotspots.forEach((item) => query.append('inSugarcan', item))
+
+		const url = `${uri}/export/hotspot-burnt-area?${query}`
+		window.open(url, '_blank')
+	}, [selectedDateRange, currentAdmOption, areaUnit, quantityUnit, polygon, mapTypeArray, selectedHotspots])
 
 	return (
 		<div className='relative'>
@@ -557,7 +575,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 												startIcon={
 													<CsvIcon fill={mapTypeArray.length === 0 ? '#d6d6d6' : ''} />
 												}
-												onClick={onBurntMapCsvExportClick}
+												onClick={handleBurntMapCsvExport}
 												disabled={mapTypeArray.length === 0}
 											>
 												<Box

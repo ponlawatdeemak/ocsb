@@ -50,9 +50,7 @@ const endBoundsDefault: EndBoundsType = {
 import { GetLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
 import { booleanContains, booleanPointInPolygon, polygon } from '@turf/turf'
 import { Feature, GeoJsonProperties, Polygon } from 'geojson'
-import { axiosInstance } from '@/api/core'
-import useAreaUnit from '@/store/area-unit'
-import useQuantityUnit from '@/store/quantity-unit'
+
 export const BURNT_MAP_ID = 'burnt-map'
 
 interface BurntMapMainProps {
@@ -87,8 +85,6 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const { data: session } = useSession()
 	const { mapLibre, overlays } = useMapStore()
 	const { t, i18n } = useTranslation(['map-analyze', 'common'])
-	const { areaUnit } = useAreaUnit()
-	const { quantityUnit } = useQuantityUnit()
 
 	const currentRegionLanguageKey = `regionName${Languages.TH === i18n.language ? '' : enSuffix}`
 	const [currentRegion, setCurrentRegion] = useState<GetLookupDtoOut>()
@@ -109,26 +105,6 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		queryKey: ['getRegion'],
 		queryFn: () => service.lookup.getRegion(),
 	})
-
-	const handleBurntMapCsvExport = useCallback(
-		async (polygon: number[][]) => {
-			const uri = axiosInstance.getUri()
-			const query = new URLSearchParams()
-
-			if (selectedDateRange[0]) query.append('startDate', selectedDateRange[0].toISOString().split('T')[0])
-			if (selectedDateRange[1]) query.append('endDate', selectedDateRange[0].toISOString().split('T')[0])
-			if (currentAdmOption !== null) query.append('admC', currentAdmOption.id)
-			if (areaUnit !== null) query.append('area', areaUnit)
-			if (quantityUnit !== null) query.append('weight', quantityUnit)
-			if (polygon.length !== 0) query.append('polygon', JSON.stringify(polygon))
-			if (mapTypeArray.length !== 0) mapTypeArray.forEach((item) => query.append('mapType', item))
-			if (selectedHotspots.length !== 0) selectedHotspots.forEach((item) => query.append('inSugarcan', item))
-
-			const url = `${uri}/export/hotspot-burnt-area?${query}`
-			window.open(url, '_blank')
-		},
-		[areaUnit, currentAdmOption, mapTypeArray, quantityUnit, selectedDateRange, selectedHotspots],
-	)
 
 	const burntMap = useMemo(() => mapLibre[BURNT_MAP_ID], [mapLibre])
 	const burntOverlay = useMemo(() => overlays[BURNT_MAP_ID], [overlays])
@@ -373,6 +349,8 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 					<PrintMapDialog
 						open={openPrintMapDialog}
+						currentAdmOption={currentAdmOption}
+						selectedHotspots={selectedHotspots}
 						defaultMapEndBounds={endBounds}
 						mapTypeArray={mapTypeArray}
 						mapLegendArray={mapLegendArray}
@@ -383,7 +361,6 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						defaultMiniMapExtent={miniMapExtent}
 						burntMapGeometry={burntMapGeometry}
 						onClose={() => setOpenPrintMapDialog(false)}
-						handleBurntMapCsvExport={handleBurntMapCsvExport}
 					/>
 				</Box>
 
