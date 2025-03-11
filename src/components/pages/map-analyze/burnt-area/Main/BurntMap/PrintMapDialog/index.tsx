@@ -393,7 +393,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								<Box className='relative aspect-[738/473] w-full border border-solid border-black p-4 lg:p-6'>
 									<Box
 										id='burnt-map-export-container'
-										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:hidden'
+										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:hidden [&_.maplibregl-ctrl-bottom-right]:!z-[0]'
 									>
 										<MapView mapId={BURNT_MAP_EXPORT} loading={isCapturing} />
 									</Box>
@@ -401,7 +401,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 									{/* Map's legend */}
 									<Box
 										className={classNames(
-											'z-1 absolute bottom-8 left-8 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3 max-lg:py-[3px] max-lg:pl-[5px] max-lg:pr-[7px]',
+											'z-1 absolute bottom-[22px] left-[22px] flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-[3px] pl-[5px] pr-[7px] sm:py-1 sm:pl-2 sm:pr-3 lg:bottom-8 lg:left-8',
 											{ '!hidden': mapLegendArray.length === 0 },
 										)}
 									>
@@ -409,11 +409,11 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 											return (
 												<Box key={mapLegend.key} className='flex shrink-0 items-center gap-1.5'>
 													{mapLegend.type === mapTypeCode.burnArea ? (
-														<Box className='h-2 w-3 bg-[#F9B936] max-lg:h-[4px] max-lg:w-[5px]'></Box>
+														<Box className='h-1 w-2 bg-[#F9B936] sm:h-2 sm:w-3'></Box>
 													) : (
 														<Box
 															className={classNames(
-																'h-3 w-3 rounded-full max-lg:h-[5px] max-lg:w-[5px]',
+																'h-2 w-2 rounded-full sm:h-3 sm:w-3',
 																{
 																	'bg-[#FF0000]':
 																		mapLegend.type === mapTypeCode.hotspots,
@@ -423,7 +423,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 															)}
 														></Box>
 													)}
-													<Typography className='!text-2xs text-black max-lg:!text-[4px] max-lg:!leading-none'>
+													<Typography className='!text-[8px] text-black max-sm:!leading-none sm:!text-2xs'>
 														{mapLegend.title}
 													</Typography>
 												</Box>
