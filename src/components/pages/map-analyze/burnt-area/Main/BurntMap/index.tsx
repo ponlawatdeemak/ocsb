@@ -20,7 +20,7 @@ import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
 import { Languages } from '@/enum'
 import { enSuffix } from '@/config/app.config'
-import { Popup } from 'maplibre-gl'
+import { LngLatBoundsLike, Popup } from 'maplibre-gl'
 import { PickingInfo } from '@deck.gl/core'
 import PopupBurnt from './PopupBurnt'
 import CloseIcon from '@mui/icons-material/Close'
@@ -92,7 +92,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const currentRegionLanguageKey = `regionName${Languages.TH === i18n.language ? '' : enSuffix}`
 	const [currentRegion, setCurrentRegion] = useState<GetLookupDtoOut>()
 	const [isCurrentRegionOpen, setIsCurrentRegionOpen] = useState(true)
+
 	const [defaultZoomComplete, setDefaultZoomComplete] = useState(false)
+	const [userRegionGeometry, setUserRegionGeometry] = useState<LngLatBoundsLike | null>(null)
 
 	const popupNode = useRef<HTMLDivElement>(null)
 	const [popupData, setPopupData] = useState<PickingInfo[]>([])
@@ -185,16 +187,27 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		}
 	}, [burntMap, onMapExtentChange, regionData, i18n])
 
-	// zoom to search area or default user region
+	// zoom to default user region
 	useEffect(() => {
-		if (burntMap) {
-			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
+		if (burntMap && regionData && session?.user.geometry) {
+			const userGeometry = session?.user?.geometry as LngLatBoundsLike
 			if (userGeometry && !defaultZoomComplete) {
 				burntMap.fitBounds(userGeometry, { padding: 100 })
 				setDefaultZoomComplete(true)
+				setUserRegionGeometry(userGeometry)
 			}
 		}
-	}, [burntMap, currentAdmOption?.geometry, session?.user?.geometry, defaultZoomComplete])
+	}, [burntMap, regionData, session?.user?.geometry, defaultZoomComplete])
+
+	// zoom to search area
+	useEffect(() => {
+		if (burntMap) {
+			const userGeometry = currentAdmOption?.geometry ?? userRegionGeometry
+			if (userGeometry) {
+				burntMap.fitBounds(userGeometry, { padding: 100 })
+			}
+		}
+	}, [burntMap, currentAdmOption?.geometry, userRegionGeometry])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
