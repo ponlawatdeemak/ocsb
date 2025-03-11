@@ -25,8 +25,7 @@ import { PickingInfo } from '@deck.gl/core'
 import PopupBurnt from './PopupBurnt'
 import CloseIcon from '@mui/icons-material/Close'
 import { GetLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
-import { booleanContains, booleanPointInPolygon, polygon } from '@turf/turf'
-import { Feature, GeoJsonProperties, Polygon } from 'geojson'
+import { booleanPointInPolygon } from '@turf/turf'
 export const BURNT_MAP_ID = 'burnt-map'
 
 interface BurntMapMainProps {
@@ -74,40 +73,35 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const burntMap = useMemo(() => mapLibre[BURNT_MAP_ID], [mapLibre])
 	const burntOverlay = useMemo(() => overlays[BURNT_MAP_ID], [overlays])
 
-	// map extent effect
+	// map event
 	useEffect(() => {
-		if (burntMap) {
-			let prevPolygon: Feature<Polygon, GeoJsonProperties> | null = null
+		if (burntMap && regionData?.length) {
+			let previousZoom = 0
 			burntMap.on('moveend', () => {
-				const currentBound = burntMap.getBounds()
-				const sw = currentBound.getSouthWest()
-				const ne = currentBound.getNorthEast()
-				const extent = [
+				const bound = burntMap.getBounds()
+				const sw = bound.getSouthWest()
+				const ne = bound.getNorthEast()
+				const polygon = [
 					[sw.lng, sw.lat],
 					[ne.lng, sw.lat],
 					[ne.lng, ne.lat],
 					[sw.lng, ne.lat],
 					[sw.lng, sw.lat],
 				]
-				const turfPolygon = polygon([extent])
-				if (prevPolygon) {
-					if (!booleanContains(prevPolygon, turfPolygon)) {
-						onMapExtentChange(extent)
-						prevPolygon = turfPolygon
+
+				const currentZoom = burntMap.getZoom()
+
+				if (previousZoom) {
+					if (currentZoom <= previousZoom) {
+						onMapExtentChange(polygon)
 					}
 				} else {
-					onMapExtentChange(extent)
-					prevPolygon = turfPolygon
+					onMapExtentChange(polygon)
 				}
-			})
-		}
-	}, [burntMap, onMapExtentChange, i18n])
 
-	// current region effect
-	useEffect(() => {
-		if (burntMap && regionData?.length) {
-			burntMap.on('moveend', () => {
+				previousZoom = currentZoom
 				const center = burntMap.getCenter()
+
 				const insideRegion = regionData.find((reg) => {
 					let result = false
 					if (reg.geometry) {
@@ -125,13 +119,13 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	// zoom to search area or default user region
 	useEffect(() => {
-		if (burntMap) {
+		if (burntMap && regionData?.length) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
 			if (userGeometry) {
 				burntMap.fitBounds(userGeometry, { padding: 100 })
 			}
 		}
-	}, [burntMap, currentAdmOption?.geometry, session?.user?.geometry])
+	}, [burntMap, currentAdmOption?.geometry, regionData?.length, session?.user?.geometry])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {

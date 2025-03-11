@@ -11,7 +11,7 @@ import { yieldMapTypeCode } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
-import { booleanContains, booleanPointInPolygon, centroid, polygon } from '@turf/turf'
+import { booleanPointInPolygon, centroid } from '@turf/turf'
 import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
 import { enSuffix } from '@/config/app.config'
 import { Popup } from 'maplibre-gl'
@@ -29,7 +29,7 @@ import {
 import PopupPlant from './PopupPlant'
 import { FillStyleExtension } from '@deck.gl/extensions'
 
-import { Feature, GeoJsonProperties, Geometry, Polygon } from 'geojson'
+import { Feature, GeoJsonProperties, Geometry } from 'geojson'
 export const PLANTING_MAP_ID = 'planting-map'
 
 interface PlantingMapMainProps {
@@ -123,40 +123,35 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 		}
 	}, [areaUnit, kgPerHexa, kgPerRai, kgPerSqkm, kgPerSqm, quantityUnit, tonPerHexa, tonPerRai, tonPerSqkm, tonPerSqm])
 
-	// map extent effect
+	// map event
 	useEffect(() => {
-		if (plantingMap) {
-			let prevPolygon: Feature<Polygon, GeoJsonProperties> | null = null
+		if (plantingMap && regionData?.length) {
+			let previousZoom = 0
 			plantingMap.on('moveend', () => {
-				const currentBound = plantingMap.getBounds()
-				const sw = currentBound.getSouthWest()
-				const ne = currentBound.getNorthEast()
-				const extent = [
+				const bound = plantingMap.getBounds()
+				const sw = bound.getSouthWest()
+				const ne = bound.getNorthEast()
+				const polygon = [
 					[sw.lng, sw.lat],
 					[ne.lng, sw.lat],
 					[ne.lng, ne.lat],
 					[sw.lng, ne.lat],
 					[sw.lng, sw.lat],
 				]
-				const turfPolygon = polygon([extent])
-				if (prevPolygon) {
-					if (!booleanContains(prevPolygon, turfPolygon)) {
-						onMapExtentChange(extent)
-						prevPolygon = turfPolygon
+
+				const currentZoom = plantingMap.getZoom()
+
+				if (previousZoom) {
+					if (currentZoom <= previousZoom) {
+						onMapExtentChange(polygon)
 					}
 				} else {
-					onMapExtentChange(extent)
-					prevPolygon = turfPolygon
+					onMapExtentChange(polygon)
 				}
-			})
-		}
-	}, [plantingMap, onMapExtentChange, i18n])
 
-	// current region effect
-	useEffect(() => {
-		if (plantingMap && regionData?.length) {
-			plantingMap.on('moveend', () => {
+				previousZoom = currentZoom
 				const center = plantingMap.getCenter()
+
 				const insideRegion = regionData.find((reg) => {
 					let result = false
 					if (reg.geometry) {
@@ -170,17 +165,17 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				setCurrentRegion(insideRegion)
 			})
 		}
-	}, [plantingMap, onMapExtentChange, regionData, i18n])
+	}, [onMapExtentChange, regionData, i18n, plantingMap])
 
 	// zoom to search area or default user region
 	useEffect(() => {
-		if (plantingMap) {
+		if (plantingMap && regionData?.length) {
 			const userGeometry = currentAdmOption?.geometry || session?.user?.geometry
 			if (userGeometry) {
 				plantingMap.fitBounds(userGeometry, { padding: 100 })
 			}
 		}
-	}, [plantingMap, currentAdmOption?.geometry, session?.user?.geometry])
+	}, [currentAdmOption?.geometry, session?.user?.geometry, plantingMap, regionData?.length])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
