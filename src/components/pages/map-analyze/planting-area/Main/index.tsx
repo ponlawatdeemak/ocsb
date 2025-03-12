@@ -207,6 +207,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 					mapTypeArray={mapTypeArray}
 					currentAdmOption={searchSelectedAdmOption}
 					selectedRepeatArea={selectedRepeatArea}
+					selectedDateRange={selectedDateRange}
 					plantYieldAreaData={mapDataPlant}
 					productYieldAreaData={mapDataProduct}
 					replantYieldAreaData={mapDataReplant}

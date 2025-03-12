@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { Layer } from '@deck.gl/core'
 import type { MapboxOverlay } from '@deck.gl/mapbox'
+import { BasemapType } from '../interface/map'
 
 export type MapStore = {
 	mapLibre: Record<string, maplibregl.Map | null>
@@ -8,6 +9,9 @@ export type MapStore = {
 
 	overlays: Record<string, MapboxOverlay | null>
 	setOverlay: (id: string, overlay: MapboxOverlay | null) => void
+
+	basemap: BasemapType
+	setBasemap: (basemap: BasemapType) => void
 
 	layers: Record<string, Layer[]>
 	addLayer: (id: string, layer: Layer) => void
@@ -19,6 +23,9 @@ export type MapStore = {
 export const useMapStore = create<MapStore>()((set, get) => ({
 	mapLibre: {},
 	setMapLibre: (id, value) => set((state) => ({ ...state, mapLibre: { ...state.mapLibre, [id]: value } })),
+
+	basemap: BasemapType.CartoLight,
+	setBasemap: (basemap) => set({ basemap }),
 
 	overlays: {},
 	setOverlay: (id, overlay) => set((state) => ({ ...state, overlays: { ...state.overlays, [id]: overlay } })),

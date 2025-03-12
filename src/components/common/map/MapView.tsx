@@ -1,4 +1,4 @@
-import { memo, PropsWithChildren, useCallback, useMemo, useState } from 'react'
+import { memo, PropsWithChildren, useCallback, useMemo } from 'react'
 import classNames from 'classnames'
 import { BasemapType } from './interface/map'
 import MapLibre from './MapLibre'
@@ -12,17 +12,15 @@ import MapTools from './tools'
 import { getPin } from '@/utils/pin'
 
 const CURRENT_LOCATION_ZOOM = 14
-const DEFAULT = { basemap: BasemapType.CartoLight }
 
 export interface MapViewProps extends PropsWithChildren {
 	mapId: string
 	loading?: boolean
+	isInteractive?: boolean
 }
 
-export function MapView({ children, mapId, loading }: Readonly<MapViewProps>) {
-	const { getLayer, addLayer, removeLayer, mapLibre } = useMapStore()
-
-	const [basemap, setBasemap] = useState(DEFAULT.basemap)
+export function MapView({ children, mapId, loading, isInteractive = true }: Readonly<MapViewProps>) {
+	const { getLayer, addLayer, removeLayer, mapLibre, basemap, setBasemap } = useMapStore()
 
 	const mapStyle = useMemo(() => {
 		if (basemap === BasemapType.CartoLight) {
@@ -36,9 +34,12 @@ export function MapView({ children, mapId, loading }: Readonly<MapViewProps>) {
 		}
 	}, [basemap])
 
-	const onBasemapChanged = useCallback((basemap: BasemapType) => {
-		setBasemap(basemap)
-	}, [])
+	const onBasemapChanged = useCallback(
+		(selectedBasemap: BasemapType) => {
+			setBasemap(selectedBasemap)
+		},
+		[setBasemap],
+	)
 
 	const onGetLocation = useCallback(
 		(coords: GeolocationCoordinates) => {
@@ -87,7 +88,7 @@ export function MapView({ children, mapId, loading }: Readonly<MapViewProps>) {
 				onGetLocation={onGetLocation}
 				currentBaseMap={basemap}
 			/>
-			<MapLibre mapId={mapId} mapStyle={mapStyle} />
+			<MapLibre mapId={mapId} mapStyle={mapStyle} isInteractive={isInteractive} />
 
 			{children}
 		</div>

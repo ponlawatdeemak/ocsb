@@ -101,5 +101,8 @@
 	"currentRegion": "ภูมิภาคสอน.",
 
 	"processing": "กำลังประมวลผล",
-	"submit": "ตกลง"
+	"submit": "ตกลง",
+	"and": "และ",
+	"mapDisplayData": "แผนที่แสดงข้อมูล",
+	"date": "วันที่"
 }

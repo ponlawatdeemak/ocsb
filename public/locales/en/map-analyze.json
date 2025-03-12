@@ -4,16 +4,16 @@
 	"hotspotOutArea": "Hotspot Outside Sugar Cane Area",
 	"hotspotTotalArea": "Hotspot Total Sugar Cane Area",
 	"addCompare": "Add Comparison Board",
-    "hideCompare": "Hide Comparison Board",
+	"hideCompare": "Hide Comparison Board",
 	"compare": "Show Comparison Board",
 	"hotspotAndBurntAreaAnalysis": "Analysis of Hotspots and Burnt Areas",
-    "plantAreaAnalysis": "Analysis of Sugar Cane Planting Area",
+	"plantAreaAnalysis": "Analysis of Sugar Cane Planting Area",
 	"searchArea": "Search Area",
 	"hotspot": "Hotspots",
 	"burntScar": "Burnt Scar",
 	"plantingArea": "Planting Area",
-    "noPlantingArea": "No Planting Area",
-    "replantingArea": "Replanting Area",
+	"noPlantingArea": "No Planting Area",
+	"replantingArea": "Replanting Area",
 	"allRegions": "All Regions",
 	"popupBurnt": {
 		"date": "Date of detection",
@@ -22,8 +22,9 @@
 		"burntScar": "Burnt Scar",
 		"plantingArea": "Planting Area"
 	},
-    "lessThan": "Less than",
-    "moreThan": "More than",
-    "avgSugarCaneYield": "Average Sugar Cane Yield",
-    "noSugarCaneQuantity": "Non Sugar Cane Quantity"
+	"lessThan": "Less than",
+	"moreThan": "More than",
+	"sugarCaneYield": "Sugar Cane Yield",
+	"avgSugarCaneYield": "Average Sugar Cane Yield",
+	"noSugarCaneQuantity": "Non Sugar Cane Quantity"
 }

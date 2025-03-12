@@ -32,7 +32,7 @@ enum MeasureMode {
 
 interface MapToolsProps {
 	mapId: string
-	onBasemapChanged?: (basemap: BasemapType) => void
+	onBasemapChanged?: (selectedBasemap: BasemapType) => void
 	onGetLocation?: (coords: GeolocationCoordinates) => void
 	currentBaseMap: BasemapType
 }
@@ -71,10 +71,10 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 	}, [map])
 
 	const handleBasemapChanged = useCallback(
-		(basemap: BasemapType) => {
-			if (basemap !== null) {
-				setBasemap(basemap)
-				onBasemapChanged?.(basemap)
+		(selectedBasemap: BasemapType) => {
+			if (selectedBasemap !== null) {
+				setBasemap(selectedBasemap)
+				onBasemapChanged?.(selectedBasemap)
 			}
 		},
 		[onBasemapChanged],

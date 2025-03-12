@@ -30,9 +30,10 @@ const DeckGLOverlay: React.FC<DeckGLOverlayProps> = ({ mapId }) => {
 interface MapLibreProps {
 	mapId: string
 	mapStyle: string | StyleSpecification
+	isInteractive: boolean
 }
 
-const MapLibre: FC<MapLibreProps> = ({ mapId, mapStyle }) => {
+const MapLibre: FC<MapLibreProps> = ({ mapId, mapStyle, isInteractive = true }) => {
 	const { setMapLibre } = useMapStore()
 
 	// initial google basemap style
@@ -82,8 +83,10 @@ const MapLibre: FC<MapLibreProps> = ({ mapId, mapStyle }) => {
 			antialias
 			initialViewState={viewState}
 			mapStyle={mapStyle}
+			preserveDrawingBuffer={true}
 			onLoad={onLoad}
 			onStyleData={onStyleData}
+			interactive={isInteractive}
 			touchZoomRotate={true}
 			touchPitch={false}
 			dragRotate={true}
