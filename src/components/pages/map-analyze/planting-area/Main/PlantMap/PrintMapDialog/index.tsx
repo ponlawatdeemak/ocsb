@@ -42,6 +42,7 @@ import { captureMapControlImage, captureMapWithControl } from '@/utils/capture'
 import { exportPdf } from '@/utils/export-pdf'
 import { FillStyleExtension } from '@deck.gl/extensions'
 import { centroid } from '@turf/turf'
+import { axiosInstance } from '@/api/core'
 pdfMake.vfs = pdfFonts.vfs
 
 const PLANT_MAP_EXPORT = 'plant-map-export'
@@ -88,6 +89,7 @@ const PrintPlantMapDialog: React.FC<PrintPlantMapDialogProps> = ({
 	productYieldAreaData,
 	replantYieldAreaData,
 	defaultMiniMapExtent,
+
 	plantMapGeometry,
 	loading,
 	onClose,
@@ -472,6 +474,37 @@ const PrintPlantMapDialog: React.FC<PrintPlantMapDialogProps> = ({
 		}
 	}, [mapLibre])
 
+	const handlePlantMapCsvExport = useCallback(async () => {
+		const uri = axiosInstance.getUri()
+		const query = new URLSearchParams()
+		console.log('selectedRepeatArea:', selectedRepeatArea)
+
+		query.append('accessToken', session?.user.accessToken ?? '')
+		if (selectedDateRange[0]) query.append('startDate', selectedDateRange[0].toISOString().split('T')[0])
+		if (selectedDateRange[1]) query.append('endDate', selectedDateRange[1].toISOString().split('T')[0])
+		if (currentAdmOption !== null) query.append('admC', currentAdmOption.id)
+		if (areaUnit !== null) query.append('area', areaUnit)
+		if (quantityUnit !== null) query.append('weight', quantityUnit)
+		if (mapExtent.length !== 0) query.append('polygon', JSON.stringify(mapExtent))
+		if (mapTypeArray.length !== 0) mapTypeArray.forEach((item) => query.append('mapType', item))
+		if (selectedRepeatArea) {
+			query.append('mapType', yieldMapTypeCode.repeat)
+			query.append('repeat', selectedRepeatArea?.name ?? '')
+		}
+
+		const url = `${uri}/export/yield-area?${query}`
+		window.open(url, '_blank')
+	}, [
+		session?.user.accessToken,
+		selectedDateRange,
+		currentAdmOption,
+		areaUnit,
+		quantityUnit,
+		mapExtent,
+		mapTypeArray,
+		selectedRepeatArea,
+	])
+
 	return (
 		<div className='relative'>
 			<Dialog
@@ -707,7 +740,7 @@ const PrintPlantMapDialog: React.FC<PrintPlantMapDialogProps> = ({
 												startIcon={
 													<CsvIcon fill={mapLegendArray.length === 0 ? '#d6d6d6' : ''} />
 												}
-												// onClick={handleBurntMapCsvExport}
+												onClick={handlePlantMapCsvExport}
 												disabled={mapLegendArray.length === 0 || isCapturing}
 											>
 												<Box
