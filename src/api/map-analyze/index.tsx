@@ -104,7 +104,7 @@ const mapAnalyze = {
 		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
 		if (payload.polygon) params.append('polygon', payload.polygon)
 
-		return await api.get(`/yield-area/plant?${params}`, undefined, axiosOption)
+		return await api.get(`/brunt-area/plant?${params}`, undefined, axiosOption)
 	},
 	getProductYieldArea: async (
 		payload: GetProductYieldAreaDtoIn,
