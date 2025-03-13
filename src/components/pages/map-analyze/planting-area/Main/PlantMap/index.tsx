@@ -1,6 +1,6 @@
 import MapView from '@/components/common/map/MapView'
 import useMapStore from '@/components/common/map/store/map'
-import { Box, IconButton, Tooltip, Typography } from '@mui/material'
+import { Box, IconButton, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -30,20 +30,34 @@ import PopupPlant from './PopupPlant'
 import { FillStyleExtension } from '@deck.gl/extensions'
 
 import { Feature, GeoJsonProperties, Geometry, Polygon } from 'geojson'
-import { MapExportIcon } from '@/components/svg/MenuIcon'
-import PrintPlantMapDialog from './PrintMapDialog'
+import PrintMapExportMain, {
+	EndBoundsType,
+	LATITUDE_OFFSET,
+	LONGITUDE_OFFSET,
+	MapLegendType,
+} from '@/components/shared/PrintMap'
 
-export interface MapLegendType {
-	key: yieldMapTypeCode
-	type: yieldMapTypeCode
-	title: string
+export interface MapPlantDataType {
+	type: 'plant'
+	plantYieldAreaData: GetPlantYieldAreaDtoOut[]
+	productYieldAreaData: GetProductYieldAreaDtoOut[]
+	replantYieldAreaData: GetReplantYieldAreaDtoOut[]
 }
 
-export interface EndBoundsType {
-	xmin: number
-	xmax: number
-	ymin: number
-	ymax: number
+export interface YieldLegendNumberType {
+	fifteen: number | string
+	ten: number | string
+	five: number | string
+	nine: number | string
+}
+
+export interface PlantMapExportParamType {
+	type: 'plant'
+	selectedDateRange: Date[]
+	currentAdmOption: OptionType | null
+	mapTypeArray: yieldMapTypeCode[]
+	selectedRepeatArea: GetRepeatAreaLookupDtoOut | undefined
+	yieldLegendNumber: YieldLegendNumberType
 }
 
 const endBoundsDefault: EndBoundsType = {
@@ -52,9 +66,6 @@ const endBoundsDefault: EndBoundsType = {
 	ymin: 0,
 	ymax: 0,
 }
-
-export const LONGITUDE_OFFSET = 0.5
-export const LATITUDE_OFFSET = 0.25
 
 export const PLANTING_MAP_ID = 'planting-map'
 
@@ -106,8 +117,6 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	const [popupData, setPopupData] = useState<PickingInfo[]>([])
 	const popup = useMemo(() => new Popup({ closeOnClick: false, closeButton: false }), [])
 
-	const [openPrintMapDialog, setOpenPrintMapDialog] = useState<boolean>(false)
-
 	const [endBounds, setEndBounds] = useState<EndBoundsType>(endBoundsDefault)
 	const [miniMapExtent, setMiniMapExtent] = useState<number[][] | null>(null)
 	const [plantMapGeometry, setPlantMapGeometry] = useState<number[][] | null>(null)
@@ -130,7 +139,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	const kgPerRai = useMemo(() => ({ fifteen: 15000, ten: 10000, five: 5000, nine: 9000 }), [])
 	const kgPerHexa = useMemo(() => ({ fifteen: 93750, ten: 62500, five: 31250, nine: 56250 }), [])
 
-	const yieldLegendNumber = useMemo(() => {
+	const yieldLegendNumber: YieldLegendNumberType = useMemo(() => {
 		if (quantityUnit === QuantityUnitKey.Ton) {
 			if (areaUnit === AreaUnitKey.Sqm) {
 				return tonPerSqm
@@ -430,6 +439,10 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
 	}, [isCurrentRegionOpen])
 
+	const mapPlantData: MapPlantDataType = useMemo(() => {
+		return { type: 'plant', plantYieldAreaData, productYieldAreaData, replantYieldAreaData }
+	}, [plantYieldAreaData, productYieldAreaData, replantYieldAreaData])
+
 	const mapLegendArray: MapLegendType[] = useMemo(() => {
 		const typeArray = [...mapTypeArray]
 		if (selectedRepeatArea) {
@@ -457,6 +470,17 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 			return { key, type, title }
 		})
 	}, [mapTypeArray, selectedRepeatArea, t])
+
+	const plantMapExportParam: PlantMapExportParamType = useMemo(() => {
+		return {
+			type: 'plant',
+			selectedDateRange,
+			currentAdmOption,
+			mapTypeArray,
+			selectedRepeatArea,
+			yieldLegendNumber,
+		}
+	}, [selectedDateRange, currentAdmOption, mapTypeArray, selectedRepeatArea, yieldLegendNumber])
 
 	return (
 		<Box className={classNames('', className)}>
@@ -530,41 +554,21 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					</Box>
 				</Box>
 
-				<Box className='absolute right-4 top-[356px] z-10 flex md:right-6 md:top-[226px] [&_button]:bg-white'>
-					<Tooltip title={t('common:tools.export')} placement='left' arrow>
-						<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
-							<IconButton
-								className='!h-6 !w-6 grow !rounded-none !p-1.5 [&_path]:stroke-black'
-								onClick={() => setOpenPrintMapDialog(true)}
-								disabled={
-									isPlantYieldAreaDataLoading ||
-									isProductYieldAreaDataLoading ||
-									isReplantYieldAreaDataLoading ||
-									isRegionLoading
-								}
-							>
-								<MapExportIcon />
-							</IconButton>
-						</Box>
-					</Tooltip>
-
-					<PrintPlantMapDialog
-						open={openPrintMapDialog}
-						currentAdmOption={currentAdmOption}
-						selectedRepeatArea={selectedRepeatArea}
-						defaultMapEndBounds={endBounds}
-						mapTypeArray={mapTypeArray}
-						mapLegendArray={mapLegendArray}
-						yieldLegendNumber={yieldLegendNumber}
-						selectedDateRange={selectedDateRange}
-						plantYieldAreaData={plantYieldAreaData}
-						productYieldAreaData={productYieldAreaData}
-						replantYieldAreaData={replantYieldAreaData}
-						defaultMiniMapExtent={miniMapExtent}
-						plantMapGeometry={plantMapGeometry}
-						onClose={() => setOpenPrintMapDialog(false)}
-					/>
-				</Box>
+				<PrintMapExportMain
+					id='plant'
+					mapData={mapPlantData}
+					mapLegendArray={mapLegendArray}
+					defaultMapEndBounds={endBounds}
+					defaultMiniMapExtent={miniMapExtent}
+					mapGeometry={plantMapGeometry}
+					mapExportParam={plantMapExportParam}
+					disabled={
+						isPlantYieldAreaDataLoading ||
+						isProductYieldAreaDataLoading ||
+						isReplantYieldAreaDataLoading ||
+						isRegionLoading
+					}
+				/>
 
 				<MapView
 					mapId={PLANTING_MAP_ID}

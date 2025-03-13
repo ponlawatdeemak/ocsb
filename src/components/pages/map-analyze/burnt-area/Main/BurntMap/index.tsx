@@ -1,6 +1,6 @@
 import MapView from '@/components/common/map/MapView'
 import useMapStore from '@/components/common/map/store/map'
-import { Box, IconButton, Tooltip, Typography } from '@mui/material'
+import { Box, IconButton, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -24,23 +24,29 @@ import { LngLatBoundsLike, Popup } from 'maplibre-gl'
 import { PickingInfo } from '@deck.gl/core'
 import PopupBurnt from './PopupBurnt'
 import CloseIcon from '@mui/icons-material/Close'
-import { MapExportIcon } from '@/components/svg/MenuIcon'
 import { GetLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
 import { booleanContains, booleanPointInPolygon, polygon } from '@turf/turf'
 import { Feature, GeoJsonProperties, Polygon } from 'geojson'
-import PrintBurntMapDialog from './PrintMapDialog'
+import PrintMapExportMain, {
+	EndBoundsType,
+	LATITUDE_OFFSET,
+	LONGITUDE_OFFSET,
+	MapLegendType,
+} from '@/components/shared/PrintMap'
 
-export interface MapLegendType {
-	key: mapTypeCode
-	type: mapTypeCode
-	title: string
+export interface MapBurntDataType {
+	type: 'burnt'
+	hotspotBurntAreaData: GetHotspotBurntAreaDtoOut[]
+	burntBurntAreaData: GetBurntBurntAreaDtoOut[]
+	plantBurntAreaData: GetPlantBurntAreaDtoOut[]
 }
 
-export interface EndBoundsType {
-	xmin: number
-	xmax: number
-	ymin: number
-	ymax: number
+export interface BurntMapExportParamType {
+	type: 'burnt'
+	selectedDateRange: Date[]
+	currentAdmOption: OptionType | null
+	mapTypeArray: mapTypeCode[]
+	selectedHotspots: hotspotTypeCode[]
 }
 
 const endBoundsDefault: EndBoundsType = {
@@ -49,9 +55,6 @@ const endBoundsDefault: EndBoundsType = {
 	ymin: 0,
 	ymax: 0,
 }
-
-export const LONGITUDE_OFFSET = 0.5
-export const LATITUDE_OFFSET = 0.25
 
 export const BURNT_MAP_ID = 'burnt-map'
 
@@ -98,8 +101,6 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const popupNode = useRef<HTMLDivElement>(null)
 	const [popupData, setPopupData] = useState<PickingInfo[]>([])
 	const popup = useMemo(() => new Popup({ closeOnClick: false, closeButton: false }), [])
-
-	const [openPrintMapDialog, setOpenPrintMapDialog] = useState<boolean>(false)
 
 	const [endBounds, setEndBounds] = useState<EndBoundsType>(endBoundsDefault)
 	const [miniMapExtent, setMiniMapExtent] = useState<number[][] | null>(null)
@@ -278,6 +279,10 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
 	}, [isCurrentRegionOpen])
 
+	const mapBurntData: MapBurntDataType = useMemo(() => {
+		return { type: 'burnt', hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData }
+	}, [hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
+
 	const mapLegendArray: MapLegendType[] = useMemo(() => {
 		return mapTypeArray.map((mapType) => {
 			let key, type, title
@@ -301,6 +306,10 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			return { key, type, title }
 		})
 	}, [mapTypeArray, t])
+
+	const burntMapExportParam: BurntMapExportParamType = useMemo(() => {
+		return { type: 'burnt', selectedDateRange, currentAdmOption, mapTypeArray, selectedHotspots }
+	}, [selectedDateRange, currentAdmOption, mapTypeArray, selectedHotspots])
 
 	return (
 		<Box className={classNames('', className)}>
@@ -353,40 +362,21 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					})}
 				</Box>
 
-				<Box className='absolute right-4 top-[356px] z-10 flex md:right-6 md:top-[226px] [&_button]:bg-white'>
-					<Tooltip title={t('common:tools.export')} placement='left' arrow>
-						<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
-							<IconButton
-								className='!h-6 !w-6 grow !rounded-none !p-1.5 [&_path]:stroke-black'
-								onClick={() => setOpenPrintMapDialog(true)}
-								disabled={
-									isHotspotBurntAreaDataLoading ||
-									isBurntBurntAreaDataLoading ||
-									isPlantBurntAreaDataLoading ||
-									isRegionLoading
-								}
-							>
-								<MapExportIcon />
-							</IconButton>
-						</Box>
-					</Tooltip>
-
-					<PrintBurntMapDialog
-						open={openPrintMapDialog}
-						currentAdmOption={currentAdmOption}
-						selectedHotspots={selectedHotspots}
-						defaultMapEndBounds={endBounds}
-						mapTypeArray={mapTypeArray}
-						mapLegendArray={mapLegendArray}
-						selectedDateRange={selectedDateRange}
-						hotspotBurntAreaData={hotspotBurntAreaData}
-						burntBurntAreaData={burntBurntAreaData}
-						plantBurntAreaData={plantBurntAreaData}
-						defaultMiniMapExtent={miniMapExtent}
-						burntMapGeometry={burntMapGeometry}
-						onClose={() => setOpenPrintMapDialog(false)}
-					/>
-				</Box>
+				<PrintMapExportMain
+					id='burnt'
+					mapData={mapBurntData}
+					mapLegendArray={mapLegendArray}
+					defaultMapEndBounds={endBounds}
+					defaultMiniMapExtent={miniMapExtent}
+					mapGeometry={burntMapGeometry}
+					mapExportParam={burntMapExportParam}
+					disabled={
+						isHotspotBurntAreaDataLoading ||
+						isBurntBurntAreaDataLoading ||
+						isPlantBurntAreaDataLoading ||
+						isRegionLoading
+					}
+				/>
 
 				<MapView
 					mapId={BURNT_MAP_ID}
