@@ -294,151 +294,63 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 				if (id === 'burnt' && mapDetail.type === 'burnt') {
 					return (
 						<>
-							<Box className='flex w-full'>
-								<Typography
-									className={classNames('w-[50%] !text-2xs text-black', {
-										'max-lg:!text-sm': !isFixedLegend,
-									})}
-								>
-									{t('common:date')}
-								</Typography>
-								<Typography
-									className={classNames('flex-1 !text-2xs !font-bold text-black', {
-										'max-lg:!text-sm': !isFixedLegend,
-									})}
-								>
-									{formatDate(Date.now(), 'dd MMMM yyyy', language)}
-								</Typography>
-							</Box>
-							{mapLegendArray.map((item) => item.type).includes(mapTypeCode.hotspots) && (
-								<Box className='flex w-full'>
-									<Typography
-										className={classNames('w-[50%] !text-2xs text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{t('hotspot')}
-									</Typography>
-									<Typography
-										className={classNames('flex-1 !text-2xs !font-bold text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{`${defaultNumber(mapDetail.hotspot.details.length)} ${t('common:point')}`}
-									</Typography>
-								</Box>
-							)}
-							{mapLegendArray.map((item) => item.type).includes(mapTypeCode.burnArea) && (
-								<Box className='flex w-full'>
-									<Typography
-										className={classNames('w-[50%] !text-2xs text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{t('burntScar')}
-									</Typography>
-									<Typography
-										className={classNames('flex-1 !text-2xs !font-bold text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{`${defaultNumber(mapDetail.burntArea.details.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
-									</Typography>
-								</Box>
-							)}
-							{mapLegendArray.map((item) => item.type).includes(mapTypeCode.plant) && (
-								<Box className='flex w-full'>
-									<Typography
-										className={classNames('w-[50%] !text-2xs text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{t('plantingArea')}
-									</Typography>
-									<Typography
-										className={classNames('flex-1 !text-2xs !font-bold text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{`${defaultNumber(mapDetail.planting.details.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
-									</Typography>
-								</Box>
-							)}
+							{Object.keys(mapDetail).map((item) => {
+								return (
+									mapLegendArray.map((item) => item.type).includes(item as mapTypeCode) && (
+										<Box key={item} className='flex w-full'>
+											<Typography
+												className={classNames('w-[50%] !text-2xs text-black', {
+													'max-lg:!text-sm': !isFixedLegend,
+												})}
+											>
+												{item === mapTypeCode.hotspots && t('hotspot')}
+												{item === mapTypeCode.burnArea && t('burntScar')}
+												{item === mapTypeCode.plant && t('plantingArea')}
+											</Typography>
+											<Typography
+												className={classNames('flex-1 !text-2xs !font-bold text-black', {
+													'max-lg:!text-sm': !isFixedLegend,
+												})}
+											>
+												{item === mapTypeCode.hotspots
+													? `${defaultNumber(mapDetail.hotspots.details.length)} ${t('common:point')}`
+													: `${defaultNumber(mapDetail[item as mapTypeCode].details.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
+											</Typography>
+										</Box>
+									)
+								)
+							})}
 						</>
 					)
 				} else if (id === 'plant' && mapDetail.type === 'plant') {
 					return (
 						<>
-							<Box className='flex w-full'>
-								<Typography
-									className={classNames('w-[50%] !text-2xs text-black', {
-										'max-lg:!text-sm': !isFixedLegend,
-									})}
-								>
-									{t('common:date')}
-								</Typography>
-								<Typography
-									className={classNames('flex-1 !text-2xs !font-bold text-black', {
-										'max-lg:!text-sm': !isFixedLegend,
-									})}
-								>
-									{formatDate(Date.now(), 'dd MMMM yyyy', language)}
-								</Typography>
-							</Box>
-							{mapLegendArray.map((item) => item.type).includes(yieldMapTypeCode.plant) && (
-								<Box className='flex w-full'>
-									<Typography
-										className={classNames('w-[50%] !text-2xs text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{t('plantingArea')}
-									</Typography>
-									<Typography
-										className={classNames('flex-1 !text-2xs !font-bold text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{`${defaultNumber(mapDetail.plant.details.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
-									</Typography>
-								</Box>
-							)}
-							{mapLegendArray.map((item) => item.type).includes(yieldMapTypeCode.product) && (
-								<Box className='flex w-full'>
-									<Typography
-										className={classNames('w-[50%] !text-2xs text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{t('sugarCaneYield')}
-									</Typography>
-									<Typography
-										className={classNames('flex-1 !text-2xs !font-bold text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{`${defaultNumber(mapDetail.product.details.reduce((total, item) => total + (item.properties?.volumn?.[quantityUnit] ?? 0), 0))} ${t('common:' + quantityUnit)}`}
-									</Typography>
-								</Box>
-							)}
-							{mapLegendArray.map((item) => item.type).includes(yieldMapTypeCode.repeat) && (
-								<Box className='flex w-full'>
-									<Typography
-										className={classNames('w-[50%] !text-2xs text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{t('replantingArea')}
-									</Typography>
-									<Typography
-										className={classNames('flex-1 !text-2xs !font-bold text-black', {
-											'max-lg:!text-sm': !isFixedLegend,
-										})}
-									>
-										{`${defaultNumber(mapDetail.replant.details.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
-									</Typography>
-								</Box>
-							)}
+							{Object.keys(mapDetail).map((item) => {
+								return (
+									mapLegendArray.map((item) => item.type).includes(item as yieldMapTypeCode) && (
+										<Box key={item} className='flex w-full'>
+											<Typography
+												className={classNames('w-[50%] !text-2xs text-black', {
+													'max-lg:!text-sm': !isFixedLegend,
+												})}
+											>
+												{item === yieldMapTypeCode.plant && t('plantingArea')}
+												{item === yieldMapTypeCode.product && t('sugarCaneYield')}
+												{item === yieldMapTypeCode.repeat && t('replantingArea')}
+											</Typography>
+											<Typography
+												className={classNames('flex-1 !text-2xs !font-bold text-black', {
+													'max-lg:!text-sm': !isFixedLegend,
+												})}
+											>
+												{item === yieldMapTypeCode.product
+													? `${defaultNumber(mapDetail.product.details.reduce((total, item) => total + (item.properties?.volumn?.[quantityUnit] ?? 0), 0))} ${t('common:' + quantityUnit)}`
+													: `${defaultNumber(mapDetail[item as yieldMapTypeCode].details.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
+											</Typography>
+										</Box>
+									)
+								)
+							})}
 						</>
 					)
 				}
@@ -521,6 +433,15 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								</Box>
 								<Box className='flex w-full flex-1 flex-col items-center justify-between gap-5 bg-[#E6E6E6] p-4'>
 									<Box className='flex w-full flex-1 flex-col gap-2 lg:gap-1.5'>
+										<Box className='flex w-full'>
+											<Typography className='w-[50%] !text-sm text-black lg:!text-2xs'>
+												{t('common:date')}
+											</Typography>
+											<Typography className='flex-1 !text-sm !font-bold text-black lg:!text-2xs'>
+												{formatDate(Date.now(), 'dd MMMM yyyy', language)}
+											</Typography>
+										</Box>
+
 										{mapDetailElement()}
 									</Box>
 
@@ -630,7 +551,18 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								</Box>
 							</Box>
 							<Box className='flex w-full flex-1 flex-col items-center justify-between gap-5 bg-[#E6E6E6] p-4'>
-								<Box className='flex w-full flex-1 flex-col gap-1.5'>{mapDetailElement(true)}</Box>
+								<Box className='flex w-full flex-1 flex-col gap-1.5'>
+									<Box className='flex w-full'>
+										<Typography className='w-[50%] !text-2xs text-black'>
+											{t('common:date')}
+										</Typography>
+										<Typography className='flex-1 !text-2xs !font-bold text-black'>
+											{formatDate(Date.now(), 'dd MMMM yyyy', language)}
+										</Typography>
+									</Box>
+
+									{mapDetailElement(true)}
+								</Box>
 
 								<Box className='flex w-full'>
 									<Typography className='!text-2xs text-[#707070]'>

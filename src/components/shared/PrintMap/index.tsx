@@ -31,16 +31,16 @@ interface MapDetailType {
 
 export interface BurntMapDetailType {
 	type: 'burnt'
-	hotspot: MapDetailType
-	burntArea: MapDetailType
-	planting: MapDetailType
+	hotspots: MapDetailType
+	burnArea: MapDetailType
+	plant: MapDetailType
 }
 
 export interface PlantMapDetailType {
 	type: 'plant'
 	plant: MapDetailType
 	product: MapDetailType
-	replant: MapDetailType
+	repeat: MapDetailType
 }
 
 export interface MapLegendType {
@@ -151,9 +151,9 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 				if (id === 'burnt' && mapData.type === 'burnt') {
 					const burntMapDetail: BurntMapDetailType = {
 						type: 'burnt',
-						hotspot: { details: findPointsInsideBoundary(mapData.hotspotBurntAreaData as any, extent) },
-						burntArea: { details: findPolygonsInsideBoundary(mapData.burntBurntAreaData as any, extent) },
-						planting: { details: findPolygonsInsideBoundary(mapData.plantBurntAreaData as any, extent) },
+						hotspots: { details: findPointsInsideBoundary(mapData.hotspotBurntAreaData as any, extent) },
+						burnArea: { details: findPolygonsInsideBoundary(mapData.burntBurntAreaData as any, extent) },
+						plant: { details: findPolygonsInsideBoundary(mapData.plantBurntAreaData as any, extent) },
 					}
 
 					setMapDetail((prevDetail) => ({ ...prevDetail, ...burntMapDetail }))
@@ -162,7 +162,7 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 						type: 'plant',
 						plant: { details: findPolygonsInsideBoundary(mapData.plantYieldAreaData as any, extent) },
 						product: { details: findPolygonsInsideBoundary(mapData.productYieldAreaData as any, extent) },
-						replant: { details: findPolygonsInsideBoundary(mapData.replantYieldAreaData as any, extent) },
+						repeat: { details: findPolygonsInsideBoundary(mapData.replantYieldAreaData as any, extent) },
 					}
 
 					setMapDetail((prevDetail) => ({ ...prevDetail, ...plantMapDetail }))
