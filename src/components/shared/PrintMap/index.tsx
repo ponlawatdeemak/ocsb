@@ -578,7 +578,19 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 				className,
 			)}
 		>
-			<Tooltip title={t('tools.export')} placement='left' arrow>
+			<Tooltip
+				title={t('tools.export')}
+				componentsProps={{
+					tooltip: {
+						className: '!bg-white !text-xs !font-normal !text-black !px-3 !py-1.5',
+					},
+					arrow: {
+						className: '!text-white',
+					},
+				}}
+				placement='left'
+				arrow
+			>
 				<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 					<IconButton
 						className='!h-6 !w-6 grow !rounded-none !p-1.5 [&_path]:stroke-black'

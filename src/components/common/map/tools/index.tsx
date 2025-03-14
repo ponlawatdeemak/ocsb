@@ -142,7 +142,19 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 		<>
 			{/* Tools Controls */}
 			<Box className='map-tools absolute right-4 top-[140px] z-10 flex flex-col gap-2 md:right-6 md:top-2.5 [&_button]:bg-white'>
-				<Tooltip title={t('tools.compass')} placement='left' arrow>
+				<Tooltip
+					title={t('tools.compass')}
+					componentsProps={{
+						tooltip: {
+							className: '!bg-white !text-xs !font-normal !text-black !px-3 !py-1.5',
+						},
+						arrow: {
+							className: '!text-white',
+						},
+					}}
+					placement='left'
+					arrow
+				>
 					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 						<IconButton
 							className='!h-6 !w-6 grow !rounded-none !p-1'
@@ -157,7 +169,19 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 					</Box>
 				</Tooltip>
 
-				<Tooltip title={t('tools.zoom')} placement='left' arrow>
+				<Tooltip
+					title={t('tools.zoom')}
+					componentsProps={{
+						tooltip: {
+							className: '!bg-white !text-xs !font-normal !text-black !px-3 !py-1.5',
+						},
+						arrow: {
+							className: '!text-white',
+						},
+					}}
+					placement='left'
+					arrow
+				>
 					<ButtonGroup
 						orientation='vertical'
 						className='flex !h-12 !w-6 items-center divide-y divide-solid divide-gray overflow-hidden !rounded-[3px] !bg-white !shadow-none'
@@ -171,7 +195,19 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 					</ButtonGroup>
 				</Tooltip>
 
-				<Tooltip title={t('tools.basemap')} placement='left' arrow>
+				<Tooltip
+					title={t('tools.basemap')}
+					componentsProps={{
+						tooltip: {
+							className: '!bg-white !text-xs !font-normal !text-black !px-3 !py-1.5',
+						},
+						arrow: {
+							className: '!text-white',
+						},
+					}}
+					placement='left'
+					arrow
+				>
 					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 						<IconButton
 							className='!h-6 !w-6 grow !rounded-none !p-1.5'
@@ -182,7 +218,19 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 					</Box>
 				</Tooltip>
 
-				<Tooltip title={t('tools.extent')} placement='left' arrow>
+				<Tooltip
+					title={t('tools.extent')}
+					componentsProps={{
+						tooltip: {
+							className: '!bg-white !text-xs !font-normal !text-black !px-3 !py-1.5',
+						},
+						arrow: {
+							className: '!text-white',
+						},
+					}}
+					placement='left'
+					arrow
+				>
 					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 						<IconButton className='!h-6 !w-6 grow !rounded-none !p-1.5' onClick={handleExtentLocation}>
 							<MapExtentIcon />
@@ -190,7 +238,19 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 					</Box>
 				</Tooltip>
 
-				<Tooltip title={t('tools.current')} placement='left' arrow>
+				<Tooltip
+					title={t('tools.current')}
+					componentsProps={{
+						tooltip: {
+							className: '!bg-white !text-xs !font-normal !text-black !px-3 !py-1.5',
+						},
+						arrow: {
+							className: '!text-white',
+						},
+					}}
+					placement='left'
+					arrow
+				>
 					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 						<IconButton className='!h-6 !w-6 grow !rounded-none !p-1.5' onClick={handleCurrentLocation}>
 							<MapCurrentLocationIcon />
@@ -198,7 +258,19 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 					</Box>
 				</Tooltip>
 
-				<Tooltip title={t('tools.measurement')} placement='left' arrow>
+				<Tooltip
+					title={t('tools.measurement')}
+					componentsProps={{
+						tooltip: {
+							className: '!bg-white !text-xs !font-normal !text-black !px-3 !py-1.5',
+						},
+						arrow: {
+							className: '!text-white',
+						},
+					}}
+					placement='left'
+					arrow
+				>
 					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
 						<IconButton
 							className='!h-6 !w-6 grow !rounded-none !p-[3.5px]'
@@ -208,14 +280,6 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 						</IconButton>
 					</Box>
 				</Tooltip>
-
-				{/* <Tooltip title={t('tools.export')} placement='left' arrow>
-					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
-						<IconButton className='!h-6 !w-6 grow !rounded-none !p-1.5'>
-							<MapExportIcon />
-						</IconButton>
-					</Box>
-				</Tooltip> */}
 			</Box>
 
 			{/* Basemap Selector */}
