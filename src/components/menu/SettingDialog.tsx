@@ -116,7 +116,7 @@ const SettingDialog: React.FC<SettingDialogProps> = ({ open, currentSetting, set
 				}
 			}}
 			PaperProps={{
-				className: 'w-[500px] h-[500px] !rounded-[15px] !bg-primary',
+				className: '!m-4 w-[500px] h-[500px] !rounded-[15px] !bg-primary',
 			}}
 		>
 			<DialogTitle className='flex items-center !py-6'>
@@ -126,11 +126,11 @@ const SettingDialog: React.FC<SettingDialogProps> = ({ open, currentSetting, set
 				</IconButton>
 			</DialogTitle>
 			<DialogContent className='flex h-full w-full flex-col justify-between rounded-[15px] bg-white !p-10'>
-				<Box className='flex w-full flex-col gap-6'>
-					<Box className='flex items-center justify-between'>
+				<Box className='flex w-full flex-col gap-4 sm:gap-6'>
+					<Box className='flex items-start justify-between max-sm:flex-col max-sm:gap-3 sm:items-center'>
 						<Typography className='!text-sm !font-light text-black'>{t('areaUnit')}</Typography>
 						<FilterSelect
-							className='w-[276px]'
+							className='w-full sm:w-[276px]'
 							fullWidth={false}
 							id='unitArea'
 							value={currentSetting.areaUnit}
@@ -140,10 +140,10 @@ const SettingDialog: React.FC<SettingDialogProps> = ({ open, currentSetting, set
 							required
 						/>
 					</Box>
-					<Box className='flex items-center justify-between'>
+					<Box className='flex items-start justify-between max-sm:flex-col max-sm:gap-3 sm:items-center'>
 						<Typography className='!text-sm !font-light text-black'>{t('quantityUnit')}</Typography>
 						<FilterSelect
-							className='w-[276px]'
+							className='w-full sm:w-[276px]'
 							fullWidth={false}
 							id='unitQuantity'
 							value={currentSetting.quantityUnit}
@@ -153,26 +153,26 @@ const SettingDialog: React.FC<SettingDialogProps> = ({ open, currentSetting, set
 							required
 						/>
 					</Box>
-					<Box className='flex items-center justify-between'>
+					<Box className='flex items-start justify-between max-sm:flex-col max-sm:gap-3 sm:items-center'>
 						<Typography className='!text-sm !font-light text-black'>{t('languages')}</Typography>
-						<Box className='flex w-[276px] items-center'>
+						<Box className='flex w-full items-center sm:w-[276px]'>
 							<ToggleButtonGroup
 								size='small'
 								exclusive
 								color='primary'
-								className='flex h-[38px] w-[132px] !rounded-[5px] bg-[#E6E6E6] [&_.Mui-selected>div]:text-white [&_.Mui-selected]:!bg-secondary'
+								className='flex h-[38px] w-[200px] !rounded-[5px] bg-[#E6E6E6] sm:w-[132px] [&_.Mui-selected>div]:text-white [&_.Mui-selected]:!bg-secondary'
 								value={currentSetting.language}
 								onChange={handleToggleLanguage}
 								disabled={busy}
 							>
 								<ToggleButton
-									className='!m-0 flex h-full w-[66px] !rounded-[5px] !border-0 !px-0 !py-2'
+									className='!m-0 flex h-full w-full !rounded-[5px] !border-0 !px-0 !py-2'
 									value={Languages.TH}
 								>
 									<Box className='text-sm font-normal normal-case text-black'>{t('languagesTh')}</Box>
 								</ToggleButton>
 								<ToggleButton
-									className='!m-0 flex h-full w-[66px] !rounded-[5px] !border-0 !px-0 !py-2'
+									className='!m-0 flex h-full w-full !rounded-[5px] !border-0 !px-0 !py-2'
 									value={Languages.EN}
 								>
 									<Box className='text-sm font-normal normal-case text-black'>{t('languagesEn')}</Box>
@@ -184,7 +184,7 @@ const SettingDialog: React.FC<SettingDialogProps> = ({ open, currentSetting, set
 				<Box className='flex justify-end gap-3'>
 					<Button
 						variant='contained'
-						className='w-[105px] !rounded-[5px] !bg-[#E6E6E6] !py-2.5 !shadow-none'
+						className='w-full !rounded-[5px] !bg-[#E6E6E6] !py-2.5 !shadow-none sm:w-[105px]'
 						onClick={onClose}
 						disabled={busy}
 					>
@@ -192,7 +192,7 @@ const SettingDialog: React.FC<SettingDialogProps> = ({ open, currentSetting, set
 					</Button>
 					<Button
 						variant='contained'
-						className='w-[105px] !rounded-[5px] !bg-secondary !py-2.5 !shadow-none'
+						className='w-full !rounded-[5px] !bg-secondary !py-2.5 !shadow-none sm:w-[105px]'
 						onClick={onSettingsSubmit}
 						disabled={busy}
 					>
