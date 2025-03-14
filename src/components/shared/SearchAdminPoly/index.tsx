@@ -21,7 +21,7 @@ const SearchAdminPoly: React.FC<SearchAdminPolyProps> = ({
 	searchSelectedAdmOption,
 	handleSelectedAdmOption,
 }) => {
-	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
+	const { t, i18n } = useTranslation(['common', 'map-analyze'])
 	const language = i18n.language as keyof ResponseLanguage
 
 	const [searchAdmInputValue, setSearchAdmInputValue] = useState<string>('')
@@ -68,11 +68,13 @@ const SearchAdminPoly: React.FC<SearchAdminPolyProps> = ({
 				onInputChange={debounce(handleChangeAdmInput, 500)}
 				onChange={handleSelectAdmOption}
 				slotProps={{
-					paper: {
-						className: 'border mt-1 !shadow-none border-solid border-gray !rounded-[5px]',
-					},
 					popper: { sx: { zIndex: 10000 } },
+					paper: {
+						className:
+							'border mt-1 !shadow-none border-solid border-gray !rounded-[5px] [&_.MuiAutocomplete-noOptions]:!text-xs [&_.MuiAutocomplete-noOptions]:!p-4',
+					},
 				}}
+				ListboxProps={{ className: '[&_>li]:!py-2 [&_>li]:!text-xs' }}
 				renderInput={(params) => {
 					const { InputLabelProps, InputProps, ...otherParams } = params
 					return (
@@ -100,7 +102,7 @@ const SearchAdminPoly: React.FC<SearchAdminPolyProps> = ({
 						/>
 					)
 				}}
-				noOptionsText={isSearchAdmDataLoading ? 'พิมพ์คำค้นหา' : 'ไม่พบข้อมูล'}
+				noOptionsText={isSearchAdmDataLoading ? t('typing') : t('noData')}
 			/>
 		</FormControl>
 	)
