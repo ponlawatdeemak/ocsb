@@ -7,7 +7,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { useTranslation } from 'next-i18next'
 import { Close } from '@mui/icons-material'
 import FilterSelect, { FilterSelectOptionType } from '@/components/common/select/FilterSelect'
-import { area, length } from '@turf/turf'
+import { area, length, lineString } from '@turf/turf'
 
 enum MeasureMode {
 	Line,
@@ -37,6 +37,7 @@ const Measurement = ({
 }) => {
 	const { t } = useTranslation('common')
 	const [totalDistance, setTotalDistance] = useState<number>(0)
+	const [perimeter, setPerimeter] = useState<number>(0)
 	const [selectedUnit, setSelectedUnit] = useState<{ id: string; name: string }>({
 		id: '0',
 		name: t('measurement.line.meters'),
@@ -77,9 +78,9 @@ const Measurement = ({
 						'line-join': 'round',
 					},
 					paint: {
-						'line-color': '#001AFF',
-						'line-dasharray': [1, 0],
-						'line-width': 3,
+						'line-color': '#FBBF07',
+						'line-dasharray': [1, 2],
+						'line-width': 2,
 					},
 				},
 				{
@@ -88,7 +89,7 @@ const Measurement = ({
 					paint: {
 						'circle-radius': 4,
 						'circle-color': '#ffffff',
-						'circle-stroke-color': '#001AFF',
+						'circle-stroke-color': '#FBBF07',
 						'circle-stroke-width': 2,
 					},
 				},
@@ -97,7 +98,7 @@ const Measurement = ({
 					type: 'fill',
 					filter: ['all', ['==', '$type', 'Polygon'], ['!=', 'mode', 'static']],
 					paint: {
-						'fill-color': '#1400FF',
+						'fill-color': '#FBBF07',
 						'fill-opacity': 0.4,
 					},
 				},
@@ -126,9 +127,23 @@ const Measurement = ({
 	const updateArea = useCallback(
 		(e: any) => {
 			const data = draw.getAll()
+
 			if (data.features.length > 0) {
-				const temp = area(data)
-				setTotalDistance(temp)
+				const feature = data.features[0]
+
+				if (feature.geometry.type === 'Polygon') {
+					const polygon = feature.geometry
+
+					if (polygon.coordinates.length > 0 && polygon.coordinates[0].length >= 2) {
+						const polygonArea = area(polygon)
+
+						const line = lineString(polygon.coordinates[0])
+						const perimeter = length(line, { units: 'meters' })
+
+						setTotalDistance(polygonArea)
+						setPerimeter(perimeter)
+					}
+				}
 			}
 			if (e.type === 'draw.delete') {
 				draw.changeMode('draw_polygon')
@@ -141,6 +156,7 @@ const Measurement = ({
 		if (!map || !draw) return
 
 		setTotalDistance(0)
+		setPerimeter(0)
 
 		if (map.hasControl(draw as any)) {
 			map.removeControl(draw as any)
@@ -233,6 +249,20 @@ const Measurement = ({
 		}
 	}, [selectedUnit, totalDistance])
 
+	const displayPerimeterValue = useMemo(() => {
+		if (perimeter) {
+			if (selectedUnit.id === LineUnit.Meter.toString()) {
+				return `${Number(perimeter.toFixed(2)).toLocaleString()} ${lutLintUnit.find((item) => item.id === selectedUnit.id)?.name}`
+			} else if (selectedUnit.id === LineUnit.Kilometer.toString()) {
+				const kilometerValue = perimeter / 1000
+
+				return `${Number(kilometerValue.toFixed(2)).toLocaleString()} ${lutLintUnit.find((item) => item.id === selectedUnit.id)?.name}`
+			}
+		} else {
+			return '-'
+		}
+	}, [selectedUnit, perimeter, lutLintUnit])
+
 	return (
 		<Box
 			style={{ display: open ? undefined : 'none' }}
@@ -269,6 +299,13 @@ const Measurement = ({
 						{mode === MeasureMode.Line ? displayLineValue : displayPolygonValue}
 					</Typography>
 				</Box>
+
+				{mode === MeasureMode.Polygon && (
+					<Box className='flex items-center justify-between'>
+						<Typography className='!text-sm text-black'>{'Perimeter:'}</Typography>
+						<Typography className='!text-sm text-primary'>{displayPerimeterValue}</Typography>
+					</Box>
+				)}
 			</Box>
 		</Box>
 	)
