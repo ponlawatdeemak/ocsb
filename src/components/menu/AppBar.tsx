@@ -75,7 +75,12 @@ const AppBar: React.FC<AppBarProps> = ({ className }) => {
 			)}
 
 			{!isDesktop && (
-				<Drawer anchor='right' open={drawerMenuOpen} onClose={toggleMenuDrawer(false)}>
+				<Drawer
+					PaperProps={{ className: '!h-full' }}
+					anchor='right'
+					open={drawerMenuOpen}
+					onClose={toggleMenuDrawer(false)}
+				>
 					<Box className='h-full w-[300px] p-4'>
 						<Box className='mb-8 mt-3 flex justify-between'>
 							<UserAvatar user={session?.user} />
