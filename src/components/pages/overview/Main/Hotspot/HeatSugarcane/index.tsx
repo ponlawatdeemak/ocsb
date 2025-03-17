@@ -25,7 +25,7 @@ const HotSpotHeatSugarcaneMain = ({
 					heatPointSugarcaneData.map((item, index) => (
 						<div key={item.regionId} className='flex flex-col'>
 							<div className='flex items-center justify-between text-black'>
-								<Typography className='!text-xs'>
+								<Typography className='truncate !text-xs'>
 									{`${
 										item[
 											_.camelCase(
@@ -40,7 +40,7 @@ const HotSpotHeatSugarcaneMain = ({
 										] as string[]
 									).join(',')})`}
 								</Typography>
-								<Typography className='!text-sm'>{`${t('common:total')} ${defaultNumber(item.regionCount)} ${t('common:point')}`}</Typography>
+								<Typography className='shrink-0 !text-sm'>{`${t('common:total')} ${defaultNumber(item.regionCount)} ${t('common:point')}`}</Typography>
 							</div>
 							<LinearProgressBar
 								value={Math.max((item.inSugarcane * 100) / item.regionCount, isDesktopXl ? 7 : 6)}
