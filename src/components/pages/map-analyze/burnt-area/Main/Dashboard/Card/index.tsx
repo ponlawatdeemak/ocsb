@@ -252,11 +252,9 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	}, [hideData, inSugarCaneArea, language, t])
 
 	useEffect(() => {
-		if (openDrawer) {
-			setHideData([])
-			setDonutColorHotspot(defaultColorHotspot)
-		}
-	}, [defaultColorHotspot, openDrawer])
+		setHideData([])
+		setDonutColorHotspot(defaultColorHotspot)
+	}, [defaultColorHotspot, isDesktopMD])
 
 	return (
 		<Box
