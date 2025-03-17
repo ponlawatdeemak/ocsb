@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query'
 import useQuantityUnit from '@/store/quantity-unit'
 import { AreaUnitKey, QuantityUnitKey } from '@/enum'
 import { SelectedArea } from '../..'
+import useResponsive from '@/hook/responsive'
 
 interface PlantingCardMainProps {
 	handleClickDelete: () => void
@@ -42,6 +43,7 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 	const areaUnitTranslate = `common:${areaUnit}`
 	const quantityUnitTranslate = `common:${quantityUnit}`
 	const avgSugarCaneYieldFractions = quantityUnit === QuantityUnitKey.Ton && areaUnit === AreaUnitKey.Sqm ? 6 : 2
+	const { isDesktopMD } = useResponsive()
 
 	const { data: dashBoardData, isFetching: isDashBoardDataLoading } = useQuery({
 		queryKey: ['getDashBoardYieldArea', area.admOption, mapTypeArray, selectedDateRange, area.id],
@@ -54,7 +56,10 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 			})
 			return response.data
 		},
-		enabled: openDrawer === true && mapTypeArray.length !== 0,
+		enabled:
+			openDrawer === true &&
+			mapTypeArray.length !== 0 &&
+			((!isDesktopMD && !!area.id.includes('mobile')) || (isDesktopMD && !area.id.includes('mobile'))),
 	})
 
 	//#region plant
