@@ -5,6 +5,8 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import nextI18NextConfig from '../../next-i18next.config'
 import { OverviewMain } from '@/components/pages/overview'
 import MainLayout from '@/components/layout/MainLayout'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 export const getServerSideProps: GetServerSideProps = async (context) => ({
 	props: {
@@ -18,9 +20,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => ({
 
 const OverviewPage = () => {
 	return (
-		<MainLayout>
-			<OverviewMain />
-		</MainLayout>
+		<DndProvider backend={HTML5Backend}>
+			<MainLayout>
+				<OverviewMain />
+			</MainLayout>
+		</DndProvider>
 	)
 }
 

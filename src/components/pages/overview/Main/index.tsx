@@ -2,7 +2,7 @@ import FilterSelect from '@/components/common/select/FilterSelect'
 import { CircularProgress, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useTranslation } from 'next-i18next'
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import InfoTooltip from '../Tooltip/InfoTooltip'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
@@ -15,9 +15,17 @@ import OverviewProductMain from './Product'
 import OverviewProductPredictMain from './ProductPredict'
 import OverviewReplantMain from './Replant'
 import { Languages } from '@/enum'
+import { useDrop, XYCoord } from 'react-dnd'
+import { DndButton } from '../DndButton'
+import { ViewsIcon } from '@/components/svg/MenuIcon'
 
 const PRODUCT_PREDICT_LEGEND_LENGTH = 4
 const REPLANT_LEGEND_LENGTH = 3
+
+interface DragItem {
+	bottom: number
+	left: number
+}
 
 interface OverviewMainProps {
 	className?: string
@@ -145,8 +153,45 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 		}
 	}, [replantData, replantYear, yearProductionLookupData])
 
+	const [coordinate, setCoordinate] = useState<{
+		bottom: number
+		left: number
+	}>({
+		bottom: 10,
+		left: 10,
+	})
+
+	const moveBox = useCallback((left: number, bottom: number) => {
+		setCoordinate({ bottom, left })
+	}, [])
+
+	const [, drop] = useDrop(
+		() => ({
+			accept: 'box',
+			drop(item: DragItem, monitor) {
+				const delta = monitor.getDifferenceFromInitialOffset() as XYCoord
+
+				const left = Math.round(item.left + delta.x)
+				const bottom = Math.round(item.bottom - delta.y)
+				moveBox(left, bottom)
+				return undefined
+			},
+		}),
+		[moveBox],
+	)
+
+	const dropRef = useCallback(
+		(node: HTMLDivElement) => {
+			if (node) drop(node)
+		},
+		[drop],
+	)
+
 	return (
-		<div className={classNames('relative flex h-auto w-full flex-1 flex-col p-6 xl:px-6 xl:py-3', className)}>
+		<div
+			ref={dropRef}
+			className={classNames('relative flex h-auto w-full flex-1 flex-col p-6 xl:px-6 xl:py-3', className)}
+		>
 			<div className='absolute left-0 top-0 z-0 h-[750px] w-full bg-primary xl:h-[300px]'></div>
 			<div className='z-10 flex h-full w-full flex-1 flex-col gap-6 text-white xl:gap-4'>
 				<div className='flex w-full flex-col justify-between gap-6 xl:flex-row xl:items-center'>
@@ -217,6 +262,9 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 					</>
 				)}
 			</div>
+			<DndButton left={coordinate.left} bottom={coordinate.bottom} hideSourceOnDrag={true}>
+				<ViewsIcon />
+			</DndButton>
 		</div>
 	)
 }
