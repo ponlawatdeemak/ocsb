@@ -24,6 +24,7 @@ export enum PrivatePath {
 	UserManagement = '/user-management',
 	UserManagementForm = '/user-management/form',
 	Profile = '/profile',
+	LineExport = '/line-export',
 }
 
 export const AppPath = { ...AuthPath, ...PublicPath, ...PrivatePath }
