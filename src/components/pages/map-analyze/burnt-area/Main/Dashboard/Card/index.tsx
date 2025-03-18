@@ -256,7 +256,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	return (
 		<Box
 			className={classNames(
-				'relative flex h-full w-[375px] min-w-[375px] flex-col bg-white md:w-[300px] md:min-w-0',
+				'relative flex h-full w-[375px] min-w-[375px] flex-col bg-white md:w-[25vw] md:min-w-[25vw]',
 				className,
 			)}
 		>
