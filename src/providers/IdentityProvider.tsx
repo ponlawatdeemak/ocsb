@@ -43,7 +43,11 @@ export default function IdentityProvider(props: Props) {
 	useEffect(() => {
 		if (session !== undefined) {
 			if (requireLogin && !session && status != 'loading') {
-				router?.push(AppPath.Login)
+				const callbackUrl = window.location.href
+				router?.push({
+					pathname: AppPath.Login,
+					query: { callbackUrl },
+				})
 			} else {
 				setInitial(true)
 			}

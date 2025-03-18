@@ -32,6 +32,7 @@ import { PositionEntity, ProvincesEntity, RegionsEntity, RolesEntity } from '@in
 import { ResponseDto } from '@interface/config/app.config'
 import { useSession } from 'next-auth/react'
 import { getUserImage } from '@/utils/image'
+import LineButton from './LineButton'
 
 interface ProfileMainProps {
 	className?: string
@@ -293,15 +294,6 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 		event.preventDefault()
 	}, [])
 
-	const lineNotiButtonElement = (
-		<Button
-			className='text-nowrap rounded-[5px] !bg-[#FBBF07] !px-[12px] !py-[5px] text-sm !font-normal !shadow-none'
-			variant='contained'
-		>
-			{t('um:button.lineNoti')}
-		</Button>
-	)
-
 	const changePasswordButtonElement = (
 		<Button
 			className='text-nowrap rounded-[5px] !border-[#D8D8D8] !py-[8px] text-sm !shadow-none'
@@ -328,7 +320,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 					title={t('common:profile')}
 					formik={formik}
 					loading={isPending || busy || isProfileDataLoading}
-					lineNotiButtonElement={lineNotiButtonElement}
+					lineNotiButtonElement={<LineButton />}
 					changePasswordButtonElement={changePasswordButtonElement}
 					className='relative top-[-60px] h-max'
 				/>

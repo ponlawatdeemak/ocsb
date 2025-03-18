@@ -2,6 +2,7 @@
 	"titleMain": "User Management",
 	"titleCreate": "Create User",
 	"titleEdit": "Edit User",
+	"titleLine": "Scan QR code to get LINE notification",
 	"noData": "No Data",
 	"confirm": {
 		"delete": {
@@ -78,8 +79,8 @@
 		"fileSizeLimitExceed": "File size does not exceed 15 MB",
 		"success": "Import success"
 	},
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page",
-    "of": "Of"
+	"previous": "Previous",
+	"next": "Next",
+	"page": "Page",
+	"of": "Of"
 }

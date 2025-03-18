@@ -2,6 +2,7 @@
 	"titleMain": "การจัดการสิทธ์ผู้ใช้งาน",
 	"titleCreate": "เพิ่มผู้ใช้งาน",
 	"titleEdit": "แก้ไขผู้ใช้งาน",
+	"titleLine": "แสกน QR code เพื่อรับการแจ้งเตือนทางไลน์",
 	"noData": "ไม่พบข้อมูล",
 	"confirm": {
 		"delete": {
@@ -77,8 +78,8 @@
 		"invalidFileType": "นามสกุลไฟล์ไม่ถูกต้อง",
 		"fileSizeLimitExceed": "ขนาดไฟล์ต้องไม่เกิน 15 MB"
 	},
-    "previous": "ก่อนหน้า",
-    "next": "ถัดไป",
-    "page": "หน้า",
-    "of": "จาก"
+	"previous": "ก่อนหน้า",
+	"next": "ถัดไป",
+	"page": "หน้า",
+	"of": "จาก"
 }
