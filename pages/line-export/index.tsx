@@ -20,15 +20,14 @@ const LineExportPage = () => {
 	const { data: session } = useSession()
 	const searchParams = useSearchParams()
 	const appCallbackUrl = useMemo(() => searchParams?.get('app_callback'), [searchParams])
-	const [init, setInit] = useState(false)
 
 	useEffect(() => {
-		if (!init && appCallbackUrl && session?.user.accessToken) {
+		if (appCallbackUrl && session?.user.accessToken) {
 			const url = `${appCallbackUrl}?accessToken=${session?.user.accessToken}`
-			window.open(url, '_blank')
-			setInit(true)
+			// window.open(url, '_blank')
+			window.location.assign(url)
 		}
-	}, [init, appCallbackUrl, session?.user.accessToken])
+	}, [appCallbackUrl, session?.user.accessToken])
 
 	return <></>
 }
