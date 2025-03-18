@@ -4,11 +4,12 @@ import { useDrag } from 'react-dnd'
 export interface BoxProps {
 	left: number
 	bottom: number
+	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 	hideSourceOnDrag?: boolean
 	children?: React.ReactNode
 }
 
-export const DndButton: React.FC<BoxProps> = ({ left, bottom, hideSourceOnDrag, children }) => {
+export const DndButton: React.FC<BoxProps> = ({ left, bottom, onClick, hideSourceOnDrag, children }) => {
 	const [{ isDragging }, drag] = useDrag(
 		() => ({
 			type: 'box',
@@ -21,26 +22,27 @@ export const DndButton: React.FC<BoxProps> = ({ left, bottom, hideSourceOnDrag, 
 	)
 
 	const dragRef = useCallback(
-		(node: HTMLDivElement) => {
+		(node: HTMLButtonElement | null) => {
 			if (node) drag(node)
 		},
 		[drag],
 	)
 
 	if (isDragging && hideSourceOnDrag) {
-		return <div ref={dragRef} />
+		return <button ref={dragRef} />
 	}
 
 	return (
-		<div
+		<button
 			ref={dragRef}
 			style={{
 				left,
 				bottom: bottom,
 			}}
-			className='fixed z-[9999] rounded-full border-[1px] border-solid border-gray bg-white p-2 shadow-md hover:!pointer-events-auto hover:cursor-pointer hover:shadow-md'
+			onClick={onClick}
+			className='fixed z-[9999] rounded-full border-[0.5px] border-solid border-gray-300 bg-white p-2 shadow-md hover:shadow-md'
 		>
 			{children}
-		</div>
+		</button>
 	)
 }

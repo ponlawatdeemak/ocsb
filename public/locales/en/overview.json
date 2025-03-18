@@ -17,5 +17,7 @@
     "allRegionHotspot": "Hotspot amount in all region",
     "regionSugarCane": "Sugar Cane amount in each region",
     "allRegionSugarCane": "Sugar Cane amount in all region",
-    "replant": "Sugar Cane Replant"
+    "replant": "Sugar Cane Replant",
+    "viewer": "Number of viewers",
+    "person": "persons"
 }

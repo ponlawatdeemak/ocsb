@@ -1,8 +1,8 @@
 import FilterSelect from '@/components/common/select/FilterSelect'
-import { CircularProgress, Typography } from '@mui/material'
+import { CircularProgress, Fade, Paper, Popper, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useTranslation } from 'next-i18next'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import InfoTooltip from '../Tooltip/InfoTooltip'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
@@ -18,6 +18,7 @@ import { Languages } from '@/enum'
 import { useDrop, XYCoord } from 'react-dnd'
 import { DndButton } from '../DndButton'
 import { ViewsIcon } from '@/components/svg/MenuIcon'
+import useResponsive from '@/hook/responsive'
 
 const PRODUCT_PREDICT_LEGEND_LENGTH = 4
 const REPLANT_LEGEND_LENGTH = 3
@@ -153,13 +154,19 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 		}
 	}, [replantData, replantYear, yearProductionLookupData])
 
+	//#region number of viewers button
+	const { isDesktop, isDesktopMD, isDesktopXl } = useResponsive()
+
 	const [coordinate, setCoordinate] = useState<{
 		bottom: number
 		left: number
 	}>({
-		bottom: 10,
-		left: 10,
+		bottom: 15,
+		left: 15,
 	})
+
+	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+	const [open, setOpen] = useState<boolean>(false)
 
 	const moveBox = useCallback((left: number, bottom: number) => {
 		setCoordinate({ bottom, left })
@@ -186,6 +193,18 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 		},
 		[drop],
 	)
+
+	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault()
+		event.stopPropagation()
+		setAnchorEl(event.currentTarget)
+		setOpen((prev) => !prev)
+	}
+
+	useEffect(() => {
+		setCoordinate({ bottom: 15, left: 15 })
+	}, [isDesktop, isDesktopMD, isDesktopXl])
+	//#endregion
 
 	return (
 		<div
@@ -262,9 +281,18 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 					</>
 				)}
 			</div>
-			<DndButton left={coordinate.left} bottom={coordinate.bottom} hideSourceOnDrag={true}>
+			<DndButton left={coordinate.left} bottom={coordinate.bottom} hideSourceOnDrag={true} onClick={handleClick}>
 				<ViewsIcon />
 			</DndButton>
+			<Popper className='z-[9999]' open={open} anchorEl={anchorEl} placement='right' transition>
+				{({ TransitionProps }) => (
+					<Fade {...TransitionProps} timeout={350}>
+						<Paper className='m-2 border-[0.5px] border-solid border-gray-300 px-[11px] py-[9px] !shadow-md'>
+							<Typography className='!text-xs'>{`${t('viewer')} : ${3} ${t('person')}`}</Typography>
+						</Paper>
+					</Fade>
+				)}
+			</Popper>
 		</div>
 	)
 }

@@ -6,7 +6,7 @@ import nextI18NextConfig from '../../next-i18next.config'
 import { OverviewMain } from '@/components/pages/overview'
 import MainLayout from '@/components/layout/MainLayout'
 import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
+import { TouchBackend } from 'react-dnd-touch-backend'
 
 export const getServerSideProps: GetServerSideProps = async (context) => ({
 	props: {
@@ -20,7 +20,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => ({
 
 const OverviewPage = () => {
 	return (
-		<DndProvider backend={HTML5Backend}>
+		<DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
 			<MainLayout>
 				<OverviewMain />
 			</MainLayout>

@@ -1852,7 +1852,14 @@ export const DashboardIcon: React.FC<SVGProps> = ({ width = 12, height = 12, fil
 
 export const ViewsIcon: React.FC<SVGProps> = ({ width = 21, height = 21, fill = 'white' }) => {
 	return (
-		<svg width={width} height={height} viewBox='0 0 21 21' fill='none' xmlns='http://www.w3.org/2000/svg'>
+		<svg
+			width={width}
+			height={height}
+			viewBox='0 0 21 21'
+			fill='none'
+			xmlns='http://www.w3.org/2000/svg'
+			className='!pointer-events-none'
+		>
 			<mask
 				id='mask0_3119_4321'
 				style={{ maskType: 'alpha' }}
