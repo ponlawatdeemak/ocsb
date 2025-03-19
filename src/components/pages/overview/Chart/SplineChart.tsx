@@ -5,7 +5,7 @@ import { Box } from '@mui/material'
 import classNames from 'classnames'
 import { defaultNumber } from '@/utils/text'
 import useAreaUnit from '@/store/area-unit'
-import { AreaUnitKey, Languages } from '@/enum'
+import { Languages } from '@/enum'
 import { useTranslation } from 'next-i18next'
 import useResponsive from '@/hook/responsive'
 
@@ -31,7 +31,7 @@ const SplineChart = ({
 	const { areaUnit } = useAreaUnit()
 	const { t, i18n } = useTranslation(['overview', 'common'])
 	const { isDesktopXl } = useResponsive()
-	const paddingRight = i18n.language === Languages.TH ? 25 : 50
+	const paddingRight = i18n.language === Languages.TH ? 15 : 45
 
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
@@ -93,7 +93,6 @@ const SplineChart = ({
 				top: 0,
 				right: isDesktopXl ? paddingRight : 0,
 				bottom: isDesktopXl ? 5 : 35,
-				left: areaUnit === AreaUnitKey.Sqm ? 70 : 50,
 			},
 			tooltip: {
 				grouped: false,
@@ -115,7 +114,7 @@ const SplineChart = ({
 		<Box className={classNames('relative flex h-full w-full grow flex-col', className)}>
 			<div
 				id='spline'
-				className='bb h-full w-full [&_*]:font-["Prompt","Montserrat"] [&_.bb-axis-x_g_text_tspan]:fill-[#31356E] [&_.bb-tooltip-container]:text-black [&_.bb-xgrid-lines]:opacity-20 [&_.domain]:hidden [&_.tick]:fill-black [&_.tick_line]:hidden [&_svg]:!overflow-visible [&_svg]:xl:absolute'
+				className='bb h-full w-full [&_*]:font-["Prompt","Montserrat"] [&_.bb-axis-x_g_text_tspan]:fill-[#31356E] [&_.bb-tooltip-container]:text-black [&_.bb-xgrid-lines]:opacity-20 [&_.domain]:hidden [&_.tick]:fill-black [&_.tick_line]:hidden [&_svg]:absolute [&_svg]:left-[-10px] [&_svg]:!overflow-visible'
 			></div>
 			<div
 				id={legendId}

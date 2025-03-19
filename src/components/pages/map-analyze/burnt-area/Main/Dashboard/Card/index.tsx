@@ -13,6 +13,7 @@ import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
 import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
 import { SelectedArea } from '../..'
+import useResponsive from '@/hook/responsive'
 
 interface DashboardCardMainProps {
 	handleClickDelete: () => void
@@ -49,6 +50,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			[`${hotspotType[1].label.th}`]: '#FFC7C7',
 		}
 	}, [])
+	const { isDesktopMD } = useResponsive()
 
 	const [donutColorHotspot, setDonutColorHotspot] = useState(defaultColorHotspot)
 	const [percent, setPercent] = useState<number>(0)
@@ -76,7 +78,10 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			}
 			return response.data
 		},
-		enabled: openDrawer === true && mapTypeArray.length !== 0,
+		enabled:
+			openDrawer === true &&
+			mapTypeArray.length !== 0 &&
+			((!isDesktopMD && !!area.id.includes('mobile')) || (isDesktopMD && !area.id.includes('mobile'))),
 	})
 
 	//region Hotspot
@@ -247,11 +252,9 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	}, [hideData, inSugarCaneArea, language, t])
 
 	useEffect(() => {
-		if (openDrawer) {
-			setHideData([])
-			setDonutColorHotspot(defaultColorHotspot)
-		}
-	}, [defaultColorHotspot, openDrawer])
+		setHideData([])
+		setDonutColorHotspot(defaultColorHotspot)
+	}, [defaultColorHotspot, isDesktopMD])
 
 	return (
 		<Box
