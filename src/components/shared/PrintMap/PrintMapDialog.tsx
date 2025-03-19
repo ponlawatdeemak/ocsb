@@ -358,7 +358,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 
 			return <></>
 		},
-		[mapDetail, id, mapLegendArray, quantityUnit, areaUnit, language, t],
+		[mapDetail, id, mapLegendArray, quantityUnit, areaUnit, t],
 	)
 
 	return (
@@ -389,7 +389,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 					) : (
 						<Box className='flex h-full w-full items-center gap-5 max-lg:flex-col lg:gap-6'>
 							<Box className='flex h-full flex-1 flex-col gap-4 max-lg:w-full'>
-								<Box className='relative aspect-[738/473] w-full border border-solid border-black p-4 lg:p-6'>
+								<Box className='relative aspect-[738/473] w-full border border-solid border-black p-4 lg:max-h-[473px] lg:p-6'>
 									<Box
 										id={`${id}-map-export-container`}
 										className={classNames(
@@ -519,7 +519,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 				<DialogContent className='flex h-full w-full flex-col justify-between rounded-[15px] bg-white !py-4'>
 					<Box className='flex h-full w-full items-center gap-6'>
 						<Box className='flex h-full flex-1 flex-col gap-4'>
-							<Box className='relative aspect-[738/473] w-full border border-solid border-black p-6'>
+							<Box className='relative aspect-[738/473] max-h-[473px] w-full border border-solid border-black p-6'>
 								<Box
 									className='captured-map-image aspect-[688/423] w-full bg-contain'
 									component='img'
