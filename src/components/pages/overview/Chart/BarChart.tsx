@@ -1,9 +1,9 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
-import { useEffect, useCallback } from 'react'
-import bb, { bar } from 'billboard.js'
+import { useEffect, useCallback, useRef, useMemo } from 'react'
+import bb, { bar, Chart, DataRow } from 'billboard.js'
 import 'billboard.js/dist/billboard.css'
-import { defaultNumber } from '@/utils/text'
+import { defaultNumber, getRoundedMax } from '@/utils/text'
 import { useTranslation } from 'next-i18next'
 import useResponsive from '@/hook/responsive'
 
@@ -29,6 +29,8 @@ const BarChart = ({
 	const { t } = useTranslation(['overview', 'common'])
 	const { isDesktopXl } = useResponsive()
 
+	const chartRef = useRef<Chart | null>(null)
+
 	const generateTooltips = useCallback(
 		(data: TooltipDataType[]) => {
 			let tooltipOverview = '<div class="bg-white p-2 rounded-md shadow flex flex-col">'
@@ -44,8 +46,33 @@ const BarChart = ({
 		[t],
 	)
 
+	const maxValue = useMemo(() => {
+		return Math.max(
+			...columns
+				.slice(1)
+				.flat()
+				.filter((n) => typeof n === 'number'),
+		)
+	}, [columns])
+
+	const findMaxValue = useCallback((data: DataRow<number>[]) => {
+		if (!data.length) return 0
+
+		let maxValue = 0
+
+		data.forEach((row) => {
+			row.values.forEach((item) => {
+				if (item.value > maxValue) {
+					maxValue = item.value
+				}
+			})
+		})
+
+		return maxValue
+	}, [])
+
 	useEffect(() => {
-		bb.generate({
+		const chart = bb.generate({
 			bindto: '#bar',
 			data: {
 				x: 'x',
@@ -58,11 +85,20 @@ const BarChart = ({
 					type: 'category' as const,
 				},
 				y: {
-					min: 0,
-					padding: 0,
 					tick: {
-						// count: 6,
+						count: 8,
 						format: (value: number) => defaultNumber(value, 0),
+						values: () => {
+							const data = chartRef.current?.data?.shown() ?? []
+
+							let maximumValue = findMaxValue(data)
+							const { step } = getRoundedMax(maximumValue || maxValue, 8)
+							const tickValues = Array.from({ length: 9 }, (_, i) => i * step)
+
+							if (chartRef.current?.data().length && !maximumValue) return [0]
+
+							return tickValues
+						},
 					},
 				},
 			},
@@ -108,7 +144,14 @@ const BarChart = ({
 				},
 			},
 		})
-	}, [colors, columns, generateTooltips, isDesktopXl, legendId])
+
+		chartRef.current = chart
+
+		return () => {
+			chartRef.current?.destroy()
+			chartRef.current = null
+		}
+	}, [colors, columns, generateTooltips, isDesktopXl, legendId, findMaxValue, maxValue])
 
 	return (
 		<Box className={classNames('relative flex h-full w-full grow flex-col', className)}>
