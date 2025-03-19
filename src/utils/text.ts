@@ -11,3 +11,19 @@ export function defaultNumber(value: number | string, digit: number = 2) {
 export function nFormatter(num: number, digits = 2) {
 	return num.toLocaleString(undefined, { notation: 'compact', maximumFractionDigits: digits })
 }
+
+export const getStepValue = (value: number, tickCount: number = 8) => {
+	const magnitude = Math.pow(10, Math.floor(Math.log10(value)))
+
+	const maximumStep = 10
+	const stepOption = 0.5
+
+	const stepOptions = Array.from(
+		{ length: Math.ceil(maximumStep / stepOption) },
+		(_, index) => Math.round((index + 1) * stepOption * 1000) / 1000,
+	)
+
+	const step = (stepOptions.find((step) => value / (step * magnitude) <= tickCount) ?? 0) * magnitude
+
+	return step
+}

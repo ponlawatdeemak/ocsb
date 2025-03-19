@@ -24,6 +24,10 @@ interface DashboardCardMainProps {
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
 	openDrawer: boolean
+	maxHotspotValues: Record<string, number>
+	setMaxHotspotValues: React.Dispatch<React.SetStateAction<Record<string, number>>>
+	maxBurntValues: Record<string, number>
+	setMaxBurntValues: React.Dispatch<React.SetStateAction<Record<string, number>>>
 	className?: string
 }
 
@@ -36,6 +40,10 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	selectedHotspots,
 	selectedDateRange,
 	openDrawer,
+	maxHotspotValues,
+	setMaxHotspotValues,
+	maxBurntValues,
+	setMaxBurntValues,
 	className = '',
 }) => {
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -76,6 +84,25 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			} else if (response.data.hotspot && selectedHotspots[0] === notInSugarCaneArea.code) {
 				setPercent(((response.data.hotspot.notInSugarcane ?? 0) * 100) / response.data.hotspot.total)
 			}
+
+			setMaxHotspotValues((prevMaxValue) => {
+				const key = area.id.split('mobile-').join('')
+				const total = response.data.hotspot?.total ?? 0
+				return {
+					...prevMaxValue,
+					[key]: total,
+				}
+			})
+			setMaxBurntValues((prevMaxValue) => {
+				const key = area.id.split('mobile-').join('')
+				const total =
+					response.data.burnArea?.list.reduce((total, item) => total + (item.area?.rai ?? 0), 0) ?? 0
+				return {
+					...prevMaxValue,
+					[key]: total,
+				}
+			})
+
 			return response.data
 		},
 		enabled:
@@ -346,6 +373,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 													]}
 													hideData={hideData}
 													handleClickOnChart={handleClickOnChart}
+													maxValues={maxHotspotValues}
 												/>
 											</div>
 										</>
@@ -370,6 +398,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 												columns={columnsBurnArea}
 												colors={defaultColorBurnArea}
 												handleClickOnChart={handleClickOnChart}
+												maxValues={maxBurntValues}
 											/>
 										</div>
 									) : (

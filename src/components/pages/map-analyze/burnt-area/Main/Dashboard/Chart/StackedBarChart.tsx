@@ -1,10 +1,11 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
-import { useCallback, useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import bb, { bar } from 'billboard.js'
 import 'billboard.js/dist/billboard.css'
-import { nFormatter } from '@/utils/text'
-// import { defaultNumber } from '@/utils/text'
+import { getStepValue, nFormatter } from '@/utils/text'
+
+const BAR_CHART_STEP = 5
 
 const StackedBarChart = ({
 	chartId,
@@ -14,6 +15,7 @@ const StackedBarChart = ({
 	groups,
 	hideData,
 	handleClickOnChart,
+	maxValues,
 }: {
 	chartId: string
 	columns: any[][]
@@ -22,31 +24,16 @@ const StackedBarChart = ({
 	hideData?: string[]
 	handleClickOnChart: (name: string) => void
 	className?: string
+	maxValues: Record<string, number>
 }) => {
-	// const maxTick = useMemo(() => {
-	// 	let max = 0
-	// 	const maxList = columns
-	// 		.map((item) => item.filter((itemFilter) => Number(itemFilter)))
-	// 		.map((itemMax: number[]) => Math.max(...itemMax))
-	// 	max = Math.max(...maxList)
-	// 	return max
-	// }, [columns])
+	const stepValue = useMemo(() => {
+		if (Object.keys(maxValues).length === 0) return 0
 
-	// const tickValue = useMemo(()=>{
-	// 	const result:number[]  = []
-	// 	const tickSize = 5
-	// 	if(maxTick){
-	// 		const ceil = Math.ceil(maxTick)
-	// 		const len = ceil.toString().length
-	// 		const nearestUpper = `1`
-	// 		const temp = Math.round(ceil / 1000) * 1000
+		const maxValue = Math.max(...Object.values(maxValues))
+		const step = getStepValue(maxValue, BAR_CHART_STEP)
 
-	// 	}else{
-
-	// 	}
-	// 	return result
-	// },[maxTick])
-	// console.log('👻 maxTick: ', maxTick)
+		return Math.round(step)
+	}, [maxValues])
 
 	useEffect(() => {
 		bb.generate({
@@ -69,9 +56,20 @@ const StackedBarChart = ({
 					type: 'category' as const,
 				},
 				y: {
-					min: 0,
+					max: BAR_CHART_STEP * stepValue,
 					tick: {
+						count: BAR_CHART_STEP,
 						format: (value: number) => nFormatter(value, 2),
+						values: () => {
+							if (!stepValue) return [0]
+
+							const tickValues = Array.from(
+								{ length: BAR_CHART_STEP + 1 },
+								(_, index) => index * stepValue,
+							)
+
+							return tickValues
+						},
 					},
 				},
 			},
@@ -93,7 +91,7 @@ const StackedBarChart = ({
 				width: 25,
 			},
 		})
-	}, [chartId, colors, columns, groups, handleClickOnChart, hideData, nFormatter])
+	}, [chartId, colors, columns, groups, handleClickOnChart, hideData, stepValue])
 
 	return (
 		<Box className={classNames('flex h-full w-full grow flex-col', className)}>
