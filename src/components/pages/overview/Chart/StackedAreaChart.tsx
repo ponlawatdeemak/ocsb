@@ -6,7 +6,7 @@ import 'billboard.js/dist/billboard.css'
 import { defaultNumber, getRoundedMax } from '@/utils/text'
 import { useTranslation } from 'next-i18next'
 import useQuantityUnit from '@/store/quantity-unit'
-import { Languages, QuantityUnitKey } from '@/enum'
+import { Languages } from '@/enum'
 import useResponsive from '@/hook/responsive'
 
 interface TooltipDataType {
@@ -153,7 +153,6 @@ const StackedAreaChart = ({
 				top: 0,
 				right: i18n.language === Languages.TH ? 15 : 24,
 				bottom: isDesktopXl ? 0 : 20,
-				left: quantityUnit === QuantityUnitKey.Ton ? 62 : 80,
 			},
 			tooltip: {
 				grouped: false,
@@ -193,7 +192,7 @@ const StackedAreaChart = ({
 		<Box className={classNames('relative flex h-full w-full grow flex-col', className)}>
 			<div
 				id='stackedArea'
-				className='bb h-full w-full [&_*]:font-["Prompt","Montserrat"] [&_.bb-area]:!opacity-100 [&_.bb-axis-x_g_text_tspan]:fill-[#31356E] [&_.bb-tooltip-container]:text-black [&_.bb-ygrid:first-child]:stroke-[#31356E] [&_.bb-ygrid:first-child]:opacity-60 [&_.bb-ygrid]:opacity-30 [&_.bb-ygrid]:[stroke-dasharray:0] [&_.domain]:hidden [&_.tick]:fill-black [&_.tick_line]:hidden [&_svg]:xl:absolute'
+				className='bb h-full w-full [&_*]:font-["Prompt","Montserrat"] [&_.bb-area]:!opacity-100 [&_.bb-axis-x_g_text_tspan]:fill-[#31356E] [&_.bb-tooltip-container]:text-black [&_.bb-ygrid:first-child]:stroke-[#31356E] [&_.bb-ygrid:first-child]:opacity-60 [&_.bb-ygrid]:opacity-30 [&_.bb-ygrid]:[stroke-dasharray:0] [&_.domain]:hidden [&_.tick]:fill-black [&_.tick_line]:hidden [&_svg]:absolute [&_svg]:left-[-10px]'
 			></div>
 			<div
 				id={legendId}

@@ -200,7 +200,7 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 					selectedDateRange={selectedDateRange}
 					openDrawer={openDrawer}
 					toggleDrawer={toggleDrawer}
-					className='max-w-[calc(80vw)] max-md:hidden'
+					className='z-[99] max-md:hidden'
 				/>
 				<PlantingMapMain
 					className='w-full flex-1 md:h-full max-md:[&_.maplibregl-ctrl-bottom-right]:bottom-[40px]'
