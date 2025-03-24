@@ -62,7 +62,7 @@ export const AboutMain: React.FC<AboutMainProps> = ({ className = '' }) => {
 				<div className='flex h-full w-full flex-col gap-4 rounded-[15px] bg-white p-6 shadow'>
 					<Typography className='!text-md text-primary'>
 						{language === Languages.TH
-							? 'สำนักงานสำนักงานคณะกรรมการอ้อยและน้ำตาลทราย'
+							? 'สำนักงานคณะกรรมการอ้อยและน้ำตาลทราย'
 							: 'Office of the Cane and Sugar Board (OCSB)'}
 					</Typography>
 					<Typography className='whitespace-pre-line !text-sm !font-light text-black'>
