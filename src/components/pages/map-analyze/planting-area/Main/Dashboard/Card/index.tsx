@@ -67,7 +67,7 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 	//#endregion
 
 	//#region product
-	const defaultColorProduct = { [t('overview:SugarCaneQuantity')]: '#40C4FF', [t('noSugarCaneQuantity')]: '#f5f5f6' }
+	const defaultColorProduct = { [t('overview:sugarCaneQuantity')]: '#40C4FF', [t('noSugarCaneQuantity')]: '#f5f5f6' }
 	//#endregion
 
 	return (
@@ -173,7 +173,7 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 									)}
 
 									<Typography className='pb-3 text-center !text-sm'>
-										{t('overview:SugarCaneQuantity')}
+										{t('overview:sugarCaneQuantity')}
 									</Typography>
 									{dashBoardData?.product ? (
 										<>
@@ -181,7 +181,7 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 												<DonutChart
 													columns={[
 														[
-															t('overview:SugarCaneQuantity'),
+															t('overview:sugarCaneQuantity'),
 															dashBoardData.product.result?.[quantityUnit] ?? 0,
 														],
 														[

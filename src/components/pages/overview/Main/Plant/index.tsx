@@ -30,7 +30,7 @@ const OverviewPlantMain = ({
 			)}
 		>
 			<div className='flex w-full items-center justify-between'>
-				<Typography>{`${t('SugarCaneArea')} (${t('common:' + areaUnit)})`}</Typography>
+				<Typography>{`${t('sugarCaneArea')} (${t('common:' + areaUnit)})`}</Typography>
 				<InfoTooltip
 					title={
 						<div className='flex w-full flex-col items-center gap-[6px]'>
