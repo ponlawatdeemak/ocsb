@@ -27,7 +27,7 @@ const OverviewProductMain = ({
 				className,
 			)}
 		>
-			<Typography>{`${t('sugarCaneYield')} (${t('common:' + quantityUnit)}/${t('common:' + areaUnit)})`}</Typography>
+			<Typography>{`${t('sugarCaneYieldWithUnit')}`}</Typography>
 			<div className='flex flex-col gap-4'>
 				{productData ? (
 					productData.map((item) => (

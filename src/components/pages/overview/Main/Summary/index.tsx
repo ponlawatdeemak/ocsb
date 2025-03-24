@@ -33,11 +33,11 @@ const OverviewSummaryMain = ({
 				<Typography>{`${defaultNumber(summaryData?.burnArea[areaUnit] ?? '-', 0)} ${t('common:' + areaUnit)}`}</Typography>
 			</div>
 			<div className='bg-gradient-to-r from-[#FAB725_0%] to-[#F67F54_100%]'>
-				<Typography>{t('SugarCaneArea')}</Typography>
+				<Typography>{t('sugarCaneArea')}</Typography>
 				<Typography>{`${defaultNumber(summaryData?.yieldPred[areaUnit] ?? '-', 0)} ${t('common:' + areaUnit)}`}</Typography>
 			</div>
 			<div className='bg-gradient-to-r from-[#89E2E6_0%] to-[#488AB6_100%]'>
-				<Typography>{t('SugarCaneQuantity')}</Typography>
+				<Typography>{t('sugarCaneQuantity')}</Typography>
 				<Typography>{`${defaultNumber(summaryData?.sugarcaneVolume[quantityUnit] ?? '-', 0)} ${t('common:' + quantityUnit)}`}</Typography>
 			</div>
 		</div>

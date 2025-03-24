@@ -1,30 +1,30 @@
 {
 	"totalHotspots": " Total Hotspots",
-	"hotspotInArea": "Hotspot In Sugar Cane Area",
-	"hotspotOutArea": "Hotspot Outside Sugar Cane Area",
-	"hotspotTotalArea": "Hotspot Total Sugar Cane Area",
+	"hotspotInArea": "Hotspot In Sugarcane Area",
+	"hotspotOutArea": "Hotspot Outside Sugarcane Area",
+	"hotspotTotalArea": "Hotspot Total Sugarcane Area",
 	"addCompare": "Add Comparison Board",
 	"hideCompare": "Hide Comparison Board",
 	"compare": "Show Comparison Board",
 	"hotspotAndBurntAreaAnalysis": "Analysis of Hotspots and Burnt Areas",
-	"plantAreaAnalysis": "Analysis of Sugar Cane Planting Area",
+	"plantAreaAnalysis": "Analysis of Sugarcane Plantation Area",
 	"searchArea": "Search Area",
 	"hotspot": "Hotspots",
 	"burntScar": "Burnt Scar",
-	"plantingArea": "Planting Area",
-	"noPlantingArea": "No Planting Area",
-	"replantingArea": "Replanting Area",
+	"plantingArea": "Sugarcane Plantation Area",
+	"noPlantingArea": "No Sugarcane Plantation Area",
+	"replantingArea": "Repeated Sugarcane Plantation",
 	"allRegions": "All Regions",
 	"popupBurnt": {
 		"date": "Date of detection",
 		"address": "Address",
 		"coordinates": "Coordinates",
 		"burntScar": "Burnt Scar",
-		"plantingArea": "Planting Area"
+		"plantingArea": "Sugarcane Plantation Area"
 	},
 	"lessThan": "Less than",
 	"moreThan": "More than",
-	"sugarCaneYield": "Sugar Cane Yield",
-	"avgSugarCaneYield": "Average Sugar Cane Yield",
-	"noSugarCaneQuantity": "Non Sugar Cane Quantity"
+	"sugarCaneYield": "Sugarcane Yield",
+	"avgSugarCaneYield": "Sugarcane Yield Average",
+	"noSugarCaneQuantity": "Non Sugarcane Quantity"
 }
