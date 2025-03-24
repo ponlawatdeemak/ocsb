@@ -345,8 +345,8 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					filled: true,
 					lineWidthMinPixels: 1,
 					getPolygon: (d: any) => d.geometry.coordinates,
-					getFillColor: () => [138, 182, 45, 180],
-					getLineColor: () => [138, 182, 45, 180],
+					getFillColor: () => [255, 255, 255],
+					getLineColor: () => [255, 255, 255],
 
 					fillPatternMask: true,
 					fillPatternAtlas: '/images/map/pattern.png',
