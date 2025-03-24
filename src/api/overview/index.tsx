@@ -4,6 +4,7 @@ import {
 	GetBurntOverviewDtoIn,
 	GetHeatPointsOverviewDtoIn,
 	GetHeatPointsSugarcaneOverviewDtoIn,
+	GetOverviewUsageDtoIn,
 	GetPlantOverviewDtoIn,
 	GetProductOverviewDtoIn,
 	GetProductPredictOverviewDtoIn,
@@ -14,6 +15,7 @@ import {
 	GetBurntOverviewDtoOut,
 	GetHeatPointsOverviewDtoOut,
 	GetHeatPointsSugarcaneOverviewDtoOut,
+	GetOverviewUsageDtoOut,
 	GetPlantOverviewDtoOut,
 	GetProductOverviewDtoOut,
 	GetProductPredictOverviewDtoOut,
@@ -59,6 +61,11 @@ const overview = {
 	getReplantOverview: async (payload: GetReplantOverviewDtoIn): Promise<ResponseDto<GetReplantOverviewDtoOut[]>> => {
 		const id = `id=${payload.id}`
 		return await api.get(`/overview/replant?${payload.id && id}`)
+	},
+
+	getUsage: async (payload: GetOverviewUsageDtoIn): Promise<ResponseDto<GetOverviewUsageDtoOut>> => {
+		const update = `update=${payload.update}`
+		return await api.get(`/overview/usage?${payload.update ? update : ''}`)
 	},
 }
 

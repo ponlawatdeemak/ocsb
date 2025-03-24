@@ -16,6 +16,8 @@ import OverviewProductPredictMain from './ProductPredict'
 import OverviewReplantMain from './Replant'
 import { Languages } from '@/enum'
 
+import UsageCount from '../UsageCount'
+
 const PRODUCT_PREDICT_LEGEND_LENGTH = 4
 const REPLANT_LEGEND_LENGTH = 3
 
@@ -216,6 +218,7 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 						</div>
 					</>
 				)}
+				<UsageCount />
 			</div>
 		</div>
 	)
