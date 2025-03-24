@@ -1,8 +1,8 @@
 import FilterSelect from '@/components/common/select/FilterSelect'
-import { CircularProgress, Fade, Paper, Popper, Typography } from '@mui/material'
+import { CircularProgress, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useTranslation } from 'next-i18next'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import InfoTooltip from '../Tooltip/InfoTooltip'
 import { useQuery } from '@tanstack/react-query'
 import service from '@/api'
@@ -15,18 +15,11 @@ import OverviewProductMain from './Product'
 import OverviewProductPredictMain from './ProductPredict'
 import OverviewReplantMain from './Replant'
 import { Languages } from '@/enum'
-import { useDrop, XYCoord } from 'react-dnd'
-import { DndButton } from '../DndButton'
-import { ViewsIcon } from '@/components/svg/MenuIcon'
-import useResponsive from '@/hook/responsive'
+
+import UsageCount from '../UsageCount'
 
 const PRODUCT_PREDICT_LEGEND_LENGTH = 4
 const REPLANT_LEGEND_LENGTH = 3
-
-interface DragItem {
-	bottom: number
-	left: number
-}
 
 interface OverviewMainProps {
 	className?: string
@@ -154,63 +147,8 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 		}
 	}, [replantData, replantYear, yearProductionLookupData])
 
-	//#region number of viewers button
-	const { isDesktop, isDesktopMD, isDesktopXl } = useResponsive()
-
-	const [coordinate, setCoordinate] = useState<{
-		bottom: number
-		left: number
-	}>({
-		bottom: 15,
-		left: 15,
-	})
-
-	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-	const [open, setOpen] = useState<boolean>(false)
-
-	const moveBox = useCallback((left: number, bottom: number) => {
-		setCoordinate({ bottom, left })
-	}, [])
-
-	const [, drop] = useDrop(
-		() => ({
-			accept: 'box',
-			drop(item: DragItem, monitor) {
-				const delta = monitor.getDifferenceFromInitialOffset() as XYCoord
-
-				const left = Math.round(item.left + delta.x)
-				const bottom = Math.round(item.bottom - delta.y)
-				moveBox(left, bottom)
-				return undefined
-			},
-		}),
-		[moveBox],
-	)
-
-	const dropRef = useCallback(
-		(node: HTMLDivElement) => {
-			if (node) drop(node)
-		},
-		[drop],
-	)
-
-	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault()
-		event.stopPropagation()
-		setAnchorEl(event.currentTarget)
-		setOpen((prev) => !prev)
-	}
-
-	useEffect(() => {
-		setCoordinate({ bottom: 15, left: 15 })
-	}, [isDesktop, isDesktopMD, isDesktopXl])
-	//#endregion
-
 	return (
-		<div
-			ref={dropRef}
-			className={classNames('relative flex h-auto w-full flex-1 flex-col p-6 xl:px-6 xl:py-3', className)}
-		>
+		<div className={classNames('relative flex h-auto w-full flex-1 flex-col p-6 xl:px-6 xl:py-3', className)}>
 			<div className='absolute left-0 top-0 z-0 h-[750px] w-full bg-primary xl:h-[300px]'></div>
 			<div className='z-10 flex h-full w-full flex-1 flex-col gap-6 text-white xl:gap-4'>
 				<div className='flex w-full flex-col justify-between gap-6 xl:flex-row xl:items-center'>
@@ -280,19 +218,8 @@ export const OverviewMain: React.FC<OverviewMainProps> = ({ className = '' }) =>
 						</div>
 					</>
 				)}
+				<UsageCount />
 			</div>
-			<DndButton left={coordinate.left} bottom={coordinate.bottom} hideSourceOnDrag={true} onClick={handleClick}>
-				<ViewsIcon />
-			</DndButton>
-			<Popper className='z-[9999]' open={open} anchorEl={anchorEl} placement='right' transition>
-				{({ TransitionProps }) => (
-					<Fade {...TransitionProps} timeout={350}>
-						<Paper className='m-2 border-[0.5px] border-solid border-gray-300 px-[11px] py-[9px] !shadow-md'>
-							<Typography className='!text-xs'>{`${t('viewer')} : ${3} ${t('person')}`}</Typography>
-						</Paper>
-					</Fade>
-				)}
-			</Popper>
 		</div>
 	)
 }
