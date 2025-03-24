@@ -56,7 +56,11 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 							<Box className='flex flex-col px-4 py-2'>
 								<Box className='flex'>
 									<Box className={topicStyle}>{t('map-analyze:popupBurnt.address')}</Box>
-									<Box>{data.adm[i18n.language]}</Box>
+									<Box>
+										{item.layer?.id === 'plant'
+											? `${data.adm3[i18n.language]} ${data.adm2[i18n.language]}  ${data.adm1[i18n.language]}`
+											: data.adm[i18n.language]}
+									</Box>
 								</Box>
 
 								<Box className='flex'>

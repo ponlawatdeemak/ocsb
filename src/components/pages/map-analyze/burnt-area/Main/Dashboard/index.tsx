@@ -19,6 +19,10 @@ interface BurntDashboardMainProps {
 	selectedDateRange: Date[]
 	openDrawer: boolean
 	toggleDrawer: (newOpen: boolean) => void
+	maxHotspotValues: Record<string, number>
+	setMaxHotspotValues: React.Dispatch<React.SetStateAction<Record<string, number>>>
+	maxBurntValues: Record<string, number>
+	setMaxBurntValues: React.Dispatch<React.SetStateAction<Record<string, number>>>
 	className?: string
 }
 
@@ -33,6 +37,10 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 	selectedDateRange,
 	openDrawer,
 	toggleDrawer,
+	maxHotspotValues,
+	setMaxHotspotValues,
+	maxBurntValues,
+	setMaxBurntValues,
 	className = '',
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -54,6 +62,10 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 				selectedHotspots={selectedHotspots}
 				selectedDateRange={selectedDateRange}
 				openDrawer={openDrawer}
+				maxHotspotValues={maxHotspotValues}
+				setMaxHotspotValues={setMaxHotspotValues}
+				maxBurntValues={maxBurntValues}
+				setMaxBurntValues={setMaxBurntValues}
 			/>
 		))
 	}, [
@@ -66,6 +78,10 @@ const BurntDashboardMain: React.FC<BurntDashboardMainProps> = ({
 		selectedDateRange,
 		selectedHotspots,
 		toggleDrawer,
+		maxHotspotValues,
+		setMaxHotspotValues,
+		maxBurntValues,
+		setMaxBurntValues,
 	])
 
 	return (

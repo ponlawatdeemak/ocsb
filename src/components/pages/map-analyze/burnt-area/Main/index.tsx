@@ -29,6 +29,9 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	const [selectedHotspots, setSelectedHotspots] = useState<hotspotTypeCode[]>(hotspotType.map((type) => type.code))
 	const [selectedDateRange, setSelectedDateRange] = useState<Date[]>(defaultSelectedDateRange)
 
+	const [maxHotspotValues, setMaxHotspotValues] = useState<Record<string, number>>({})
+	const [maxBurntValues, setMaxBurntValues] = useState<Record<string, number>>({})
+
 	const [mapExtent, setMapExtent] = useState<number[][] | null>(null)
 
 	const { data: hotspotBurntAreaData, isFetching: isHotspotBurntAreaDataLoading } = useQuery({
@@ -120,6 +123,15 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 			const index = updateArea.findIndex((area) => area.id === item.id)
 			updateArea.splice(index, 1)
 			setSelectedArea(updateArea)
+
+			setMaxHotspotValues((prevMaxValue) => {
+				const { [item.id]: _, ...newData } = prevMaxValue
+				return newData
+			})
+			setMaxBurntValues((prevMaxValue) => {
+				const { [item.id]: _, ...newData } = prevMaxValue
+				return newData
+			})
 		},
 		[selectedArea],
 	)
@@ -214,7 +226,11 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					selectedDateRange={selectedDateRange}
 					openDrawer={openDrawer}
 					toggleDrawer={toggleDrawer}
-					className='max-w-[calc(80vw)] max-md:hidden'
+					maxHotspotValues={maxHotspotValues}
+					setMaxHotspotValues={setMaxHotspotValues}
+					maxBurntValues={maxBurntValues}
+					setMaxBurntValues={setMaxBurntValues}
+					className='z-[99] max-md:hidden'
 				/>
 				<BurntMapMain
 					className='flex w-full flex-1 md:h-full max-md:[&_.maplibregl-ctrl-bottom-right]:bottom-[40px]'
@@ -241,6 +257,10 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					selectedDateRange={selectedDateRange}
 					openDrawer={openDrawer}
 					toggleDrawer={toggleDrawer}
+					maxHotspotValues={maxHotspotValues}
+					setMaxHotspotValues={setMaxHotspotValues}
+					maxBurntValues={maxBurntValues}
+					setMaxBurntValues={setMaxBurntValues}
 				/>
 			</Box>
 		</Box>

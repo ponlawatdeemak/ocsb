@@ -68,7 +68,7 @@ const getConfig = (service: APIService, config: AxiosRequestConfig<any> | undefi
 })
 
 export const refreshAccessToken = async (refreshToken?: string) => {
-	const token = apiRefreshToken ?? refreshToken
+	const token = refreshToken ?? apiRefreshToken
 	if (!token) {
 		throw new Error()
 	}

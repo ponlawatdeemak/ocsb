@@ -35,6 +35,10 @@ const SwipeableEdgeDrawer = ({
 	selectedHotspots,
 	selectedDateRange,
 	openDrawer,
+	maxHotspotValues,
+	setMaxHotspotValues,
+	maxBurntValues,
+	setMaxBurntValues,
 	toggleDrawer,
 }: {
 	selectedArea: { id: string; admOption: OptionType | null }[]
@@ -46,6 +50,10 @@ const SwipeableEdgeDrawer = ({
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
 	openDrawer: boolean
+	maxHotspotValues: Record<string, number>
+	setMaxHotspotValues: React.Dispatch<React.SetStateAction<Record<string, number>>>
+	maxBurntValues: Record<string, number>
+	setMaxBurntValues: React.Dispatch<React.SetStateAction<Record<string, number>>>
 	toggleDrawer: (newOpen: boolean) => void
 }) => {
 	const { t } = useTranslation(['map-analyze', 'common'])
@@ -68,6 +76,10 @@ const SwipeableEdgeDrawer = ({
 				selectedDateRange={selectedDateRange}
 				className={classNames({ '!w-[100%]': selectedArea.length === 1 })}
 				openDrawer={openDrawer}
+				maxHotspotValues={maxHotspotValues}
+				setMaxHotspotValues={setMaxHotspotValues}
+				maxBurntValues={maxBurntValues}
+				setMaxBurntValues={setMaxBurntValues}
 			/>
 		))
 	}, [
@@ -80,6 +92,10 @@ const SwipeableEdgeDrawer = ({
 		selectedDateRange,
 		selectedHotspots,
 		toggleDrawer,
+		maxHotspotValues,
+		setMaxHotspotValues,
+		maxBurntValues,
+		setMaxBurntValues,
 	])
 
 	return (

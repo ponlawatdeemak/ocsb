@@ -13,6 +13,7 @@ import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
 import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
 import { SelectedArea } from '../..'
+import useResponsive from '@/hook/responsive'
 
 interface DashboardCardMainProps {
 	handleClickDelete: () => void
@@ -23,6 +24,10 @@ interface DashboardCardMainProps {
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
 	openDrawer: boolean
+	maxHotspotValues: Record<string, number>
+	setMaxHotspotValues: React.Dispatch<React.SetStateAction<Record<string, number>>>
+	maxBurntValues: Record<string, number>
+	setMaxBurntValues: React.Dispatch<React.SetStateAction<Record<string, number>>>
 	className?: string
 }
 
@@ -35,6 +40,10 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	selectedHotspots,
 	selectedDateRange,
 	openDrawer,
+	maxHotspotValues,
+	setMaxHotspotValues,
+	maxBurntValues,
+	setMaxBurntValues,
 	className = '',
 }) => {
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
@@ -49,6 +58,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			[`${hotspotType[1].label.th}`]: '#FFC7C7',
 		}
 	}, [])
+	const { isDesktopMD } = useResponsive()
 
 	const [donutColorHotspot, setDonutColorHotspot] = useState(defaultColorHotspot)
 	const [percent, setPercent] = useState<number>(0)
@@ -74,9 +84,31 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			} else if (response.data.hotspot && selectedHotspots[0] === notInSugarCaneArea.code) {
 				setPercent(((response.data.hotspot.notInSugarcane ?? 0) * 100) / response.data.hotspot.total)
 			}
+
+			setMaxHotspotValues((prevMaxValue) => {
+				const key = area.id.split('mobile-').join('')
+				const total = response.data.hotspot?.total ?? 0
+				return {
+					...prevMaxValue,
+					[key]: total,
+				}
+			})
+			setMaxBurntValues((prevMaxValue) => {
+				const key = area.id.split('mobile-').join('')
+				const total =
+					response.data.burnArea?.list.reduce((total, item) => total + (item.area?.rai ?? 0), 0) ?? 0
+				return {
+					...prevMaxValue,
+					[key]: total,
+				}
+			})
+
 			return response.data
 		},
-		enabled: openDrawer === true && mapTypeArray.length !== 0,
+		enabled:
+			openDrawer === true &&
+			mapTypeArray.length !== 0 &&
+			((!isDesktopMD && !!area.id.includes('mobile')) || (isDesktopMD && !area.id.includes('mobile'))),
 	})
 
 	//region Hotspot
@@ -247,16 +279,14 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	}, [hideData, inSugarCaneArea, language, t])
 
 	useEffect(() => {
-		if (openDrawer) {
-			setHideData([])
-			setDonutColorHotspot(defaultColorHotspot)
-		}
-	}, [defaultColorHotspot, openDrawer])
+		setHideData([])
+		setDonutColorHotspot(defaultColorHotspot)
+	}, [defaultColorHotspot, isDesktopMD])
 
 	return (
 		<Box
 			className={classNames(
-				'relative flex h-full w-[375px] min-w-[375px] flex-col bg-white md:w-[300px] md:min-w-0',
+				'relative flex h-full w-[375px] min-w-[375px] flex-col bg-white md:w-[25vw] md:min-w-[25vw]',
 				className,
 			)}
 		>
@@ -343,6 +373,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 													]}
 													hideData={hideData}
 													handleClickOnChart={handleClickOnChart}
+													maxValues={maxHotspotValues}
 												/>
 											</div>
 										</>
@@ -367,6 +398,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 												columns={columnsBurnArea}
 												colors={defaultColorBurnArea}
 												handleClickOnChart={handleClickOnChart}
+												maxValues={maxBurntValues}
 											/>
 										</div>
 									) : (
