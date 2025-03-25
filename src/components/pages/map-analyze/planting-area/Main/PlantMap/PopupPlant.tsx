@@ -30,7 +30,8 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 		<div>
 			{popupData.toReversed().map((item, index) => {
 				const data = item.object.properties
-				const date = formatDate(new Date(data.date), 'dd MMMM yyyy', language)
+				const dateFormat = item.layer?.id === 'replant' ? 'yyyy' : 'dd MMMM yyyy'
+				const date = formatDate(new Date(data.date), dateFormat, language)
 
 				let coordinates: any[] = []
 				let color = ''
