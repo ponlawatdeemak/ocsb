@@ -1,8 +1,10 @@
 import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
+import { formatDate } from '@/utils/date'
 import { defaultNumber } from '@/utils/text'
 import { PickingInfo } from '@deck.gl/core'
+import { ResponseLanguage } from '@interface/config/app.config'
 import { Box } from '@mui/material'
 import { centroid } from '@turf/turf'
 import classNames from 'classnames'
@@ -14,6 +16,8 @@ interface Prop {
 }
 const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 	const { t, i18n } = useTranslation(['map-analyze', 'common', 'overview'])
+	const language = i18n.language as keyof ResponseLanguage
+
 	const { areaUnit } = useAreaUnit()
 	const { quantityUnit } = useQuantityUnit()
 	const areaUnitTranslate = `common:${areaUnit}`
@@ -26,11 +30,7 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 		<div>
 			{popupData.toReversed().map((item, index) => {
 				const data = item.object.properties
-				const date = new Date(data.date).toLocaleDateString('en-GB', {
-					day: 'numeric',
-					month: 'short',
-					year: 'numeric',
-				})
+				const date = formatDate(new Date(data.date), 'dd MMMM yyyy', language)
 
 				let coordinates: any[] = []
 				let color = ''

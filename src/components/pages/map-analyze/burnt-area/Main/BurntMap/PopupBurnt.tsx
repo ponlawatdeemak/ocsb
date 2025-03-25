@@ -1,6 +1,8 @@
 import { Languages } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
+import { formatDate } from '@/utils/date'
 import { PickingInfo } from '@deck.gl/core'
+import { ResponseLanguage } from '@interface/config/app.config'
 import { Box } from '@mui/material'
 import { centroid } from '@turf/turf'
 import classNames from 'classnames'
@@ -12,6 +14,7 @@ interface Prop {
 }
 const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 	const { t, i18n } = useTranslation(['map-analyze'])
+	const language = i18n.language as keyof ResponseLanguage
 	const { areaUnit } = useAreaUnit()
 	const areaUnitTranslate = `common:${areaUnit}`
 	const topicStyle = classNames('min-w-[110px] max-w-[110px] font-bold text-[#003491]', {
@@ -22,11 +25,7 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 		<div>
 			{popupData.map((item, index) => {
 				const data = item.object.properties
-				const date = new Date(data.date).toLocaleDateString('en-GB', {
-					day: 'numeric',
-					month: 'short',
-					year: 'numeric',
-				})
+				const date = formatDate(new Date(data.date), 'dd MMMM yyyy', language)
 				let coordinates = []
 
 				let color = ''
