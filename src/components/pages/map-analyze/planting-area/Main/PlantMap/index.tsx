@@ -393,6 +393,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 						features: productYieldAreaData.map((item) => {
 							return {
 								...item,
+								properties: { ...item.properties, heatWeight: item.properties.product?.ton?.rai },
 								geometry: {
 									type: 'Point',
 									coordinates: centroid(item.geometry as any).geometry.coordinates,
@@ -403,12 +404,28 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				})
 			}
 			if (!plantingMap.getLayer('heat-layer') && productYieldAreaData.length > 0) {
+				const maxZoom = 12
+				const maxValue = 15
 				plantingMap.addLayer({
 					id: 'heat-layer',
 					type: 'heatmap',
 					source: 'heat',
-					maxzoom: 9,
+					maxzoom: maxZoom,
 					paint: {
+						'heatmap-weight': [
+							'interpolate',
+							['linear'],
+							['get', 'heatWeight'],
+							0,
+							0,
+							5,
+							0.3,
+							10,
+							0.7,
+							maxValue,
+							1,
+						],
+						'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, maxZoom, 3],
 						'heatmap-color': [
 							'interpolate',
 							['linear'],
@@ -426,8 +443,22 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 							1,
 							'rgb(178,24,43)',
 						],
-						'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 1, 6, 3, 9, 8],
-						'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 8, 1, 9, 0],
+						'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 1, 6, 3, 9, 8, maxZoom, 10],
+						// 'heatmap-radius': [
+						// 	'interpolate',
+						// 	['linear'],
+						// 	['get', 'heatWeight'],
+						// 	0,
+						// 	1,
+						// 	5,
+						// 	5,
+						// 	10,
+						// 	10,
+						// 	maxZoom,
+						// 	20,
+						// ],
+
+						// 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 8, 1, maxZoom, 0],
 					},
 				})
 			}
