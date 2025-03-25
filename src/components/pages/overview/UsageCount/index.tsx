@@ -20,7 +20,7 @@ const UsageCount: FC = () => {
 
 	return (
 		<Box>
-			<Typography className='!text-xs text-black'>{`${t('viewer')} : ${usageData?.data?.count} ${t('person')}`}</Typography>
+			<Typography className='!text-xs text-black'>{`${t('viewer')} : ${usageData?.data?.count || '-'} ${t('person')}`}</Typography>
 		</Box>
 	)
 }
