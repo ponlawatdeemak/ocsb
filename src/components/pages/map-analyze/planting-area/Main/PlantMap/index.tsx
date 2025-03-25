@@ -527,7 +527,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					</IconButton>
 
 					{isCurrentRegionOpen && currentRegion && (
-						<Box className='flex flex-col gap-1 rounded-[5px] bg-white p-2'>
+						<Box className='flex flex-col gap-1 rounded-[5px] bg-white px-2 py-1'>
 							<Typography className='!text-2xs text-black'>{`${t('common:currentRegion')} : ${currentRegion[currentRegionLanguageKey]}`}</Typography>
 						</Box>
 					)}
