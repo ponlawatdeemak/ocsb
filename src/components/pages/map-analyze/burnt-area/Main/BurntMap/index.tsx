@@ -235,10 +235,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				new MVTLayer({
 					id: 'ds_yield_pred',
 					beforeId: 'custom-referer-layer',
-					data: `http://localhost:3002/ds_yield_pred`, // Construct the tile URL
-					// Styling for the yield prediction layer
-					getFillColor: [139, 182, 45, 180], // Example fill color
-					getLineColor: [139, 182, 45, 180], // Example line color
+					data: `${process.env.NEXT_PUBLIC_MARTIN_URL}/ds_yield_pred`,
+					getFillColor: [139, 182, 45, 180],
+					getLineColor: [139, 182, 45, 180],
 					getLineWidth: 1,
 					stroked: true,
 					filled: true,
@@ -249,10 +248,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				new MVTLayer({
 					id: 'ds_burn_area',
 					beforeId: 'custom-referer-layer',
-					data: `http://localhost:3002/ds_burn_area`, // Construct the tile URL
-					// Styling for the yield prediction layer
-					getFillColor: [255, 204, 0, 180], // Example fill color
-					getLineColor: [255, 204, 0, 180], // Example line color
+					data: `${process.env.NEXT_PUBLIC_MARTIN_URL}/ds_burn_area`,
+					getFillColor: [255, 204, 0, 180],
+					getLineColor: [255, 204, 0, 180],
 					getLineWidth: 1,
 					stroked: true,
 					filled: true,
