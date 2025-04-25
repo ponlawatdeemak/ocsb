@@ -25,44 +25,63 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 		<div>
 			{popupData.map((item, index) => {
 				const data = item.object.properties
-				// const date = formatDate(new Date(data.date), 'dd MMMM yyyy', language)
-                const dateFormat = item.layer?.id === 'plant' ? 'yyyy' : 'dd MMMM yyyy'
-				const date = formatDate(new Date(data.date), dateFormat, language)
+				console.log('👻 data: ', data)
+				const dateFormat = item.layer?.id === 'plant' ? 'yyyy' : 'dd MMMM yyyy'
 				let coordinates = []
 
 				let color = ''
 				const geometry = item.object.geometry
-				const row3 = {
-					title: '',
-					value: '',
-				}
+				const row3 = { title: '', value: '' }
+				let date
 				if (item.layer?.id === 'hotspot') {
 					color = '#FF0000'
 					coordinates = geometry.coordinates
+					date = formatDate(new Date(data.acq_date), dateFormat, language)
 				} else if (item.layer?.id === 'burnt') {
 					color = '#FBBF07'
 					row3.title = t('map-analyze:popupBurnt.burntScar')
-					const areaData = data.area[areaUnit] as number
+					const areaData = data[`area_${areaUnit}`] as number
 					row3.value = Number(areaData.toFixed(2)).toLocaleString()
 					coordinates = centroid(geometry).geometry.coordinates
+					date = formatDate(new Date(data.detected_d), dateFormat, language)
 				} else if (item.layer?.id === 'plant') {
 					color = '#8AB62D'
 					row3.title = t('map-analyze:popupBurnt.plantingArea')
-					const areaData = data.area[areaUnit] as number
+					const areaData = data[`area_${areaUnit}`] as number
 					row3.value = Number(areaData.toFixed(2)).toLocaleString()
 					coordinates = centroid(geometry).geometry.coordinates
+					date = formatDate(new Date(data.cls_edate), dateFormat, language)
+				} else if (item.layer?.id === 'factory') {
+					color = '#808080'
+					coordinates = geometry.coordinates
 				}
+
+				const fieldAdm3 = `o_adm3${i18n.language === 'th' ? 't' : 'e'}`
+				const fieldAdm2 = `o_adm2${i18n.language === 'th' ? 't' : 'e'}`
+				const fieldAdm1 = `o_adm1${i18n.language === 'th' ? 't' : 'e'}`
+
 				return (
 					<div key={'popup-' + index} className={`font-["Prompt","Montserrat"]`}>
-						<Box className={`bg-[${color}] flex px-4 py-2 text-white`}>
-							<Box className='w-[110px]'>{t('map-analyze:popupBurnt.date')}</Box>
-							<Box>{date}</Box>
-						</Box>
+						{item.layer?.id === 'factory' ? (
+							<Box className={`flex bg-[#808080] px-4 py-2 text-white`}>
+								<Box>{data.fnamt}</Box>
+							</Box>
+						) : (
+							<Box className={`bg-[${color}] flex px-4 py-2 text-white`}>
+								<Box className='w-[110px]'>{t('map-analyze:popupBurnt.date')}</Box>
+								<Box>{date}</Box>
+							</Box>
+						)}
+
 						<Box>
 							<Box className='flex flex-col px-4 py-2'>
 								<Box className='flex'>
 									<Box className={topicStyle}>{t('map-analyze:popupBurnt.address')}</Box>
-									<Box>{`${data.adm3[i18n.language]} ${data.adm2[i18n.language]} ${data.adm1[i18n.language]}`}</Box>
+									<Box>
+										{data[fieldAdm3] && data[fieldAdm2] && data[fieldAdm1]
+											? `${data[fieldAdm3]} ${data[fieldAdm2]} ${data[fieldAdm1]}`
+											: '-'}
+									</Box>
 								</Box>
 
 								<Box className='flex'>

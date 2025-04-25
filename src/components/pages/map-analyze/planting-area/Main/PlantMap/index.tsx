@@ -474,7 +474,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 		return { type: 'plant', plantYieldAreaData, productYieldAreaData, replantYieldAreaData }
 	}, [plantYieldAreaData, productYieldAreaData, replantYieldAreaData])
 
-	const mapLegendArray: MapLegendType[] = useMemo(() => {
+	const mapLegendArray: any[] = useMemo(() => {
 		const typeArray = [...mapTypeArray]
 		if (selectedRepeatArea) {
 			typeArray.push(yieldMapTypeCode.repeat)
