@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { OptionType } from '../SearchForm'
-import { GeoJsonLayer } from '@deck.gl/layers'
+import { GeoJsonLayer, IconLayer } from '@deck.gl/layers'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
 import { yieldMapTypeCode } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
@@ -36,6 +36,8 @@ import PrintMapExportMain, {
 	LONGITUDE_OFFSET,
 	MapLegendType,
 } from '@/components/shared/PrintMap'
+import { MVTLayer } from '@deck.gl/geo-layers'
+import { getPinFactory } from '@/utils/pin'
 
 export interface MapPlantDataType {
 	type: 'plant'
@@ -269,6 +271,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 			if (plantingMap && plantingOverlay) {
 				const pickItem = plantingOverlay.pickMultipleObjects(info)
 				if (popupNode.current && pickItem.length) {
+					if (pickItem[0].layer?.id === 'factory') return
 					popup
 						?.setLngLat(info.coordinate as [number, number])
 						.setDOMContent(popupNode.current)
@@ -363,6 +366,49 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					getFillPatternScale: 1,
 					getFillPatternOffset: [0, 0],
 					extensions: [new FillStyleExtension({ pattern: true })],
+				}),
+				new MVTLayer({
+					id: 'factory',
+					beforeId: 'custom-referer-layer',
+					data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_factory/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+					visible: mapTypeArray.includes(yieldMapTypeCode.factory),
+					pickable: true,
+					// sizeScale: 1,
+					getPosition: (d: any) => d.geometry.coordinates,
+					getSize: 35,
+					getIcon: () => ({ url: getPinFactory(), width: 35, height: 35, mask: false }),
+					// updateTriggers: { renderSubLayers: [selectedDateRange] },
+					binary: false,
+					renderSubLayers: (props) => {
+						const tempData = (props.data || []) as any[]
+
+						const filteredFeatures = tempData.filter((item) => {
+							const props = item.properties
+							let visible = false
+							let conditionAdm = false
+							if (currentAdmOption?.id) {
+								if (currentAdmOption.id.length === 2) {
+									// user select province
+									conditionAdm = Number(currentAdmOption.id) === props.o_adm1c
+								} else if (currentAdmOption.id.length === 4) {
+									// user select district
+									conditionAdm = Number(currentAdmOption.id) === props.o_adm2c
+								} else if (currentAdmOption.id.length === 6) {
+									// user select sub-district
+									conditionAdm = Number(currentAdmOption.id) === props.o_adm3c
+								}
+							} else {
+								conditionAdm = true
+							}
+							visible = conditionAdm
+							return visible
+						})
+
+						return new IconLayer({
+							...props,
+							data: filteredFeatures,
+						})
+					},
 				}),
 			]
 

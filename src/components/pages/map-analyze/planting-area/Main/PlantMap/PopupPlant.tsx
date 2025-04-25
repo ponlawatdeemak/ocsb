@@ -31,7 +31,7 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 			{popupData.toReversed().map((item, index) => {
 				const data = item.object.properties
 				// const dateFormat = item.layer?.id === 'replant' ? 'yyyy' : 'dd MMMM yyyy'
-                const dateFormat = item.layer?.id === 'replant' ? 'yyyy' : 'yyyy'
+				const dateFormat = 'yyyy'
 				const date = formatDate(new Date(data.date), dateFormat, language)
 
 				let coordinates: any[] = []
@@ -47,11 +47,14 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 				} else if (item.layer?.id === 'replant') {
 					color = '#A7A7A7'
 					coordinates = centroid(geometry).geometry.coordinates
+				} else if (item.layer?.id === 'factory') {
+					color = '#808080'
+					coordinates = geometry.coordinates
 				}
 				return (
 					<div key={'popup-' + index} className={`font-["Prompt","Montserrat"]`}>
 						<Box className={`flex px-4 py-2 text-white`} sx={{ backgroundColor: color }}>
-                            <Box className='w-[110px]'>{t('map-analyze:popupBurnt.date')}</Box>
+							<Box className='w-[110px]'>{t('map-analyze:popupBurnt.date')}</Box>
 							<Box>{date}</Box>
 						</Box>
 						<Box>
