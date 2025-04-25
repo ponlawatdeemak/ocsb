@@ -12,7 +12,7 @@ import {
 } from '@interface/dto/brunt-area/brunt-area.dto.out'
 import { GeoJsonLayer, IconLayer } from '@deck.gl/layers'
 
-import { getPinHotSpot } from '@/utils/pin'
+import { getPinFactory, getPinHotSpot } from '@/utils/pin'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
 import { hotspotTypeCode, mapTypeCode } from '@interface/config/app.config'
 import { useTranslation } from 'next-i18next'
@@ -67,13 +67,13 @@ interface BurntMapMainProps {
 	currentAdmOption: OptionType | null
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
-	hotspotBurntAreaData: GetHotspotBurntAreaDtoOut[]
-	burntBurntAreaData: GetBurntBurntAreaDtoOut[]
-	plantBurntAreaData: GetPlantBurntAreaDtoOut[]
-	isHotspotBurntAreaDataLoading: boolean
-	isBurntBurntAreaDataLoading: boolean
-	isPlantBurntAreaDataLoading: boolean
-	onMapExtentChange: (polygon: number[][]) => void
+	// hotspotBurntAreaData: GetHotspotBurntAreaDtoOut[]
+	// burntBurntAreaData: GetBurntBurntAreaDtoOut[]
+	// plantBurntAreaData: GetPlantBurntAreaDtoOut[]
+	// isHotspotBurntAreaDataLoading: boolean
+	// isBurntBurntAreaDataLoading: boolean
+	// isPlantBurntAreaDataLoading: boolean
+	// onMapExtentChange: (polygon: number[][]) => void
 }
 
 const BurntMapMain: React.FC<BurntMapMainProps> = ({
@@ -82,13 +82,13 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	currentAdmOption,
 	selectedHotspots,
 	selectedDateRange,
-	hotspotBurntAreaData,
-	burntBurntAreaData,
-	plantBurntAreaData,
-	isHotspotBurntAreaDataLoading,
-	isBurntBurntAreaDataLoading,
-	isPlantBurntAreaDataLoading,
-	onMapExtentChange,
+	// hotspotBurntAreaData,
+	// burntBurntAreaData,
+	// plantBurntAreaData,
+	// isHotspotBurntAreaDataLoading,
+	// isBurntBurntAreaDataLoading,
+	// isPlantBurntAreaDataLoading,
+	// onMapExtentChange,
 }) => {
 	const { data: session } = useSession()
 	const { mapLibre, overlays } = useMapStore()
@@ -120,18 +120,18 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	// map extent effect
 	useEffect(() => {
 		if (burntMap) {
-			let prevPolygon: Feature<Polygon, GeoJsonProperties> | null = null
+			// let prevPolygon: Feature<Polygon, GeoJsonProperties> | null = null
 			burntMap.on('moveend', () => {
 				const currentBound = burntMap.getBounds()
 				const sw = currentBound.getSouthWest()
 				const ne = currentBound.getNorthEast()
-				const extent = [
-					[sw.lng, sw.lat],
-					[ne.lng, sw.lat],
-					[ne.lng, ne.lat],
-					[sw.lng, ne.lat],
-					[sw.lng, sw.lat],
-				]
+				// const extent = [
+				// 	[sw.lng, sw.lat],
+				// 	[ne.lng, sw.lat],
+				// 	[ne.lng, ne.lat],
+				// 	[sw.lng, ne.lat],
+				// 	[sw.lng, sw.lat],
+				// ]
 
 				const geometry = [
 					[sw.lng, sw.lat],
@@ -156,19 +156,23 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				})
 				setBurntMapGeometry(geometry)
 
-				const turfPolygon = polygon([extent])
-				if (prevPolygon) {
-					if (!booleanContains(prevPolygon, turfPolygon)) {
-						onMapExtentChange(extent)
-						prevPolygon = turfPolygon
-					}
-				} else {
-					onMapExtentChange(extent)
-					prevPolygon = turfPolygon
-				}
+				// const turfPolygon = polygon([extent])
+				// if (prevPolygon) {
+				// 	if (!booleanContains(prevPolygon, turfPolygon)) {
+				// 		onMapExtentChange(extent)
+				// 		prevPolygon = turfPolygon
+				// 	}
+				// } else {
+				// 	onMapExtentChange(extent)
+				// 	prevPolygon = turfPolygon
+				// }
 			})
 		}
-	}, [burntMap, onMapExtentChange, i18n])
+	}, [
+		burntMap,
+		// , onMapExtentChange
+		i18n,
+	])
 
 	// current region effect
 	useEffect(() => {
@@ -188,7 +192,12 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				setCurrentRegion(insideRegion)
 			})
 		}
-	}, [burntMap, onMapExtentChange, regionData, i18n])
+	}, [
+		burntMap,
+		// , onMapExtentChange
+		regionData,
+		i18n,
+	])
 
 	// zoom to default user region
 	useEffect(() => {
@@ -345,7 +354,49 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						})
 					},
 				}),
+				new MVTLayer({
+					id: 'factory',
+					beforeId: 'custom-referer-layer',
+					data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_factory/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+					visible: mapTypeArray.includes(mapTypeCode.factory),
+					pickable: true,
+					// sizeScale: 1,
+					getPosition: (d: any) => d.geometry.coordinates,
+					getSize: 35,
+					getIcon: () => ({ url: getPinFactory(), width: 35, height: 35, mask: false }),
+					// updateTriggers: { renderSubLayers: [selectedDateRange] },
+					binary: false,
+					renderSubLayers: (props) => {
+						const tempData = (props.data || []) as any[]
+						
+						const filteredFeatures = tempData.filter((item) => {
+							const props = item.properties
+							let visible = false
+							let conditionAdm = false
+							if (currentAdmOption?.id) {
+								if (currentAdmOption.id.length === 2) {
+									// user select province
+									conditionAdm = Number(currentAdmOption.id) === props.o_adm1c
+								} else if (currentAdmOption.id.length === 4) {
+									// user select district
+									conditionAdm = Number(currentAdmOption.id) === props.o_adm2c
+								} else if (currentAdmOption.id.length === 6) {
+									// user select sub-district
+									conditionAdm = Number(currentAdmOption.id) === props.o_adm3c
+								}
+							} else {
+								conditionAdm = true
+							}
+							visible = conditionAdm
+							return visible
+						})
 
+						return new IconLayer({
+							...props,
+							data: filteredFeatures,
+						})
+					},
+				}),
 				new MVTLayer({
 					id: 'hotspot',
 					beforeId: 'custom-referer-layer',
@@ -355,7 +406,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					getPosition: (d: any) => d.geometry.coordinates,
 					getSize: 14,
 					getIcon: () => ({ url: getPinHotSpot(), width: 14, height: 14, mask: false }),
-					updateTriggers: { renderSubLayers: [selectedDateRange] },
+					// updateTriggers: { renderSubLayers: [selectedDateRange] },
 					binary: false,
 					renderSubLayers: (props) => {
 						const tempData = (props.data || []) as any[]
@@ -405,42 +456,6 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 						})
 					},
 				}),
-
-				// new GeoJsonLayer({
-				// 	id: 'plant',
-				// 	beforeId: 'custom-referer-layer',
-				// 	data: plantBurntAreaData as any,
-				// 	pickable: true,
-				// 	stroked: true,
-				// 	filled: true,
-				// 	lineWidthMinPixels: 1,
-				// 	getPolygon: (d: any) => d.geometry.coordinates,
-				// 	getFillColor: () => [139, 182, 45, 180],
-				// 	getLineColor: () => [139, 182, 45, 180],
-				// }),
-
-				// new GeoJsonLayer({
-				// 	id: 'burnt',
-				// 	beforeId: 'custom-referer-layer',
-				// 	data: burntBurntAreaData as any,
-				// 	pickable: true,
-				// 	stroked: true,
-				// 	filled: true,
-				// 	lineWidthMinPixels: 1,
-				// 	getPolygon: (d: any) => d.geometry.coordinates,
-				// 	getFillColor: () => [255, 204, 0, 180],
-				// 	getLineColor: () => [255, 204, 0, 180],
-				// }),
-				// new IconLayer({
-				// 	id: 'hotspot',
-				// 	beforeId: 'custom-referer-layer',
-				// 	data: hotspotBurntAreaData,
-				// 	pickable: true,
-				// 	sizeScale: 1,
-				// 	getPosition: (d) => d.geometry.coordinates,
-				// 	getSize: 14,
-				// 	getIcon: () => ({ url: getPinHotSpot(), width: 14, height: 14, mask: false }),
-				// }),
 			]
 
 			burntOverlay.setProps({
@@ -452,9 +467,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	}, [
 		burntMap,
 		burntOverlay,
-		hotspotBurntAreaData,
-		burntBurntAreaData,
-		plantBurntAreaData,
+
 		onMapClick,
 		session?.user.accessToken,
 		selectedDateRange,
@@ -468,10 +481,10 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	}, [isCurrentRegionOpen])
 
 	const mapBurntData: MapBurntDataType = useMemo(() => {
-		return { type: 'burnt', hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData }
-	}, [hotspotBurntAreaData, burntBurntAreaData, plantBurntAreaData])
+		return { type: 'burnt', hotspotBurntAreaData: [], burntBurntAreaData: [], plantBurntAreaData: [] }
+	}, [])
 
-	const mapLegendArray: MapLegendType[] = useMemo(() => {
+	const mapLegendArray: any[] = useMemo(() => {
 		return mapTypeArray.map((mapType) => {
 			let key, type, title
 			switch (mapType) {
@@ -559,9 +572,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					mapGeometry={burntMapGeometry}
 					mapExportParam={burntMapExportParam}
 					disabled={
-						isHotspotBurntAreaDataLoading ||
-						isBurntBurntAreaDataLoading ||
-						isPlantBurntAreaDataLoading ||
+						// isHotspotBurntAreaDataLoading ||
+						// isBurntBurntAreaDataLoading ||
+						// isPlantBurntAreaDataLoading ||
 						isRegionLoading
 					}
 				/>
@@ -569,9 +582,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				<MapView
 					mapId={BURNT_MAP_ID}
 					loading={
-						isHotspotBurntAreaDataLoading ||
-						isBurntBurntAreaDataLoading ||
-						isPlantBurntAreaDataLoading ||
+						// isHotspotBurntAreaDataLoading ||
+						// isBurntBurntAreaDataLoading ||
+						// isPlantBurntAreaDataLoading ||
 						isRegionLoading
 					}
 				/>

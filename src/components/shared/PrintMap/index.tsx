@@ -34,6 +34,7 @@ export interface BurntMapDetailType {
 	hotspots: MapDetailType
 	burnArea: MapDetailType
 	plant: MapDetailType
+	factory: MapDetailType
 }
 
 export interface PlantMapDetailType {
@@ -41,6 +42,7 @@ export interface PlantMapDetailType {
 	plant: MapDetailType
 	product: MapDetailType
 	repeat: MapDetailType
+	factory: MapDetailType
 }
 
 export interface MapLegendType {
@@ -154,6 +156,7 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 						hotspots: { details: findPointsInsideBoundary(mapData.hotspotBurntAreaData as any, extent) },
 						burnArea: { details: findPolygonsInsideBoundary(mapData.burntBurntAreaData as any, extent) },
 						plant: { details: findPolygonsInsideBoundary(mapData.plantBurntAreaData as any, extent) },
+						factory: { details: findPointsInsideBoundary(mapData.hotspotBurntAreaData as any, extent) },
 					}
 
 					setMapDetail((prevDetail) => ({ ...prevDetail, ...burntMapDetail }))
@@ -163,6 +166,7 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 						plant: { details: findPolygonsInsideBoundary(mapData.plantYieldAreaData as any, extent) },
 						product: { details: findPolygonsInsideBoundary(mapData.productYieldAreaData as any, extent) },
 						repeat: { details: findPolygonsInsideBoundary(mapData.replantYieldAreaData as any, extent) },
+						factory: { details: findPointsInsideBoundary(mapData.plantYieldAreaData as any, extent) },
 					}
 
 					setMapDetail((prevDetail) => ({ ...prevDetail, ...plantMapDetail }))

@@ -32,80 +32,80 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 	const [maxHotspotValues, setMaxHotspotValues] = useState<Record<string, number>>({})
 	const [maxBurntValues, setMaxBurntValues] = useState<Record<string, number>>({})
 
-	const [mapExtent, setMapExtent] = useState<number[][] | null>(null)
+	// const [mapExtent, setMapExtent] = useState<number[][] | null>(null)
 
-	const { data: hotspotBurntAreaData, isFetching: isHotspotBurntAreaDataLoading } = useQuery({
-		queryKey: ['getHotspotBurntArea', selectedHotspots, selectedDateRange, searchSelectedAdmOption, mapExtent],
-		queryFn: ({ signal }) =>
-			service.mapAnalyze.getHotspotBurntArea(
-				{
-					inSugarcan: selectedHotspots,
-					startDate: selectedDateRange[0].toISOString().split('T')[0],
-					endDate: selectedDateRange[1].toISOString().split('T')[0],
-					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-					polygon: JSON.stringify(mapExtent ?? ''),
-				},
-				{ signal },
-			),
-		enabled: !!selectedHotspots?.length && (!!searchSelectedAdmOption?.id || !!mapExtent),
-		placeholderData: keepPreviousData,
-	})
+	// const { data: hotspotBurntAreaData, isFetching: isHotspotBurntAreaDataLoading } = useQuery({
+	// 	queryKey: ['getHotspotBurntArea', selectedHotspots, selectedDateRange, searchSelectedAdmOption, mapExtent],
+	// 	queryFn: ({ signal }) =>
+	// 		service.mapAnalyze.getHotspotBurntArea(
+	// 			{
+	// 				inSugarcan: selectedHotspots,
+	// 				startDate: selectedDateRange[0].toISOString().split('T')[0],
+	// 				endDate: selectedDateRange[1].toISOString().split('T')[0],
+	// 				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+	// 				polygon: JSON.stringify(mapExtent ?? ''),
+	// 			},
+	// 			{ signal },
+	// 		),
+	// 	enabled: !!selectedHotspots?.length && (!!searchSelectedAdmOption?.id || !!mapExtent),
+	// 	placeholderData: keepPreviousData,
+	// })
 
-	const { data: burntBurntAreaData, isFetching: isBurntBurntAreaDataLoading } = useQuery({
-		queryKey: ['getBurntBurntArea', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
-		queryFn: ({ signal }) =>
-			service.mapAnalyze.getBurntBurntArea(
-				{
-					startDate: selectedDateRange[0].toISOString().split('T')[0],
-					endDate: selectedDateRange[1].toISOString().split('T')[0],
-					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-					polygon: JSON.stringify(mapExtent ?? ''),
-				},
-				{ signal },
-			),
-		enabled: mapTypeArray.includes(mapTypeCode.burnArea) && (!!searchSelectedAdmOption?.id || !!mapExtent),
-		placeholderData: keepPreviousData,
-	})
+	// const { data: burntBurntAreaData, isFetching: isBurntBurntAreaDataLoading } = useQuery({
+	// 	queryKey: ['getBurntBurntArea', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
+	// 	queryFn: ({ signal }) =>
+	// 		service.mapAnalyze.getBurntBurntArea(
+	// 			{
+	// 				startDate: selectedDateRange[0].toISOString().split('T')[0],
+	// 				endDate: selectedDateRange[1].toISOString().split('T')[0],
+	// 				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+	// 				polygon: JSON.stringify(mapExtent ?? ''),
+	// 			},
+	// 			{ signal },
+	// 		),
+	// 	enabled: mapTypeArray.includes(mapTypeCode.burnArea) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+	// 	placeholderData: keepPreviousData,
+	// })
 
-	const { data: plantBurntAreaData, isFetching: isPlantBurntAreaDataLoading } = useQuery({
-		queryKey: ['getPlantBurntArea', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
-		queryFn: ({ signal }) =>
-			service.mapAnalyze.getPlantBurntArea(
-				{
-					startDate: selectedDateRange[0].toISOString().split('T')[0],
-					endDate: selectedDateRange[1].toISOString().split('T')[0],
-					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-					polygon: JSON.stringify(mapExtent ?? ''),
-				},
-				{ signal },
-			),
-		enabled: mapTypeArray.includes(mapTypeCode.plant) && (!!searchSelectedAdmOption?.id || !!mapExtent),
-		placeholderData: keepPreviousData,
-	})
+	// const { data: plantBurntAreaData, isFetching: isPlantBurntAreaDataLoading } = useQuery({
+	// 	queryKey: ['getPlantBurntArea', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
+	// 	queryFn: ({ signal }) =>
+	// 		service.mapAnalyze.getPlantBurntArea(
+	// 			{
+	// 				startDate: selectedDateRange[0].toISOString().split('T')[0],
+	// 				endDate: selectedDateRange[1].toISOString().split('T')[0],
+	// 				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+	// 				polygon: JSON.stringify(mapExtent ?? ''),
+	// 			},
+	// 			{ signal },
+	// 		),
+	// 	enabled: mapTypeArray.includes(mapTypeCode.plant) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+	// 	placeholderData: keepPreviousData,
+	// })
 
-	const mapDataHotSpot = useMemo(() => {
-		if (selectedHotspots?.length) {
-			return hotspotBurntAreaData?.data || []
-		} else {
-			return []
-		}
-	}, [selectedHotspots, hotspotBurntAreaData])
+	// const mapDataHotSpot = useMemo(() => {
+	// 	if (selectedHotspots?.length) {
+	// 		return hotspotBurntAreaData?.data || []
+	// 	} else {
+	// 		return []
+	// 	}
+	// }, [selectedHotspots, hotspotBurntAreaData])
 
-	const mapDataBurnt = useMemo(() => {
-		if (mapTypeArray?.includes(mapTypeCode.burnArea)) {
-			return burntBurntAreaData?.data || []
-		} else {
-			return []
-		}
-	}, [mapTypeArray, burntBurntAreaData])
+	// const mapDataBurnt = useMemo(() => {
+	// 	if (mapTypeArray?.includes(mapTypeCode.burnArea)) {
+	// 		return burntBurntAreaData?.data || []
+	// 	} else {
+	// 		return []
+	// 	}
+	// }, [mapTypeArray, burntBurntAreaData])
 
-	const mapDataPlant = useMemo(() => {
-		if (mapTypeArray?.includes(mapTypeCode.plant)) {
-			return plantBurntAreaData?.data || []
-		} else {
-			return []
-		}
-	}, [mapTypeArray, plantBurntAreaData])
+	// const mapDataPlant = useMemo(() => {
+	// 	if (mapTypeArray?.includes(mapTypeCode.plant)) {
+	// 		return plantBurntAreaData?.data || []
+	// 	} else {
+	// 		return []
+	// 	}
+	// }, [mapTypeArray, plantBurntAreaData])
 
 	const toggleDrawer = useCallback((newOpen: boolean) => {
 		setOpenDrawer(newOpen)
@@ -238,13 +238,13 @@ export const BurntAreaMain: React.FC<BurntAreaMainProps> = ({ className = '' }) 
 					currentAdmOption={searchSelectedAdmOption}
 					selectedHotspots={selectedHotspots}
 					selectedDateRange={selectedDateRange}
-					hotspotBurntAreaData={mapDataHotSpot}
-					burntBurntAreaData={mapDataBurnt}
-					plantBurntAreaData={mapDataPlant}
-					isHotspotBurntAreaDataLoading={isHotspotBurntAreaDataLoading}
-					isBurntBurntAreaDataLoading={isBurntBurntAreaDataLoading}
-					isPlantBurntAreaDataLoading={isPlantBurntAreaDataLoading}
-					onMapExtentChange={setMapExtent}
+					// hotspotBurntAreaData={mapDataHotSpot}
+					// burntBurntAreaData={mapDataBurnt}
+					// plantBurntAreaData={mapDataPlant}
+					// isHotspotBurntAreaDataLoading={isHotspotBurntAreaDataLoading}
+					// isBurntBurntAreaDataLoading={isBurntBurntAreaDataLoading}
+					// isPlantBurntAreaDataLoading={isPlantBurntAreaDataLoading}
+					// onMapExtentChange={setMapExtent}
 				/>
 				<SwipeableEdgeDrawer
 					selectedArea={selectedArea}

@@ -51,21 +51,37 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 					row3.value = Number(areaData.toFixed(2)).toLocaleString()
 					coordinates = centroid(geometry).geometry.coordinates
 					date = formatDate(new Date(data.cls_edate), dateFormat, language)
+				} else if (item.layer?.id === 'factory') {
+					color = '#808080'
+					coordinates = geometry.coordinates
 				}
+
 				const fieldAdm3 = `o_adm3${i18n.language === 'th' ? 't' : 'e'}`
 				const fieldAdm2 = `o_adm2${i18n.language === 'th' ? 't' : 'e'}`
 				const fieldAdm1 = `o_adm1${i18n.language === 'th' ? 't' : 'e'}`
+
 				return (
 					<div key={'popup-' + index} className={`font-["Prompt","Montserrat"]`}>
-						<Box className={`bg-[${color}] flex px-4 py-2 text-white`}>
-							<Box className='w-[110px]'>{t('map-analyze:popupBurnt.date')}</Box>
-							<Box>{date}</Box>
-						</Box>
+						{item.layer?.id === 'factory' ? (
+							<Box className={`flex bg-[#808080] px-4 py-2 text-white`}>
+								<Box>{data.fnamt}</Box>
+							</Box>
+						) : (
+							<Box className={`bg-[${color}] flex px-4 py-2 text-white`}>
+								<Box className='w-[110px]'>{t('map-analyze:popupBurnt.date')}</Box>
+								<Box>{date}</Box>
+							</Box>
+						)}
+
 						<Box>
 							<Box className='flex flex-col px-4 py-2'>
 								<Box className='flex'>
 									<Box className={topicStyle}>{t('map-analyze:popupBurnt.address')}</Box>
-									<Box>{`${data[fieldAdm3]} ${data[fieldAdm2]} ${data[fieldAdm1]}`}</Box>
+									<Box>
+										{data[fieldAdm3] && data[fieldAdm2] && data[fieldAdm1]
+											? `${data[fieldAdm3]} ${data[fieldAdm2]} ${data[fieldAdm1]}`
+											: '-'}
+									</Box>
 								</Box>
 
 								<Box className='flex'>
