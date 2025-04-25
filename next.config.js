@@ -10,7 +10,6 @@ const nextConfig = {
 		LINE_QR_URL: process.env.LINE_QR_URL,
 		NEXT_PUBLIC_API_HOSTNAME_MIS: process.env.NEXT_PUBLIC_API_HOSTNAME_MIS,
 		GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
-		NEXT_PUBLIC_MARTIN_URL: process.env.NEXT_PUBLIC_MARTIN_URL,
 	},
 
 	async redirects() {
