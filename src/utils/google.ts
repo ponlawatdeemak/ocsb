@@ -1,7 +1,11 @@
 import { StyleSpecification } from 'maplibre-gl'
 
 interface Session {
-	[key: string]: string // Dynamically typed session data
+	expiry: string
+	imageFormat: string
+	session: string
+	tileHeight: number
+	tileWidth: number
 }
 
 interface SessionRequest {
@@ -13,19 +17,33 @@ interface SessionRequest {
 	layerTypes?: string[] // Optional property
 	overlay?: boolean // Optional property
 }
+const sessions: Record<string, Promise<Session> | Session> = {}
+const SESSION_KEY = 'google-session'
 
-const sessions: { [key: string]: Promise<Session> | Session } = {}
+function isNeedCreateSession(session?: Promise<Session> | Session): boolean {
+	if (session instanceof Promise) {
+		return false
+	}
+	if (!session?.session) {
+		return true
+	}
+	if (session.expiry) {
+		const now = new Date().getTime()
+		const expiry = Number(session.expiry) * 1000
+		return now > expiry
+	}
+	return false
+}
 
 export async function googleProtocol(
 	params: { url: string },
 	abortController?: AbortController,
 ): Promise<{ data: ArrayBuffer }> {
 	const url = new URL(params.url.replace('google://', 'https://'))
-	const sessionKey = `${url.hostname}?${url.searchParams.toString()}` // Use toString() for URLSearchParams
 	const key = url.searchParams.get('key')
-
-	let value: Promise<Session> | Session | undefined = sessions[sessionKey]
-	if (!value) {
+	let value: Promise<Session> | Session | undefined =
+		sessions[SESSION_KEY] || JSON.parse(localStorage.getItem(SESSION_KEY) || '{}')
+	if (isNeedCreateSession(value)) {
 		value = new Promise((resolve) => {
 			const mapType = url.hostname
 			const layerType = url.searchParams.get('layerType')
@@ -59,8 +77,8 @@ export async function googleProtocol(
 					}
 
 					const result = await response.json()
-					sessions[sessionKey] = result.session
-					resolve(result.session)
+					localStorage.setItem(SESSION_KEY, JSON.stringify(result))
+					resolve(result)
 				} catch (error) {
 					console.error('Error creating session:', error)
 					// Handle error appropriately (e.g., reject promise, throw exception)
@@ -69,14 +87,13 @@ export async function googleProtocol(
 
 			createSession()
 		})
-		sessions[sessionKey] = value // Store the promise while it's being fetched
-		await value
-	} else if (value instanceof Promise) {
-		await value
+		sessions[SESSION_KEY] = value // Store the promise while it's being fetched
 	}
-
-	const session = sessions[sessionKey]
-	const tile = await fetch(`https://tile.googleapis.com/v1/2dtiles${url.pathname}?session=${session}&key=${key}`)
+	const session = await value
+	sessions[SESSION_KEY] = session
+	const tile = await fetch(
+		`https://tile.googleapis.com/v1/2dtiles${url.pathname}?session=${session.session}&key=${key}`,
+	)
 	const data = await tile.arrayBuffer()
 	return { data }
 }
