@@ -271,7 +271,6 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 			if (plantingMap && plantingOverlay) {
 				const pickItem = plantingOverlay.pickMultipleObjects(info)
 				if (popupNode.current && pickItem.length) {
-					if (pickItem[0].layer?.id === 'factory') return
 					popup
 						?.setLngLat(info.coordinate as [number, number])
 						.setDOMContent(popupNode.current)

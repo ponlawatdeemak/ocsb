@@ -25,10 +25,8 @@ const PopupBurnt: FC<Prop> = ({ popupData = [] }: Prop) => {
 		<div>
 			{popupData.map((item, index) => {
 				const data = item.object.properties
-				console.log('👻 data: ', data)
 				const dateFormat = item.layer?.id === 'plant' ? 'yyyy' : 'dd MMMM yyyy'
 				let coordinates = []
-
 				let color = ''
 				const geometry = item.object.geometry
 				const row3 = { title: '', value: '' }

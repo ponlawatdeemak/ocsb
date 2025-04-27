@@ -30,10 +30,8 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 		<div>
 			{popupData.toReversed().map((item, index) => {
 				const data = item.object.properties
-				// const dateFormat = item.layer?.id === 'replant' ? 'yyyy' : 'dd MMMM yyyy'
 				const dateFormat = 'yyyy'
-				const date = formatDate(new Date(data.date), dateFormat, language)
-
+				let date
 				let coordinates: any[] = []
 				let color = ''
 				const geometry = item.object.geometry
@@ -41,30 +39,44 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 				if (item.layer?.id === 'plant') {
 					color = '#8AB62D'
 					coordinates = centroid(geometry).geometry.coordinates
+					date = formatDate(new Date(data.date), dateFormat, language)
 				} else if (item.layer?.id === 'product') {
 					color = '#40C4FF'
 					coordinates = centroid(geometry).geometry.coordinates
+					date = formatDate(new Date(data.date), dateFormat, language)
 				} else if (item.layer?.id === 'replant') {
 					color = '#A7A7A7'
 					coordinates = centroid(geometry).geometry.coordinates
+					date = formatDate(new Date(data.date), dateFormat, language)
 				} else if (item.layer?.id === 'factory') {
 					color = '#808080'
 					coordinates = geometry.coordinates
 				}
+				const fieldAdm3 = `o_adm3${i18n.language === 'th' ? 't' : 'e'}`
+				const fieldAdm2 = `o_adm2${i18n.language === 'th' ? 't' : 'e'}`
+				const fieldAdm1 = `o_adm1${i18n.language === 'th' ? 't' : 'e'}`
+
 				return (
 					<div key={'popup-' + index} className={`font-["Prompt","Montserrat"]`}>
-						<Box className={`flex px-4 py-2 text-white`} sx={{ backgroundColor: color }}>
-							<Box className='w-[110px]'>{t('map-analyze:popupBurnt.date')}</Box>
-							<Box>{date}</Box>
-						</Box>
+						{item.layer?.id === 'factory' ? (
+							<Box className={`flex bg-[#808080] px-4 py-2 text-white`}>
+								<Box>{data.fnamt}</Box>
+							</Box>
+						) : (
+							<Box className={`flex px-4 py-2 text-white`} sx={{ backgroundColor: color }}>
+								<Box className='w-[110px]'>{t('map-analyze:popupBurnt.date')}</Box>
+								<Box>{date}</Box>
+							</Box>
+						)}
+
 						<Box>
 							<Box className='flex flex-col px-4 py-2'>
 								<Box className='flex'>
 									<Box className={topicStyle}>{t('map-analyze:popupBurnt.address')}</Box>
 									<Box>
-										{item.layer?.id === 'plant'
-											? `${data.adm3[i18n.language]} ${data.adm2[i18n.language]}  ${data.adm1[i18n.language]}`
-											: data.adm[i18n.language]}
+										{data[fieldAdm3] && data[fieldAdm2] && data[fieldAdm1]
+											? `${data[fieldAdm3]} ${data[fieldAdm2]} ${data[fieldAdm1]}`
+											: '-'}
 									</Box>
 								</Box>
 
