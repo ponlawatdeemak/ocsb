@@ -30,6 +30,7 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 		<div>
 			{popupData.toReversed().map((item, index) => {
 				const data = item.object.properties
+				console.log('👻 data: ', data)
 				const dateFormat = 'yyyy'
 				let date
 				let coordinates: any[] = []
@@ -39,15 +40,15 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 				if (item.layer?.id === 'plant') {
 					color = '#8AB62D'
 					coordinates = centroid(geometry).geometry.coordinates
-					date = formatDate(new Date(data.date), dateFormat, language)
+					date = formatDate(new Date(data.cls_edate), dateFormat, language)
 				} else if (item.layer?.id === 'product') {
 					color = '#40C4FF'
 					coordinates = centroid(geometry).geometry.coordinates
-					date = formatDate(new Date(data.date), dateFormat, language)
+					date = formatDate(new Date(data.cls_edate), dateFormat, language)
 				} else if (item.layer?.id === 'replant') {
 					color = '#A7A7A7'
 					coordinates = centroid(geometry).geometry.coordinates
-					date = formatDate(new Date(data.date), dateFormat, language)
+					date = formatDate(new Date(data.cls_edate), dateFormat, language)
 				} else if (item.layer?.id === 'factory') {
 					color = '#808080'
 					coordinates = geometry.coordinates
@@ -55,6 +56,9 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 				const fieldAdm3 = `o_adm3${i18n.language === 'th' ? 't' : 'e'}`
 				const fieldAdm2 = `o_adm2${i18n.language === 'th' ? 't' : 'e'}`
 				const fieldAdm1 = `o_adm1${i18n.language === 'th' ? 't' : 'e'}`
+				const fieldArea = `area_${areaUnit}`
+				const fieldProduct = `yield_mean_${quantityUnit}_${areaUnit}`
+				const fieldVolumn = `production_ton_${quantityUnit}`
 
 				return (
 					<div key={'popup-' + index} className={`font-["Prompt","Montserrat"]`}>
@@ -93,7 +97,7 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 								{(item.layer?.id === 'plant' || item.layer?.id === 'replant') && (
 									<Box className='flex'>
 										<Box className={topicStyle}>{t('map-analyze:popupBurnt.plantingArea')}</Box>
-										<Box>{`${defaultNumber(data.area[areaUnit])} ${t(areaUnitTranslate)}`}</Box>
+										<Box>{`${defaultNumber(data[fieldArea])} ${t(areaUnitTranslate)}`}</Box>
 									</Box>
 								)}
 
@@ -108,15 +112,15 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 									<>
 										<Box className='flex'>
 											<Box className={topicStyle}>{t('plantingArea')}</Box>
-											<Box>{`${defaultNumber(data.area[areaUnit])} ${t(areaUnitTranslate)}`}</Box>
+											<Box>{`${defaultNumber(data[fieldArea])} ${t(areaUnitTranslate)}`}</Box>
 										</Box>
 										<Box className='flex'>
 											<Box className={topicStyle}>{t('overview:sugarCaneYield')}</Box>
-											<Box>{`${defaultNumber(data.product[quantityUnit][areaUnit], sugarCaneYieldFractions)} ${t(quantityUnitTranslate)}/${t(areaUnitTranslate)}`}</Box>
+											<Box>{`${defaultNumber(data[fieldProduct], sugarCaneYieldFractions)} ${t(quantityUnitTranslate)}/${t(areaUnitTranslate)}`}</Box>
 										</Box>
 										<Box className='flex'>
 											<Box className={topicStyle}>{t('overview:sugarCaneQuantity')}</Box>
-											<Box>{`${defaultNumber(data.volumn[quantityUnit])} ${t(quantityUnitTranslate)}`}</Box>
+											<Box>{`${defaultNumber(data[fieldVolumn])} ${t(quantityUnitTranslate)}`}</Box>
 										</Box>
 									</>
 								)}

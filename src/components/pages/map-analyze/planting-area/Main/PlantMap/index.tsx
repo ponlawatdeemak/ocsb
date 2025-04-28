@@ -38,6 +38,8 @@ import PrintMapExportMain, {
 } from '@/components/shared/PrintMap'
 import { MVTLayer } from '@deck.gl/geo-layers'
 import { getPinFactory } from '@/utils/pin'
+import { getRound } from '@/utils/date'
+import { addDays, endOfMonth, formatISO, subMonths } from 'date-fns'
 
 export interface MapPlantDataType {
 	type: 'plant'
@@ -77,9 +79,9 @@ interface PlantingMapMainProps {
 	currentAdmOption: OptionType | null
 	selectedRepeatArea: GetRepeatAreaLookupDtoOut | undefined
 	selectedDateRange: Date[]
-	plantYieldAreaData: GetPlantYieldAreaDtoOut[]
+	// plantYieldAreaData: GetPlantYieldAreaDtoOut[]
 	productYieldAreaData: GetProductYieldAreaDtoOut[]
-	replantYieldAreaData: GetReplantYieldAreaDtoOut[]
+	// replantYieldAreaData: GetReplantYieldAreaDtoOut[]
 	isPlantYieldAreaDataLoading: boolean
 	isProductYieldAreaDataLoading: boolean
 	isReplantYieldAreaDataLoading: boolean
@@ -92,14 +94,15 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	selectedRepeatArea,
 	selectedDateRange,
 	currentAdmOption,
-	plantYieldAreaData,
+	// plantYieldAreaData,
 	productYieldAreaData,
-	replantYieldAreaData,
+	// replantYieldAreaData,
 	isPlantYieldAreaDataLoading,
 	isProductYieldAreaDataLoading,
 	isReplantYieldAreaDataLoading,
 	onMapExtentChange,
 }) => {
+	console.log('👻 selectedRepeatArea: ', selectedRepeatArea)
 	const { data: session } = useSession()
 	const { mapLibre, overlays } = useMapStore()
 	const { areaUnit } = useAreaUnit()
@@ -288,60 +291,153 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 		if (plantingMap && plantingOverlay) {
 			//#region deck.gl layer
 			const layers = [
-				new GeoJsonLayer({
+				new MVTLayer({
 					id: 'plant',
 					beforeId: 'custom-referer-layer',
-					data: plantYieldAreaData as any,
-					pickable: true,
+					data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+					getFillColor: [139, 182, 45, 180],
+					getLineColor: [139, 182, 45, 180],
+					getLineWidth: 1,
 					stroked: true,
 					filled: true,
-					lineWidthMinPixels: 1,
-					getPolygon: (d: any) => d.geometry.coordinates,
-					getFillColor: () => [138, 182, 45, 180],
-					getLineColor: () => [138, 182, 45, 180],
-				}),
+					pointType: 'circle',
+					pointRadiusMinPixels: 2,
+					pickable: true,
+					visible: mapTypeArray.includes(yieldMapTypeCode.plant),
+					binary: false,
+					renderSubLayers: (props) => {
+						const tempData = (props.data || []) as any[]
 
-				new GeoJsonLayer({
+						const filteredFeatures = tempData.filter((item) => {
+							const props = item.properties
+							let visible = false
+							if (props.cls_edate) {
+								const endDate = selectedDateRange[1].toISOString()
+								const dataSplit = endDate.split('-')
+								const month = Number(dataSplit[1])
+								const year = Number(dataSplit[0])
+								const round = getRound(month, year)
+
+								const isMatchRound = round.round === props.cls_round
+
+								const isWithin =
+									isMatchRound && props.cls_sdate >= round.sDate && props.cls_edate <= round.eDate
+
+								let conditionAdm = false
+								if (currentAdmOption?.id) {
+									if (currentAdmOption.id.length === 2) {
+										// user select province
+										conditionAdm = Number(currentAdmOption.id) === props.o_adm1c
+									} else if (currentAdmOption.id.length === 4) {
+										// user select district
+										conditionAdm = Number(currentAdmOption.id) === props.o_adm2c
+									} else if (currentAdmOption.id.length === 6) {
+										// user select sub-district
+										conditionAdm = Number(currentAdmOption.id) === props.o_adm3c
+									}
+								} else {
+									conditionAdm = true
+								}
+								visible = isWithin && conditionAdm
+							}
+
+							return visible
+						})
+
+						return new GeoJsonLayer({
+							...props,
+							data: filteredFeatures,
+						})
+					},
+				}),
+				new MVTLayer({
 					id: 'product',
 					beforeId: 'custom-referer-layer',
-					data: productYieldAreaData as any,
+					data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
 					pickable: true,
 					stroked: true,
 					filled: true,
 					lineWidthMinPixels: 1,
 					getPolygon: (d: any) => d.geometry.coordinates,
 					getFillColor: (d: any) => {
-						if (d.properties.product.ton.rai > 15) {
+						const value = d.properties.yield_mean_ton_rai
+						if (value > 15) {
 							return [0, 52, 145, 180]
-						} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
+						} else if (value >= 10 && value <= 15) {
 							return [29, 178, 64, 180]
-						} else if (d.properties.product.ton.rai >= 5 && d.properties.product.ton.rai < 10) {
+						} else if (value >= 5 && value < 10) {
 							return [240, 233, 39, 180]
-						} else if (d.properties.product.ton.rai < 5) {
+						} else if (value < 5) {
 							return [255, 149, 0, 180]
 						} else {
 							return [0, 0, 0, 0]
 						}
 					},
 					getLineColor: (d: any) => {
-						if (d.properties.product.ton.rai > 15) {
+						const value = d.properties.yield_mean_ton_rai
+						if (value > 15) {
 							return [0, 52, 145, 180]
-						} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
+						} else if (value >= 10 && value <= 15) {
 							return [29, 178, 64, 180]
-						} else if (d.properties.product.ton.rai >= 5 && d.properties.product.ton.rai < 10) {
+						} else if (value >= 5 && value < 10) {
 							return [240, 233, 39, 180]
-						} else if (d.properties.product.ton.rai < 5) {
+						} else if (value < 5) {
 							return [255, 149, 0, 180]
 						} else {
 							return [0, 0, 0, 0]
 						}
 					},
-				}),
+					visible: mapTypeArray.includes(yieldMapTypeCode.product),
+					binary: false,
+					renderSubLayers: (props) => {
+						const tempData = (props.data || []) as any[]
 
-				new GeoJsonLayer({
+						const filteredFeatures = tempData.filter((item) => {
+							const props = item.properties
+							let visible = false
+							if (props.cls_edate) {
+								const endDate = selectedDateRange[1].toISOString()
+								const dataSplit = endDate.split('-')
+								const month = Number(dataSplit[1])
+								const year = Number(dataSplit[0])
+								const round = getRound(month, year)
+
+								const isMatchRound = round.round === props.cls_round
+
+								const isWithin =
+									isMatchRound && props.cls_sdate >= round.sDate && props.cls_edate <= round.eDate
+
+								let conditionAdm = false
+								if (currentAdmOption?.id) {
+									if (currentAdmOption.id.length === 2) {
+										// user select province
+										conditionAdm = Number(currentAdmOption.id) === props.o_adm1c
+									} else if (currentAdmOption.id.length === 4) {
+										// user select district
+										conditionAdm = Number(currentAdmOption.id) === props.o_adm2c
+									} else if (currentAdmOption.id.length === 6) {
+										// user select sub-district
+										conditionAdm = Number(currentAdmOption.id) === props.o_adm3c
+									}
+								} else {
+									conditionAdm = true
+								}
+								visible = isWithin && conditionAdm
+							}
+
+							return visible
+						})
+
+						return new GeoJsonLayer({
+							...props,
+							data: filteredFeatures,
+						})
+					},
+				}),
+				new MVTLayer({
 					id: 'replant',
 					beforeId: 'custom-referer-layer',
-					data: replantYieldAreaData as any,
+					data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_repeat_area/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
 					pickable: true,
 					stroked: true,
 					filled: true,
@@ -365,7 +461,169 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					getFillPatternScale: 1,
 					getFillPatternOffset: [0, 0],
 					extensions: [new FillStyleExtension({ pattern: true })],
+					visible: !!selectedRepeatArea,
+					binary: false,
+					renderSubLayers: (props) => {
+						const tempData = (props.data || []) as any[]
+						const filteredFeatures = tempData.filter((item, index) => {
+							const isDebug = index < 10
+							const props = item.properties
+							let visible = false
+							if (props.repeat === selectedRepeatArea?.id) {
+								const endDate = selectedDateRange[1].toISOString()
+								const dataSplit = endDate.split('-')
+								const month = Number(dataSplit[1])
+								const year = Number(dataSplit[0])
+								const round = getRound(month, year)
+								if (round.round !== 1) {
+									// ถ้าได้รอบ 2,3 ให้ไปใช้รอบ 1 ของปีนั้น
+									let monthDown = 0
+									if (round.round === 2) {
+										monthDown = 4
+									} else if (round.round === 3) {
+										monthDown = 8
+									}
+
+									let sDate = formatISO(subMonths(new Date(round.sDate), monthDown), {
+										representation: 'date',
+									})
+									const sDateSpliter = sDate.split('-')
+									const isEndMonth = Number(sDateSpliter[2]) === 31
+									if (isEndMonth) {
+										sDate = formatISO(addDays(new Date(sDate), 2), { representation: 'date' })
+									}
+
+									const eDate = formatISO(endOfMonth(subMonths(new Date(round.eDate), monthDown)), {
+										representation: 'date',
+									})
+
+									round.round = 1
+									round.sDate = `${sDate} 00:00:00`
+									round.eDate = `${eDate} 00:00:00`
+								}
+								const isMatchRound = round.round === props.cls_round
+
+								const isWithin =
+									isMatchRound && props.cls_sdate >= round.sDate && props.cls_edate <= round.eDate
+
+								if (isDebug) {
+									console.log('-------------------------')
+									console.log('👻 round: ', round)
+
+									console.log('👻 props.repeat: ', props)
+									console.log('👻 isMatchRound 1: ', isMatchRound)
+									console.log('👻 isMatchRound 2: ', props.cls_sdate >= round.sDate)
+									console.log('👻 isMatchRound 3: ', props.cls_edate <= round.eDate)
+								}
+								let conditionAdm = false
+								if (currentAdmOption?.id) {
+									if (currentAdmOption.id.length === 2) {
+										// user select province
+										conditionAdm = Number(currentAdmOption.id) === props.o_adm1c
+									} else if (currentAdmOption.id.length === 4) {
+										// user select district
+										conditionAdm = Number(currentAdmOption.id) === props.o_adm2c
+									} else if (currentAdmOption.id.length === 6) {
+										// user select sub-district
+										conditionAdm = Number(currentAdmOption.id) === props.o_adm3c
+									}
+								} else {
+									conditionAdm = true
+								}
+								visible = isWithin && conditionAdm
+							}
+
+							// if (isDebug) {
+							// 	console.log('👻 props.repeat: ', props.repeat, selectedRepeatArea?.id)
+
+							// 	console.log('👻 visible: ', visible)
+							// }
+							return visible
+						})
+						return new GeoJsonLayer({
+							...props,
+							data: filteredFeatures,
+						})
+					},
 				}),
+				// new GeoJsonLayer({
+				// 	id: 'plant',
+				// 	beforeId: 'custom-referer-layer',
+				// 	data: plantYieldAreaData as any,
+				// 	pickable: true,
+				// 	stroked: true,
+				// 	filled: true,
+				// 	lineWidthMinPixels: 1,
+				// 	getPolygon: (d: any) => d.geometry.coordinates,
+				// 	getFillColor: () => [138, 182, 45, 180],
+				// 	getLineColor: () => [138, 182, 45, 180],
+				// }),
+
+				// new GeoJsonLayer({
+				// 	id: 'product',
+				// 	beforeId: 'custom-referer-layer',
+				// 	data: productYieldAreaData as any,
+				// 	pickable: true,
+				// 	stroked: true,
+				// 	filled: true,
+				// 	lineWidthMinPixels: 1,
+				// 	getPolygon: (d: any) => d.geometry.coordinates,
+				// 	getFillColor: (d: any) => {
+				// 		if (d.properties.product.ton.rai > 15) {
+				// 			return [0, 52, 145, 180]
+				// 		} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
+				// 			return [29, 178, 64, 180]
+				// 		} else if (d.properties.product.ton.rai >= 5 && d.properties.product.ton.rai < 10) {
+				// 			return [240, 233, 39, 180]
+				// 		} else if (d.properties.product.ton.rai < 5) {
+				// 			return [255, 149, 0, 180]
+				// 		} else {
+				// 			return [0, 0, 0, 0]
+				// 		}
+				// 	},
+				// 	getLineColor: (d: any) => {
+				// 		if (d.properties.product.ton.rai > 15) {
+				// 			return [0, 52, 145, 180]
+				// 		} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
+				// 			return [29, 178, 64, 180]
+				// 		} else if (d.properties.product.ton.rai >= 5 && d.properties.product.ton.rai < 10) {
+				// 			return [240, 233, 39, 180]
+				// 		} else if (d.properties.product.ton.rai < 5) {
+				// 			return [255, 149, 0, 180]
+				// 		} else {
+				// 			return [0, 0, 0, 0]
+				// 		}
+				// 	},
+				// }),
+
+				// new GeoJsonLayer({
+				// 	id: 'replant',
+				// 	beforeId: 'custom-referer-layer',
+				// 	data: replantYieldAreaData as any,
+				// 	pickable: true,
+				// 	stroked: true,
+				// 	filled: true,
+				// 	lineWidthMinPixels: 1,
+				// 	getPolygon: (d: any) => d.geometry.coordinates,
+				// 	getFillColor: () => [255, 255, 255],
+				// 	getLineColor: () => [255, 255, 255],
+
+				// 	fillPatternMask: true,
+				// 	fillPatternAtlas: '/images/map/pattern.png',
+				// 	fillPatternMapping: {
+				// 		pattern: {
+				// 			x: 4,
+				// 			y: 4,
+				// 			width: 120,
+				// 			height: 120,
+				// 			mask: true,
+				// 		},
+				// 	},
+				// 	getFillPattern: () => 'pattern',
+				// 	getFillPatternScale: 1,
+				// 	getFillPatternOffset: [0, 0],
+				// 	extensions: [new FillStyleExtension({ pattern: true })],
+				// }),
 				new MVTLayer({
 					id: 'factory',
 					beforeId: 'custom-referer-layer',
@@ -418,7 +676,16 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 			})
 			//#endregion
 		}
-	}, [onMapClick, plantYieldAreaData, productYieldAreaData, replantYieldAreaData, plantingOverlay, plantingMap])
+	}, [
+		onMapClick,
+		plantingOverlay,
+		plantingMap,
+		selectedDateRange,
+		selectedRepeatArea,
+		session?.user.accessToken,
+		currentAdmOption,
+		mapTypeArray,
+	])
 
 	useEffect(() => {
 		if (plantingMap) {
@@ -439,10 +706,6 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 							return {
 								...item,
 								properties: { ...item.properties, heatWeight: item.properties.product?.ton?.rai },
-								geometry: {
-									type: 'Point',
-									coordinates: centroid(item.geometry as any).geometry.coordinates,
-								},
 							}
 						}) as Feature<Geometry, GeoJsonProperties>[],
 					},
@@ -522,15 +785,15 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 			}
 			//#endregion
 		}
-	}, [plantYieldAreaData, plantingMap, plantingOverlay, productYieldAreaData, replantYieldAreaData])
+	}, [plantingMap, plantingOverlay, productYieldAreaData])
 
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
 	}, [isCurrentRegionOpen])
 
 	const mapPlantData: MapPlantDataType = useMemo(() => {
-		return { type: 'plant', plantYieldAreaData, productYieldAreaData, replantYieldAreaData }
-	}, [plantYieldAreaData, productYieldAreaData, replantYieldAreaData])
+		return { type: 'plant', plantYieldAreaData: [], productYieldAreaData, replantYieldAreaData: [] }
+	}, [])
 
 	const mapLegendArray: any[] = useMemo(() => {
 		const typeArray = [...mapTypeArray]

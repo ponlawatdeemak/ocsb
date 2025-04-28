@@ -78,53 +78,61 @@ const PlantingSearchFormMain: React.FC<PlantingSearchFormMainProps> = ({
 
 				<Box className='flex w-full items-center gap-4 md:w-fit md:min-w-0'>
 					{plantingMapType.map((item) => {
-						return (
-							<button
-								key={item.code}
-								className={classNames(
-									'h-[38px] !w-full !truncate !rounded-[5px] !px-4 !py-2.5 !text-xs !font-normal !shadow-none md:!max-w-fit',
-									{ '!bg-[#EBF5FF] !text-primary': mapTypeArray.includes(item.code) },
-									{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
-								)}
-								name={item.code}
-								onClick={handleChangeMapTypeArray}
-							>
-								{item.label[language]}
-							</button>
-						)
-					})}
-
-					<FilterSelect
-						id='sugarCaneYield'
-						value={selectedRepeatArea?.id ?? ''}
-						data={repeatAreaOptions}
-						renderValue={() => (
-							<Box className='flex-1 truncate !text-sm text-[#8E8E8E]'>{t('replantingArea')}</Box>
-						)}
-						onChange={(e) => {
-							handleSelectedRepeatArea(
-								repeatAreaOptions.find((item) => item.id === Number(e.target.value)) ?? undefined,
+						if (item.code === yieldMapTypeCode.repeat) {
+							return (
+								<FilterSelect
+									id='sugarCaneYield'
+									key={item.code}
+									value={selectedRepeatArea?.id ?? ''}
+									data={repeatAreaOptions}
+									renderValue={() => (
+										<Box className='flex-1 truncate !text-sm text-[#8E8E8E]'>
+											{t('replantingArea')}
+										</Box>
+									)}
+									onChange={(e) => {
+										handleSelectedRepeatArea(
+											repeatAreaOptions.find((item) => item.id === Number(e.target.value)) ??
+												undefined,
+										)
+									}}
+									onClick={(clickEvent) => {
+										if ((clickEvent.target as HTMLOptionElement).selected === true) {
+											handleSelectedRepeatArea(undefined)
+										}
+									}}
+									className={classNames(
+										'flex text-center max-md:!w-[115%] md:!w-[155%] md:!max-w-fit [&_.MuiInputBase-input>div]:!self-center [&_.MuiInputBase-input>div]:!text-xs [&_.MuiInputBase-input]:!flex [&_.MuiInputBase-input]:!pr-9 [&_fieldset]:!border-none',
+										{
+											'[&_.MuiInputBase-input>div]:!text-primary [&_.MuiInputBase-root]:!bg-[#EBF5FF]':
+												selectedRepeatArea,
+										},
+										{
+											'[&_.MuiInputBase-input>div]:!text-black': !selectedRepeatArea,
+										},
+									)}
+									optionsClassName='[&_li]:!text-xs [&_.MuiList-root]:!p-0'
+									optionUnit={t('common:year')}
+									disabled={isRepeatAreaDataLoading}
+								/>
 							)
-						}}
-						onClick={(clickEvent) => {
-							if ((clickEvent.target as HTMLOptionElement).selected === true) {
-								handleSelectedRepeatArea(undefined)
-							}
-						}}
-						className={classNames(
-							'flex text-center max-md:!w-[115%] md:!w-[155%] md:!max-w-fit [&_.MuiInputBase-input>div]:!self-center [&_.MuiInputBase-input>div]:!text-xs [&_.MuiInputBase-input]:!flex [&_.MuiInputBase-input]:!pr-9 [&_fieldset]:!border-none',
-							{
-								'[&_.MuiInputBase-input>div]:!text-primary [&_.MuiInputBase-root]:!bg-[#EBF5FF]':
-									selectedRepeatArea,
-							},
-							{
-								'[&_.MuiInputBase-input>div]:!text-black': !selectedRepeatArea,
-							},
-						)}
-						optionsClassName='[&_li]:!text-xs [&_.MuiList-root]:!p-0'
-						optionUnit={t('common:year')}
-						disabled={isRepeatAreaDataLoading}
-					/>
+						} else {
+							return (
+								<button
+									key={item.code}
+									className={classNames(
+										'h-[38px] !w-full !truncate !rounded-[5px] !px-4 !py-2.5 !text-xs !font-normal !shadow-none md:!max-w-fit',
+										{ '!bg-[#EBF5FF] !text-primary': mapTypeArray.includes(item.code) },
+										{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
+									)}
+									name={item.code}
+									onClick={handleChangeMapTypeArray}
+								>
+									{item.label[language]}
+								</button>
+							)
+						}
+					})}
 
 					<DateRangePickerMain
 						responsiveType='desktop'

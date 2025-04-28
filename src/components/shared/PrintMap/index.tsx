@@ -342,15 +342,7 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 					type: 'geojson',
 					data: {
 						type: 'FeatureCollection',
-						features: mapData.productYieldAreaData.map((item) => {
-							return {
-								...item,
-								geometry: {
-									type: 'Point',
-									coordinates: centroid(item.geometry as any).geometry.coordinates,
-								},
-							}
-						}) as Feature<Geometry, GeoJsonProperties>[],
+						features: mapData.productYieldAreaData as Feature<Geometry, GeoJsonProperties>[],
 					},
 				})
 			}
