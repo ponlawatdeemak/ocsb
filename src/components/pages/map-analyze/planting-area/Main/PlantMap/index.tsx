@@ -466,7 +466,6 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					renderSubLayers: (props) => {
 						const tempData = (props.data || []) as any[]
 						const filteredFeatures = tempData.filter((item, index) => {
-							const isDebug = index < 10
 							const props = item.properties
 							let visible = false
 							if (props.repeat === selectedRepeatArea?.id) {
@@ -506,15 +505,6 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 								const isWithin =
 									isMatchRound && props.cls_sdate >= round.sDate && props.cls_edate <= round.eDate
 
-								if (isDebug) {
-									console.log('-------------------------')
-									console.log('👻 round: ', round)
-
-									console.log('👻 props.repeat: ', props)
-									console.log('👻 isMatchRound 1: ', isMatchRound)
-									console.log('👻 isMatchRound 2: ', props.cls_sdate >= round.sDate)
-									console.log('👻 isMatchRound 3: ', props.cls_edate <= round.eDate)
-								}
 								let conditionAdm = false
 								if (currentAdmOption?.id) {
 									if (currentAdmOption.id.length === 2) {
@@ -533,11 +523,6 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 								visible = isWithin && conditionAdm
 							}
 
-							// if (isDebug) {
-							// 	console.log('👻 props.repeat: ', props.repeat, selectedRepeatArea?.id)
-
-							// 	console.log('👻 visible: ', visible)
-							// }
 							return visible
 						})
 						return new GeoJsonLayer({
