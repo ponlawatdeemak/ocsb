@@ -8,6 +8,7 @@ import useAreaUnit from '@/store/area-unit'
 import { defaultNumber } from '@/utils/text'
 import useQuantityUnit from '@/store/quantity-unit'
 import NoDataDisplay from '@/components/common/empty/NoDataDisplay'
+import InfoTooltip from '../../Tooltip/InfoTooltip'
 
 const OverviewProductMain = ({
 	productData,
@@ -27,7 +28,10 @@ const OverviewProductMain = ({
 				className,
 			)}
 		>
-			<Typography>{`${t('sugarCaneYieldWithUnit')}`}</Typography>
+			<div className='flex w-full items-center justify-between'>
+				<Typography>{`${t('sugarCaneYieldWithUnit')}`}</Typography>
+				<InfoTooltip title={`${t('tooltipYieldWithUnit')}`} placement='bottom' />
+			</div>
 			<div className='flex flex-col gap-4'>
 				{productData ? (
 					productData.map((item) => (

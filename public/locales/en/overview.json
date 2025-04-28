@@ -11,6 +11,7 @@
 	"burntScar": "Burnt Scar",
 	"sugarCaneYield": "Sugarcane Yield",
 	"sugarCaneYieldWithUnit": "Sugarcane Yield (Tons/Rai)",
+	"tooltipYieldWithUnit": "Sugarcane Yield forecast for November of the production year",
 	"sugarCanePredict": "Sugarcane Prediction",
 	"threeYearPlant": "Repeated Sugarcane Cultivation Over 3 Years",
 	"titleInfo": "Projects include Saraburi, Phetchabun, Sa Kaeo and Khon Kaen",
