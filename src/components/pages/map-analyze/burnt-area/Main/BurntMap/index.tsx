@@ -368,7 +368,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					binary: false,
 					renderSubLayers: (props) => {
 						const tempData = (props.data || []) as any[]
-						
+
 						const filteredFeatures = tempData.filter((item) => {
 							const props = item.properties
 							let visible = false
@@ -419,6 +419,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 									const dateStart = startOfDay(selectedDateRange[0])
 									const dateEnd = endOfDay(selectedDateRange[1])
 									const isWithin = isWithinInterval(acqDate, { start: dateStart, end: dateEnd })
+
 									let conditionInSugarcane = false
 									if (selectedHotspots.length === 1) {
 										if (selectedHotspots[0] === 'inSugarcane') {

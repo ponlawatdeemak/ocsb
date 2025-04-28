@@ -22,7 +22,7 @@ const StackedBarChart = ({
 	colors: { [key: string]: string }
 	groups?: any[][]
 	hideData?: string[]
-	handleClickOnChart: (name: string) => void
+	handleClickOnChart: (name: string, info?: any) => void
 	className?: string
 	maxValues: Record<string, number>
 }) => {
@@ -47,14 +47,12 @@ const StackedBarChart = ({
 				order: null,
 				hide: hideData,
 				onclick: function (d) {
-					handleClickOnChart(d.name ?? '')
+					handleClickOnChart(d.name ?? '', d)
 				},
 			},
 			axis: {
 				rotated: true,
-				x: {
-					type: 'category' as const,
-				},
+				x: { type: 'category' as const },
 				y: {
 					max: BAR_CHART_STEP * stepValue,
 					tick: {
@@ -73,23 +71,15 @@ const StackedBarChart = ({
 					},
 				},
 			},
-			legend: {
-				show: false,
-			},
-			grid: {
-				y: {
-					show: true,
-				},
-			},
+			legend: { show: false },
+			grid: { y: { show: true } },
 			padding: {
 				top: 10,
 				right: 20,
 				bottom: 20,
 				left: 60,
 			},
-			bar: {
-				width: 25,
-			},
+			bar: { width: 25 },
 		})
 	}, [chartId, colors, columns, groups, handleClickOnChart, hideData, stepValue])
 

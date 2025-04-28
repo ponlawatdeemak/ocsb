@@ -14,6 +14,7 @@ import service from '@/api'
 import { useQuery } from '@tanstack/react-query'
 import { SelectedArea } from '../..'
 import useResponsive from '@/hook/responsive'
+import HotspotLineChart from '../Chart/HotspotLineChart'
 
 interface DashboardCardMainProps {
 	handleClickDelete: () => void
@@ -63,6 +64,8 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 	const [donutColorHotspot, setDonutColorHotspot] = useState(defaultColorHotspot)
 	const [percent, setPercent] = useState<number>(0)
 	const [hideData, setHideData] = useState<string[]>()
+	const [hotspotChartMode, setHotspotChartMode] = useState<'daily' | 'month'>('month')
+	const [dailyInfo, setDailyInfo] = useState()
 
 	const { data: dashBoardData, isFetching: isDashBoardDataLoading } = useQuery({
 		queryKey: ['getDashBoardBurntArea', area.admOption, mapTypeArray, selectedHotspots, selectedDateRange, area.id],
@@ -102,6 +105,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 					[key]: total,
 				}
 			})
+			setHotspotChartMode('month')
 
 			return response.data
 		},
@@ -111,7 +115,7 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			((!isDesktopMD && !!area.id.includes('mobile')) || (isDesktopMD && !area.id.includes('mobile'))),
 	})
 
-	//region Hotspot
+	//#region Hotspot
 	const inSugarCaneArea = useMemo(() => {
 		return hotspotType[0]
 	}, [])
@@ -195,9 +199,9 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 			}
 		}
 	}
-	//end region Hotspot
+	//#endregion Hotspot
 
-	//region burnArea
+	//#region burnArea
 	const defaultColorBurnArea = { [t('overview:burntScar')]: '#F9B936' }
 	const columnsBurnArea = useMemo(() => {
 		const label = ['x']
@@ -213,11 +217,11 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 
 		return [label, ...result]
 	}, [areaUnit, i18n.language, dashBoardData?.burnArea?.list, t])
-	//end region burnArea
+	//#endregion burnArea
 
-	//region plant
+	//#region plant
 	const defaultColorPlant = { [t('common:menu.plantingArea')]: '#8AB62D', [t('common:noData')]: '#f5f5f6' }
-	//end region plant
+	//#endregion plant
 
 	useEffect(() => {
 		if (!selectedHotspots.includes(inSugarCaneArea.code)) {
@@ -282,6 +286,12 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 		setHideData([])
 		setDonutColorHotspot(defaultColorHotspot)
 	}, [defaultColorHotspot, isDesktopMD])
+
+	const onHotSpotStackChartClick = (name: string, info: any) => {
+		setHotspotChartMode('daily')
+		const temp = dashBoardData?.hotspot?.list?.[info.index as number]
+		setDailyInfo(temp as any)
+	}
 
 	return (
 		<Box
@@ -356,26 +366,35 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 											</Typography>
 
 											<Divider flexItem />
-
-											<Typography className='pt-3 text-center !text-sm'>
-												{hotspotBarChartTitle}
-											</Typography>
-											<div className='!min-h-[262px] w-full'>
-												<StackedBarChart
-													chartId={area.id}
-													columns={columnsHotspot}
+											{hotspotChartMode === 'daily' ? (
+												<HotspotLineChart
+													data={dailyInfo}
+													onBack={() => setHotspotChartMode('month')}
 													colors={defaultColorHotspot}
-													groups={[
-														[
-															inSugarCaneArea.label[language],
-															notInSugarCaneArea.label[language],
-														],
-													]}
-													hideData={hideData}
-													handleClickOnChart={handleClickOnChart}
-													maxValues={maxHotspotValues}
 												/>
-											</div>
+											) : (
+												<>
+													<Typography className='pt-3 text-center !text-sm'>
+														{hotspotBarChartTitle}
+													</Typography>
+													<div className='!min-h-[262px] w-full'>
+														<StackedBarChart
+															chartId={area.id}
+															columns={columnsHotspot}
+															colors={defaultColorHotspot}
+															groups={[
+																[
+																	inSugarCaneArea.label[language],
+																	notInSugarCaneArea.label[language],
+																],
+															]}
+															hideData={hideData}
+															handleClickOnChart={onHotSpotStackChartClick}
+															maxValues={maxHotspotValues}
+														/>
+													</div>
+												</>
+											)}
 										</>
 									) : (
 										<NoDataDisplay />
