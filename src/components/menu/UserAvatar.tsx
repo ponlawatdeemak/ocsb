@@ -50,24 +50,24 @@ const UserAvatar: React.FC<UserAvatarProps> = ({ user }) => {
 		<React.Fragment>
 			{user ? (
 				<>
-					{isDesktop && (
-						<Menu
-							id='profile-menu'
-							anchorEl={anchorEl}
-							open={open}
-							onClose={handleClose}
-							MenuListProps={{ 'aria-labelledby': 'basic-button' }}
-							slotProps={{ paper: { style: { width: '200px' } } }}
-						>
-							<MenuItem className='!text-xs' onClick={() => router.push(AppPath.Profile)}>
-								{t('profile')}
-							</MenuItem>
-							<Divider />
-							<MenuItem className='!text-xs' onClick={() => logout()}>
-								{t('logout')}
-							</MenuItem>
-						</Menu>
-					)}
+					{/* {isDesktop && ( */}
+					<Menu
+						id='profile-menu'
+						anchorEl={anchorEl}
+						open={open}
+						onClose={handleClose}
+						MenuListProps={{ 'aria-labelledby': 'basic-button' }}
+						slotProps={{ paper: { style: { width: '200px' } } }}
+					>
+						<MenuItem className='!text-xs' onClick={() => router.push(AppPath.Profile)}>
+							{t('profile')}
+						</MenuItem>
+						<Divider />
+						<MenuItem className='!text-xs' onClick={() => logout()}>
+							{t('logout')}
+						</MenuItem>
+					</Menu>
+					{/* )} */}
 					<Box className='flex cursor-pointer items-center gap-2 p-1' onClick={handleClick}>
 						{userImageUrl ? (
 							<Avatar src={userImageUrl} alt={firstName} className='!h-[36px] !w-[36px]' />
