@@ -48,21 +48,21 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 	// 	placeholderData: keepPreviousData,
 	// })
 
-	const { data: productYieldAreaData, isFetching: isProductYieldAreaDataLoading } = useQuery({
-		queryKey: ['productYieldAreaData', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
-		queryFn: ({ signal }) =>
-			service.mapAnalyze.getProductYieldArea(
-				{
-					startDate: selectedDateRange[0].toISOString().split('T')[0],
-					endDate: selectedDateRange[1].toISOString().split('T')[0],
-					admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-					polygon: JSON.stringify(mapExtent ?? ''),
-				},
-				{ signal },
-			),
-		enabled: !!mapTypeArray.includes(yieldMapTypeCode.product) && (!!searchSelectedAdmOption?.id || !!mapExtent),
-		placeholderData: keepPreviousData,
-	})
+	// const { data: productYieldAreaData, isFetching: isProductYieldAreaDataLoading } = useQuery({
+	// 	queryKey: ['productYieldAreaData', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
+	// 	queryFn: ({ signal }) =>
+	// 		service.mapAnalyze.getProductYieldArea(
+	// 			{
+	// 				startDate: selectedDateRange[0].toISOString().split('T')[0],
+	// 				endDate: selectedDateRange[1].toISOString().split('T')[0],
+	// 				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
+	// 				polygon: JSON.stringify(mapExtent ?? ''),
+	// 			},
+	// 			{ signal },
+	// 		),
+	// 	enabled: !!mapTypeArray.includes(yieldMapTypeCode.product) && (!!searchSelectedAdmOption?.id || !!mapExtent),
+	// 	placeholderData: keepPreviousData,
+	// })
 
 	// const { data: replantYieldAreaData, isFetching: isReplantYieldAreaDataLoading } = useQuery({
 	// 	queryKey: ['replantYieldAreaData', selectedRepeatArea, selectedDateRange, searchSelectedAdmOption, mapExtent],
@@ -89,13 +89,13 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 	// 	}
 	// }, [mapTypeArray, plantYieldAreaData])
 
-	const mapDataProduct = useMemo(() => {
-		if (mapTypeArray?.includes(yieldMapTypeCode.product)) {
-			return productYieldAreaData?.data || []
-		} else {
-			return []
-		}
-	}, [mapTypeArray, productYieldAreaData?.data])
+	// const mapDataProduct = useMemo(() => {
+	// 	if (mapTypeArray?.includes(yieldMapTypeCode.product)) {
+	// 		return productYieldAreaData?.data || []
+	// 	} else {
+	// 		return []
+	// 	}
+	// }, [mapTypeArray, productYieldAreaData?.data])
 
 	// const mapDataReplant = useMemo(() => {
 	// 	if (selectedRepeatArea) {
@@ -209,11 +209,11 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 					selectedRepeatArea={selectedRepeatArea}
 					selectedDateRange={selectedDateRange}
 					// plantYieldAreaData={mapDataPlant}
-					productYieldAreaData={mapDataProduct}
+					// productYieldAreaData={mapDataProduct}
 					// replantYieldAreaData={mapDataReplant}
-					isPlantYieldAreaDataLoading={false}
-					isProductYieldAreaDataLoading={isProductYieldAreaDataLoading}
-					isReplantYieldAreaDataLoading={false}
+					// isPlantYieldAreaDataLoading={false}
+					// isProductYieldAreaDataLoading={isProductYieldAreaDataLoading}
+					// isReplantYieldAreaDataLoading={false}
 					onMapExtentChange={setMapExtent}
 				/>
 				<SwipeableEdgeDrawer

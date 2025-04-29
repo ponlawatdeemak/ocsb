@@ -80,11 +80,11 @@ interface PlantingMapMainProps {
 	selectedRepeatArea: GetRepeatAreaLookupDtoOut | undefined
 	selectedDateRange: Date[]
 	// plantYieldAreaData: GetPlantYieldAreaDtoOut[]
-	productYieldAreaData: GetProductYieldAreaDtoOut[]
+	// productYieldAreaData: GetProductYieldAreaDtoOut[]
 	// replantYieldAreaData: GetReplantYieldAreaDtoOut[]
-	isPlantYieldAreaDataLoading: boolean
-	isProductYieldAreaDataLoading: boolean
-	isReplantYieldAreaDataLoading: boolean
+	// isPlantYieldAreaDataLoading: boolean
+	// isProductYieldAreaDataLoading: boolean
+	// isReplantYieldAreaDataLoading: boolean
 	onMapExtentChange: (polygon: number[][]) => void
 }
 
@@ -95,14 +95,13 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	selectedDateRange,
 	currentAdmOption,
 	// plantYieldAreaData,
-	productYieldAreaData,
+	// productYieldAreaData,
 	// replantYieldAreaData,
-	isPlantYieldAreaDataLoading,
-	isProductYieldAreaDataLoading,
-	isReplantYieldAreaDataLoading,
+	// isPlantYieldAreaDataLoading,
+	// isProductYieldAreaDataLoading,
+	// isReplantYieldAreaDataLoading,
 	onMapExtentChange,
 }) => {
-	console.log('👻 selectedRepeatArea: ', selectedRepeatArea)
 	const { data: session } = useSession()
 	const { mapLibre, overlays } = useMapStore()
 	const { areaUnit } = useAreaUnit()
@@ -672,112 +671,12 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 		mapTypeArray,
 	])
 
-	useEffect(() => {
-		if (plantingMap) {
-			//#region heatmap layer
-
-			//update heat data
-			if (plantingMap?.getSource('heat') && plantingMap?.getLayer('heat-layer')) {
-				plantingMap.removeLayer('heat-layer')
-				plantingMap.removeSource('heat')
-			}
-
-			if (!plantingMap.getSource('heat') && productYieldAreaData.length > 0) {
-				plantingMap.addSource('heat', {
-					type: 'geojson',
-					data: {
-						type: 'FeatureCollection',
-						features: productYieldAreaData.map((item) => {
-							return {
-								...item,
-								properties: { ...item.properties, heatWeight: item.properties.product?.ton?.rai },
-							}
-						}) as Feature<Geometry, GeoJsonProperties>[],
-					},
-				})
-			}
-			if (!plantingMap.getLayer('heat-layer') && productYieldAreaData.length > 0) {
-				const maxZoom = 12
-				const maxValue = 15
-				plantingMap.addLayer({
-					id: 'heat-layer',
-					type: 'heatmap',
-					source: 'heat',
-					maxzoom: maxZoom,
-					paint: {
-						'heatmap-weight': [
-							'interpolate',
-							['linear'],
-							['get', 'heatWeight'],
-							0,
-							0,
-							5,
-							0.3,
-							10,
-							0.7,
-							maxValue,
-							1,
-						],
-						'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, maxZoom, 3],
-						'heatmap-color': [
-							'interpolate',
-							['linear'],
-							['heatmap-density'],
-							0,
-							'rgba(255, 149, 0,0)',
-							0.2,
-							'rgba(255, 149, 0,0)',
-							0.4,
-							'rgb(240, 233, 39)',
-							0.6,
-							'rgb(240, 233, 39)',
-							0.8,
-							'rgb(29, 178, 64)',
-							1,
-							'rgb(0, 52, 145)',
-						],
-						// 'heatmap-color': [
-						// 	'interpolate',
-						// 	['linear'],
-						// 	['get', 'heatWeight'],
-						// 	0,
-						// 	'rgba(255, 149, 0)',
-						// 	5,
-						// 	'rgb(240, 233, 39)',
-						// 	10,
-						// 	'rgb(29, 178, 64)',
-						// 	15,
-						// 	'rgb(0, 52, 145)',
-						// ],
-						'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 1, 6, 3, 9, 8, maxZoom, 10],
-						// 'heatmap-radius': [
-						// 	'interpolate',
-						// 	['linear'],
-						// 	['get', 'heatWeight'],
-						// 	0,
-						// 	1,
-						// 	5,
-						// 	5,
-						// 	10,
-						// 	10,
-						// 	maxZoom,
-						// 	20,
-						// ],
-
-						// 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 8, 1, maxZoom, 0],
-					},
-				})
-			}
-			//#endregion
-		}
-	}, [plantingMap, plantingOverlay, productYieldAreaData])
-
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen(!isCurrentRegionOpen)
 	}, [isCurrentRegionOpen])
 
 	const mapPlantData: MapPlantDataType = useMemo(() => {
-		return { type: 'plant', plantYieldAreaData: [], productYieldAreaData, replantYieldAreaData: [] }
+		return { type: 'plant', plantYieldAreaData: [], productYieldAreaData: [], replantYieldAreaData: [] }
 	}, [])
 
 	const mapLegendArray: any[] = useMemo(() => {
@@ -900,9 +799,9 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					mapGeometry={plantMapGeometry}
 					mapExportParam={plantMapExportParam}
 					disabled={
-						isPlantYieldAreaDataLoading ||
-						isProductYieldAreaDataLoading ||
-						isReplantYieldAreaDataLoading ||
+						// isPlantYieldAreaDataLoading ||
+						// isProductYieldAreaDataLoading ||
+						// isReplantYieldAreaDataLoading ||
 						isRegionLoading
 					}
 				/>
@@ -910,9 +809,9 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				<MapView
 					mapId={PLANTING_MAP_ID}
 					loading={
-						isPlantYieldAreaDataLoading ||
-						isProductYieldAreaDataLoading ||
-						isReplantYieldAreaDataLoading ||
+						// isPlantYieldAreaDataLoading ||
+						// isProductYieldAreaDataLoading ||
+						// isReplantYieldAreaDataLoading ||
 						isRegionLoading
 					}
 				/>

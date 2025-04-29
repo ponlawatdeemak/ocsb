@@ -39,46 +39,46 @@ const mapAnalyze = {
 			`/brunt-area/dashboard?startDate=${payload.startDate}&endDate=${payload.endDate}${payload.admC ? admC : ''}${mapType ?? ''}${inSugarcan ?? ''}`,
 		)
 	},
-	getHotspotBurntArea: async (
-		payload: GetHotspotBurntAreaDtoIn,
-		axiosOption?: AxiosRequestConfig,
-	): Promise<ResponseDto<GetHotspotBurntAreaDtoOut[]>> => {
-		const params = new URLSearchParams()
+	// getHotspotBurntArea: async (
+	// 	payload: GetHotspotBurntAreaDtoIn,
+	// 	axiosOption?: AxiosRequestConfig,
+	// ): Promise<ResponseDto<GetHotspotBurntAreaDtoOut[]>> => {
+	// 	const params = new URLSearchParams()
 
-		if (payload.inSugarcan.length !== 0) params.append('inSugarcan', JSON.stringify(payload.inSugarcan))
-		if (payload.startDate) params.append('startDate', payload.startDate)
-		if (payload.endDate) params.append('endDate', payload.endDate)
-		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-		if (payload.polygon) params.append('polygon', payload.polygon)
+	// 	if (payload.inSugarcan.length !== 0) params.append('inSugarcan', JSON.stringify(payload.inSugarcan))
+	// 	if (payload.startDate) params.append('startDate', payload.startDate)
+	// 	if (payload.endDate) params.append('endDate', payload.endDate)
+	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
+	// 	if (payload.polygon) params.append('polygon', payload.polygon)
 
-		return await api.get(`/brunt-area/hotspot?${params}`, undefined, axiosOption)
-	},
-	getBurntBurntArea: async (
-		payload: GetBurntBurntAreaDtoIn,
-		axiosOption?: AxiosRequestConfig,
-	): Promise<ResponseDto<GetBurntBurntAreaDtoOut[]>> => {
-		const params = new URLSearchParams()
+	// 	return await api.get(`/brunt-area/hotspot?${params}`, undefined, axiosOption)
+	// },
+	// getBurntBurntArea: async (
+	// 	payload: GetBurntBurntAreaDtoIn,
+	// 	axiosOption?: AxiosRequestConfig,
+	// ): Promise<ResponseDto<GetBurntBurntAreaDtoOut[]>> => {
+	// 	const params = new URLSearchParams()
 
-		if (payload.startDate) params.append('startDate', payload.startDate)
-		if (payload.endDate) params.append('endDate', payload.endDate)
-		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-		if (payload.polygon) params.append('polygon', payload.polygon)
+	// 	if (payload.startDate) params.append('startDate', payload.startDate)
+	// 	if (payload.endDate) params.append('endDate', payload.endDate)
+	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
+	// 	if (payload.polygon) params.append('polygon', payload.polygon)
 
-		return await api.get(`/brunt-area/burnt?${params}`, undefined, axiosOption)
-	},
-	getPlantBurntArea: async (
-		payload: GetPlantBurntAreaDtoIn,
-		axiosOption?: AxiosRequestConfig,
-	): Promise<ResponseDto<GetPlantBurntAreaDtoOut[]>> => {
-		const params = new URLSearchParams()
+	// 	return await api.get(`/brunt-area/burnt?${params}`, undefined, axiosOption)
+	// },
+	// getPlantBurntArea: async (
+	// 	payload: GetPlantBurntAreaDtoIn,
+	// 	axiosOption?: AxiosRequestConfig,
+	// ): Promise<ResponseDto<GetPlantBurntAreaDtoOut[]>> => {
+	// 	const params = new URLSearchParams()
 
-		if (payload.startDate) params.append('startDate', payload.startDate)
-		if (payload.endDate) params.append('endDate', payload.endDate)
-		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-		if (payload.polygon) params.append('polygon', payload.polygon)
+	// 	if (payload.startDate) params.append('startDate', payload.startDate)
+	// 	if (payload.endDate) params.append('endDate', payload.endDate)
+	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
+	// 	if (payload.polygon) params.append('polygon', payload.polygon)
 
-		return await api.get(`/brunt-area/plant?${params}`, undefined, axiosOption)
-	},
+	// 	return await api.get(`/brunt-area/plant?${params}`, undefined, axiosOption)
+	// },
 
 	getDashBoardYieldArea: async (
 		payload: GetDashboardYieldAreaDtoIn,
@@ -93,46 +93,46 @@ const mapAnalyze = {
 
 		return await api.get(`/yield-area/dashboard?${params}`, undefined, axiosOption)
 	},
-	getPlantYieldArea: async (
-		payload: GetPlantYieldAreaDtoIn,
-		axiosOption?: AxiosRequestConfig,
-	): Promise<ResponseDto<GetPlantYieldAreaDtoOut[]>> => {
-		const params = new URLSearchParams()
+	// getPlantYieldArea: async (
+	// 	payload: GetPlantYieldAreaDtoIn,
+	// 	axiosOption?: AxiosRequestConfig,
+	// ): Promise<ResponseDto<GetPlantYieldAreaDtoOut[]>> => {
+	// 	const params = new URLSearchParams()
 
-		if (payload.startDate) params.append('startDate', payload.startDate)
-		if (payload.endDate) params.append('endDate', payload.endDate)
-		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-		if (payload.polygon) params.append('polygon', payload.polygon)
+	// 	if (payload.startDate) params.append('startDate', payload.startDate)
+	// 	if (payload.endDate) params.append('endDate', payload.endDate)
+	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
+	// 	if (payload.polygon) params.append('polygon', payload.polygon)
 
-		return await api.get(`/brunt-area/plant?${params}`, undefined, axiosOption)
-	},
-	getProductYieldArea: async (
-		payload: GetProductYieldAreaDtoIn,
-		axiosOption?: AxiosRequestConfig,
-	): Promise<ResponseDto<GetProductYieldAreaDtoOut[]>> => {
-		const params = new URLSearchParams()
+	// 	return await api.get(`/brunt-area/plant?${params}`, undefined, axiosOption)
+	// },
+	// getProductYieldArea: async (
+	// 	payload: GetProductYieldAreaDtoIn,
+	// 	axiosOption?: AxiosRequestConfig,
+	// ): Promise<ResponseDto<GetProductYieldAreaDtoOut[]>> => {
+	// 	const params = new URLSearchParams()
 
-		if (payload.startDate) params.append('startDate', payload.startDate)
-		if (payload.endDate) params.append('endDate', payload.endDate)
-		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-		if (payload.polygon) params.append('polygon', payload.polygon)
+	// 	if (payload.startDate) params.append('startDate', payload.startDate)
+	// 	if (payload.endDate) params.append('endDate', payload.endDate)
+	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
+	// 	if (payload.polygon) params.append('polygon', payload.polygon)
 
-		return await api.get(`/yield-area/product?${params}`, undefined, axiosOption)
-	},
-	getReplantYieldArea: async (
-		payload: GetReplantYieldAreaDtoIn,
-		axiosOption?: AxiosRequestConfig,
-	): Promise<ResponseDto<GetReplantYieldAreaDtoOut[]>> => {
-		const params = new URLSearchParams()
+	// 	return await api.get(`/yield-area/product?${params}`, undefined, axiosOption)
+	// },
+	// getReplantYieldArea: async (
+	// 	payload: GetReplantYieldAreaDtoIn,
+	// 	axiosOption?: AxiosRequestConfig,
+	// ): Promise<ResponseDto<GetReplantYieldAreaDtoOut[]>> => {
+	// 	const params = new URLSearchParams()
 
-		if (payload.startDate) params.append('startDate', payload.startDate)
-		if (payload.endDate) params.append('endDate', payload.endDate)
-		if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-		if (payload.polygon) params.append('polygon', payload.polygon)
-		if (payload.repeat) params.append('repeat', payload.repeat.toString())
+	// 	if (payload.startDate) params.append('startDate', payload.startDate)
+	// 	if (payload.endDate) params.append('endDate', payload.endDate)
+	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
+	// 	if (payload.polygon) params.append('polygon', payload.polygon)
+	// 	if (payload.repeat) params.append('repeat', payload.repeat.toString())
 
-		return await api.get(`/yield-area/replant?${params}`, undefined, axiosOption)
-	},
+	// 	return await api.get(`/yield-area/replant?${params}`, undefined, axiosOption)
+	// },
 }
 
 export default mapAnalyze

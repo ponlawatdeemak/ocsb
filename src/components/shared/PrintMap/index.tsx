@@ -328,58 +328,6 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 	}, [mapExport, overlayExport, id, mapData])
 
 	useEffect(() => {
-		if (mapExport && id === 'plant' && mapData.type === 'plant') {
-			//#region heatmap layer
-
-			//update heat data
-			if (mapExport?.getSource('heat') && mapExport?.getLayer('heat-layer-export')) {
-				mapExport.removeLayer('heat-layer-export')
-				mapExport.removeSource('heat')
-			}
-
-			if (!mapExport.getSource('heat') && mapData.productYieldAreaData.length > 0) {
-				mapExport.addSource('heat', {
-					type: 'geojson',
-					data: {
-						type: 'FeatureCollection',
-						features: mapData.productYieldAreaData as Feature<Geometry, GeoJsonProperties>[],
-					},
-				})
-			}
-			if (!mapExport.getLayer('heat-layer-export') && mapData.productYieldAreaData.length > 0) {
-				mapExport.addLayer({
-					id: 'heat-layer-export',
-					type: 'heatmap',
-					source: 'heat',
-					maxzoom: 9,
-					paint: {
-						'heatmap-color': [
-							'interpolate',
-							['linear'],
-							['heatmap-density'],
-							0,
-							'rgba(33,102,172,0)',
-							0.2,
-							'rgb(103,169,207)',
-							0.4,
-							'rgb(209,229,240)',
-							0.6,
-							'rgb(253,219,199)',
-							0.8,
-							'rgb(239,138,98)',
-							1,
-							'rgb(178,24,43)',
-						],
-						'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 1, 6, 3, 9, 8],
-						'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 8, 1, 9, 0],
-					},
-				})
-			}
-			//#endregion
-		}
-	}, [mapExport, id, mapData])
-
-	useEffect(() => {
 		if (miniMapExport && miniOverlayExport && miniMapExtent) {
 			const layers = [
 				new PolygonLayer({
