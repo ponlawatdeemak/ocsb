@@ -52,15 +52,15 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 	return (
 		<Box
 			className={classNames(
-				'flex flex-col gap-2 px-4 py-6 md:px-6 md:py-4 xl:flex-row xl:items-center xl:justify-between xl:gap-12',
+				'flex flex-col gap-2 px-4 py-6 lg:px-6 lg:py-4 xl:flex-row xl:items-center xl:justify-between xl:gap-12',
 				className,
 			)}
 		>
-			<Typography className='whitespace-nowrap !text-md text-primary max-md:hidden'>
+			<Typography className='whitespace-nowrap !text-md text-primary max-lg:hidden'>
 				{t('map-analyze:hotspotAndBurntAreaAnalysis')}
 			</Typography>
-			<Box id='search-form' className='flex grow items-center gap-4 max-md:flex-col xl:justify-end'>
-				<Box className='flex w-full items-center gap-4 md:w-[26%] md:min-w-[26%]'>
+			<Box id='search-form' className='flex grow items-center gap-4 max-lg:flex-col xl:justify-end'>
+				<Box className='flex w-full items-center gap-4 lg:w-[26%] lg:min-w-[26%]'>
 					<SearchAdminPoly
 						searchSelectedAdmOption={searchSelectedAdmOption}
 						handleSelectedAdmOption={handleSelectedAdmOption}
@@ -75,7 +75,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 					/>
 				</Box>
 
-				<Box className='flex w-full items-center gap-4 md:w-fit md:min-w-0'>
+				<Box className='flex w-full items-center gap-4 lg:w-fit lg:min-w-0'>
 					{mapType.map((item) => {
 						if (item.code === mapTypeCode.hotspots) {
 							return (
@@ -83,7 +83,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 									key={item.code}
 									name={item.code}
 									className={classNames(
-										'text-center !text-xs max-md:w-full [&_.MuiInputBase-root]:!border-none [&_.MuiSelect-select>div]:!text-xs',
+										'text-center !text-xs max-lg:w-full [&_.MuiInputBase-root]:!border-none [&_.MuiSelect-select>div]:!text-xs',
 										{
 											'[&_.MuiInputBase-root]:!bg-[#EBF5FF] [&_.MuiSelect-select>div]:!text-primary [&_.MuiSvgIcon-root]:!text-primary':
 												mapTypeArray.includes(mapTypeCode.hotspots),
@@ -103,7 +103,7 @@ const BurntSearchFormMain: React.FC<BurntSearchFormMainProps> = ({
 								<button
 									key={item.code}
 									className={classNames(
-										'h-[38px] !truncate !rounded-[5px] !px-4 !py-2.5 !text-xs !font-normal !shadow-none max-md:w-full',
+										'h-[38px] !truncate !rounded-[5px] !px-4 !py-2.5 !text-xs !font-normal !shadow-none max-lg:w-full',
 										{ '!bg-[#EBF5FF] !text-primary': mapTypeArray.includes(item.code) },
 										{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
 									)}

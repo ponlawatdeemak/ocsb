@@ -55,15 +55,15 @@ const PlantingSearchFormMain: React.FC<PlantingSearchFormMainProps> = ({
 	return (
 		<Box
 			className={classNames(
-				'flex flex-col gap-2 px-4 py-6 md:px-6 md:py-4 xl:flex-row xl:items-center xl:justify-between xl:gap-12',
+				'flex flex-col gap-2 px-4 py-6 lg:px-6 lg:py-4 xl:flex-row xl:items-center xl:justify-between xl:gap-12',
 				className,
 			)}
 		>
-			<Typography className='whitespace-nowrap !text-md text-primary max-md:hidden'>
+			<Typography className='whitespace-nowrap !text-md text-primary max-lg:hidden'>
 				{t('plantAreaAnalysis')}
 			</Typography>
-			<Box id='search-form' className='flex grow items-center gap-4 max-md:flex-col xl:justify-end'>
-				<Box className='flex w-full items-center gap-4 md:w-[26%] md:min-w-[26%]'>
+			<Box id='search-form' className='flex grow items-center gap-4 max-lg:flex-col xl:justify-end'>
+				<Box className='flex w-full items-center gap-4 lg:w-[26%] lg:min-w-[26%]'>
 					<SearchAdminPoly
 						searchSelectedAdmOption={searchSelectedAdmOption}
 						handleSelectedAdmOption={handleSelectedAdmOption}
@@ -76,7 +76,7 @@ const PlantingSearchFormMain: React.FC<PlantingSearchFormMainProps> = ({
 					/>
 				</Box>
 
-				<Box className='flex w-full items-center gap-4 md:w-fit md:min-w-0'>
+				<Box className='flex w-full items-center gap-4 lg:w-fit lg:min-w-0'>
 					{plantingMapType.map((item) => {
 						if (item.code === yieldMapTypeCode.repeat) {
 							return (
@@ -102,7 +102,7 @@ const PlantingSearchFormMain: React.FC<PlantingSearchFormMainProps> = ({
 										}
 									}}
 									className={classNames(
-										'flex text-center max-md:!w-[115%] md:!w-[155%] md:!max-w-fit [&_.MuiInputBase-input>div]:!self-center [&_.MuiInputBase-input>div]:!text-xs [&_.MuiInputBase-input]:!flex [&_.MuiInputBase-input]:!pr-9 [&_fieldset]:!border-none',
+										'flex text-center max-lg:!w-[115%] lg:!w-[155%] lg:!max-w-fit [&_.MuiInputBase-input>div]:!self-center [&_.MuiInputBase-input>div]:!text-xs [&_.MuiInputBase-input]:!flex [&_.MuiInputBase-input]:!pr-9 [&_fieldset]:!border-none',
 										{
 											'[&_.MuiInputBase-input>div]:!text-primary [&_.MuiInputBase-root]:!bg-[#EBF5FF]':
 												selectedRepeatArea,
@@ -121,7 +121,7 @@ const PlantingSearchFormMain: React.FC<PlantingSearchFormMainProps> = ({
 								<button
 									key={item.code}
 									className={classNames(
-										'h-[38px] !w-full !truncate !rounded-[5px] !px-4 !py-2.5 !text-xs !font-normal !shadow-none md:!max-w-fit',
+										'h-[38px] !w-full !truncate !rounded-[5px] !px-4 !py-2.5 !text-xs !font-normal !shadow-none lg:!max-w-fit',
 										{ '!bg-[#EBF5FF] !text-primary': mapTypeArray.includes(item.code) },
 										{ '!bg-white !text-black': !mapTypeArray.includes(item.code) },
 									)}
