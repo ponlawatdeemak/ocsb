@@ -1,5 +1,5 @@
 import { GetProductOverviewDtoOut } from '@interface/dto/overview/overview.dto-out'
-import { Typography, Divider } from '@mui/material'
+import { Typography, Divider, Box } from '@mui/material'
 import classNames from 'classnames'
 import { useTranslation } from 'next-i18next'
 import { Languages } from '@/enum'
@@ -28,9 +28,14 @@ const OverviewProductMain = ({
 				className,
 			)}
 		>
-			<div className='flex w-full items-center justify-between'>
-				<Typography>{`${t('sugarCaneYieldWithUnit')}`}</Typography>
-				<InfoTooltip title={`${t('tooltipYieldWithUnit')}`} placement='bottom' />
+			<div className='flex w-full items-baseline justify-between'>
+				<Box className='flex flex-wrap gap-x-2'>
+					<Typography>{`${t('sugarCaneYieldWithUnit1')}`}</Typography>
+					<Typography>{`${t('sugarCaneYieldWithUnit2')}`}</Typography>
+				</Box>
+				<Box>
+					<InfoTooltip title={`${t('tooltipYieldWithUnit')}`} placement='bottom' />
+				</Box>
 			</div>
 			<div className='flex flex-col gap-4'>
 				{productData ? (
