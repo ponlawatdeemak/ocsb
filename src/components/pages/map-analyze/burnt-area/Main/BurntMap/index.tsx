@@ -37,6 +37,23 @@ import Image from 'next/image'
 import { MVTLayer } from '@deck.gl/geo-layers'
 import { DataFilterExtension } from '@deck.gl/extensions'
 
+async function fetchWithRetry(url: string, options = {}, retries = 3, delay = 1000) {
+	try {
+		const response = await fetch(url, options)
+		if ([408, 403, 401].includes(response.status)) {
+			if (retries <= 0) throw new Error(`Failed after retries: ${response.status}`)
+			await new Promise((res) => setTimeout(res, delay))
+			return fetchWithRetry(url, options, retries - 1, delay)
+		}
+		if (!response.ok) throw new Error(`HTTP error ${response.status}`)
+		return response
+	} catch (err) {
+		if (retries <= 0) throw err
+		await new Promise((res) => setTimeout(res, delay))
+		return fetchWithRetry(url, options, retries - 1, delay)
+	}
+}
+
 export interface MapBurntDataType {
 	type: 'burnt'
 	hotspotBurntAreaData: GetHotspotBurntAreaDtoOut[]
@@ -293,6 +310,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			id: 'plant',
 			beforeId: 'custom-referer-layer',
 			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			loadOptions: { fetch: fetchWithRetry },
 			getFillColor: [139, 182, 45, 180],
 			getLineColor: [139, 182, 45, 180],
 			getLineWidth: 1,
@@ -329,6 +347,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			id: 'burnt',
 			beforeId: 'custom-referer-layer',
 			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_burn_area_daily/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			loadOptions: { fetch: fetchWithRetry },
 			getFillColor: [255, 204, 0, 180],
 			getLineColor: [255, 204, 0, 180],
 			getLineWidth: 1,
@@ -359,12 +378,13 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			id: 'factory',
 			beforeId: 'custom-referer-layer',
 			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_factory/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			loadOptions: { fetch: fetchWithRetry },
 			pickable: true,
 			visible: isVisibleFactory,
 			updateTriggers: {
 				data: [session?.user.accessToken],
 				visible: [isVisibleFactory],
-				getIcon: [admId, admLevelKey],
+				getFilterValue: [checkAdmCondition],
 			},
 			pointType: 'icon',
 			iconAtlas: getPinFactory(),
@@ -376,21 +396,21 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			getIcon: () => 'marker',
 			extensions: [new DataFilterExtension({ filterSize: 1 })],
 			getFilterValue: (item: any) => {
-				const props = item.properties
-				if (!!admLevelKey && admId !== props[admLevelKey]) {
+				if (!checkAdmCondition(item)) {
 					return 0
 				}
 				return 1
 			},
 			filterRange: [1, 1],
 		})
-	}, [admId, admLevelKey, isVisibleFactory, session?.user.accessToken])
+	}, [checkAdmCondition, isVisibleFactory, session?.user.accessToken])
 
 	const hotspotLayer = useMemo(() => {
 		return new MVTLayer({
 			id: 'hotspot',
 			beforeId: 'custom-referer-layer',
 			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_hotspot/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			loadOptions: { fetch: fetchWithRetry },
 			pickable: true,
 			pointType: 'icon',
 			visible: isVisibleHotspot,
