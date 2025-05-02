@@ -28,5 +28,6 @@
 	"avgSugarCaneYield": "Sugarcane Yield Average",
 	"noSugarCaneQuantity": "Non Sugarcane Quantity",
 	"barInSugarcane": "In Sugarcane",
-	"barOutSugarcane": "Out Sugarcane"
+	"barOutSugarcane": "Out Sugarcane",
+	"sugarcaneFactory": "Sugarcane Factory"
 }

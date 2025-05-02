@@ -10,7 +10,6 @@ import {
 	GetHotspotBurntAreaDtoOut,
 	GetPlantBurntAreaDtoOut,
 } from '@interface/dto/brunt-area/brunt-area.dto.out'
-import { GeoJsonLayer, IconLayer } from '@deck.gl/layers'
 
 import { getPinFactory, getPinHotSpot } from '@/utils/pin'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'
@@ -25,17 +24,18 @@ import { PickingInfo } from '@deck.gl/core'
 import PopupBurnt from './PopupBurnt'
 import CloseIcon from '@mui/icons-material/Close'
 import { GetLookupDtoOut } from '@interface/dto/lookup/lookup.dto-out'
-import { booleanContains, booleanPointInPolygon, polygon } from '@turf/turf'
-import { Feature, GeoJsonProperties, Polygon } from 'geojson'
+import { booleanPointInPolygon } from '@turf/turf'
 import PrintMapExportMain, {
 	EndBoundsType,
 	LATITUDE_OFFSET,
 	LONGITUDE_OFFSET,
 	MapLegendType,
 } from '@/components/shared/PrintMap'
-import { MVTLayer, TileLayer } from '@deck.gl/geo-layers'
-import { endOfDay, isEqual, isWithinInterval, startOfDay } from 'date-fns'
+import { endOfDay, getUnixTime, isWithinInterval, startOfDay } from 'date-fns'
 import { getRound } from '@/utils/date'
+import Image from 'next/image'
+import { MVTLayer } from '@deck.gl/geo-layers'
+import { DataFilterExtension } from '@deck.gl/extensions'
 
 export interface MapBurntDataType {
 	type: 'burnt'
@@ -116,12 +116,37 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	const burntMap = useMemo(() => mapLibre[BURNT_MAP_ID], [mapLibre])
 	const burntOverlay = useMemo(() => overlays[BURNT_MAP_ID], [overlays])
+	const dateStart = useMemo(() => startOfDay(selectedDateRange[0]), [selectedDateRange])
+	const dateEnd = useMemo(() => endOfDay(selectedDateRange[1]), [selectedDateRange])
+	const isShowHotspotInSugarcane = useMemo(
+		() => selectedHotspots?.includes(hotspotTypeCode.inSugarcan),
+		[selectedHotspots],
+	)
+	const isShowHotspotAll = useMemo(() => selectedHotspots?.length > 1, [selectedHotspots])
+	const admId = useMemo(() => Number(currentAdmOption?.id), [currentAdmOption?.id])
+	const admLevelKey = useMemo(() => {
+		if (currentAdmOption?.id.length === 2) {
+			return 'o_adm1c'
+		} else if (currentAdmOption?.id.length === 4) {
+			return 'o_adm2c'
+		} else if (currentAdmOption?.id.length === 6) {
+			return 'o_adm3c'
+		}
+	}, [currentAdmOption?.id])
+	const isVisiblePlant = useMemo(() => mapTypeArray.includes(mapTypeCode.plant), [mapTypeArray])
+	const isVisibleBurnArea = useMemo(() => mapTypeArray.includes(mapTypeCode.burnArea), [mapTypeArray])
+	const isVisibleFactory = useMemo(() => mapTypeArray.includes(mapTypeCode.factory), [mapTypeArray])
+	const isVisibleHotspot = useMemo(() => mapTypeArray.includes(mapTypeCode.hotspots), [mapTypeArray])
+	const plantDateRound = useMemo(() => getRound(dateEnd.getMonth() + 1, dateEnd.getFullYear()), [dateEnd])
+	const startTimestamp = useMemo(() => getUnixTime(dateStart), [dateStart])
+	const endTimestamp = useMemo(() => getUnixTime(dateEnd), [dateEnd])
 
 	// map extent effect
 	useEffect(() => {
+		let listener: any
 		if (burntMap) {
 			// let prevPolygon: Feature<Polygon, GeoJsonProperties> | null = null
-			burntMap.on('moveend', () => {
+			listener = burntMap.on('moveend', () => {
 				const currentBound = burntMap.getBounds()
 				const sw = currentBound.getSouthWest()
 				const ne = currentBound.getNorthEast()
@@ -168,6 +193,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				// }
 			})
 		}
+		return () => {
+			burntMap?.off('moveend', listener)
+		}
 	}, [
 		burntMap,
 		// , onMapExtentChange
@@ -176,8 +204,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	// current region effect
 	useEffect(() => {
+		let listener: any
 		if (burntMap && regionData?.length) {
-			burntMap.on('moveend', () => {
+			listener = burntMap.on('moveend', () => {
 				const center = burntMap.getCenter()
 				const insideRegion = regionData.find((reg) => {
 					let result = false
@@ -192,6 +221,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				setCurrentRegion(insideRegion)
 			})
 		}
+		return () => {
+			burntMap?.off('moveend', listener)
+		}
 	}, [
 		burntMap,
 		// , onMapExtentChange
@@ -201,9 +233,12 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	// zoom to default user region
 	useEffect(() => {
+		if (defaultZoomComplete) {
+			return
+		}
 		if (burntMap && regionData && session?.user.geometry) {
 			const userGeometry = session?.user?.geometry as LngLatBoundsLike
-			if (userGeometry && !defaultZoomComplete) {
+			if (userGeometry) {
 				burntMap.fitBounds(userGeometry, { padding: 100 })
 				setDefaultZoomComplete(true)
 				setUserRegionGeometry(userGeometry)
@@ -213,13 +248,16 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 
 	// zoom to search area
 	useEffect(() => {
+		if (!defaultZoomComplete) {
+			return
+		}
 		if (burntMap) {
 			const userGeometry = currentAdmOption?.geometry ?? userRegionGeometry
 			if (userGeometry) {
 				burntMap.fitBounds(userGeometry, { padding: 100 })
 			}
 		}
-	}, [burntMap, currentAdmOption?.geometry, userRegionGeometry])
+	}, [burntMap, currentAdmOption?.geometry, userRegionGeometry, defaultZoomComplete])
 
 	const onMapClick = useCallback(
 		(info: PickingInfo) => {
@@ -239,253 +277,194 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		[burntMap, burntOverlay, popup],
 	)
 
+	const checkAdmCondition = useCallback(
+		(item: any) => {
+			const props = item.properties
+			if (!!admLevelKey && admId !== props[admLevelKey]) {
+				return false
+			}
+			return true
+		},
+		[admId, admLevelKey],
+	)
+
+	const plantLayer = useMemo(() => {
+		return new MVTLayer({
+			id: 'plant',
+			beforeId: 'custom-referer-layer',
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			getFillColor: [139, 182, 45, 180],
+			getLineColor: [139, 182, 45, 180],
+			getLineWidth: 1,
+			stroked: true,
+			filled: true,
+			pickable: true,
+			visible: isVisiblePlant,
+			updateTriggers: {
+				data: [session?.user.accessToken],
+				visible: [isVisiblePlant],
+				getFilterValue: [checkAdmCondition, plantDateRound.round],
+				filterRange: [plantDateRound.sDate, plantDateRound.eDate],
+			},
+			extensions: [new DataFilterExtension({ filterSize: 1 })],
+			getFilterValue: (item: any) => {
+				const props = item.properties
+				if (!props.cls_edate) {
+					return 0
+				}
+				if (plantDateRound.round !== props.cls_round) {
+					return 0
+				}
+				if (!checkAdmCondition(item)) {
+					return 0
+				}
+				return getUnixTime(new Date(props.cls_edate))
+			},
+			filterRange: [getUnixTime(new Date(plantDateRound.sDate)), getUnixTime(new Date(plantDateRound.eDate))],
+		})
+	}, [checkAdmCondition, plantDateRound, isVisiblePlant, session?.user.accessToken])
+
+	const burntLayer = useMemo(() => {
+		return new MVTLayer({
+			id: 'burnt',
+			beforeId: 'custom-referer-layer',
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_burn_area_daily/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			getFillColor: [255, 204, 0, 180],
+			getLineColor: [255, 204, 0, 180],
+			getLineWidth: 1,
+			stroked: true,
+			filled: true,
+			pickable: true,
+			visible: isVisibleBurnArea,
+			updateTriggers: {
+				data: [session?.user.accessToken],
+				visible: [isVisibleBurnArea],
+				getFilterValue: [checkAdmCondition],
+				filterRange: [startTimestamp, endTimestamp],
+			},
+
+			extensions: [new DataFilterExtension({ filterSize: 1 })],
+			getFilterValue: (item: any) => {
+				if (!checkAdmCondition(item)) {
+					return 0
+				}
+				return getUnixTime(new Date(item.properties.detected_d))
+			},
+			filterRange: [startTimestamp, endTimestamp],
+		})
+	}, [checkAdmCondition, startTimestamp, endTimestamp, isVisibleBurnArea, session?.user.accessToken])
+
+	const factoryLayer = useMemo(() => {
+		return new MVTLayer({
+			id: 'factory',
+			beforeId: 'custom-referer-layer',
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_factory/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			pickable: true,
+			visible: isVisibleFactory,
+			updateTriggers: {
+				data: [session?.user.accessToken],
+				visible: [isVisibleFactory],
+				getIcon: [admId, admLevelKey],
+			},
+			pointType: 'icon',
+			iconAtlas: getPinFactory(),
+			iconMapping: {
+				marker: { width: 35, height: 35, mask: false },
+			},
+			sizeScale: 1,
+			getIconSize: 35,
+			getIcon: () => 'marker',
+			extensions: [new DataFilterExtension({ filterSize: 1 })],
+			getFilterValue: (item: any) => {
+				const props = item.properties
+				if (!!admLevelKey && admId !== props[admLevelKey]) {
+					return 0
+				}
+				return 1
+			},
+			filterRange: [1, 1],
+		})
+	}, [admId, admLevelKey, isVisibleFactory, session?.user.accessToken])
+
+	const hotspotLayer = useMemo(() => {
+		return new MVTLayer({
+			id: 'hotspot',
+			beforeId: 'custom-referer-layer',
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_hotspot/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			pickable: true,
+			pointType: 'icon',
+			visible: isVisibleHotspot,
+			updateTriggers: {
+				data: [session?.user.accessToken],
+				getFilterValue: [checkAdmCondition, isShowHotspotAll, isShowHotspotInSugarcane],
+				visible: [isVisibleHotspot],
+				filterRange: [startTimestamp, endTimestamp],
+			},
+			sizeScale: 1,
+			getIconSize: 14,
+			getIcon: () => 'marker',
+			iconAtlas: getPinHotSpot(),
+			iconMapping: {
+				marker: { width: 14, height: 14, mask: false },
+			},
+			minZoom: 5,
+			extensions: [new DataFilterExtension({ filterSize: 1 })],
+			getFilterValue: (item: any) => {
+				const props = item.properties
+				if (!props.acq_date) {
+					return 0
+				}
+				if (!isShowHotspotAll && isShowHotspotInSugarcane && props.in_sugarcane === false) {
+					return 0
+				}
+				if (!isShowHotspotAll && !isShowHotspotInSugarcane && props.in_sugarcane === true) {
+					return 0
+				}
+				if (!checkAdmCondition(item)) {
+					return 0
+				}
+				return getUnixTime(new Date(props.acq_date))
+			},
+			filterRange: [startTimestamp, endTimestamp],
+		})
+	}, [
+		session?.user.accessToken,
+		startTimestamp,
+		endTimestamp,
+		checkAdmCondition,
+		isVisibleHotspot,
+		isShowHotspotAll,
+		isShowHotspotInSugarcane,
+	])
+
 	// update layer
 	useEffect(() => {
-		if (burntMap && burntOverlay) {
-			const layers = [
-				new MVTLayer({
-					id: 'plant',
-					beforeId: 'custom-referer-layer',
-					data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
-					getFillColor: [139, 182, 45, 180],
-					getLineColor: [139, 182, 45, 180],
-					getLineWidth: 1,
-					stroked: true,
-					filled: true,
-					pointType: 'circle',
-					pointRadiusMinPixels: 2,
-					pickable: true,
-					visible: mapTypeArray.includes(mapTypeCode.plant),
-					binary: false,
-					renderSubLayers: (props) => {
-						const tempData = (props.data || []) as any[]
-
-						const filteredFeatures = tempData.filter((item) => {
-							const props = item.properties
-							let visible = false
-							if (props.cls_edate) {
-								const endDate = selectedDateRange[1].toISOString()
-								const dataSplit = endDate.split('-')
-								const month = Number(dataSplit[1])
-								const year = Number(dataSplit[0])
-								const round = getRound(month, year)
-
-								const isMatchRound = round.round === props.cls_round
-
-								const isWithin =
-									isMatchRound && props.cls_sdate >= round.sDate && props.cls_edate <= round.eDate
-
-								let conditionAdm = false
-								if (currentAdmOption?.id) {
-									if (currentAdmOption.id.length === 2) {
-										// user select province
-										conditionAdm = Number(currentAdmOption.id) === props.o_adm1c
-									} else if (currentAdmOption.id.length === 4) {
-										// user select district
-										conditionAdm = Number(currentAdmOption.id) === props.o_adm2c
-									} else if (currentAdmOption.id.length === 6) {
-										// user select sub-district
-										conditionAdm = Number(currentAdmOption.id) === props.o_adm3c
-									}
-								} else {
-									conditionAdm = true
-								}
-								visible = isWithin && conditionAdm
-							}
-
-							return visible
-						})
-
-						return new GeoJsonLayer({
-							...props,
-							data: filteredFeatures,
-						})
-					},
-				}),
-				new MVTLayer({
-					id: 'burnt',
-					beforeId: 'custom-referer-layer',
-					data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_burn_area_daily/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
-					getFillColor: [255, 204, 0, 180],
-					getLineColor: [255, 204, 0, 180],
-					getLineWidth: 1,
-					stroked: true,
-					filled: true,
-					pointType: 'circle',
-					pointRadiusMinPixels: 2,
-					pickable: true,
-					visible: mapTypeArray.includes(mapTypeCode.burnArea),
-					binary: false,
-					renderSubLayers: (props) => {
-						const tempData = (props.data || []) as any[]
-						const filteredFeatures = tempData.filter((item) => {
-							const props = item.properties
-							let visible = false
-							if (props.detected_d) {
-								const acqDate = startOfDay(new Date(props.detected_d))
-								const dateStart = startOfDay(selectedDateRange[0])
-								const dateEnd = endOfDay(selectedDateRange[1])
-								const isWithin = isWithinInterval(acqDate, { start: dateStart, end: dateEnd })
-
-								let conditionAdm = false
-								if (currentAdmOption?.id) {
-									if (currentAdmOption.id.length === 2) {
-										// user select province
-										conditionAdm = Number(currentAdmOption.id) === props.o_adm1c
-									} else if (currentAdmOption.id.length === 4) {
-										// user select district
-										conditionAdm = Number(currentAdmOption.id) === props.o_adm2c
-									} else if (currentAdmOption.id.length === 6) {
-										// user select sub-district
-										conditionAdm = Number(currentAdmOption.id) === props.o_adm3c
-									}
-								} else {
-									conditionAdm = true
-								}
-								visible = isWithin && conditionAdm
-							}
-
-							return visible
-						})
-
-						return new GeoJsonLayer({
-							...props,
-							data: filteredFeatures,
-						})
-					},
-				}),
-				new MVTLayer({
-					id: 'factory',
-					beforeId: 'custom-referer-layer',
-					data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_factory/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
-					visible: mapTypeArray.includes(mapTypeCode.factory),
-					pickable: true,
-					// sizeScale: 1,
-					getPosition: (d: any) => d.geometry.coordinates,
-					getSize: 35,
-					getIcon: () => ({ url: getPinFactory(), width: 35, height: 35, mask: false }),
-					// updateTriggers: { renderSubLayers: [selectedDateRange] },
-					binary: false,
-					renderSubLayers: (props) => {
-						const tempData = (props.data || []) as any[]
-
-						const filteredFeatures = tempData.filter((item) => {
-							const props = item.properties
-							let visible = false
-							let conditionAdm = false
-							if (currentAdmOption?.id) {
-								if (currentAdmOption.id.length === 2) {
-									// user select province
-									conditionAdm = Number(currentAdmOption.id) === props.o_adm1c
-								} else if (currentAdmOption.id.length === 4) {
-									// user select district
-									conditionAdm = Number(currentAdmOption.id) === props.o_adm2c
-								} else if (currentAdmOption.id.length === 6) {
-									// user select sub-district
-									conditionAdm = Number(currentAdmOption.id) === props.o_adm3c
-								}
-							} else {
-								conditionAdm = true
-							}
-							visible = conditionAdm
-							return visible
-						})
-
-						return new IconLayer({
-							...props,
-							data: filteredFeatures,
-						})
-					},
-				}),
-				new MVTLayer({
-					id: 'hotspot',
-					beforeId: 'custom-referer-layer',
-					data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_hotspot/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
-					pickable: true,
-					sizeScale: 1,
-					getPosition: (d: any) => d.geometry.coordinates,
-					getSize: 14,
-					getIcon: () => ({ url: getPinHotSpot(), width: 14, height: 14, mask: false }),
-					// updateTriggers: { renderSubLayers: [selectedDateRange] },
-					binary: false,
-					renderSubLayers: (props) => {
-						const tempData = (props.data || []) as any[]
-						const filteredFeatures = tempData.filter((item) => {
-							const props = item.properties
-							let visible = false
-							if (selectedHotspots?.length) {
-								if (props.acq_date) {
-									const acqDate = startOfDay(new Date(props.acq_date))
-									const dateStart = startOfDay(selectedDateRange[0])
-									const dateEnd = endOfDay(selectedDateRange[1])
-									const isWithin = isWithinInterval(acqDate, { start: dateStart, end: dateEnd })
-
-									let conditionInSugarcane = false
-									if (selectedHotspots.length === 1) {
-										if (selectedHotspots[0] === 'inSugarcane') {
-											conditionInSugarcane = props.in_sugarcane === true
-										} else {
-											conditionInSugarcane = props.in_sugarcane === false
-										}
-									} else {
-										conditionInSugarcane = true
-									}
-									let conditionAdm = false
-									if (currentAdmOption?.id) {
-										if (currentAdmOption.id.length === 2) {
-											// user select province
-											conditionAdm = Number(currentAdmOption.id) === props.o_adm1c
-										} else if (currentAdmOption.id.length === 4) {
-											// user select district
-											conditionAdm = Number(currentAdmOption.id) === props.o_adm2c
-										} else if (currentAdmOption.id.length === 6) {
-											// user select sub-district
-											conditionAdm = Number(currentAdmOption.id) === props.o_adm3c
-										}
-									} else {
-										conditionAdm = true
-									}
-									visible = isWithin && conditionInSugarcane && conditionAdm
-								}
-							}
-							return visible
-						})
-
-						return new IconLayer({
-							...props,
-							data: filteredFeatures,
-						})
-					},
-				}),
-			]
-
+		if (burntOverlay) {
 			burntOverlay.setProps({
-				layers: [layers],
 				onClick: onMapClick,
 				getCursor: (state) => (state.isHovering ? 'pointer' : 'default'),
 			})
 		}
-	}, [
-		burntMap,
-		burntOverlay,
+	}, [burntOverlay, onMapClick])
 
-		onMapClick,
-		session?.user.accessToken,
-		selectedDateRange,
-		mapTypeArray,
-		currentAdmOption,
-		selectedHotspots,
-	])
+	// update layer
+	useEffect(() => {
+		if (burntOverlay) {
+			burntOverlay.setProps({
+				layers: [plantLayer, burntLayer, factoryLayer, hotspotLayer],
+			})
+		}
+	}, [plantLayer, burntLayer, factoryLayer, hotspotLayer, burntOverlay])
 
 	const handleCurrentRegionToggle = useCallback(() => {
-		setIsCurrentRegionOpen(!isCurrentRegionOpen)
-	}, [isCurrentRegionOpen])
+		setIsCurrentRegionOpen((prev) => !prev)
+	}, [])
 
 	const mapBurntData: MapBurntDataType = useMemo(() => {
 		return { type: 'burnt', hotspotBurntAreaData: [], burntBurntAreaData: [], plantBurntAreaData: [] }
 	}, [])
 
-	const mapLegendArray: any[] = useMemo(() => {
+	const mapLegendArray: MapLegendType[] = useMemo(() => {
 		return mapTypeArray.map((mapType) => {
 			let key, type, title
 			switch (mapType) {
@@ -503,6 +482,11 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					key = mapTypeCode.plant
 					type = mapTypeCode.plant
 					title = t('plantingArea')
+					break
+				case mapTypeCode.factory:
+					key = mapTypeCode.factory
+					type = mapTypeCode.factory
+					title = t('sugarcaneFactory')
 					break
 			}
 			return { key, type, title }
@@ -550,6 +534,8 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 							<Box key={mapLegend.key} className='flex shrink-0 items-center gap-1.5'>
 								{mapLegend.type === mapTypeCode.burnArea ? (
 									<Box className='h-2 w-3 bg-[#F9B936]'></Box>
+								) : mapLegend.type === mapTypeCode.factory ? (
+									<Image src={getPinFactory()} height={16} width={16} alt={t('sugarcaneFactory')} />
 								) : (
 									<Box
 										className={classNames('h-3 w-3 rounded-full', {

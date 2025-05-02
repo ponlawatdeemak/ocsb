@@ -28,5 +28,6 @@
 	"avgSugarCaneYield": "ผลผลิตอ้อยเฉลี่ย",
 	"noSugarCaneQuantity": "ปริมาณที่ไม่ใช่อ้อย",
 	"barInSugarcane": "ตกในแปลงอ้อย",
-	"barOutSugarcane": "ไม่ตกในแปลงอ้อย"
+	"barOutSugarcane": "ไม่ตกในแปลงอ้อย",
+	"sugarcaneFactory": "โรงงานน้ำตาล"
 }
