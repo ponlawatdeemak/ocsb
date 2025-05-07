@@ -58,7 +58,7 @@ const PopupPlant: FC<Prop> = ({ popupData = [] }: Prop) => {
 				const fieldAdm1 = `o_adm1${i18n.language === 'th' ? 't' : 'e'}`
 				const fieldArea = `area_${areaUnit}`
 				const fieldProduct = `yield_mean_${quantityUnit}_${areaUnit}`
-				const fieldVolumn = `production_ton_${quantityUnit}`
+				const fieldVolumn = `production_${quantityUnit}`
 
 				return (
 					<div key={'popup-' + index} className={`font-["Prompt","Montserrat"]`}>
