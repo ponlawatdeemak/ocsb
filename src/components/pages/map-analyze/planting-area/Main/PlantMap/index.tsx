@@ -180,7 +180,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	}, [currentAdmOption?.id])
 	const isVisiblePlant = useMemo(() => mapTypeArray.includes(yieldMapTypeCode.plant), [mapTypeArray])
 	const isVisibleProduct = useMemo(() => mapTypeArray.includes(yieldMapTypeCode.product), [mapTypeArray])
-	const isVisibleRepeat = useMemo(() => mapTypeArray.includes(yieldMapTypeCode.repeat), [mapTypeArray])
+	const isVisibleRepeat = useMemo(() => !!selectedRepeatArea, [selectedRepeatArea])
 	const isVisibleFactory = useMemo(() => mapTypeArray.includes(yieldMapTypeCode.factory), [mapTypeArray])
 	const plantDateRound = useMemo(() => getRound(dateEnd.getMonth() + 1, dateEnd.getFullYear()), [dateEnd])
 	const replantDateRound = useMemo(() => {
@@ -349,7 +349,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 			new MVTLayer({
 				id: 'plant',
 				beforeId: 'custom-referer-layer',
-				data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+				data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${plantDateRound.sDate}&cls_edate=${plantDateRound.eDate}&round=${plantDateRound.round}&admC=${currentAdmOption?.id ?? ''}`,
 				getFillColor: [139, 182, 45, 180],
 				getLineColor: [139, 182, 45, 180],
 				getLineWidth: 1,
@@ -360,29 +360,29 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				updateTriggers: {
 					data: [session?.user.accessToken],
 					visible: [isVisiblePlant],
-					getFilterValue: [checkAdmCondition, plantDateRound.round],
-					filterRange: [plantDateRound.sDate, plantDateRound.eDate],
+					// getFilterValue: [checkAdmCondition, plantDateRound.round],
+					// filterRange: [plantDateRound.sDate, plantDateRound.eDate],
 				},
-				extensions: [new DataFilterExtension({ filterSize: 1 })],
-				getFilterValue: (item: any) => {
-					const props = item.properties
-					if (!props.cls_edate) {
-						return 0
-					}
-					if (plantDateRound.round !== props.cls_round) {
-						return 0
-					}
-					if (!checkAdmCondition(item)) {
-						return 0
-					}
-					return getUnixTime(new Date(props.cls_edate))
-				},
-				filterRange: [getUnixTime(new Date(plantDateRound.sDate)), getUnixTime(new Date(plantDateRound.eDate))],
+				// extensions: [new DataFilterExtension({ filterSize: 1 })],
+				// getFilterValue: (item: any) => {
+				// 	const props = item.properties
+				// 	if (!props.cls_edate) {
+				// 		return 0
+				// 	}
+				// 	if (plantDateRound.round !== props.cls_round) {
+				// 		return 0
+				// 	}
+				// 	if (!checkAdmCondition(item)) {
+				// 		return 0
+				// 	}
+				// 	return getUnixTime(new Date(props.cls_edate))
+				// },
+				// filterRange: [getUnixTime(new Date(plantDateRound.sDate)), getUnixTime(new Date(plantDateRound.eDate))],
 			}),
 			new MVTLayer({
 				id: 'product',
 				beforeId: 'custom-referer-layer',
-				data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+				data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${plantDateRound.sDate}&cls_edate=${plantDateRound.eDate}&round=${plantDateRound.round}&admC=${currentAdmOption?.id ?? ''}`,
 				lineWidthMinPixels: 1,
 				stroked: true,
 				filled: true,
@@ -441,7 +441,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 			new MVTLayer({
 				id: 'replant',
 				beforeId: 'custom-referer-layer',
-				data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_repeat_area/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+				data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_repeat_area/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${plantDateRound.sDate}&cls_edate=${plantDateRound.eDate}&round=${plantDateRound.round}&admC=${currentAdmOption?.id ?? ''}&repeat=${selectedRepeatArea?.id ?? ''}`,
 				pickable: true,
 				stroked: true,
 				filled: true,

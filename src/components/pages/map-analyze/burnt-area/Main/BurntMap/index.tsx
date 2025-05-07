@@ -155,8 +155,8 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const isVisibleFactory = useMemo(() => mapTypeArray.includes(mapTypeCode.factory), [mapTypeArray])
 	const isVisibleHotspot = useMemo(() => mapTypeArray.includes(mapTypeCode.hotspots), [mapTypeArray])
 	const plantDateRound = useMemo(() => getRound(dateEnd.getMonth() + 1, dateEnd.getFullYear()), [dateEnd])
-	const startTimestamp = useMemo(() => getUnixTime(dateStart), [dateStart])
-	const endTimestamp = useMemo(() => getUnixTime(dateEnd), [dateEnd])
+	// const startTimestamp = useMemo(() => getUnixTime(dateStart), [dateStart])
+	// const endTimestamp = useMemo(() => getUnixTime(dateEnd), [dateEnd])
 
 	// map extent effect
 	useEffect(() => {
@@ -309,7 +309,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		return new MVTLayer({
 			id: 'plant',
 			beforeId: 'custom-referer-layer',
-			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${plantDateRound.sDate}&cls_edate=${plantDateRound.eDate}&round=${plantDateRound.round}&admC=${currentAdmOption?.id ?? ''}`,
 			loadOptions: { fetch: fetchWithRetry },
 			getFillColor: [139, 182, 45, 180],
 			getLineColor: [139, 182, 45, 180],
@@ -321,32 +321,43 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			updateTriggers: {
 				data: [session?.user.accessToken],
 				visible: [isVisiblePlant],
-				getFilterValue: [checkAdmCondition, plantDateRound.round],
-				filterRange: [plantDateRound.sDate, plantDateRound.eDate],
+				// getFilterValue: [checkAdmCondition, plantDateRound.round],
+				// filterRange: [plantDateRound.sDate, plantDateRound.eDate],
 			},
-			extensions: [new DataFilterExtension({ filterSize: 1 })],
-			getFilterValue: (item: any) => {
-				const props = item.properties
-				if (!props.cls_edate) {
-					return 0
-				}
-				if (plantDateRound.round !== props.cls_round) {
-					return 0
-				}
-				if (!checkAdmCondition(item)) {
-					return 0
-				}
-				return getUnixTime(new Date(props.cls_edate))
-			},
-			filterRange: [getUnixTime(new Date(plantDateRound.sDate)), getUnixTime(new Date(plantDateRound.eDate))],
+			// extensions: [new DataFilterExtension({ filterSize: 1 })],
+			// getFilterValue: (item: any) => {
+			// 	const props = item.properties
+			// 	if (!props.cls_edate) {
+			// 		return 0
+			// 	}
+			// 	if (plantDateRound.round !== props.cls_round) {
+			// 		return 0
+			// 	}
+			// 	if (!checkAdmCondition(item)) {
+			// 		return 0
+			// 	}
+			// 	return getUnixTime(new Date(props.cls_edate))
+			// },
+			// filterRange: [getUnixTime(new Date(plantDateRound.sDate)), getUnixTime(new Date(plantDateRound.eDate))],
 		})
-	}, [checkAdmCondition, plantDateRound, isVisiblePlant, session?.user.accessToken])
+	}, [
+		// checkAdmCondition,
+		plantDateRound,
+		isVisiblePlant,
+		session?.user.accessToken,
+		// admId,
+		currentAdmOption,
+	])
 
 	const burntLayer = useMemo(() => {
+		let dTemp = new Date(dateStart.toISOString())
+		dTemp.setHours(dTemp.getHours() + 7)
+		const dStart = dTemp.toISOString().split('T')[0]
+		const dEnd = dateEnd.toISOString().split('T')[0]
 		return new MVTLayer({
 			id: 'burnt',
 			beforeId: 'custom-referer-layer',
-			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_burn_area_daily/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_burn/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&detected_d_s=${dStart}&detected_d_e=${dEnd}&admC=${currentAdmOption?.id ?? ''}`,
 			loadOptions: { fetch: fetchWithRetry },
 			getFillColor: [255, 204, 0, 180],
 			getLineColor: [255, 204, 0, 180],
@@ -358,20 +369,30 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			updateTriggers: {
 				data: [session?.user.accessToken],
 				visible: [isVisibleBurnArea],
-				getFilterValue: [checkAdmCondition],
-				filterRange: [startTimestamp, endTimestamp],
+				// getFilterValue: [checkAdmCondition],
+				// filterRange: [startTimestamp, endTimestamp],
 			},
 
-			extensions: [new DataFilterExtension({ filterSize: 1 })],
-			getFilterValue: (item: any) => {
-				if (!checkAdmCondition(item)) {
-					return 0
-				}
-				return getUnixTime(new Date(item.properties.detected_d))
-			},
-			filterRange: [startTimestamp, endTimestamp],
+			// extensions: [new DataFilterExtension({ filterSize: 1 })],
+			// getFilterValue: (item: any) => {
+			// 	if (!checkAdmCondition(item)) {
+			// 		return 0
+			// 	}
+			// 	return getUnixTime(new Date(item.properties.detected_d))
+			// },
+			// filterRange: [startTimestamp, endTimestamp],
 		})
-	}, [checkAdmCondition, startTimestamp, endTimestamp, isVisibleBurnArea, session?.user.accessToken])
+	}, [
+		// checkAdmCondition,
+		// startTimestamp,
+		// endTimestamp,
+		isVisibleBurnArea,
+		session?.user.accessToken,
+		dateStart,
+		dateEnd,
+		// admId,
+		currentAdmOption,
+	])
 
 	const factoryLayer = useMemo(() => {
 		return new MVTLayer({
@@ -406,19 +427,26 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	}, [checkAdmCondition, isVisibleFactory, session?.user.accessToken])
 
 	const hotspotLayer = useMemo(() => {
+		let dTemp = new Date(dateStart.toISOString())
+		dTemp.setHours(dTemp.getHours() + 7)
+		const dStart = dTemp.toISOString().split('T')[0]
+		const dEnd = dateEnd.toISOString().split('T')[0]
+		const paramInSugarcane = isShowHotspotInSugarcane ? 1 : 0
+		const inSugarcane = isShowHotspotAll ? 'null' : paramInSugarcane
+		console.log('👻 isShowHotspotInSugarcane: ', isShowHotspotInSugarcane)
 		return new MVTLayer({
 			id: 'hotspot',
 			beforeId: 'custom-referer-layer',
-			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_hotspot/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_hotspot/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&acq_date_s=${dStart}&acq_date_e=${dEnd}&admC=${currentAdmOption?.id ?? ''}&in_sugarcane=${inSugarcane}`,
 			loadOptions: { fetch: fetchWithRetry },
 			pickable: true,
 			pointType: 'icon',
 			visible: isVisibleHotspot,
 			updateTriggers: {
 				data: [session?.user.accessToken],
-				getFilterValue: [checkAdmCondition, isShowHotspotAll, isShowHotspotInSugarcane],
 				visible: [isVisibleHotspot],
-				filterRange: [startTimestamp, endTimestamp],
+				// getFilterValue: [checkAdmCondition, isShowHotspotAll, isShowHotspotInSugarcane],
+				// filterRange: [startTimestamp, endTimestamp],
 			},
 			sizeScale: 1,
 			getIconSize: 14,
@@ -428,33 +456,37 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				marker: { width: 14, height: 14, mask: false },
 			},
 			minZoom: 5,
-			extensions: [new DataFilterExtension({ filterSize: 1 })],
-			getFilterValue: (item: any) => {
-				const props = item.properties
-				if (!props.acq_date) {
-					return 0
-				}
-				if (!isShowHotspotAll && isShowHotspotInSugarcane && props.in_sugarcane === false) {
-					return 0
-				}
-				if (!isShowHotspotAll && !isShowHotspotInSugarcane && props.in_sugarcane === true) {
-					return 0
-				}
-				if (!checkAdmCondition(item)) {
-					return 0
-				}
-				return getUnixTime(new Date(props.acq_date))
-			},
-			filterRange: [startTimestamp, endTimestamp],
+			// extensions: [new DataFilterExtension({ filterSize: 1 })],
+			// getFilterValue: (item: any) => {
+			// 	const props = item.properties
+			// 	if (!props.acq_date) {
+			// 		return 0
+			// 	}
+			// 	if (!isShowHotspotAll && isShowHotspotInSugarcane && props.in_sugarcane === false) {
+			// 		return 0
+			// 	}
+			// 	if (!isShowHotspotAll && !isShowHotspotInSugarcane && props.in_sugarcane === true) {
+			// 		return 0
+			// 	}
+			// 	if (!checkAdmCondition(item)) {
+			// 		return 0
+			// 	}
+			// 	return getUnixTime(new Date(props.acq_date))
+			// },
+			// filterRange: [startTimestamp, endTimestamp],
 		})
 	}, [
 		session?.user.accessToken,
-		startTimestamp,
-		endTimestamp,
-		checkAdmCondition,
+		// startTimestamp,
+		// endTimestamp,
+		// checkAdmCondition,
 		isVisibleHotspot,
 		isShowHotspotAll,
 		isShowHotspotInSugarcane,
+		dateStart,
+		dateEnd,
+		// admId,
+		currentAdmOption,
 	])
 
 	// update layer
