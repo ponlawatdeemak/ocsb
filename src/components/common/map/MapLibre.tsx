@@ -1,11 +1,11 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
-import React, { FC, memo, useCallback, useEffect } from 'react'
+import React, { FC, memo, useCallback, useEffect, useMemo } from 'react'
 import { Map, ScaleControl, useControl } from 'react-map-gl/maplibre'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import useMapStore from './store/map'
-import maplibregl, { MapLibreEvent, MapStyleDataEvent, StyleSpecification } from 'maplibre-gl'
+import maplibregl, { LngLatBoundsLike, MapLibreEvent, MapStyleDataEvent, StyleSpecification } from 'maplibre-gl'
 import { googleProtocol } from '@/utils/google'
-import { viewState } from './interface/map'
+import { useSession } from 'next-auth/react'
 
 interface DeckGLOverlayProps {
 	mapId: string
@@ -35,7 +35,7 @@ interface MapLibreProps {
 
 const MapLibre: FC<MapLibreProps> = ({ mapId, mapStyle, isInteractive = true }) => {
 	const { setMapLibre } = useMapStore()
-
+	const { data: session } = useSession()
 	// initial google basemap style
 	useEffect(() => {
 		maplibregl.addProtocol('google', googleProtocol)
@@ -78,7 +78,11 @@ const MapLibre: FC<MapLibreProps> = ({ mapId, mapStyle, isInteractive = true }) 
 		}
 	}
 
-	return (
+	const viewState = useMemo(() => {
+		return { bounds: session?.user?.geometry as LngLatBoundsLike, fitBoundsOptions: { padding: 100 } }
+	}, [session?.user?.geometry])
+
+	return session?.user?.geometry ? (
 		<Map
 			antialias
 			initialViewState={viewState}
@@ -96,6 +100,8 @@ const MapLibre: FC<MapLibreProps> = ({ mapId, mapStyle, isInteractive = true }) 
 			<ScaleControl position='bottom-right' />
 			<DeckGLOverlay mapId={mapId} />
 		</Map>
+	) : (
+		<></>
 	)
 }
 
