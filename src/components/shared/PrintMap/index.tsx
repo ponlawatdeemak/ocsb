@@ -481,7 +481,7 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 				handleMapPdfExport={handleMapPdfExport}
 				handleMapCsvExport={handleMapCsvExport}
 				onClose={() => setOpenPrintMapDialog(false)}
-				mapData={printData?.data}
+				mapData={printData?.data!}
 			/>
 		</Box>
 	)

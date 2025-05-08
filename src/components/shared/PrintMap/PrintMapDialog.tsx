@@ -293,7 +293,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 
 	const mapDetailElement = useCallback(
 		(isFixedLegend: boolean = false) => {
-			if (mapDetail) {
+			if (mapDetail && mapData) {
 				if (id === 'burnt' && mapDetail.type === 'burnt') {
 					return (
 						<>
