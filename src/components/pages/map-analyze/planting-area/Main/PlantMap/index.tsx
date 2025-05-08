@@ -33,7 +33,7 @@ import PrintMapExportMain, { EndBoundsType, LATITUDE_OFFSET, LONGITUDE_OFFSET } 
 import { MVTLayer } from '@deck.gl/geo-layers'
 import { getPinFactory } from '@/utils/pin'
 import { getRound } from '@/utils/date'
-import { addDays, endOfDay, endOfMonth, formatISO, getUnixTime, subMonths } from 'date-fns'
+import { addDays, endOfDay, endOfMonth, formatISO, subMonths } from 'date-fns'
 
 export interface MapPlantDataType {
 	type: 'plant'
@@ -73,12 +73,6 @@ interface PlantingMapMainProps {
 	currentAdmOption: OptionType | null
 	selectedRepeatArea: GetRepeatAreaLookupDtoOut | undefined
 	selectedDateRange: Date[]
-	// plantYieldAreaData: GetPlantYieldAreaDtoOut[]
-	// productYieldAreaData: GetProductYieldAreaDtoOut[]
-	// replantYieldAreaData: GetReplantYieldAreaDtoOut[]
-	// isPlantYieldAreaDataLoading: boolean
-	// isProductYieldAreaDataLoading: boolean
-	// isReplantYieldAreaDataLoading: boolean
 	onMapExtentChange: (polygon: number[][]) => void
 }
 
@@ -88,12 +82,6 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 	selectedRepeatArea,
 	selectedDateRange,
 	currentAdmOption,
-	// plantYieldAreaData,
-	// productYieldAreaData,
-	// replantYieldAreaData,
-	// isPlantYieldAreaDataLoading,
-	// isProductYieldAreaDataLoading,
-	// isReplantYieldAreaDataLoading,
 	onMapExtentChange,
 }) => {
 	const { data: session } = useSession()
@@ -357,27 +345,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				filled: true,
 				pickable: true,
 				visible: isVisiblePlant,
-				updateTriggers: {
-					data: [session?.user.accessToken],
-					visible: [isVisiblePlant],
-					// getFilterValue: [checkAdmCondition, plantDateRound.round],
-					// filterRange: [plantDateRound.sDate, plantDateRound.eDate],
-				},
-				// extensions: [new DataFilterExtension({ filterSize: 1 })],
-				// getFilterValue: (item: any) => {
-				// 	const props = item.properties
-				// 	if (!props.cls_edate) {
-				// 		return 0
-				// 	}
-				// 	if (plantDateRound.round !== props.cls_round) {
-				// 		return 0
-				// 	}
-				// 	if (!checkAdmCondition(item)) {
-				// 		return 0
-				// 	}
-				// 	return getUnixTime(new Date(props.cls_edate))
-				// },
-				// filterRange: [getUnixTime(new Date(plantDateRound.sDate)), getUnixTime(new Date(plantDateRound.eDate))],
+				updateTriggers: { data: [session?.user.accessToken], visible: [isVisiblePlant] },
 			}),
 			new MVTLayer({
 				id: 'product',
@@ -388,27 +356,7 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				filled: true,
 				pickable: true,
 				visible: isVisibleProduct,
-				updateTriggers: {
-					data: [session?.user.accessToken],
-					visible: [isVisibleProduct],
-					getFilterValue: [checkAdmCondition, plantDateRound.round],
-					filterRange: [plantDateRound.sDate, plantDateRound.eDate],
-				},
-				extensions: [new DataFilterExtension({ filterSize: 1 })],
-				getFilterValue: (item: any) => {
-					const props = item.properties
-					if (!props.cls_edate) {
-						return 0
-					}
-					if (plantDateRound.round !== props.cls_round) {
-						return 0
-					}
-					if (!checkAdmCondition(item)) {
-						return 0
-					}
-					return getUnixTime(new Date(props.cls_edate))
-				},
-				filterRange: [getUnixTime(new Date(plantDateRound.sDate)), getUnixTime(new Date(plantDateRound.eDate))],
+				updateTriggers: { data: [session?.user.accessToken], visible: [isVisibleProduct] },
 				getFillColor: (d: any) => {
 					const value = d.properties.yield_mean_ton_rai
 					if (value > 15) {
@@ -462,31 +410,12 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 				getFillPattern: () => 'pattern',
 				getFillPatternScale: 1,
 				getFillPatternOffset: [0, 0],
-				extensions: [new FillStyleExtension({ pattern: true }), new DataFilterExtension({ filterSize: 1 })],
+				extensions: [new FillStyleExtension({ pattern: true })],
 				visible: isVisibleRepeat,
 				updateTriggers: {
 					data: [session?.user.accessToken],
 					visible: [isVisibleRepeat],
-					getFilterValue: [checkAdmCondition, replantDateRound.round],
-					filterRange: [replantDateRound.sDate, replantDateRound.eDate],
 				},
-				getFilterValue: (item: any) => {
-					const props = item.properties
-					if (!props.cls_edate) {
-						return 0
-					}
-					if (replantDateRound.round !== props.cls_round) {
-						return 0
-					}
-					if (!checkAdmCondition(item)) {
-						return 0
-					}
-					return getUnixTime(new Date(props.cls_edate))
-				},
-				filterRange: [
-					getUnixTime(new Date(replantDateRound.sDate)),
-					getUnixTime(new Date(replantDateRound.eDate)),
-				],
 			}),
 			new MVTLayer({
 				id: 'factory',

@@ -31,7 +31,7 @@ import PrintMapExportMain, {
 	LONGITUDE_OFFSET,
 	MapLegendType,
 } from '@/components/shared/PrintMap'
-import { endOfDay, getUnixTime, isWithinInterval, startOfDay } from 'date-fns'
+import { endOfDay, startOfDay } from 'date-fns'
 import { getRound } from '@/utils/date'
 import Image from 'next/image'
 import { MVTLayer } from '@deck.gl/geo-layers'
@@ -84,13 +84,6 @@ interface BurntMapMainProps {
 	currentAdmOption: OptionType | null
 	selectedHotspots: hotspotTypeCode[]
 	selectedDateRange: Date[]
-	// hotspotBurntAreaData: GetHotspotBurntAreaDtoOut[]
-	// burntBurntAreaData: GetBurntBurntAreaDtoOut[]
-	// plantBurntAreaData: GetPlantBurntAreaDtoOut[]
-	// isHotspotBurntAreaDataLoading: boolean
-	// isBurntBurntAreaDataLoading: boolean
-	// isPlantBurntAreaDataLoading: boolean
-	// onMapExtentChange: (polygon: number[][]) => void
 }
 
 const BurntMapMain: React.FC<BurntMapMainProps> = ({
@@ -99,13 +92,6 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	currentAdmOption,
 	selectedHotspots,
 	selectedDateRange,
-	// hotspotBurntAreaData,
-	// burntBurntAreaData,
-	// plantBurntAreaData,
-	// isHotspotBurntAreaDataLoading,
-	// isBurntBurntAreaDataLoading,
-	// isPlantBurntAreaDataLoading,
-	// onMapExtentChange,
 }) => {
 	const { data: session } = useSession()
 	const { mapLibre, overlays } = useMapStore()
@@ -155,8 +141,6 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const isVisibleFactory = useMemo(() => mapTypeArray.includes(mapTypeCode.factory), [mapTypeArray])
 	const isVisibleHotspot = useMemo(() => mapTypeArray.includes(mapTypeCode.hotspots), [mapTypeArray])
 	const plantDateRound = useMemo(() => getRound(dateEnd.getMonth() + 1, dateEnd.getFullYear()), [dateEnd])
-	// const startTimestamp = useMemo(() => getUnixTime(dateStart), [dateStart])
-	// const endTimestamp = useMemo(() => getUnixTime(dateEnd), [dateEnd])
 
 	// map extent effect
 	useEffect(() => {
@@ -321,33 +305,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			updateTriggers: {
 				data: [session?.user.accessToken],
 				visible: [isVisiblePlant],
-				// getFilterValue: [checkAdmCondition, plantDateRound.round],
-				// filterRange: [plantDateRound.sDate, plantDateRound.eDate],
 			},
-			// extensions: [new DataFilterExtension({ filterSize: 1 })],
-			// getFilterValue: (item: any) => {
-			// 	const props = item.properties
-			// 	if (!props.cls_edate) {
-			// 		return 0
-			// 	}
-			// 	if (plantDateRound.round !== props.cls_round) {
-			// 		return 0
-			// 	}
-			// 	if (!checkAdmCondition(item)) {
-			// 		return 0
-			// 	}
-			// 	return getUnixTime(new Date(props.cls_edate))
-			// },
-			// filterRange: [getUnixTime(new Date(plantDateRound.sDate)), getUnixTime(new Date(plantDateRound.eDate))],
 		})
-	}, [
-		// checkAdmCondition,
-		plantDateRound,
-		isVisiblePlant,
-		session?.user.accessToken,
-		// admId,
-		currentAdmOption,
-	])
+	}, [plantDateRound, isVisiblePlant, session?.user.accessToken, currentAdmOption])
 
 	const burntLayer = useMemo(() => {
 		let dTemp = new Date(dateStart.toISOString())
@@ -369,30 +329,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			updateTriggers: {
 				data: [session?.user.accessToken],
 				visible: [isVisibleBurnArea],
-				// getFilterValue: [checkAdmCondition],
-				// filterRange: [startTimestamp, endTimestamp],
 			},
-
-			// extensions: [new DataFilterExtension({ filterSize: 1 })],
-			// getFilterValue: (item: any) => {
-			// 	if (!checkAdmCondition(item)) {
-			// 		return 0
-			// 	}
-			// 	return getUnixTime(new Date(item.properties.detected_d))
-			// },
-			// filterRange: [startTimestamp, endTimestamp],
 		})
-	}, [
-		// checkAdmCondition,
-		// startTimestamp,
-		// endTimestamp,
-		isVisibleBurnArea,
-		session?.user.accessToken,
-		dateStart,
-		dateEnd,
-		// admId,
-		currentAdmOption,
-	])
+	}, [isVisibleBurnArea, session?.user.accessToken, dateStart, dateEnd, currentAdmOption])
 
 	const factoryLayer = useMemo(() => {
 		return new MVTLayer({
@@ -409,9 +348,7 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			},
 			pointType: 'icon',
 			iconAtlas: getPinFactory(),
-			iconMapping: {
-				marker: { width: 35, height: 35, mask: false },
-			},
+			iconMapping: { marker: { width: 35, height: 35, mask: false } },
 			sizeScale: 1,
 			getIconSize: 35,
 			getIcon: () => 'marker',
@@ -433,7 +370,6 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		const dEnd = dateEnd.toISOString().split('T')[0]
 		const paramInSugarcane = isShowHotspotInSugarcane ? 1 : 0
 		const inSugarcane = isShowHotspotAll ? 'null' : paramInSugarcane
-		console.log('👻 isShowHotspotInSugarcane: ', isShowHotspotInSugarcane)
 		return new MVTLayer({
 			id: 'hotspot',
 			beforeId: 'custom-referer-layer',
@@ -442,50 +378,21 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			pickable: true,
 			pointType: 'icon',
 			visible: isVisibleHotspot,
-			updateTriggers: {
-				data: [session?.user.accessToken],
-				visible: [isVisibleHotspot],
-				// getFilterValue: [checkAdmCondition, isShowHotspotAll, isShowHotspotInSugarcane],
-				// filterRange: [startTimestamp, endTimestamp],
-			},
+			updateTriggers: { data: [session?.user.accessToken], visible: [isVisibleHotspot] },
 			sizeScale: 1,
 			getIconSize: 14,
 			getIcon: () => 'marker',
 			iconAtlas: getPinHotSpot(),
-			iconMapping: {
-				marker: { width: 14, height: 14, mask: false },
-			},
+			iconMapping: { marker: { width: 14, height: 14, mask: false } },
 			minZoom: 5,
-			// extensions: [new DataFilterExtension({ filterSize: 1 })],
-			// getFilterValue: (item: any) => {
-			// 	const props = item.properties
-			// 	if (!props.acq_date) {
-			// 		return 0
-			// 	}
-			// 	if (!isShowHotspotAll && isShowHotspotInSugarcane && props.in_sugarcane === false) {
-			// 		return 0
-			// 	}
-			// 	if (!isShowHotspotAll && !isShowHotspotInSugarcane && props.in_sugarcane === true) {
-			// 		return 0
-			// 	}
-			// 	if (!checkAdmCondition(item)) {
-			// 		return 0
-			// 	}
-			// 	return getUnixTime(new Date(props.acq_date))
-			// },
-			// filterRange: [startTimestamp, endTimestamp],
 		})
 	}, [
 		session?.user.accessToken,
-		// startTimestamp,
-		// endTimestamp,
-		// checkAdmCondition,
 		isVisibleHotspot,
 		isShowHotspotAll,
 		isShowHotspotInSugarcane,
 		dateStart,
 		dateEnd,
-		// admId,
 		currentAdmOption,
 	])
 
@@ -584,18 +491,19 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					{mapLegendArray.map((mapLegend) => {
 						return (
 							<Box key={mapLegend.key} className='flex shrink-0 items-center gap-1.5'>
-								{mapLegend.type === mapTypeCode.burnArea ? (
-									<Box className='h-2 w-3 bg-[#F9B936]'></Box>
-								) : mapLegend.type === mapTypeCode.factory ? (
-									<Image src={getPinFactory()} height={16} width={16} alt={t('sugarcaneFactory')} />
-								) : (
-									<Box
-										className={classNames('h-3 w-3 rounded-full', {
-											'bg-[#FF0000]': mapLegend.type === mapTypeCode.hotspots,
-											'bg-[#8AB62D]': mapLegend.type === mapTypeCode.plant,
-										})}
-									></Box>
+								{mapLegend.type === mapTypeCode.hotspots && (
+									<Box className={'h-3 w-3 rounded-full bg-[#FF0000]'}></Box>
 								)}
+								{mapLegend.type === mapTypeCode.burnArea && (
+									<Box className='h-2 w-3 bg-[#F9B936]'></Box>
+								)}
+								{mapLegend.type === mapTypeCode.plant && (
+									<Box className={'h-3 w-3 rounded-full bg-[#8AB62D]'}></Box>
+								)}
+								{mapLegend.type === mapTypeCode.factory && (
+									<Image src={getPinFactory()} height={16} width={16} alt={t('sugarcaneFactory')} />
+								)}
+
 								<Typography className='!text-2xs text-black'>{mapLegend.title}</Typography>
 							</Box>
 						)
