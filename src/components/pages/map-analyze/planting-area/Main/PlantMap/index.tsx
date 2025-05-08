@@ -602,6 +602,11 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					mapExportParam={plantMapExportParam}
 					disabled={isRegionLoading}
 					layers={printLayers}
+					selectedDateRange={selectedDateRange}
+					currentAdmOption={currentAdmOption}
+					mapTypeArray={mapTypeArray}
+					selectedHotspots={[]}
+					repeat={selectedRepeatArea?.id ?? null}
 				/>
 
 				<MapView

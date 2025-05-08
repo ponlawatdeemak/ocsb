@@ -5,12 +5,14 @@ import {
 	GetDashBoardBurntAreaDtoIn,
 	GetHotspotBurntAreaDtoIn,
 	GetPlantBurntAreaDtoIn,
+	GetPrintInfoBurntDtoIn,
 } from '@interface/dto/brunt-area/brunt-area.dto-in'
 import {
 	GetBurntBurntAreaDtoOut,
 	GetDashBoardBurntAreaDtoOut,
 	GetHotspotBurntAreaDtoOut,
 	GetPlantBurntAreaDtoOut,
+	GetPrintInfoBurntDtoOut,
 } from '@interface/dto/brunt-area/brunt-area.dto.out'
 import {
 	GetDashboardYieldAreaDtoIn,
@@ -39,46 +41,6 @@ const mapAnalyze = {
 			`/brunt-area/dashboard?startDate=${payload.startDate}&endDate=${payload.endDate}${payload.admC ? admC : ''}${mapType ?? ''}${inSugarcan ?? ''}`,
 		)
 	},
-	// getHotspotBurntArea: async (
-	// 	payload: GetHotspotBurntAreaDtoIn,
-	// 	axiosOption?: AxiosRequestConfig,
-	// ): Promise<ResponseDto<GetHotspotBurntAreaDtoOut[]>> => {
-	// 	const params = new URLSearchParams()
-
-	// 	if (payload.inSugarcan.length !== 0) params.append('inSugarcan', JSON.stringify(payload.inSugarcan))
-	// 	if (payload.startDate) params.append('startDate', payload.startDate)
-	// 	if (payload.endDate) params.append('endDate', payload.endDate)
-	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-	// 	if (payload.polygon) params.append('polygon', payload.polygon)
-
-	// 	return await api.get(`/brunt-area/hotspot?${params}`, undefined, axiosOption)
-	// },
-	// getBurntBurntArea: async (
-	// 	payload: GetBurntBurntAreaDtoIn,
-	// 	axiosOption?: AxiosRequestConfig,
-	// ): Promise<ResponseDto<GetBurntBurntAreaDtoOut[]>> => {
-	// 	const params = new URLSearchParams()
-
-	// 	if (payload.startDate) params.append('startDate', payload.startDate)
-	// 	if (payload.endDate) params.append('endDate', payload.endDate)
-	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-	// 	if (payload.polygon) params.append('polygon', payload.polygon)
-
-	// 	return await api.get(`/brunt-area/burnt?${params}`, undefined, axiosOption)
-	// },
-	// getPlantBurntArea: async (
-	// 	payload: GetPlantBurntAreaDtoIn,
-	// 	axiosOption?: AxiosRequestConfig,
-	// ): Promise<ResponseDto<GetPlantBurntAreaDtoOut[]>> => {
-	// 	const params = new URLSearchParams()
-
-	// 	if (payload.startDate) params.append('startDate', payload.startDate)
-	// 	if (payload.endDate) params.append('endDate', payload.endDate)
-	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-	// 	if (payload.polygon) params.append('polygon', payload.polygon)
-
-	// 	return await api.get(`/brunt-area/plant?${params}`, undefined, axiosOption)
-	// },
 
 	getDashBoardYieldArea: async (
 		payload: GetDashboardYieldAreaDtoIn,
@@ -93,46 +55,21 @@ const mapAnalyze = {
 
 		return await api.get(`/yield-area/dashboard?${params}`, undefined, axiosOption)
 	},
-	// getPlantYieldArea: async (
-	// 	payload: GetPlantYieldAreaDtoIn,
-	// 	axiosOption?: AxiosRequestConfig,
-	// ): Promise<ResponseDto<GetPlantYieldAreaDtoOut[]>> => {
-	// 	const params = new URLSearchParams()
-
-	// 	if (payload.startDate) params.append('startDate', payload.startDate)
-	// 	if (payload.endDate) params.append('endDate', payload.endDate)
-	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-	// 	if (payload.polygon) params.append('polygon', payload.polygon)
-
-	// 	return await api.get(`/brunt-area/plant?${params}`, undefined, axiosOption)
-	// },
-	// getProductYieldArea: async (
-	// 	payload: GetProductYieldAreaDtoIn,
-	// 	axiosOption?: AxiosRequestConfig,
-	// ): Promise<ResponseDto<GetProductYieldAreaDtoOut[]>> => {
-	// 	const params = new URLSearchParams()
-
-	// 	if (payload.startDate) params.append('startDate', payload.startDate)
-	// 	if (payload.endDate) params.append('endDate', payload.endDate)
-	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-	// 	if (payload.polygon) params.append('polygon', payload.polygon)
-
-	// 	return await api.get(`/yield-area/product?${params}`, undefined, axiosOption)
-	// },
-	// getReplantYieldArea: async (
-	// 	payload: GetReplantYieldAreaDtoIn,
-	// 	axiosOption?: AxiosRequestConfig,
-	// ): Promise<ResponseDto<GetReplantYieldAreaDtoOut[]>> => {
-	// 	const params = new URLSearchParams()
-
-	// 	if (payload.startDate) params.append('startDate', payload.startDate)
-	// 	if (payload.endDate) params.append('endDate', payload.endDate)
-	// 	if (payload.admC !== undefined) params.append('admC', payload.admC.toString())
-	// 	if (payload.polygon) params.append('polygon', payload.polygon)
-	// 	if (payload.repeat) params.append('repeat', payload.repeat.toString())
-
-	// 	return await api.get(`/yield-area/replant?${params}`, undefined, axiosOption)
-	// },
+	getPrintInfo2: async (): Promise<ResponseDto<string[]>> => await api.get('/brunt-area/burn-area-calendar'),
+	getPrintInfo: async (
+		payload: GetPrintInfoBurntDtoIn,
+		axiosOption?: AxiosRequestConfig,
+	): Promise<ResponseDto<GetPrintInfoBurntDtoOut>> => {
+		const params = new URLSearchParams()
+		if (payload.startDate) params.append('startDate', payload.startDate)
+		if (payload.endDate) params.append('endDate', payload.endDate)
+		if (payload.admC) params.append('admC', payload.admC.toString())
+		if (payload.polygon) params.append('polygon', payload.polygon)
+		if (payload.repeat) params.append('repeat', payload.repeat.toString())
+		if (payload.mapType?.length) payload.mapType?.forEach((item) => params.append('mapType', item))
+		if (payload.inSugarcan?.length) payload.inSugarcan?.forEach((item) => params.append('inSugarcan', item))
+		return await api.get(`/brunt-area/print-info?${params}`, undefined, axiosOption)
+	},
 }
 
 export default mapAnalyze

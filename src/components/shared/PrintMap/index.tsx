@@ -10,7 +10,7 @@ import useMapStore from '@/components/common/map/store/map'
 import { useSession } from 'next-auth/react'
 import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
-import { mapTypeCode, ResponseLanguage, yieldMapTypeCode } from '@interface/config/app.config'
+import { hotspotTypeCode, mapTypeCode, ResponseLanguage, yieldMapTypeCode } from '@interface/config/app.config'
 import { LngLatBoundsLike } from 'maplibre-gl'
 import { thaiExtent } from '@/config/app.config'
 import { GeoJsonLayer, IconLayer, PolygonLayer } from '@deck.gl/layers'
@@ -24,6 +24,9 @@ import { captureMapControlImage, captureMapWithControl } from '@/utils/capture'
 import { exportPdf } from '@/utils/export-pdf'
 import { axiosInstance } from '@/api/core'
 import { findPointsInsideBoundary, findPolygonsInsideBoundary } from '@/utils/geometry'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { OptionType } from '@/components/pages/map-analyze/burnt-area/Main/SearchForm'
+import service from '@/api'
 
 interface MapDetailType {
 	details: Feature<Point | Polygon | MultiPolygon>[]
@@ -90,6 +93,11 @@ interface PrintMapExportMainProps {
 	loading?: boolean
 	disabled?: boolean
 	layers: any[]
+	selectedDateRange: Date[]
+	currentAdmOption: OptionType | null
+	mapTypeArray: string[]
+	selectedHotspots: hotspotTypeCode[]
+	repeat: number | null
 }
 
 const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
@@ -104,6 +112,11 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 	loading,
 	disabled = false,
 	layers,
+	selectedDateRange,
+	currentAdmOption,
+	mapTypeArray,
+	selectedHotspots,
+	repeat,
 }) => {
 	const { mapLibre, overlays } = useMapStore()
 	const { data: session } = useSession()
@@ -125,6 +138,37 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 	const overlayExport = useMemo(() => overlays[`${id}-${MAP_EXPORT}`], [id, overlays])
 	const miniMapExport = useMemo(() => mapLibre[`${id}-${MINI_MAP_EXPORT}`], [id, mapLibre])
 	const miniOverlayExport = useMemo(() => overlays[`${id}-${MINI_MAP_EXPORT}`], [id, overlays])
+
+	const {
+		data: printData,
+		isFetching: isPrintDataLoading,
+		refetch: refetchPrintData,
+	} = useQuery({
+		queryKey: [
+			'getPrintData',
+			selectedHotspots,
+			selectedDateRange,
+			currentAdmOption,
+			mapExtent,
+			repeat,
+			mapTypeArray,
+		],
+		queryFn: ({ signal }) => {
+			const params = {
+				inSugarcan: selectedHotspots,
+				startDate: selectedDateRange[0].toISOString().split('T')[0],
+				endDate: selectedDateRange[1].toISOString().split('T')[0],
+				admC: currentAdmOption?.id ? Number(currentAdmOption.id) : undefined,
+				polygon: mapExtent ? JSON.stringify(mapExtent ?? '') : '',
+				repeat: repeat,
+				mapType: mapTypeArray,
+			}
+
+			return service.mapAnalyze.getPrintInfo(params, { signal })
+		},
+		enabled: openPrintMapDialog,
+		placeholderData: keepPreviousData,
+	})
 
 	// map event
 	useEffect(() => {
@@ -180,9 +224,10 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 					ymin: bound.getSouth(),
 					ymax: bound.getNorth(),
 				})
+				refetchPrintData()
 			})
 		}
-	}, [mapExport, id, mapData])
+	}, [mapExport, id, mapData, refetchPrintData])
 
 	// initial map zoom
 	useEffect(() => {
@@ -436,6 +481,7 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 				handleMapPdfExport={handleMapPdfExport}
 				handleMapCsvExport={handleMapCsvExport}
 				onClose={() => setOpenPrintMapDialog(false)}
+				mapData={printData?.data}
 			/>
 		</Box>
 	)

@@ -25,6 +25,7 @@ import { BurntMapExportParamType } from '@/components/pages/map-analyze/burnt-ar
 import { PlantMapExportParamType } from '@/components/pages/map-analyze/planting-area/Main/PlantMap'
 import { defaultNumber } from '@/utils/text'
 import { formatDate } from '@/utils/date'
+import { GetPrintInfoBurntDtoOut } from '@interface/dto/brunt-area/brunt-area.dto.out'
 
 interface PrintMapDialogProps {
 	className?: string
@@ -42,6 +43,7 @@ interface PrintMapDialogProps {
 	handleMapPdfExport: () => Promise<void>
 	handleMapCsvExport: () => Promise<void>
 	onClose: () => void
+	mapData: GetPrintInfoBurntDtoOut
 }
 
 const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
@@ -60,6 +62,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 	handleMapPdfExport,
 	handleMapCsvExport,
 	onClose,
+	mapData,
 }) => {
 	const { basemap } = useMapStore()
 	const { areaUnit } = useAreaUnit()
@@ -312,9 +315,12 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 													'max-lg:!text-sm': !isFixedLegend,
 												})}
 											>
-												{item === mapTypeCode.hotspots
-													? `${defaultNumber(mapDetail.hotspots.details.length)} ${t('common:point')}`
-													: `${defaultNumber(mapDetail[item as mapTypeCode].details.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
+												{item === mapTypeCode.hotspots &&
+													`${defaultNumber(mapData?.hotspot || 0)} ${t('common:point')}`}
+												{item === mapTypeCode.burnArea &&
+													`${defaultNumber(mapData?.burnArea[areaUnit] || 0)} ${t('common:' + areaUnit)}`}
+												{item === mapTypeCode.plant &&
+													`${defaultNumber(mapData?.plant[areaUnit] || 0)} ${t('common:' + areaUnit)}`}
 											</Typography>
 										</Box>
 									)
@@ -343,9 +349,12 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 													'max-lg:!text-sm': !isFixedLegend,
 												})}
 											>
-												{item === yieldMapTypeCode.product
-													? `${defaultNumber(mapDetail.product.details.reduce((total, item) => total + (item.properties?.volumn?.[quantityUnit] ?? 0), 0))} ${t('common:' + quantityUnit)}`
-													: `${defaultNumber(mapDetail[item as yieldMapTypeCode].details.reduce((total, item) => total + (item.properties?.area?.[areaUnit] ?? 0), 0))} ${t('common:' + areaUnit)}`}
+												{item === yieldMapTypeCode.plant &&
+													`${defaultNumber(mapData?.plant[areaUnit] || 0)} ${t('common:' + areaUnit)}`}
+												{item === yieldMapTypeCode.product &&
+													`${defaultNumber(mapData?.product[quantityUnit] || 0)} ${t('common:' + quantityUnit)}`}
+												{item === yieldMapTypeCode.repeat &&
+													`${defaultNumber(mapData?.repeat[areaUnit] || 0)} ${t('common:' + areaUnit)}`}
 											</Typography>
 										</Box>
 									)
@@ -358,7 +367,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 
 			return <></>
 		},
-		[mapDetail, id, mapLegendArray, quantityUnit, areaUnit, t],
+		[mapDetail, id, mapLegendArray, quantityUnit, areaUnit, t, mapData],
 	)
 
 	return (

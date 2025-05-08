@@ -537,6 +537,11 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					mapExportParam={burntMapExportParam}
 					disabled={isRegionLoading}
 					layers={printLayers}
+					selectedDateRange={selectedDateRange}
+					currentAdmOption={currentAdmOption}
+					mapTypeArray={mapTypeArray}
+					selectedHotspots={selectedHotspots}
+					repeat={null}
 				/>
 
 				<MapView mapId={BURNT_MAP_ID} loading={isRegionLoading} />
