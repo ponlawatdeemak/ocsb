@@ -327,148 +327,151 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 		[plantingMap, plantingOverlay, popup],
 	)
 
+	const plantLayer = useMemo(() => {
+		const options = {
+			id: 'plant',
+			beforeId: 'custom-referer-layer',
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${plantDateRound.sDate}&cls_edate=${plantDateRound.eDate}&round=${plantDateRound.round}&admC=${currentAdmOption?.id ?? ''}`,
+			// loadOptions: { fetch: fetchWithRetry },
+			getFillColor: [139, 182, 45, 180],
+			getLineColor: [139, 182, 45, 180],
+			getLineWidth: 1,
+			stroked: true,
+			filled: true,
+			pickable: true,
+			visible: isVisiblePlant,
+			updateTriggers: { data: [session?.user.accessToken], visible: [isVisiblePlant] },
+		} as any
+		const printOptions = { ...options, id: 'print-plant' }
+		return [new MVTLayer(options), new MVTLayer(printOptions)]
+	}, [plantDateRound, isVisiblePlant, session?.user.accessToken, currentAdmOption])
+
+	const productLayer = useMemo(() => {
+		const options = {
+			id: 'product',
+			beforeId: 'custom-referer-layer',
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${plantDateRound.sDate}&cls_edate=${plantDateRound.eDate}&round=${plantDateRound.round}&admC=${currentAdmOption?.id ?? ''}`,
+			lineWidthMinPixels: 1,
+			stroked: true,
+			filled: true,
+			pickable: true,
+			visible: isVisibleProduct,
+			updateTriggers: { data: [session?.user.accessToken], visible: [isVisibleProduct] },
+			getFillColor: (d: any) => {
+				const value = d.properties.yield_mean_ton_rai
+				if (value > 15) {
+					return [0, 52, 145, 180]
+				} else if (value >= 10 && value <= 15) {
+					return [29, 178, 64, 180]
+				} else if (value >= 5 && value < 10) {
+					return [240, 233, 39, 180]
+				} else if (value < 5) {
+					return [255, 149, 0, 180]
+				} else {
+					return [0, 0, 0, 0]
+				}
+			},
+			getLineColor: (d: any) => {
+				const value = d.properties.yield_mean_ton_rai
+				if (value > 15) {
+					return [0, 52, 145, 180]
+				} else if (value >= 10 && value <= 15) {
+					return [29, 178, 64, 180]
+				} else if (value >= 5 && value < 10) {
+					return [240, 233, 39, 180]
+				} else if (value < 5) {
+					return [255, 149, 0, 180]
+				} else {
+					return [0, 0, 0, 0]
+				}
+			},
+		} as any
+		const printOptions = { ...options, id: 'print-product' }
+		return [new MVTLayer(options), new MVTLayer(printOptions)]
+	}, [isVisibleProduct, session?.user.accessToken, plantDateRound, currentAdmOption])
+
+	const factoryLayer = useMemo(() => {
+		const options = {
+			id: 'factory',
+			beforeId: 'custom-referer-layer',
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_factory/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
+
+			pickable: true,
+			visible: isVisibleFactory,
+			updateTriggers: {
+				data: [session?.user.accessToken],
+				visible: [isVisibleFactory],
+				getFilterValue: [checkAdmCondition],
+			},
+			pointType: 'icon',
+			iconAtlas: getPinFactory(),
+			iconMapping: { marker: { width: 35, height: 35, mask: false } },
+			sizeScale: 1,
+			getIconSize: 35,
+			getIcon: () => 'marker',
+			extensions: [new DataFilterExtension({ filterSize: 1 })],
+			getFilterValue: (item: any) => {
+				if (!checkAdmCondition(item)) {
+					return 0
+				}
+				return 1
+			},
+			filterRange: [1, 1],
+		} as any
+		const printOptions = { ...options, id: 'factory-burnt' }
+		return [new MVTLayer(options), new MVTLayer(printOptions)]
+	}, [checkAdmCondition, isVisibleFactory, session?.user.accessToken])
+
+	const repeatLayer = useMemo(() => {
+		const options = {
+			id: 'replant',
+			beforeId: 'custom-referer-layer',
+			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_repeat_area/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${replantDateRound.sDate}&cls_edate=${replantDateRound.eDate}&round=${replantDateRound.round}&admC=${currentAdmOption?.id ?? ''}&repeat=${selectedRepeatArea?.id ?? ''}`,
+			pickable: true,
+			stroked: true,
+			filled: true,
+			lineWidthMinPixels: 1,
+			getFillColor: [255, 255, 255],
+			getLineColor: [255, 255, 255],
+			fillPatternMask: true,
+			fillPatternAtlas: '/images/map/pattern.png',
+			fillPatternMapping: { pattern: { x: 4, y: 4, width: 120, height: 120, mask: true } },
+			getFillPattern: () => 'pattern',
+			getFillPatternScale: 1,
+			getFillPatternOffset: [0, 0],
+			extensions: [new FillStyleExtension({ pattern: true })],
+			visible: isVisibleRepeat,
+			updateTriggers: { data: [session?.user.accessToken], visible: [isVisibleRepeat] },
+		} as any
+		const printOptions = { ...options, id: 'print-replant' }
+		return [new MVTLayer(options), new MVTLayer(printOptions)]
+	}, [session?.user.accessToken, isVisibleRepeat, replantDateRound, selectedRepeatArea, currentAdmOption])
+
+	const mainLayers = useMemo(
+		() => [plantLayer[0], productLayer[0], factoryLayer[0], repeatLayer[0]],
+		[plantLayer, productLayer, factoryLayer, repeatLayer],
+	)
+
+	const printLayers = useMemo(
+		() => [plantLayer[1], productLayer[1], factoryLayer[1], repeatLayer[1]],
+		[plantLayer, productLayer, factoryLayer, repeatLayer],
+	)
+
 	// update layer
 	useEffect(() => {
-		if (!plantingOverlay) {
-			return
+		if (plantingOverlay) {
+			plantingOverlay.setProps({ layers: mainLayers })
 		}
-		//#region deck.gl layer
-		const layers = [
-			new MVTLayer({
-				id: 'plant',
-				beforeId: 'custom-referer-layer',
-				data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${plantDateRound.sDate}&cls_edate=${plantDateRound.eDate}&round=${plantDateRound.round}&admC=${currentAdmOption?.id ?? ''}`,
-				getFillColor: [139, 182, 45, 180],
-				getLineColor: [139, 182, 45, 180],
-				getLineWidth: 1,
-				stroked: true,
-				filled: true,
-				pickable: true,
-				visible: isVisiblePlant,
-				updateTriggers: { data: [session?.user.accessToken], visible: [isVisiblePlant] },
-			}),
-			new MVTLayer({
-				id: 'product',
-				beforeId: 'custom-referer-layer',
-				data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${plantDateRound.sDate}&cls_edate=${plantDateRound.eDate}&round=${plantDateRound.round}&admC=${currentAdmOption?.id ?? ''}`,
-				lineWidthMinPixels: 1,
-				stroked: true,
-				filled: true,
-				pickable: true,
-				visible: isVisibleProduct,
-				updateTriggers: { data: [session?.user.accessToken], visible: [isVisibleProduct] },
-				getFillColor: (d: any) => {
-					const value = d.properties.yield_mean_ton_rai
-					if (value > 15) {
-						return [0, 52, 145, 180]
-					} else if (value >= 10 && value <= 15) {
-						return [29, 178, 64, 180]
-					} else if (value >= 5 && value < 10) {
-						return [240, 233, 39, 180]
-					} else if (value < 5) {
-						return [255, 149, 0, 180]
-					} else {
-						return [0, 0, 0, 0]
-					}
-				},
-				getLineColor: (d: any) => {
-					const value = d.properties.yield_mean_ton_rai
-					if (value > 15) {
-						return [0, 52, 145, 180]
-					} else if (value >= 10 && value <= 15) {
-						return [29, 178, 64, 180]
-					} else if (value >= 5 && value < 10) {
-						return [240, 233, 39, 180]
-					} else if (value < 5) {
-						return [255, 149, 0, 180]
-					} else {
-						return [0, 0, 0, 0]
-					}
-				},
-			}),
-			new MVTLayer({
-				id: 'replant',
-				beforeId: 'custom-referer-layer',
-				data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_repeat_area/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${plantDateRound.sDate}&cls_edate=${plantDateRound.eDate}&round=${plantDateRound.round}&admC=${currentAdmOption?.id ?? ''}&repeat=${selectedRepeatArea?.id ?? ''}`,
-				pickable: true,
-				stroked: true,
-				filled: true,
-				lineWidthMinPixels: 1,
-				getFillColor: [255, 255, 255],
-				getLineColor: [255, 255, 255],
-				fillPatternMask: true,
-				fillPatternAtlas: '/images/map/pattern.png',
-				fillPatternMapping: {
-					pattern: {
-						x: 4,
-						y: 4,
-						width: 120,
-						height: 120,
-						mask: true,
-					},
-				},
-				getFillPattern: () => 'pattern',
-				getFillPatternScale: 1,
-				getFillPatternOffset: [0, 0],
-				extensions: [new FillStyleExtension({ pattern: true })],
-				visible: isVisibleRepeat,
-				updateTriggers: {
-					data: [session?.user.accessToken],
-					visible: [isVisibleRepeat],
-				},
-			}),
-			new MVTLayer({
-				id: 'factory',
-				beforeId: 'custom-referer-layer',
-				data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_factory/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
-				pickable: true,
-				visible: isVisibleFactory,
-				updateTriggers: {
-					data: [session?.user.accessToken],
-					visible: [isVisibleFactory],
-					getFilterValue: [checkAdmCondition],
-				},
-				pointType: 'icon',
-				iconAtlas: getPinFactory(),
-				iconMapping: {
-					marker: { width: 35, height: 35, mask: false },
-				},
-				sizeScale: 1,
-				getIconSize: 35,
-				getIcon: () => 'marker',
-				extensions: [new DataFilterExtension({ filterSize: 1 })],
-				getFilterValue: (item: any) => {
-					if (!checkAdmCondition(item)) {
-						return 0
-					}
-					return 1
-				},
-				filterRange: [1, 1],
-			}),
-		]
+	}, [plantingOverlay, mainLayers])
 
-		plantingOverlay.setProps({
-			layers: [layers],
-			onClick: onMapClick,
-			getCursor: (state) => (state.isHovering ? 'pointer' : 'default'),
-		})
-		//#endregion
-	}, [
-		onMapClick,
-		plantingOverlay,
-		selectedDateRange,
-		selectedRepeatArea,
-		session?.user.accessToken,
-		currentAdmOption,
-		mapTypeArray,
-		checkAdmCondition,
-		plantDateRound,
-		replantDateRound,
-		isVisiblePlant,
-		isVisibleProduct,
-		isVisibleRepeat,
-		isVisibleFactory,
-	])
+	useEffect(() => {
+		if (plantingOverlay) {
+			plantingOverlay.setProps({
+				onClick: onMapClick,
+				getCursor: (state) => (state.isHovering ? 'pointer' : 'default'),
+			})
+		}
+	}, [onMapClick, plantingOverlay])
 
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen((prev) => !prev)
@@ -597,12 +600,8 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					defaultMiniMapExtent={miniMapExtent}
 					mapGeometry={plantMapGeometry}
 					mapExportParam={plantMapExportParam}
-					disabled={
-						// isPlantYieldAreaDataLoading ||
-						// isProductYieldAreaDataLoading ||
-						// isReplantYieldAreaDataLoading ||
-						isRegionLoading
-					}
+					disabled={isRegionLoading}
+					layers={printLayers}
 				/>
 
 				<MapView

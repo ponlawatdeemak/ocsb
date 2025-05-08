@@ -89,6 +89,7 @@ interface PrintMapExportMainProps {
 	mapGeometry: number[][] | null
 	loading?: boolean
 	disabled?: boolean
+	layers: any[]
 }
 
 const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
@@ -102,6 +103,7 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 	mapGeometry,
 	loading,
 	disabled = false,
+	layers,
 }) => {
 	const { mapLibre, overlays } = useMapStore()
 	const { data: session } = useSession()
@@ -199,133 +201,10 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 	}, [miniMapExport])
 
 	useEffect(() => {
-		if (mapExport && overlayExport) {
-			if (id === 'burnt' && mapData.type === 'burnt') {
-				const layers = [
-					new GeoJsonLayer({
-						id: 'plant-export',
-						beforeId: 'custom-referer-layer',
-						data: mapData.plantBurntAreaData as any,
-						pickable: true,
-						stroked: true,
-						filled: true,
-						lineWidthMinPixels: 1,
-						getPolygon: (d: any) => d.geometry.coordinates,
-						getFillColor: () => [139, 182, 45, 180],
-						getLineColor: () => [139, 182, 45, 180],
-					}),
-
-					new GeoJsonLayer({
-						id: 'burnt-export',
-						beforeId: 'custom-referer-layer',
-						data: mapData.burntBurntAreaData as any,
-						pickable: true,
-						stroked: true,
-						filled: true,
-						lineWidthMinPixels: 1,
-						getPolygon: (d: any) => d.geometry.coordinates,
-						getFillColor: () => [255, 204, 0, 180],
-						getLineColor: () => [255, 204, 0, 180],
-					}),
-					new IconLayer({
-						id: 'hotspot-export',
-						beforeId: 'custom-referer-layer',
-						data: mapData.hotspotBurntAreaData,
-						pickable: true,
-						sizeScale: 1,
-						getPosition: (d) => d.geometry.coordinates,
-						getSize: 14,
-						getIcon: () => ({ url: getPinHotSpot(), width: 14, height: 14, mask: false }),
-					}),
-				]
-
-				overlayExport.setProps({ layers: [layers] })
-			} else if (id === 'plant' && mapData.type === 'plant') {
-				const layers = [
-					new GeoJsonLayer({
-						id: 'plant-export',
-						beforeId: 'custom-referer-layer',
-						data: mapData.plantYieldAreaData as any,
-						pickable: true,
-						stroked: true,
-						filled: true,
-						lineWidthMinPixels: 1,
-						getPolygon: (d: any) => d.geometry.coordinates,
-						getFillColor: () => [138, 182, 45, 180],
-						getLineColor: () => [138, 182, 45, 180],
-					}),
-
-					new GeoJsonLayer({
-						id: 'product-export',
-						beforeId: 'custom-referer-layer',
-						data: mapData.productYieldAreaData as any,
-						pickable: true,
-						stroked: true,
-						filled: true,
-						lineWidthMinPixels: 1,
-						getPolygon: (d: any) => d.geometry.coordinates,
-						getFillColor: (d: any) => {
-							if (d.properties.product.ton.rai > 15) {
-								return [0, 52, 145, 180]
-							} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
-								return [29, 178, 64, 180]
-							} else if (d.properties.product.ton.rai >= 5 && d.properties.product.ton.rai < 10) {
-								return [240, 233, 39, 180]
-							} else if (d.properties.product.ton.rai < 5) {
-								return [255, 149, 0, 180]
-							} else {
-								return [0, 0, 0, 0]
-							}
-						},
-						getLineColor: (d: any) => {
-							if (d.properties.product.ton.rai > 15) {
-								return [0, 52, 145, 180]
-							} else if (d.properties.product.ton.rai >= 10 && d.properties.product.ton.rai <= 15) {
-								return [29, 178, 64, 180]
-							} else if (d.properties.product.ton.rai >= 5 && d.properties.product.ton.rai < 10) {
-								return [240, 233, 39, 180]
-							} else if (d.properties.product.ton.rai < 5) {
-								return [255, 149, 0, 180]
-							} else {
-								return [0, 0, 0, 0]
-							}
-						},
-					}),
-
-					new GeoJsonLayer({
-						id: 'replant-export',
-						beforeId: 'custom-referer-layer',
-						data: mapData.replantYieldAreaData as any,
-						pickable: true,
-						stroked: true,
-						filled: true,
-						lineWidthMinPixels: 1,
-						getPolygon: (d: any) => d.geometry.coordinates,
-						getFillColor: () => [255, 255, 255],
-						getLineColor: () => [255, 255, 255],
-
-						fillPatternMask: true,
-						fillPatternAtlas: '/images/map/pattern.png',
-						fillPatternMapping: {
-							pattern: {
-								x: 4,
-								y: 4,
-								width: 120,
-								height: 120,
-								mask: true,
-							},
-						},
-						getFillPattern: () => 'pattern',
-						getFillPatternScale: 1,
-						getFillPatternOffset: [0, 0],
-						extensions: [new FillStyleExtension({ pattern: true })],
-					}),
-				]
-
-				overlayExport.setProps({ layers: [layers] })
-			}
+		if (overlayExport) {
+			overlayExport.setProps({ layers: layers })
 		}
-	}, [mapExport, overlayExport, id, mapData])
+	}, [overlayExport, layers])
 
 	useEffect(() => {
 		if (miniMapExport && miniOverlayExport && miniMapExtent) {
@@ -525,12 +404,8 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 			<Tooltip
 				title={t('tools.export')}
 				componentsProps={{
-					tooltip: {
-						className: '!bg-white !text-xs !font-normal !text-black !px-3 !py-1.5',
-					},
-					arrow: {
-						className: '!text-white',
-					},
+					tooltip: { className: '!bg-white !text-xs !font-normal !text-black !px-3 !py-1.5' },
+					arrow: { className: '!text-white' },
 				}}
 				placement='left'
 				arrow

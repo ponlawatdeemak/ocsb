@@ -290,11 +290,11 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	)
 
 	const plantLayer = useMemo(() => {
-		return new MVTLayer({
+		const options = {
 			id: 'plant',
 			beforeId: 'custom-referer-layer',
 			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_yield_pred/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&cls_sdate=${plantDateRound.sDate}&cls_edate=${plantDateRound.eDate}&round=${plantDateRound.round}&admC=${currentAdmOption?.id ?? ''}`,
-			loadOptions: { fetch: fetchWithRetry },
+			// loadOptions: { fetch: fetchWithRetry },
 			getFillColor: [139, 182, 45, 180],
 			getLineColor: [139, 182, 45, 180],
 			getLineWidth: 1,
@@ -306,7 +306,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				data: [session?.user.accessToken],
 				visible: [isVisiblePlant],
 			},
-		})
+		} as any
+		const printOptions = { ...options, id: 'print-plant' }
+		return [new MVTLayer(options), new MVTLayer(printOptions)]
 	}, [plantDateRound, isVisiblePlant, session?.user.accessToken, currentAdmOption])
 
 	const burntLayer = useMemo(() => {
@@ -314,11 +316,11 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		dTemp.setHours(dTemp.getHours() + 7)
 		const dStart = dTemp.toISOString().split('T')[0]
 		const dEnd = dateEnd.toISOString().split('T')[0]
-		return new MVTLayer({
+		const options = {
 			id: 'burnt',
 			beforeId: 'custom-referer-layer',
 			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_ds_burn/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&detected_d_s=${dStart}&detected_d_e=${dEnd}&admC=${currentAdmOption?.id ?? ''}`,
-			loadOptions: { fetch: fetchWithRetry },
+			// loadOptions: { fetch: fetchWithRetry },
 			getFillColor: [255, 204, 0, 180],
 			getLineColor: [255, 204, 0, 180],
 			getLineWidth: 1,
@@ -330,15 +332,17 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				data: [session?.user.accessToken],
 				visible: [isVisibleBurnArea],
 			},
-		})
+		} as any
+		const printOptions = { ...options, id: 'print-burnt' }
+		return [new MVTLayer(options), new MVTLayer(printOptions)]
 	}, [isVisibleBurnArea, session?.user.accessToken, dateStart, dateEnd, currentAdmOption])
 
 	const factoryLayer = useMemo(() => {
-		return new MVTLayer({
+		const options = {
 			id: 'factory',
 			beforeId: 'custom-referer-layer',
 			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/sugarcane_ds_factory/{z}/{x}/{y}?accessToken=${session?.user.accessToken}`,
-			loadOptions: { fetch: fetchWithRetry },
+			// loadOptions: { fetch: fetchWithRetry },
 			pickable: true,
 			visible: isVisibleFactory,
 			updateTriggers: {
@@ -360,7 +364,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 				return 1
 			},
 			filterRange: [1, 1],
-		})
+		} as any
+		const printOptions = { ...options, id: 'print-factory' }
+		return [new MVTLayer(options), new MVTLayer(printOptions)]
 	}, [checkAdmCondition, isVisibleFactory, session?.user.accessToken])
 
 	const hotspotLayer = useMemo(() => {
@@ -370,11 +376,12 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		const dEnd = dateEnd.toISOString().split('T')[0]
 		const paramInSugarcane = isShowHotspotInSugarcane ? 1 : 0
 		const inSugarcane = isShowHotspotAll ? 'null' : paramInSugarcane
-		return new MVTLayer({
+
+		const options = {
 			id: 'hotspot',
 			beforeId: 'custom-referer-layer',
 			data: `${process.env.NEXT_PUBLIC_API_HOSTNAME_MIS}/tiles/fn_sugarcane_hotspot/{z}/{x}/{y}?accessToken=${session?.user.accessToken}&acq_date_s=${dStart}&acq_date_e=${dEnd}&admC=${currentAdmOption?.id ?? ''}&in_sugarcane=${inSugarcane}`,
-			loadOptions: { fetch: fetchWithRetry },
+			// loadOptions: { fetch: fetchWithRetry },
 			pickable: true,
 			pointType: 'icon',
 			visible: isVisibleHotspot,
@@ -385,7 +392,9 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 			iconAtlas: getPinHotSpot(),
 			iconMapping: { marker: { width: 14, height: 14, mask: false } },
 			minZoom: 5,
-		})
+		} as any
+		const printOptions = { ...options, id: 'print-hotspot' }
+		return [new MVTLayer(options), new MVTLayer(printOptions)]
 	}, [
 		session?.user.accessToken,
 		isVisibleHotspot,
@@ -406,14 +415,22 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 		}
 	}, [burntOverlay, onMapClick])
 
+	const mainLayers = useMemo(
+		() => [plantLayer[0], burntLayer[0], factoryLayer[0], hotspotLayer[0]],
+		[plantLayer, burntLayer, factoryLayer, hotspotLayer],
+	)
+
+	const printLayers = useMemo(
+		() => [plantLayer[1], burntLayer[1], factoryLayer[1], hotspotLayer[1]],
+		[plantLayer, burntLayer, factoryLayer, hotspotLayer],
+	)
+
 	// update layer
 	useEffect(() => {
 		if (burntOverlay) {
-			burntOverlay.setProps({
-				layers: [plantLayer, burntLayer, factoryLayer, hotspotLayer],
-			})
+			burntOverlay.setProps({ layers: mainLayers })
 		}
-	}, [plantLayer, burntLayer, factoryLayer, hotspotLayer, burntOverlay])
+	}, [burntOverlay, mainLayers])
 
 	const handleCurrentRegionToggle = useCallback(() => {
 		setIsCurrentRegionOpen((prev) => !prev)
@@ -518,23 +535,11 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 					defaultMiniMapExtent={miniMapExtent}
 					mapGeometry={burntMapGeometry}
 					mapExportParam={burntMapExportParam}
-					disabled={
-						// isHotspotBurntAreaDataLoading ||
-						// isBurntBurntAreaDataLoading ||
-						// isPlantBurntAreaDataLoading ||
-						isRegionLoading
-					}
+					disabled={isRegionLoading}
+					layers={printLayers}
 				/>
 
-				<MapView
-					mapId={BURNT_MAP_ID}
-					loading={
-						// isHotspotBurntAreaDataLoading ||
-						// isBurntBurntAreaDataLoading ||
-						// isPlantBurntAreaDataLoading ||
-						isRegionLoading
-					}
-				/>
+				<MapView mapId={BURNT_MAP_ID} loading={isRegionLoading} />
 
 				<div
 					ref={popupNode}
