@@ -9,7 +9,7 @@ import {
 	GetBurntBurntAreaDtoOut,
 	GetHotspotBurntAreaDtoOut,
 	GetPlantBurntAreaDtoOut,
-} from '@interface/dto/brunt-area/brunt-area.dto.out'
+} from '@interface/dto/burnt-area/burnt-area.dto.out'
 
 import { getPinFactory, getPinHotSpot } from '@/utils/pin'
 import { CountViewerIcon, RegionPinIcon } from '@/components/svg/AppIcon'

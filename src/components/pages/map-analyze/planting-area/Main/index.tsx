@@ -1,10 +1,8 @@
 import { Box } from '@mui/material'
 import classNames from 'classnames'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import PlantingMapMain, { PLANTING_MAP_ID } from './PlantMap'
 import { yieldMapTypeCode } from '@interface/config/app.config'
-import service from '@/api'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import useMapStore from '@/components/common/map/store/map'
 import SwipeableEdgeDrawer from './Drawer'
 import PlantingSearchFormMain, { OptionType } from './SearchForm'
@@ -31,79 +29,6 @@ export const PlantingAreaMain: React.FC<PlantingAreaMainProps> = ({ className = 
 	const [selectedRepeatArea, setSelectedRepeatArea] = useState<GetRepeatAreaLookupDtoOut>()
 
 	const [mapExtent, setMapExtent] = useState<number[][] | null>(null)
-
-	// const { data: plantYieldAreaData, isFetching: isPlantYieldAreaDataLoading } = useQuery({
-	// 	queryKey: ['plantYieldAreaData', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
-	// 	queryFn: ({ signal }) =>
-	// 		service.mapAnalyze.getPlantYieldArea(
-	// 			{
-	// 				startDate: selectedDateRange[0].toISOString().split('T')[0],
-	// 				endDate: selectedDateRange[1].toISOString().split('T')[0],
-	// 				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-	// 				polygon: JSON.stringify(mapExtent ?? ''),
-	// 			},
-	// 			{ signal },
-	// 		),
-	// 	enabled: !!mapTypeArray.includes(yieldMapTypeCode.plant) && (!!searchSelectedAdmOption?.id || !!mapExtent),
-	// 	placeholderData: keepPreviousData,
-	// })
-
-	// const { data: productYieldAreaData, isFetching: isProductYieldAreaDataLoading } = useQuery({
-	// 	queryKey: ['productYieldAreaData', mapTypeArray, selectedDateRange, searchSelectedAdmOption, mapExtent],
-	// 	queryFn: ({ signal }) =>
-	// 		service.mapAnalyze.getProductYieldArea(
-	// 			{
-	// 				startDate: selectedDateRange[0].toISOString().split('T')[0],
-	// 				endDate: selectedDateRange[1].toISOString().split('T')[0],
-	// 				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-	// 				polygon: JSON.stringify(mapExtent ?? ''),
-	// 			},
-	// 			{ signal },
-	// 		),
-	// 	enabled: !!mapTypeArray.includes(yieldMapTypeCode.product) && (!!searchSelectedAdmOption?.id || !!mapExtent),
-	// 	placeholderData: keepPreviousData,
-	// })
-
-	// const { data: replantYieldAreaData, isFetching: isReplantYieldAreaDataLoading } = useQuery({
-	// 	queryKey: ['replantYieldAreaData', selectedRepeatArea, selectedDateRange, searchSelectedAdmOption, mapExtent],
-	// 	queryFn: ({ signal }) =>
-	// 		service.mapAnalyze.getReplantYieldArea(
-	// 			{
-	// 				startDate: selectedDateRange[0].toISOString().split('T')[0],
-	// 				endDate: selectedDateRange[1].toISOString().split('T')[0],
-	// 				admC: searchSelectedAdmOption?.id ? Number(searchSelectedAdmOption.id) : undefined,
-	// 				polygon: JSON.stringify(mapExtent ?? ''),
-	// 				repeat: selectedRepeatArea?.id,
-	// 			},
-	// 			{ signal },
-	// 		),
-	// 	enabled: !!selectedRepeatArea && (!!searchSelectedAdmOption?.id || !!mapExtent),
-	// 	placeholderData: keepPreviousData,
-	// })
-
-	// const mapDataPlant = useMemo(() => {
-	// 	if (mapTypeArray?.includes(yieldMapTypeCode.plant)) {
-	// 		return plantYieldAreaData?.data || []
-	// 	} else {
-	// 		return []
-	// 	}
-	// }, [mapTypeArray, plantYieldAreaData])
-
-	// const mapDataProduct = useMemo(() => {
-	// 	if (mapTypeArray?.includes(yieldMapTypeCode.product)) {
-	// 		return productYieldAreaData?.data || []
-	// 	} else {
-	// 		return []
-	// 	}
-	// }, [mapTypeArray, productYieldAreaData?.data])
-
-	// const mapDataReplant = useMemo(() => {
-	// 	if (selectedRepeatArea) {
-	// 		return replantYieldAreaData?.data || []
-	// 	} else {
-	// 		return []
-	// 	}
-	// }, [replantYieldAreaData?.data, selectedRepeatArea])
 
 	const toggleDrawer = useCallback((newOpen: boolean) => {
 		setOpenDrawer(newOpen)

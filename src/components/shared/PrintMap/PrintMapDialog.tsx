@@ -25,7 +25,7 @@ import { BurntMapExportParamType } from '@/components/pages/map-analyze/burnt-ar
 import { PlantMapExportParamType } from '@/components/pages/map-analyze/planting-area/Main/PlantMap'
 import { defaultNumber } from '@/utils/text'
 import { formatDate } from '@/utils/date'
-import { GetPrintInfoBurntDtoOut } from '@interface/dto/brunt-area/brunt-area.dto.out'
+import { GetPrintInfoBurntDtoOut } from '@interface/dto/burnt-area/burnt-area.dto.out'
 
 interface PrintMapDialogProps {
 	className?: string

@@ -3,7 +3,6 @@ import { APIService, ResponseDto } from '@/api/interface'
 import {
 	DeleteImageUserDtoOut,
 	DeleteUMDtoOut,
-	GetImageUserDtoOut,
 	GetUMDtoOut,
 	PostImageUserDtoOut,
 	PostImportCsvUMDtoOut,
@@ -15,7 +14,6 @@ import {
 import {
 	DeleteImageUserDtoIn,
 	DeleteUMDtoIn,
-	GetImageUserDtoIn,
 	GetUMDtoIn,
 	PostActiveUMDtoIn,
 	PostImageUserDtoIn,
@@ -46,9 +44,6 @@ const um = {
 		(await api.put(`/um/${userId}`, payload)).data,
 	deleteUM: async (payload: DeleteUMDtoIn): Promise<ResponseDto<DeleteUMDtoOut>> =>
 		await api.delete(`/um/${payload.userId}`),
-
-	getImage: async (payload: GetImageUserDtoIn): Promise<ResponseDto<GetImageUserDtoOut>> =>
-		(await api.get(`/um/img/${payload.userId}`)).data,
 	postImage: async (file: File, payload: PostImageUserDtoIn): Promise<ResponseDto<PostImageUserDtoOut>> => {
 		const formData = new FormData()
 		formData.append('file', file)
