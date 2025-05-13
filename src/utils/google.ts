@@ -114,7 +114,7 @@ export function createGoogleStyle(id: string, mapType: string, key: string): Sty
 		type: 'raster',
 		tiles: [`google://${mapType}/{z}/{x}/{y}?key=${key}`],
 		tileSize: 256,
-		attribution: '&copy; Google Maps',
+		attribution: `© Google, Map data ©${new Date().getFullYear()} Google`,
 		maxzoom: 19,
 	}
 	return style
