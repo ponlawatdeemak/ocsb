@@ -10,6 +10,7 @@ import { IconLayer } from '@deck.gl/layers'
 import { createGoogleStyle } from '@/utils/google'
 import MapTools from './tools'
 import { getPin } from '@/utils/pin'
+import Image from 'next/image'
 
 const CURRENT_LOCATION_ZOOM = 14
 
@@ -88,6 +89,16 @@ export function MapView({ children, mapId, loading, isInteractive = true }: Read
 				onGetLocation={onGetLocation}
 				currentBaseMap={basemap}
 			/>
+
+			{basemap === BasemapType.Google && (
+				<Image
+					src={'/images/map/google_on_non_white_hdpi.png'}
+					width={59}
+					height={18}
+					className={classNames('absolute bottom-[52px] left-[calc(50%-29.5px)] z-20 md:bottom-3')}
+					alt={`Google Logo`}
+				/>
+			)}
 			<MapLibre mapId={mapId} mapStyle={mapStyle} isInteractive={isInteractive} />
 
 			{children}
