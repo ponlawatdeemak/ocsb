@@ -25,6 +25,7 @@ import { BurntMapExportParamType } from '@/components/pages/map-analyze/burnt-ar
 import { PlantMapExportParamType } from '@/components/pages/map-analyze/planting-area/Main/PlantMap'
 import { defaultNumber } from '@/utils/text'
 import { formatDate } from '@/utils/date'
+import Image from 'next/image'
 
 interface PrintMapDialogProps {
 	className?: string
@@ -441,7 +442,6 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 												{formatDate(Date.now(), 'dd MMMM yyyy', language)}
 											</Typography>
 										</Box>
-
 										{mapDetailElement()}
 									</Box>
 
@@ -529,6 +529,17 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								{/* Map's legend */}
 								{mapLegendElement(true)}
 
+								{basemap === BasemapType.Google && (
+									<Image
+										src={'/images/map/google_on_non_white_hdpi.png'}
+										width={59}
+										height={18}
+										className={classNames(
+											'absolute bottom-[52px] left-[calc(50%-29.5px)] z-20 md:bottom-8',
+										)}
+										alt={`Google Logo`}
+									/>
+								)}
 								{gridElement}
 							</Box>
 							<Typography className='w-full flex-1 !text-2xs !leading-5 text-[#707070]'>
@@ -549,6 +560,18 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								<Box className='absolute right-[5px] top-[5px]'>
 									<MiniMapCompassIcon fill={basemap === BasemapType.CartoLight ? 'black' : 'white'} />
 								</Box>
+
+								{basemap === BasemapType.Google && (
+									<Image
+										src={'/images/map/google_on_non_white_hdpi.png'}
+										width={59}
+										height={18}
+										className={classNames(
+											'absolute bottom-[52px] left-[calc(50%-29.5px)] z-20 md:bottom-2',
+										)}
+										alt={`Google Logo`}
+									/>
+								)}
 							</Box>
 							<Box className='flex w-full flex-1 flex-col items-center justify-between gap-5 bg-[#E6E6E6] p-4'>
 								<Box className='flex w-full flex-1 flex-col gap-1.5'>
