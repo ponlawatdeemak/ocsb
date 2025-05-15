@@ -226,8 +226,13 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 						>
 							<Box className='flex shrink-0 items-center gap-1.5'>
 								<Image src={getPinFactory()} height={16} width={16} alt={t('sugarcaneFactory')} />
-
-								<Typography className='!text-2xs text-black'>{t('sugarcaneFactory')}</Typography>
+								<Typography
+									className={classNames('!text-2xs text-black', {
+										'max-sm:!text-[8px] max-sm:!leading-none': !isFixedLegend,
+									})}
+								>
+									{t('sugarcaneFactory')}
+								</Typography>
 							</Box>
 						</Box>
 					</Box>
