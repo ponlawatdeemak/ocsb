@@ -18,9 +18,18 @@ export interface MapViewProps extends PropsWithChildren {
 	mapId: string
 	loading?: boolean
 	isInteractive?: boolean
+	isPaddingGoogle?: boolean
+	isHideAttributionControl?: boolean
 }
 
-export function MapView({ children, mapId, loading, isInteractive = true }: Readonly<MapViewProps>) {
+export function MapView({
+	children,
+	mapId,
+	loading,
+	isInteractive = true,
+	isPaddingGoogle = false,
+	isHideAttributionControl = false,
+}: Readonly<MapViewProps>) {
 	const { getLayer, addLayer, removeLayer, mapLibre, basemap, setBasemap } = useMapStore()
 
 	const mapStyle = useMemo(() => {
@@ -95,11 +104,18 @@ export function MapView({ children, mapId, loading, isInteractive = true }: Read
 					src={'/images/map/google_on_non_white_hdpi.png'}
 					width={59}
 					height={18}
-					className={classNames('absolute bottom-[52px] left-[calc(50%-29.5px)] z-20 md:bottom-3')}
+					className={classNames(
+						`absolute bottom-[52px] z-20 md:bottom-3 ${isPaddingGoogle ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
+					)}
 					alt={`Google Logo`}
 				/>
 			)}
-			<MapLibre mapId={mapId} mapStyle={mapStyle} isInteractive={isInteractive} />
+			<MapLibre
+				mapId={mapId}
+				mapStyle={mapStyle}
+				isInteractive={isInteractive}
+				isHideAttributionControl={isHideAttributionControl}
+			/>
 
 			{children}
 		</div>

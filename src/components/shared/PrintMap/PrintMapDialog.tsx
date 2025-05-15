@@ -411,7 +411,11 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 											},
 										)}
 									>
-										<MapView mapId={`${id}-${MAP_EXPORT}`} />
+										<MapView
+											mapId={`${id}-${MAP_EXPORT}`}
+											isPaddingGoogle={mapLegendArray.length >= 4 ? true : false}
+											isHideAttributionControl={true}
+										/>
 									</Box>
 
 									{/* Map's legend */}
@@ -432,7 +436,11 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 										id={`${id}-mini-map-export-container`}
 										className='flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:!mr-[5px] [&_.maplibregl-compact]:!box-border [&_.maplibregl-compact]:flex [&_.maplibregl-compact]:!h-4 [&_.maplibregl-compact]:!min-h-0 [&_.maplibregl-compact]:items-center [&_.maplibregl-compact]:!pr-4 [&_.maplibregl-ctrl-attrib-button]:!h-4 [&_.maplibregl-ctrl-attrib-button]:!w-4 [&_.maplibregl-ctrl-attrib-button]:!bg-contain [&_.maplibregl-ctrl-attrib-inner]:mr-1 [&_.maplibregl-ctrl-attrib-inner]:text-[6px] [&_.maplibregl-ctrl-scale]:hidden'
 									>
-										<MapView mapId={`${id}-${MINI_MAP_EXPORT}`} isInteractive={false} />
+										<MapView
+											mapId={`${id}-${MINI_MAP_EXPORT}`}
+											isInteractive={false}
+											isHideAttributionControl={true}
+										/>
 									</Box>
 
 									<Box className='absolute right-[5px] top-[5px]'>
@@ -544,7 +552,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 										width={59}
 										height={18}
 										className={classNames(
-											'absolute bottom-[52px] left-[calc(50%-29.5px)] z-20 md:bottom-8',
+											`absolute bottom-[52px] z-20 md:bottom-8 ${mapLegendArray.length >= 4 ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
 										)}
 										alt={`Google Logo`}
 									/>
@@ -576,7 +584,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 										width={59}
 										height={18}
 										className={classNames(
-											'absolute bottom-[52px] left-[calc(50%-29.5px)] z-20 md:bottom-2',
+											`absolute bottom-[52px] z-20 md:bottom-2 ${mapLegendArray.length >= 4 ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
 										)}
 										alt={`Google Logo`}
 									/>
