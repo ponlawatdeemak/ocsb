@@ -92,28 +92,25 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 						{mapLegendArray.map((mapLegend) => {
 							return (
 								<Box key={mapLegend.key} className='flex shrink-0 items-center gap-1.5'>
-									{mapLegend.type === mapTypeCode.burnArea ? (
-										<Box
-											className={classNames('h-2 w-3 bg-[#F9B936]', {
-												'max-sm:h-1 max-sm:w-2': !isFixedLegend,
-											})}
-										></Box>
-									) : (
-										<Box
-											className={classNames('h-3 w-3 rounded-full', {
-												'max-sm:h-2 max-sm:w-2': !isFixedLegend,
-												'bg-[#FF0000]': mapLegend.type === mapTypeCode.hotspots,
-												'bg-[#8AB62D]': mapLegend.type === mapTypeCode.plant,
-											})}
-										></Box>
+									{mapLegend.type === mapTypeCode.hotspots && (
+										<Box className={'h-3 w-3 rounded-full bg-[#FF0000]'}></Box>
 									)}
-									<Typography
-										className={classNames('!text-2xs text-black', {
-											'max-sm:!text-[8px] max-sm:!leading-none': !isFixedLegend,
-										})}
-									>
-										{mapLegend.title}
-									</Typography>
+									{mapLegend.type === mapTypeCode.burnArea && (
+										<Box className='h-2 w-3 bg-[#F9B936]'></Box>
+									)}
+									{mapLegend.type === mapTypeCode.plant && (
+										<Box className={'h-3 w-3 rounded-full bg-[#8AB62D]'}></Box>
+									)}
+									{mapLegend.type === mapTypeCode.factory && (
+										<Image
+											src={getPinFactory()}
+											height={16}
+											width={16}
+											alt={t('sugarcaneFactory')}
+										/>
+									)}
+
+									<Typography className='!text-2xs text-black'>{mapLegend.title}</Typography>
 								</Box>
 							)
 						})}
