@@ -27,6 +27,7 @@ import { defaultNumber } from '@/utils/text'
 import { formatDate } from '@/utils/date'
 import { GetPrintInfoBurntDtoOut } from '@interface/dto/burnt-area/burnt-area.dto.out'
 import Image from 'next/image'
+import { getPinFactory } from '@/utils/pin'
 
 interface PrintMapDialogProps {
 	className?: string
@@ -220,6 +221,17 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 									'max-sm:!text-[8px] max-sm:!leading-none': !isFixedLegend,
 								})}
 							>{`${t('replantingArea')} ${mapExportParam.selectedRepeatArea?.name ?? '-'} ${t('common:year')}`}</Typography>
+						</Box>
+						<Box
+							className={classNames('hidden shrink-0 items-center gap-1.5', {
+								'!flex': mapExportParam.mapTypeArray.includes(yieldMapTypeCode.factory),
+							})}
+						>
+							<Box className='flex shrink-0 items-center gap-1.5'>
+								<Image src={getPinFactory()} height={16} width={16} alt={t('sugarcaneFactory')} />
+
+								<Typography className='!text-2xs text-black'>{t('sugarcaneFactory')}</Typography>
+							</Box>
 						</Box>
 					</Box>
 				)
