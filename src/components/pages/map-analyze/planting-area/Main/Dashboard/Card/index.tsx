@@ -14,6 +14,7 @@ import useQuantityUnit from '@/store/quantity-unit'
 import { AreaUnitKey, QuantityUnitKey } from '@/enum'
 import { SelectedArea } from '../..'
 import useResponsive from '@/hook/responsive'
+import { format } from 'date-fns'
 
 interface PlantingCardMainProps {
 	handleClickDelete: () => void
@@ -49,8 +50,8 @@ const PlantingCardMain: React.FC<PlantingCardMainProps> = ({
 		queryKey: ['getDashBoardYieldArea', area.admOption, mapTypeArray, selectedDateRange, area.id],
 		queryFn: async () => {
 			const response = await service.mapAnalyze.getDashBoardYieldArea({
-				startDate: selectedDateRange[0]?.toISOString().split('T')[0],
-				endDate: selectedDateRange[1]?.toISOString().split('T')[0],
+				startDate: format(selectedDateRange[0], 'yyyy-MM-dd'),
+				endDate: format(selectedDateRange[1], 'yyyy-MM-dd'),
 				admC: area.admOption?.id ? Number(area.admOption.id) : undefined,
 				mapType: mapTypeArray,
 			})
