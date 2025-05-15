@@ -80,7 +80,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 				return (
 					<Box
 						className={classNames(
-							'z-1 absolute bottom-8 left-8 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3',
+							'absolute bottom-8 left-8 z-10 flex items-center gap-2 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3',
 							{
 								'!hidden': mapLegendArray.length === 0,
 								'max-lg:bottom-[22px] max-lg:left-[22px] max-sm:pl-[5px] max-sm:pr-[7px]':
@@ -122,7 +122,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 				return (
 					<Box
 						className={classNames(
-							'z-1 absolute bottom-8 left-8 flex max-w-[calc(100%-68px)] items-center gap-3 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3',
+							'absolute bottom-8 left-8 z-10 flex max-w-[calc(100%-68px)] items-center gap-3 overflow-auto rounded-[5px] bg-white py-1 pl-2 pr-3',
 							{
 								'!hidden':
 									mapExportParam.mapTypeArray.length === 0 &&
@@ -552,7 +552,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 										width={59}
 										height={18}
 										className={classNames(
-											`absolute bottom-[52px] z-20 md:bottom-8 ${mapLegendArray.length >= 4 ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
+											`absolute bottom-[52px] z-[] md:bottom-8 ${mapLegendArray.length >= 4 ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
 										)}
 										alt={`Google Logo`}
 									/>
@@ -584,7 +584,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 										width={59}
 										height={18}
 										className={classNames(
-											`absolute bottom-[52px] z-20 md:bottom-2 ${mapLegendArray.length >= 4 ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
+											`absolute bottom-[52px] left-[calc(50%-29.5px)] z-[9] md:bottom-2`,
 										)}
 										alt={`Google Logo`}
 									/>
