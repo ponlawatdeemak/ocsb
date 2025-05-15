@@ -154,19 +154,21 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 			mapTypeArray,
 		],
 		queryFn: ({ signal }) => {
-			const params = {
-				inSugarcan: selectedHotspots,
-				startDate: selectedDateRange[0].toISOString().split('T')[0],
-				endDate: selectedDateRange[1].toISOString().split('T')[0],
-				admC: currentAdmOption?.id ? Number(currentAdmOption.id) : undefined,
-				polygon: mapExtent ? JSON.stringify(mapExtent ?? '') : '',
-				repeat: repeat,
-				mapType: mapTypeArray,
-			}
+			if (mapExtent?.length) {
+				const params = {
+					inSugarcan: selectedHotspots,
+					startDate: selectedDateRange[0].toISOString().split('T')[0],
+					endDate: selectedDateRange[1].toISOString().split('T')[0],
+					admC: currentAdmOption?.id ? Number(currentAdmOption.id) : undefined,
+					polygon: mapExtent ? JSON.stringify(mapExtent ?? '') : '',
+					repeat: repeat,
+					mapType: mapTypeArray,
+				}
 
-			return service.mapAnalyze.getPrintInfo(params, { signal })
+				return service.mapAnalyze.getPrintInfo(params, { signal })
+			}
 		},
-		enabled: openPrintMapDialog,
+		enabled: openPrintMapDialog && !!mapExtent?.length,
 		placeholderData: keepPreviousData,
 	})
 
