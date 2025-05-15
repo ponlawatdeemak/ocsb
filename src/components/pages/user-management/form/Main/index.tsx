@@ -21,7 +21,7 @@ interface UserManagementFormMainProps {
 
 export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = () => {
 	const router = useRouter()
-	const { data: session } = useSession()
+	const { data: session, update } = useSession()
 	const searchParams = useSearchParams()
 	const { t } = useTranslation(['common', 'um'])
 	const [alertUMFormInfo, setAlertUMFormInfo] = useState<AlertInfoType>({
@@ -155,6 +155,10 @@ export const UserManagementFormMain: React.FC<UserManagementFormMainProps> = () 
 					await service.um.deleteImage(imagePayload)
 				}
 
+				if (userId === session?.user.userId) {
+					const response = await service.profile.getProfile()
+					update(response.data)
+				}
 				setAlertUMFormInfo({
 					open: true,
 					severity: 'success',
