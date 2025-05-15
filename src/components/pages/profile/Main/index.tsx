@@ -115,6 +115,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 					email: values.email,
 					role: values.role as RolesEntity,
 					regions: values.regions as RegionsEntity[],
+					img: values.image ? undefined : null,
 				})
 
 				if (values.image && typeof values.image !== 'string') {
@@ -153,7 +154,7 @@ export const ProfileMain: React.FC<ProfileMainProps> = ({ className = '' }) => {
 	const setProfile = useCallback(
 		(profileData: GetProfileDtoOut) => {
 			formik.setValues({
-				image: profileData.userId ? getUserImage(profileData.userId) : '',
+				image: profileData.userId && profileData.hasImage ? getUserImage(profileData.userId) : '',
 				firstName: profileData?.firstName,
 				lastName: profileData?.lastName,
 				position: profileData?.position?.positionId,

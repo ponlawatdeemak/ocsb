@@ -34,6 +34,7 @@ import { MVTLayer } from '@deck.gl/geo-layers'
 import { getPinFactory } from '@/utils/pin'
 import { getRound } from '@/utils/date'
 import { addDays, endOfDay, endOfMonth, formatISO, subMonths } from 'date-fns'
+import Image from 'next/image'
 
 export interface MapPlantDataType {
 	type: 'plant'
@@ -504,6 +505,11 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					type = yieldMapTypeCode.repeat
 					title = t('replantingArea')
 					break
+				case yieldMapTypeCode.factory:
+					key = yieldMapTypeCode.factory
+					type = yieldMapTypeCode.factory
+					title = t('sugarcaneFactory')
+					break
 			}
 			return { key, type, title }
 		})
@@ -589,6 +595,17 @@ const PlantingMapMain: React.FC<PlantingMapMainProps> = ({
 					>
 						<Box className='h-3 w-3 rotate-[45deg] rounded-full bg-[repeating-linear-gradient(to_right,#8AB62D_0px,#8AB62D_1px,#ffffff_1px,#ffffff_2px)]'></Box>
 						<Typography className='!text-2xs text-black'>{`${t('replantingArea')} ${selectedRepeatArea?.name ?? '-'} ${t('common:year')}`}</Typography>
+					</Box>
+					<Box
+						className={classNames('hidden shrink-0 items-center gap-1.5', {
+							'!flex': mapTypeArray.includes(yieldMapTypeCode.factory),
+						})}
+					>
+						<Box className='flex shrink-0 items-center gap-1.5'>
+							<Image src={getPinFactory()} height={16} width={16} alt={t('sugarcaneFactory')} />
+
+							<Typography className='!text-2xs text-black'>{t('sugarcaneFactory')}</Typography>
+						</Box>
 					</Box>
 				</Box>
 
