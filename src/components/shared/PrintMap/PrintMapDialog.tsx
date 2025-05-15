@@ -561,12 +561,12 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								{mapLegendElement(true)}
 
 								{basemap === BasemapType.Google && (
-									<Image
+									<img
 										src={'/images/map/google_on_non_white_hdpi.png'}
 										width={59}
 										height={18}
 										className={classNames(
-											`absolute bottom-2 z-[9] md:bottom-8 ${mapLegendArray.length >= 4 ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
+											`absolute bottom-8 z-[9] md:bottom-8 ${mapLegendArray.length >= 4 ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
 										)}
 										alt={`Google Logo`}
 									/>
@@ -593,7 +593,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 								</Box>
 
 								{basemap === BasemapType.Google && (
-									<Image
+									<img
 										src={'/images/map/google_on_non_white_hdpi.png'}
 										width={59}
 										height={18}
