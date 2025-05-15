@@ -105,7 +105,7 @@ export function MapView({
 					width={59}
 					height={18}
 					className={classNames(
-						`absolute bottom-[52px] z-[9] md:bottom-3 ${isPaddingGoogle ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
+						`absolute bottom-2 z-[9] md:bottom-3 ${isPaddingGoogle ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
 					)}
 					alt={`Google Logo`}
 				/>

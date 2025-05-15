@@ -561,7 +561,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 										width={59}
 										height={18}
 										className={classNames(
-											`absolute bottom-[52px] z-[] md:bottom-8 ${mapLegendArray.length >= 4 ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
+											`absolute bottom-2 z-[9] md:bottom-8 ${mapLegendArray.length >= 4 ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'}`,
 										)}
 										alt={`Google Logo`}
 									/>
@@ -593,7 +593,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 										width={59}
 										height={18}
 										className={classNames(
-											`absolute bottom-[52px] left-[calc(50%-29.5px)] z-[9] md:bottom-2`,
+											`absolute bottom-2 left-[calc(50%-29.5px)] z-[9] md:bottom-2`,
 										)}
 										alt={`Google Logo`}
 									/>
