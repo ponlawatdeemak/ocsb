@@ -56,6 +56,7 @@ const MapLibre: FC<MapLibreProps> = ({ mapId, mapStyle, isInteractive = true, is
 
 			const attributionControl = new maplibregl.AttributionControl({
 				compact: true, // ขอให้มันเริ่มแบบ compact
+				customAttribution: `<a href="https://maplibre.org" target="_blank"><span> MapLibre </span></a>`,
 			})
 			map.addControl(attributionControl, 'bottom-right')
 			if (isHideAttributionControl) {
