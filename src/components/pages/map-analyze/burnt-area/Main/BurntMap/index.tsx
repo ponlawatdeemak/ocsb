@@ -31,7 +31,7 @@ import PrintMapExportMain, {
 	LONGITUDE_OFFSET,
 	MapLegendType,
 } from '@/components/shared/PrintMap'
-import { endOfDay, startOfDay } from 'date-fns'
+import { endOfDay, format, startOfDay } from 'date-fns'
 import { getRound } from '@/utils/date'
 import Image from 'next/image'
 import { MVTLayer } from '@deck.gl/geo-layers'
@@ -314,8 +314,8 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const burntLayer = useMemo(() => {
 		let dTemp = new Date(dateStart.toISOString())
 		dTemp.setHours(dTemp.getHours() + 7)
-		const dStart = dTemp.toISOString().split('T')[0]
-		const dEnd = dateEnd.toISOString().split('T')[0]
+		const dStart = format(dTemp, 'yyyy-MM-dd')
+		const dEnd = format(dateEnd, 'yyyy-MM-dd')
 		const options = {
 			id: 'burnt',
 			beforeId: 'custom-referer-layer',
@@ -372,8 +372,8 @@ const BurntMapMain: React.FC<BurntMapMainProps> = ({
 	const hotspotLayer = useMemo(() => {
 		let dTemp = new Date(dateStart.toISOString())
 		dTemp.setHours(dTemp.getHours() + 7)
-		const dStart = dTemp.toISOString().split('T')[0]
-		const dEnd = dateEnd.toISOString().split('T')[0]
+		const dStart = format(dTemp, 'yyyy-MM-dd')
+		const dEnd = format(dateEnd, 'yyyy-MM-dd')
 		const paramInSugarcane = isShowHotspotInSugarcane ? 1 : 0
 		const inSugarcane = isShowHotspotAll ? 'null' : paramInSugarcane
 

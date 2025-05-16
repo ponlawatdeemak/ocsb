@@ -15,6 +15,7 @@ import { useQuery } from '@tanstack/react-query'
 import { SelectedArea } from '../..'
 import useResponsive from '@/hook/responsive'
 import HotspotLineChart from '../Chart/HotspotLineChart'
+import { format } from 'date-fns'
 
 interface DashboardCardMainProps {
 	handleClickDelete: () => void
@@ -71,8 +72,8 @@ const DashboardCardMain: React.FC<DashboardCardMainProps> = ({
 		queryKey: ['getDashBoardBurntArea', area.admOption, mapTypeArray, selectedHotspots, selectedDateRange, area.id],
 		queryFn: async () => {
 			const response = await service.mapAnalyze.getDashBoardBurntArea({
-				startDate: selectedDateRange[0]?.toISOString().split('T')[0],
-				endDate: selectedDateRange[1]?.toISOString().split('T')[0],
+				startDate: format(selectedDateRange[0], 'yyyy-MM-dd'),
+				endDate: format(selectedDateRange[1], 'yyyy-MM-dd'),
 				admC: area.admOption?.id ? Number(area.admOption?.id) : undefined,
 				mapType: mapTypeArray,
 				inSugarcan: selectedHotspots,

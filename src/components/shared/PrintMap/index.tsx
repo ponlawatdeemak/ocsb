@@ -27,6 +27,7 @@ import { findPointsInsideBoundary, findPolygonsInsideBoundary } from '@/utils/ge
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { OptionType } from '@/components/pages/map-analyze/burnt-area/Main/SearchForm'
 import service from '@/api'
+import { format } from 'date-fns'
 
 interface MapDetailType {
 	details: Feature<Point | Polygon | MultiPolygon>[]
@@ -157,8 +158,8 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 			if (mapExtent?.length) {
 				const params = {
 					inSugarcan: selectedHotspots,
-					startDate: selectedDateRange[0].toISOString().split('T')[0],
-					endDate: selectedDateRange[1].toISOString().split('T')[0],
+					startDate: format(selectedDateRange[0], 'yyyy-MM-dd'),
+					endDate: format(selectedDateRange[1], 'yyyy-MM-dd'),
 					admC: currentAdmOption?.id ? Number(currentAdmOption.id) : undefined,
 					polygon: mapExtent ? JSON.stringify(mapExtent ?? '') : '',
 					repeat: repeat,
@@ -405,9 +406,9 @@ const PrintMapExportMain: React.FC<PrintMapExportMainProps> = ({
 
 		query.append('accessToken', session?.user.accessToken ?? '')
 		if (mapExportParam.selectedDateRange[0])
-			query.append('startDate', mapExportParam.selectedDateRange[0].toISOString().split('T')[0])
+			query.append('startDate', format(mapExportParam.selectedDateRange[0], 'yyyy-MM-dd'))
 		if (mapExportParam.selectedDateRange[1])
-			query.append('endDate', mapExportParam.selectedDateRange[1].toISOString().split('T')[0])
+			query.append('endDate', format(mapExportParam.selectedDateRange[1], 'yyyy-MM-dd'))
 		if (mapExportParam.currentAdmOption !== null) query.append('admC', mapExportParam.currentAdmOption.id)
 		if (areaUnit !== null) query.append('area', areaUnit)
 		if (quantityUnit !== null) query.append('weight', quantityUnit)
