@@ -417,7 +417,7 @@ const PrintMapDialog: React.FC<PrintMapDialogProps> = ({
 									<Box
 										id={`${id}-map-export-container`}
 										className={classNames(
-											'flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:!box-border [&_.maplibregl-compact]:flex [&_.maplibregl-compact]:!h-4 [&_.maplibregl-compact]:!min-h-0 [&_.maplibregl-compact]:items-center [&_.maplibregl-compact]:!pr-4 [&_.maplibregl-ctrl-attrib-button]:!h-4 [&_.maplibregl-ctrl-attrib-button]:!w-4 [&_.maplibregl-ctrl-attrib-button]:!bg-contain [&_.maplibregl-ctrl-attrib-inner]:mr-1 [&_.maplibregl-ctrl-attrib-inner]:text-[8px] [&_.maplibregl-ctrl-attrib-inner]:leading-3 [&_.maplibregl-ctrl-bottom-right]:!z-[0] [&_.maplibregl-ctrl-scale]:!mb-0',
+											'flex h-full w-full [&_.map-tools]:hidden [&_.maplibregl-compact]:!box-border [&_.maplibregl-compact]:flex [&_.maplibregl-compact]:!h-4 [&_.maplibregl-compact]:!min-h-0 [&_.maplibregl-compact]:items-center [&_.maplibregl-compact]:!pr-4 [&_.maplibregl-ctrl-attrib-button]:!h-4 [&_.maplibregl-ctrl-attrib-button]:!w-4 [&_.maplibregl-ctrl-attrib-button]:!bg-contain [&_.maplibregl-ctrl-attrib-inner]:mr-1 [&_.maplibregl-ctrl-attrib-inner]:text-[6px] [&_.maplibregl-ctrl-attrib-inner]:leading-3 [&_.maplibregl-ctrl-bottom-right]:!z-[0] [&_.maplibregl-ctrl-scale]:!mb-0',
 											{
 												'[&_.maplibregl-ctrl-bottom-right]:max-sm:!mb-[22px]': id === 'burnt',
 												'[&_.maplibregl-compact]:!mb-[42px] [&_.maplibregl-ctrl-bottom-right]:max-sm:!bottom-[-10px]':

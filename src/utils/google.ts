@@ -114,7 +114,7 @@ export function createGoogleStyle(id: string, mapType: string, key: string): Sty
 		type: 'raster',
 		tiles: [`google://${mapType}/{z}/{x}/{y}?key=${key}`],
 		tileSize: 256,
-		attribution: `© Google, Map data ©${new Date().getFullYear()} Google`,
+		attribution: `© Google, Map data ©${new Date().getFullYear()} Google <a href="http://www.google.com/intl/en/policies/terms" target="_blank"><span> Terms </span></a> <a href="http://www.google.com/policies/privacy" target="_blank"><span> Privacy </span></a>`,
 		maxzoom: 19,
 	}
 	return style
