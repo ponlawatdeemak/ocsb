@@ -5,6 +5,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import nextI18NextConfig from '../../../next-i18next.config'
 import AuthLayout from '@/components/layout/AuthLayout'
 import { ResetPasswordMain } from '@/components/pages/auth'
+import { useSearchParams } from 'next/navigation'
 
 export const getServerSideProps: GetServerSideProps = async (context) => ({
 	props: {
@@ -17,9 +18,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => ({
 })
 
 const ResetPasswordPage = () => {
+	const searchParams = useSearchParams()
+	const token = searchParams.get('token') ?? ''
+
 	return (
 		<AuthLayout>
-			<ResetPasswordMain />
+			<ResetPasswordMain token={token} />
 		</AuthLayout>
 	)
 }

@@ -1,1 +1,26 @@
-{}
+{
+	"productOverview": "Production Overview",
+	"productYear": "Production Year",
+	"hotspot": "Hotspot",
+	"burntScarArea": "Burnt Scar Area",
+	"sugarCaneArea": "Sugarcane Area",
+	"sugarCaneQuantity": "Sugarcane production",
+	"totalHotspot": "Total Hotspot",
+	"hotspotInArea": "Hotspot In Sugarcane Area",
+	"hotspotOutArea": "Hotspot Outside Sugarcane Area",
+	"burntScar": "Burnt Scar",
+	"sugarCaneYield": "Sugarcane Yield",
+	"sugarCaneYieldWithUnit1": "Sugarcane Yield",
+	"sugarCaneYieldWithUnit2": "(Tons/Rai)",
+	"tooltipYieldWithUnit": "Sugarcane Yield forecast for November of the production year",
+	"sugarCanePredict": "Sugarcane Prediction",
+	"threeYearPlant": "Repeated Sugarcane Cultivation Over 3 Years",
+	"titleInfo": "Projects include Saraburi, Phetchabun, Sa Kaeo and Khon Kaen",
+	"regionHotspot": "Hotspot amount in each region",
+	"allRegionHotspot": "Hotspot amount in all region",
+	"regionSugarCane": "Sugarcane amount in each region",
+	"allRegionSugarCane": "Sugarcane amount in all region",
+	"replant": "Repeated Sugarcane Cultivation",
+	"viewer": "Users",
+	"person": "persons"
+}

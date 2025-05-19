@@ -1,70 +1,42 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
-import React, { FC, memo, useCallback, useEffect } from 'react'
-import { Map, useControl } from 'react-map-gl/maplibre'
+import React, { FC, memo, useCallback, useEffect, useMemo } from 'react'
+import { AttributionControl, Map, ScaleControl, useControl } from 'react-map-gl/maplibre'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import useMapStore from './store/map'
-import { MapInterface } from './interface/map'
-import maplibregl, { MapLibreEvent, MapStyleDataEvent, StyleSpecification } from 'maplibre-gl'
+import maplibregl, { LngLatBoundsLike, MapLibreEvent, MapStyleDataEvent, StyleSpecification } from 'maplibre-gl'
 import { googleProtocol } from '@/utils/google'
-import { IconLayer } from '@deck.gl/layers'
-import { MVTLayer } from '@deck.gl/geo-layers'
-import { Layer } from '@deck.gl/core'
+import { useSession } from 'next-auth/react'
 
-export const recreateLayer = (layerList: Layer[]) => {
-	return layerList.map((item) => {
-		// const spliter = '---'
-		// let id = item.id?.split(spliter)?.[0] || ''
-		// id = `${id}${spliter}${new Date().getTime()}`
-		const newProp = {
-			...item.props,
-			// id,
-			beforeId: 'custom-referer-layer',
-		} as any
-
-		if (item instanceof IconLayer) {
-			newProp.data = item.props.data
-			return new IconLayer(newProp)
-		}
-
-		if (item instanceof MVTLayer) {
-			return new MVTLayer(newProp)
-		}
-		return item
-	})
+interface DeckGLOverlayProps {
+	mapId: string
 }
 
-const DeckGLOverlay: FC = () => {
-	const { layers } = useMapStore()
+const DeckGLOverlay: React.FC<DeckGLOverlayProps> = ({ mapId }) => {
 	const setOverlay = useMapStore((state) => state.setOverlay)
 	const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay({ interleaved: true }))
 
-	// set all layer to deck.gl instance
 	useEffect(() => {
 		if (overlay instanceof MapboxOverlay) {
-			const temp = recreateLayer(layers)
-			overlay.setProps({ layers: temp })
-		}
-	}, [layers, overlay])
-
-	useEffect(() => {
-		if (overlay instanceof MapboxOverlay) {
-			setOverlay(overlay)
+			setOverlay(mapId, overlay)
 		}
 		return () => {
 			overlay.finalize()
 		}
-	}, [overlay, setOverlay])
+	}, [overlay, setOverlay, mapId])
 
 	return null
 }
 
-interface MapLibreProps extends MapInterface {
+interface MapLibreProps {
+	mapId: string
 	mapStyle: string | StyleSpecification
+	isInteractive: boolean
+	isHideAttributionControl?: boolean
 }
 
-const MapLibre: FC<MapLibreProps> = ({ viewState, mapStyle }) => {
+const MapLibre: FC<MapLibreProps> = ({ mapId, mapStyle, isInteractive = true, isHideAttributionControl = false }) => {
 	const { setMapLibre } = useMapStore()
-
+	const { data: session } = useSession()
 	// initial google basemap style
 	useEffect(() => {
 		maplibregl.addProtocol('google', googleProtocol)
@@ -73,16 +45,28 @@ const MapLibre: FC<MapLibreProps> = ({ viewState, mapStyle }) => {
 	// remove map instance in context
 	useEffect(() => {
 		return () => {
-			setMapLibre(null)
+			setMapLibre(mapId, null)
 		}
-	}, [setMapLibre])
+	}, [setMapLibre, mapId])
 
 	const onLoad = useCallback(
 		(event: MapLibreEvent) => {
 			const map = event.target
-			setMapLibre(map)
+			setMapLibre(mapId, map)
+
+			const attributionControl = new maplibregl.AttributionControl({
+				compact: true, // ขอให้มันเริ่มแบบ compact
+				customAttribution: `<a href="https://maplibre.org" target="_blank"><span> MapLibre </span></a>`,
+			})
+			map.addControl(attributionControl, 'bottom-right')
+			if (isHideAttributionControl) {
+				;(attributionControl as any)._updateCompactMinimize()
+			}
+
+			const scaleControl = new maplibregl.ScaleControl()
+			map.addControl(scaleControl, 'bottom-right')
 		},
-		[setMapLibre],
+		[setMapLibre, mapId],
 	)
 
 	const onStyleData = (event: MapStyleDataEvent) => {
@@ -107,19 +91,31 @@ const MapLibre: FC<MapLibreProps> = ({ viewState, mapStyle }) => {
 		}
 	}
 
-	return (
+	const viewState = useMemo(() => {
+		return { bounds: session?.user?.geometry as LngLatBoundsLike, fitBoundsOptions: { padding: 100 } }
+	}, [session?.user?.geometry])
+
+	return session?.user?.geometry ? (
 		<Map
 			antialias
 			initialViewState={viewState}
 			mapStyle={mapStyle}
+			preserveDrawingBuffer={true}
 			onLoad={onLoad}
 			onStyleData={onStyleData}
+			interactive={isInteractive}
 			touchZoomRotate={true}
 			touchPitch={false}
-			dragRotate={false}
+			dragRotate={true}
+			maxPitch={0}
+			minPitch={0}
+			attributionControl={false}
 		>
-			<DeckGLOverlay />
+			{/* <ScaleControl position='bottom-right' /> */}
+			<DeckGLOverlay mapId={mapId} />
 		</Map>
+	) : (
+		<></>
 	)
 }
 

@@ -11,24 +11,18 @@ import { AreaUnitKey, Languages, QuantityUnitKey } from '@/enum'
 import useAreaUnit from '@/store/area-unit'
 import useQuantityUnit from '@/store/quantity-unit'
 import { ResponseLanguage } from '@/api/interface'
+import { UserRole } from '@interface/config/um.config'
+import { CurrentSettingType } from './AppBar'
 
 interface MenuListOnMobileProps {
-	selectedAreaUnit: AreaUnitKey
-	selectedQuantityUnit: QuantityUnitKey
-	currentLanguage: 'th' | 'en'
-	setSelectedAreaUnit: React.Dispatch<React.SetStateAction<AreaUnitKey>>
-	setSelectedQuantityUnit: React.Dispatch<React.SetStateAction<QuantityUnitKey>>
-	setCurrentLanguage: React.Dispatch<React.SetStateAction<'th' | 'en'>>
+	currentSetting: CurrentSettingType
+	setCurrentSetting: React.Dispatch<React.SetStateAction<CurrentSettingType>>
 	onCloseMenuDrawer: () => void
 }
 
 const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({
-	selectedAreaUnit,
-	selectedQuantityUnit,
-	currentLanguage,
-	setSelectedAreaUnit,
-	setSelectedQuantityUnit,
-	setCurrentLanguage,
+	currentSetting,
+	setCurrentSetting,
 	onCloseMenuDrawer,
 }) => {
 	const router = useRouter()
@@ -57,14 +51,21 @@ const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({
 		setOpenSettingDialog(false)
 	}, [])
 
+	const canAccess = useCallback(
+		(accessList: UserRole[]) => {
+			return session?.user?.role?.roleId ? accessList.includes(session.user.role.roleId) : false
+		},
+		[session?.user],
+	)
+
 	return (
 		<React.Fragment>
 			<List className='w-full !p-0' component='nav'>
 				{appMenuConfig.map((menu) =>
-					(menu.access?.length || 0) > 0 ? (
-						menu.access?.includes(session?.user.role ?? '') && (
+					menu.access?.length ? (
+						canAccess(menu.access) && (
 							<React.Fragment key={menu.id}>
-								{(menu.children?.length || 0) > 0 ? (
+								{(menu.children?.length ?? 0) > 0 ? (
 									<React.Fragment>
 										<ListItemButton
 											className='cursor-pointer !border-0 !border-b !border-solid !border-gray !p-2'
@@ -129,9 +130,11 @@ const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({
 							className='cursor-pointer !border-0 !border-b !border-solid !border-gray !p-2'
 							onClick={() => {
 								if (menu.id === 'Setting') {
-									setSelectedAreaUnit(areaUnit || AreaUnitKey.Rai)
-									setSelectedQuantityUnit(quantityUnit || QuantityUnitKey.Ton)
-									setCurrentLanguage(language || Languages.TH)
+									setCurrentSetting({
+										areaUnit: areaUnit || AreaUnitKey.Rai,
+										quantityUnit: quantityUnit || QuantityUnitKey.Ton,
+										language: language || Languages.TH,
+									})
 									setOpenSettingDialog(true)
 									setMapAnalyzeListOpen(false)
 								} else {
@@ -157,12 +160,8 @@ const MenuListOnMobile: React.FC<MenuListOnMobileProps> = ({
 
 			<SettingDialog
 				open={openSettingDialog}
-				selectedAreaUnit={selectedAreaUnit}
-				selectedQuantityUnit={selectedQuantityUnit}
-				currentLanguage={currentLanguage}
-				setSelectedAreaUnit={setSelectedAreaUnit}
-				setSelectedQuantityUnit={setSelectedQuantityUnit}
-				setCurrentLanguage={setCurrentLanguage}
+				currentSetting={currentSetting}
+				setCurrentSetting={setCurrentSetting}
 				onClose={() => handleCloseDialog()}
 			/>
 		</React.Fragment>

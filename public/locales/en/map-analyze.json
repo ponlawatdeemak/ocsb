@@ -1,1 +1,33 @@
-{}
+{
+	"totalHotspots": " Total Hotspots",
+	"hotspotInArea": "Hotspot In Sugarcane Area",
+	"hotspotOutArea": "Hotspot Outside Sugarcane Area",
+	"hotspotTotalArea": "Hotspot Total Sugarcane Area",
+	"addCompare": "Add Comparison Board",
+	"hideCompare": "Hide Comparison Board",
+	"compare": "Show Comparison Board",
+	"hotspotAndBurntAreaAnalysis": "Analysis of Hotspots and Burnt Areas",
+	"plantAreaAnalysis": "Analysis of Sugarcane Plantation Area",
+	"searchArea": "Search Area",
+	"hotspot": "Hotspots",
+	"burntScar": "Burnt Scar",
+	"plantingArea": "Sugarcane Plantation Area",
+	"noPlantingArea": "No Sugarcane Plantation Area",
+	"replantingArea": "Repeated Sugarcane Plantation",
+	"allRegions": "All Regions",
+	"popupBurnt": {
+		"date": "Date of detection",
+		"address": "Address",
+		"coordinates": "Coordinates",
+		"burntScar": "Burnt Scar",
+		"plantingArea": "Sugarcane Plantation Area"
+	},
+	"lessThan": "Less than",
+	"moreThan": "More than",
+	"sugarCaneYield": "Sugarcane Yield",
+	"avgSugarCaneYield": "Sugarcane Yield Average",
+	"noSugarCaneQuantity": "Non Sugarcane Quantity",
+	"barInSugarcane": "In Sugarcane",
+	"barOutSugarcane": "Out Sugarcane",
+	"sugarcaneFactory": "Sugarcane Factory"
+}

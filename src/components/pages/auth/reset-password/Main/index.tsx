@@ -1,31 +1,36 @@
 import AppLogo from '@/components/svg/AppLogo'
-import { Box, Link, Typography } from '@mui/material'
+import { Box, FormControl, IconButton, InputAdornment, Link, OutlinedInput, Typography } from '@mui/material'
 import classNames from 'classnames'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { APP_TITLE_EN, APP_TITLE_TH } from '../../../../../../webapp.config'
-import PasswordInput from '@/components/common/input/PasswordInput'
-import FormInput from '@/components/common/input/FormInput'
 import { AppPath } from '@/config/app.config'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useTranslation } from 'next-i18next'
 import * as yup from 'yup'
 import { useFormik } from 'formik'
 import { useMutation } from '@tanstack/react-query'
 import { ResponseDto } from '@/api/interface'
-import { ResetPasswordDtoOut } from '@/api/login/dto-out.dto'
 import { AxiosError } from 'axios'
-import { ResetPasswordDtoIn } from '@/api/login/dto-in.dto'
 import service from '@/api'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 import ActionButton from '@/components/common/button/ActionButton'
+import { useSession } from 'next-auth/react'
+import { passwordStore } from '../../context'
+import { ResetPasswordAuthDtoOut } from '@interface/dto/auth/auth.dto-out'
+import { ResetPasswordAuthDtoIn } from '@interface/dto/auth/auth.dto-in'
+import { CheckCircle } from '@mui/icons-material'
+import Icon from '@mdi/react'
+import { mdiEyeOffOutline, mdiEyeOutline } from '@mdi/js'
 
 interface ResetPasswordMainProps {
 	className?: string
+	token?: string
 }
 
-export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className = '' }) => {
+export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className = '', token }) => {
 	const router = useRouter()
-	const searchParams = useSearchParams()
+	const { status }: any = useSession()
+	const setDataForgetPassword = passwordStore((state) => state.setDataForgetPassword)
 	const { t } = useTranslation(['common', 'auth'])
 	const [busy, setBusy] = useState<boolean>(false)
 	const [alertResetPasswordInfo, setAlertResetPasswordInfo] = useState<AlertInfoType>({
@@ -34,73 +39,135 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 		message: '',
 	})
 
+	const [showNewPassword, setShowNewPassword] = useState<boolean>(false)
+	const [showConfirmNewPassword, setShowConfirmNewPassword] = useState<boolean>(false)
+
+	const verifyTokenChangePassword = useCallback(async () => {
+		try {
+			setBusy(true)
+			const responseVerify = await service.auth.verifyToken({ token: token ?? '' })
+			if (!responseVerify.data?.isValid) {
+				setDataForgetPassword({ isSuccess: false, type: 'token' })
+				router.push(AppPath.AuthStatus)
+			}
+			return
+		} catch (error) {
+			setDataForgetPassword({ isSuccess: false, type: 'token' })
+			router.push(AppPath.AuthStatus)
+		} finally {
+			setBusy(false)
+		}
+	}, [router, setDataForgetPassword, token])
+
+	useEffect(() => {
+		if (status !== 'loading') {
+			setBusy(true)
+			if (token) {
+				verifyTokenChangePassword()
+			} else {
+				setBusy(false)
+				router.push(AppPath.Overview)
+			}
+			setBusy(false)
+		}
+	}, [status, token, verifyTokenChangePassword, router])
+
 	const validationSchema = yup.object({
-		email: yup.string().required(),
-		password: yup
+		newPassword: yup
 			.string()
 			.required(t('auth:warning.inputNewPassword'))
 			.min(8, t('auth:warning.minPasswordCharacters'))
-			.matches(/^(?=.*\d)/, t('auth:warning.minPasswordNumber'))
-			.matches(/^(?=.*[a-z])/, t('auth:warning.minPasswordLowercaseLetter'))
 			.matches(/^(?=.*[A-Z])/, t('auth:warning.minPasswordUppercaseLetter'))
+			.matches(/^(?=.*[a-z])/, t('auth:warning.minPasswordLowercaseLetter'))
+			.matches(/^(?=.*\d)/, t('auth:warning.minPasswordNumber'))
 			.matches(/^(?=.*[!@#$%^&*()_+\-=[\]{};:\\|,.<>~/?])/, t('auth:warning.minPasswordSymbol')),
-		confirmPassword: yup
-			.string()
-			.required(t('auth:warning.inputConfirmPassword'))
-			.oneOf([yup.ref('password')], t('auth:warning.invalidPasswordMatch')),
-		confirmationCode: yup.string().required(t('auth:warning.inputVerificationCode')),
+		confirmNewPassword: yup.string(),
 	})
 
 	type ResetPasswordFormType = yup.InferType<typeof validationSchema>
 
-	const email = useMemo(() => {
-		const email = searchParams?.get('email')
-		const isEmail = yup.string().email().required().isValidSync(email)
-		if (!isEmail) return null
-		return email
-	}, [searchParams])
-
 	const { isPending, mutateAsync: mutateResetPassword } = useMutation<
-		ResponseDto<ResetPasswordDtoOut>,
+		ResponseDto<ResetPasswordAuthDtoOut>,
 		AxiosError,
-		ResetPasswordDtoIn,
+		ResetPasswordAuthDtoIn,
 		unknown
 	>({
-		mutationFn: service.login.resetPassword,
+		mutationFn: service.auth.resetPassword,
 	})
 
 	const onSubmit = useCallback(
 		async (values: ResetPasswordFormType) => {
 			try {
 				setBusy(true)
-				await mutateResetPassword(values)
+				if (values.newPassword !== values.confirmNewPassword) {
+					setAlertResetPasswordInfo({
+						open: true,
+						severity: 'error',
+						message: t('auth:error.invalidPasswordMatch'),
+					})
+					setTimeout(() => {
+						router.push(AppPath.Login)
+						setBusy(false)
+					}, 1500)
+					return
+				}
+				await mutateResetPassword({ token: token ?? '', newPassword: values.newPassword })
 				setAlertResetPasswordInfo({ open: true, severity: 'success', message: t('auth:success.resetPassword') })
 				setTimeout(() => {
 					router.push(AppPath.Login)
 					setBusy(false)
-				}, 3000)
+				}, 1500)
 			} catch (error) {
 				console.error('Reset password failed', error)
 				setAlertResetPasswordInfo({ open: true, severity: 'error', message: t('auth:error.resetPassword') })
-				setBusy(false)
+				setTimeout(() => {
+					router.push(AppPath.Login)
+					setBusy(false)
+				}, 1500)
 			}
 		},
-		[mutateResetPassword, router, t],
+		[mutateResetPassword, token, router, t],
 	)
 
 	const formik = useFormik<ResetPasswordFormType>({
 		initialValues: {
-			email: email ?? '',
-			password: '',
-			confirmPassword: '',
-			confirmationCode: '',
+			newPassword: '',
+			confirmNewPassword: '',
 		},
 		validationSchema: validationSchema,
 		onSubmit,
+		validateOnChange: true,
 	})
 
+	const passwordValidationRules = useMemo(() => {
+		return [
+			{ test: (value: string) => value.length >= 8, message: t('auth:warning.minPasswordCharacters') },
+			{
+				test: (value: string) => /^(?=.*[A-Z])/.test(value),
+				message: t('auth:warning.minPasswordUppercaseLetter'),
+			},
+			{
+				test: (value: string) => /^(?=.*[a-z])/.test(value),
+				message: t('auth:warning.minPasswordLowercaseLetter'),
+			},
+			{ test: (value: string) => /^(?=.*\d)/.test(value), message: t('auth:warning.minPasswordNumber') },
+			{
+				test: (value: string) => /^(?=.*[!@#$%^&*()_+\-=[\]{};:\\|,.<>~/?])/.test(value),
+				message: t('auth:warning.minPasswordSymbol'),
+			},
+		]
+	}, [t])
+
+	const handleClickShowNewPassword = useCallback(() => setShowNewPassword((show) => !show), [])
+
+	const handleClickShowConfirmNewPassword = useCallback(() => setShowConfirmNewPassword((show) => !show), [])
+
+	const handleMouseDownPassword = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault()
+	}, [])
+
 	return (
-		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5]', className)}>
+		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5] px-6', className)}>
 			<Box className='flex min-h-[412px] w-[466px] flex-col items-center gap-[18px] rounded-[20px] bg-white pt-6 shadow-[0_3px_6px_0_rgba(0,0,0,0.25)]'>
 				<Box className='flex items-center'>
 					<AppLogo />
@@ -110,39 +177,112 @@ export const ResetPasswordMain: React.FC<ResetPasswordMainProps> = ({ className 
 					</Box>
 				</Box>
 				<Box className='flex w-full flex-1 flex-col items-center gap-6 rounded-[20px] bg-primary pb-[50px] pt-[40px] shadow-[0_-3px_6px_0_rgba(0,0,0,0.15)]'>
-					<Typography className='!text-lg text-white'>{t('auth:login')}</Typography>
+					<Typography className='!text-lg text-white'>{t('auth:resetPassword')}</Typography>
 					<form onSubmit={formik.handleSubmit} className='flex w-[250px] flex-col items-center gap-5'>
 						<Box className='flex w-full flex-col items-center gap-3'>
-							<PasswordInput
-								disabled={isPending || busy}
-								name='password'
-								value={''}
-								formik={formik}
-								placeholder={t('auth:specifyPassword')}
-							/>
-							<PasswordInput
-								disabled={isPending || busy}
-								name='confirmPassword'
-								value={''}
-								formik={formik}
-								placeholder={t('auth:specifyConfirmPassword')}
-							/>
-							<FormInput
-								disabled={isPending || busy}
-								name='confirmationCode'
-								value={''}
-								formik={formik}
-								placeholder={t('auth:specifyVerificationCode')}
-							/>
+							<FormControl
+								fullWidth={true}
+								className={classNames(
+									'[&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white',
+									className,
+								)}
+							>
+								<OutlinedInput
+									id='newPassword-input'
+									className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
+									endAdornment={
+										<InputAdornment position='end'>
+											<IconButton
+												aria-label='toggle password visibility'
+												onClick={handleClickShowNewPassword}
+												onMouseDown={handleMouseDownPassword}
+												edge='end'
+											>
+												{showNewPassword ? (
+													<Icon path={mdiEyeOffOutline} size={1} />
+												) : (
+													<Icon path={mdiEyeOutline} size={1} />
+												)}
+											</IconButton>
+										</InputAdornment>
+									}
+									type={showNewPassword ? 'text' : 'password'}
+									name='newPassword'
+									size='small'
+									value={formik?.values['newPassword'] || ''}
+									onChange={formik?.handleChange}
+									error={formik?.touched['newPassword'] && Boolean(formik?.errors['newPassword'])}
+									disabled={isPending || busy}
+									placeholder={t('auth:specifyPassword')}
+								/>
+							</FormControl>
+							<FormControl
+								fullWidth={true}
+								className={classNames(
+									'[&_.MuiInputBase-root]:rounded-[5px] [&_.MuiInputBase-root]:bg-white',
+									className,
+								)}
+							>
+								<OutlinedInput
+									id='confirmNewPassword-input'
+									className='[&_input]:box-border [&_input]:h-[38px] [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm'
+									endAdornment={
+										<InputAdornment position='end'>
+											<IconButton
+												aria-label='toggle password visibility'
+												onClick={handleClickShowConfirmNewPassword}
+												onMouseDown={handleMouseDownPassword}
+												edge='end'
+											>
+												{showConfirmNewPassword ? (
+													<Icon path={mdiEyeOffOutline} size={1} />
+												) : (
+													<Icon path={mdiEyeOutline} size={1} />
+												)}
+											</IconButton>
+										</InputAdornment>
+									}
+									type={showConfirmNewPassword ? 'text' : 'password'}
+									name='confirmNewPassword'
+									size='small'
+									value={formik?.values['confirmNewPassword'] ?? ''}
+									onChange={formik?.handleChange}
+									error={
+										formik?.touched['confirmNewPassword'] &&
+										Boolean(formik?.errors['confirmNewPassword'])
+									}
+									disabled={isPending || busy}
+									placeholder={t('auth:specifyConfirmPassword')}
+								/>
+							</FormControl>
+						</Box>
+						<Box className='flex w-full flex-col gap-1'>
+							{passwordValidationRules.map((rule) => {
+								const isValid = rule.test(formik.values.newPassword)
+								return (
+									<Box
+										key={rule.message}
+										className={classNames('flex items-center gap-[5px] text-white', {
+											'!text-[#C5E71E]': isValid,
+										})}
+									>
+										<CheckCircle className='!h-[15px] !w-[15px]' />
+										<Typography className='!text-xs'>{rule.message}</Typography>
+									</Box>
+								)
+							})}
 						</Box>
 						<ActionButton
 							className='h-10 !rounded-[5px] !bg-secondary [&_.MuiBox-root]:text-sm [&_.MuiBox-root]:font-normal'
 							fullWidth
-							title={t('auth:resetPassword')}
+							title={t('auth:resetPasswordBtn')}
 							type='submit'
 							loading={isPending || busy}
 						/>
-						<Link className='!text-sm !text-white' onClick={() => router.push(AppPath.Login)}>
+						<Link
+							className='!text-sm !text-white hover:cursor-pointer'
+							onClick={() => router.push(AppPath.Login)}
+						>
 							{t('auth:returnLogin')}
 						</Link>
 					</form>

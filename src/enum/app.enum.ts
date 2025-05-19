@@ -1,12 +1,13 @@
 export enum AreaUnitKey {
-	Rai = 'areaRai',
-	LandPlot = 'areaPlot',
+	Sqm = 'm2',
+	Sqkm = 'km2',
+	Rai = 'rai',
+	Hexa = 'hexa',
 }
 
 export enum QuantityUnitKey {
 	Ton = 'ton',
-	Kilogram = 'kilogram',
-	Gram = 'gram',
+	Kilogram = 'kg',
 }
 
 export enum Languages {
@@ -15,6 +16,12 @@ export enum Languages {
 }
 
 export enum SortType {
-	ASC = 'asc',
-	DESC = 'desc',
+	ASC = 'ASC',
+	DESC = 'DESC',
+}
+
+export enum UserDialogMode {
+	UserProfile,
+	UserAdd,
+	UserEdit,
 }

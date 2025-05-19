@@ -1,4 +1,3 @@
-import { LoginDtoIn } from '@/api/login/dto-in.dto'
 import FormInput from '@/components/common/input/FormInput'
 import PasswordInput from '@/components/common/input/PasswordInput'
 import AppLogo from '@/components/svg/AppLogo'
@@ -14,6 +13,7 @@ import { useFormik } from 'formik'
 import { APP_TITLE_EN, APP_TITLE_TH } from '../../../../../../webapp.config'
 import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 import ActionButton from '@/components/common/button/ActionButton'
+import { LoginAuthDtoIn } from '@interface/dto/auth/auth.dto-in'
 
 interface LoginMainProps {
 	className?: string
@@ -34,18 +34,26 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 	const validationSchema = useMemo(
 		() =>
 			yup.object({
-				username: yup.string().required(t('auth:warning.inputEmail')),
-				password: yup.string().required(t('auth:warning.inputPassword')),
+				email: yup.string().max(255, t('auth:warning.maxInputEmail')),
+				password: yup.string(),
 			}),
 		[t],
 	)
 
 	const onSubmit = useCallback(
-		async (values: LoginDtoIn) => {
+		async (values: LoginAuthDtoIn) => {
+			if (!values.email) {
+				setAlertLoginInfo({ open: true, severity: 'error', message: t('auth:warning.inputEmail') })
+				return
+			}
+			if (!values.password) {
+				setAlertLoginInfo({ open: true, severity: 'error', message: t('auth:warning.inputPassword') })
+				return
+			}
 			try {
 				setBusy(true)
 				const res = await signIn('credentials', {
-					username: values.username,
+					email: values.email,
 					password: values.password,
 					redirect: false,
 				})
@@ -58,7 +66,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 				setTimeout(() => {
 					router.push(callbackUrl ?? AppPath.Overview)
 					setBusy(false)
-				}, 3000)
+				}, 1500)
 			} catch (error) {
 				console.error('Login failed', error)
 			}
@@ -66,9 +74,9 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 		[callbackUrl, router, t],
 	)
 
-	const formik = useFormik<LoginDtoIn>({
+	const formik = useFormik<LoginAuthDtoIn>({
 		initialValues: {
-			username: '',
+			email: '',
 			password: '',
 		},
 		validationSchema: validationSchema,
@@ -76,7 +84,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 	})
 
 	return (
-		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5]', className)}>
+		<Box className={classNames('flex h-full items-center justify-center bg-black/[0.5] px-6', className)}>
 			<Box className='flex min-h-[412px] w-[466px] flex-col items-center gap-[18px] rounded-[20px] bg-white pt-6 shadow-[0_3px_6px_0_rgba(0,0,0,0.25)]'>
 				<Box className='flex items-center'>
 					<AppLogo />
@@ -91,10 +99,11 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 						<Box className='flex w-full flex-col items-center gap-3'>
 							<FormInput
 								disabled={busy}
-								name='username'
+								name='email'
 								value={''}
 								formik={formik}
 								placeholder={t('auth:userName')}
+								inputProps={{ maxLength: 255 }}
 							/>
 							<PasswordInput
 								disabled={busy}
@@ -105,7 +114,7 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 							/>
 						</Box>
 						<Link
-							className='!mt-2 self-end !text-xs !text-white'
+							className='!mt-2 self-end !text-xs !text-white hover:cursor-pointer'
 							onClick={() => router.push(AppPath.ForgetPassword)}
 						>
 							{t('auth:forgotPassword')}
@@ -118,9 +127,6 @@ export const LoginMain: React.FC<LoginMainProps> = ({ className = '' }) => {
 							loading={busy}
 						/>
 					</form>
-					<Link className='!text-sm !text-white' onClick={() => router.push(AppPath.Overview)}>
-						{t('back')}
-					</Link>
 				</Box>
 			</Box>
 

@@ -2,22 +2,67 @@
 	"menu": {
 		"overview": "ภาพรวม",
 		"mapAnalyze": "แผนที่",
-		"burntArea": "การวิเคราะห์จุดความร้อน และร่องรอยการเผาไหม้ในพื้นที่",
-		"cultivationArea": "การวิเคราะห์พื้นที่ปลูกอ้อย",
+		"burntArea": "จุดความร้อน",
+		"plantingArea": "พื้นที่ปลูกอ้อย",
 		"about": "เกี่ยวกับเรา",
 		"glossary": "อภิธานศัพท์",
 		"setting": "ตั้งค่า",
 		"userManagement": "จัดการผู้ใช้งาน"
 	},
 
+	"tools": {
+		"compass": "เข็มทิศ",
+		"zoom": "ซูมเข้า /ซูมออก",
+		"basemap": "แผนที่ฐาน",
+		"extent": "กลับไปตำแหน่งเริ่มต้น",
+		"current": "กลับไปตำแหน่งปัจจุบัน",
+		"measurement": "การวัดระยะ",
+		"export": "พิมพ์แผนที่"
+	},
+
+	"measurement": {
+		"title": "การวัดพื้นที่",
+		"unitTitle": "หน่วย",
+		"lengthTitle": "ระยะทาง",
+		"areaTitle": "พื้นที่",
+		"line": {
+			"meters": "เมตร",
+			"kilometers": "กิโลเมตร"
+		},
+		"polygon": {
+			"squareMeters": "ตร.ม.",
+			"squareKilometers": "ตร.กม."
+		}
+	},
+
+	"calendar": {
+		"dateBtn": "เลือกวันที่",
+		"monthBtn": "รายเดือน",
+		"lastSevenDayBtn": "7 วันล่าสุด",
+		"lastThirtyDayBtn": "30 วันล่าสุด",
+		"lastThreeMonthBtn": "3 เดือนล่าสุด",
+		"selectedDate": "วันที่เลือก:",
+		"prevYearBtn": "ปีก่อนหน้า",
+		"nextYearBtn": "ปีถัดไป",
+		"resetBtn": "ล้างค่า",
+		"confirmBtn": "ตกลง",
+		"currentDate": "วันที่ปัจจุบัน",
+		"burntDate": "วันที่เกิดร่องรอยการเผาไหม้",
+		"errorMaxMonth": "ไม่สามารถเลือกช่วงเวลาเกิน 12 เดือนได้"
+	},
+
 	"areaUnit": "หน่วยพื้นที่",
-	"areaRai": "ไร่",
-	"areaPlot": "แปลง",
+	"m2": "ตร.ม.",
+	"km2": "ตร.กม.",
+	"rai": "ไร่",
+	"hexa": "เฮกตาร์",
 
 	"quantityUnit": "หน่วยปริมาณ",
 	"ton": "ตัน",
-	"kilogram": "กิโลกรัม",
-	"gram": "กรัม",
+	"kg": "กิโลกรัม",
+
+	"total": "ทั้งหมด",
+	"point": "จุด",
 
 	"languages": "ภาษา",
 	"languagesTh": "ไทย",
@@ -25,10 +70,48 @@
 
 	"login": "เข้าสู่ระบบ",
 	"logout": "ออกจากระบบ",
+	"profile": "ข้อมูลผู้ใช้งาน",
 	"back": "ย้อนกลับ",
 	"save": "บันทึก",
+	"confirm": "ยืนยัน",
+	"cancel": "ยกเลิก",
+	"close": "ปิด",
+	"delete": "ลบรายการ",
+	"deleteMsg": "คุณต้องการลบรายการนี้หรือไม่",
+
+	"typing": "พิมพ์คำค้นหา",
+	"noData": "ไม่พบข้อมูล",
 
 	"error": {
 		"somethingWrong": "เกิดข้อผิดพลาด กรุณาตรวจสอบข้อมูลอีกครั้ง"
+	},
+
+	"required": "กรุณาระบุ",
+	"requiredDate": "กรุณาระบุวันที่",
+	"clear": "ล้างข้อมูล",
+	"placeholder": {
+		"input": "ระบุ",
+		"autocomplete": "เลือก"
+	},
+
+	"area": "พื้นที่",
+	"month": "เดือน",
+	"year": "ปี",
+	"quantity": "ปริมาณ",
+	"region": "ภูมิภาค",
+	"currentRegion": "ภูมิภาคสอน.",
+
+	"processing": "กำลังประมวลผล",
+	"submit": "ตกลง",
+	"and": "และ",
+	"mapDisplayData": "แผนที่แสดงข้อมูล",
+	"date": "วันที่",
+	"location": {
+		"default": "เกิดข้อผิดพลาด",
+		"permissionDenied": "ไม่ได้รับอนุญาต จำเป็นต้องเข้าถึงตำแหน่ง",
+		"positionUnavailable": "ข้อมูลตำแหน่งไม่พร้อมใช้งาน",
+		"timeout": "คำขอรับตำแหน่งผู้ใช้หมดเวลา",
+		"locationDenied": "ปฏิเสธการเข้าถึงตำแหน่ง",
+		"locationBrowser": "ปฏิเสธการเข้าถึงตำแหน่ง โปรดเปิดใช้งานการอนุญาตตำแหน่งในการตั้งค่าเบราว์เซอร์ของคุณเพื่อใช้ฟีเจอร์นี้"
 	}
 }

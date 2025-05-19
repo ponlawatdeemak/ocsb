@@ -16,18 +16,10 @@ const APIConfigs: { [key: string]: APIConfigType } = {
 		baseURL: process.env.NEXT_PUBLIC_API_HOSTNAME_TILE ?? '',
 		apiKey: process.env.NEXT_PUBLIC_API_KEY_TILE ?? '',
 	},
-	[APIService.AuthAPI]: {
-		baseURL: process.env.NEXT_PUBLIC_API_HOSTNAME_AUTH ?? '',
-		apiKey: process.env.NEXT_PUBLIC_API_KEY_AUTH ?? '',
-	},
 }
-
-let _apiAccessToken: string | null = null
-export const getApiAccessToken = () => _apiAccessToken
 
 let apiRefreshToken: string | null = null
 let _apiAccessType: 'Guest' | 'Login' = 'Guest'
-export const getApiAccessType = () => _apiAccessType
 
 let apiUserId: string | null = null
 
@@ -75,10 +67,17 @@ const getConfig = (service: APIService, config: AxiosRequestConfig<any> | undefi
 	},
 })
 
-export const refreshAccessToken = async () => {
-	const res = await service.login.refreshToken({ userId: apiUserId ?? '', refreshToken: apiRefreshToken ?? '' })
-	const newAccessToken = res?.tokens?.accessToken === '' ? undefined : res?.tokens?.accessToken
-	const newRefreshToken = res?.tokens?.refreshToken === '' ? undefined : res?.tokens?.refreshToken
+export const refreshAccessToken = async (refreshToken?: string) => {
+	const token = refreshToken ?? apiRefreshToken
+	if (!token) {
+		throw new Error()
+	}
+	const res = await service.auth.refreshToken({ refreshToken: token })
+	if (!res) {
+		throw new Error()
+	}
+	const newAccessToken = res?.data?.accessToken === '' ? undefined : res?.data?.accessToken
+	const newRefreshToken = res?.data?.refreshToken === '' ? undefined : res?.data?.refreshToken
 	updateAccessToken({ accessToken: newAccessToken, refreshToken: newRefreshToken, accessType: 'Login' })
 	return { accessToken: newAccessToken, refreshToken: newRefreshToken }
 }
@@ -88,7 +87,8 @@ axiosInstance.interceptors.response.use(
 		return response
 	},
 	async function (error) {
-		const errorData = error.response.data
+		const errorData = error.response.data?.error || error.response.data
+
 		if (error instanceof AxiosError && error.config && error.response?.status === 401) {
 			try {
 				const originalRequest = error.config as any
@@ -96,9 +96,7 @@ axiosInstance.interceptors.response.use(
 					originalRequest._retry = true
 					let newAccessToken = ''
 					if (_apiAccessType === 'Guest') {
-						const { data } = await service.auth.loginGuest()
-						newAccessToken = defaultText(data?.tokens?.idToken)
-						updateAccessToken({ accessToken: newAccessToken, accessType: 'Guest' })
+						updateAccessToken({ accessToken: '', accessType: 'Guest' })
 					} else {
 						const { accessToken } = await refreshAccessToken()
 						newAccessToken = defaultText(accessToken)
@@ -110,7 +108,7 @@ axiosInstance.interceptors.response.use(
 							authorization: `Bearer ${newAccessToken}`,
 						},
 					}).catch((err) => {
-						console.error(err)
+						console.error('err: ', err)
 						// TODO: modal logout
 					})
 				}
@@ -124,11 +122,12 @@ axiosInstance.interceptors.response.use(
 		}
 
 		return Promise.reject({
-			title: errorData.title || errorData.message,
-			status: errorData.status || errorData.success,
-			detail: errorData.detail,
-			countImported: errorData?.countImported,
-			data: errorData?.data,
+			// title: errorData.title || errorData.message,
+			// status: errorData.status || errorData.success,
+			// detail: errorData.detail,
+			// countImported: errorData?.countImported,
+			// data: errorData?.data,
+			...errorData,
 		})
 	},
 )
@@ -146,13 +145,11 @@ export function updateAccessToken({
 }) {
 	if (accessToken) {
 		axiosInstance.defaults.headers.common.authorization = 'Bearer ' + accessToken
-		_apiAccessToken = accessToken
 		if (refreshToken) apiRefreshToken = refreshToken
 		if (userId) apiUserId = userId
 		_apiAccessType = accessType
 	} else {
 		axiosInstance.defaults.headers.common.authorization = null
-		_apiAccessToken = null
 		apiUserId = null
 		apiRefreshToken = null
 	}

@@ -1,66 +1,89 @@
 import { api } from '@/api/core'
 import { APIService, ResponseDto } from '@/api/interface'
 import {
-	DeleteProfileDtoOut,
-	GetProfileDtoOut,
-	GetSearchUMDtoOut,
-	GetUmDtoOut,
-	PatchStatusDtoOut,
-	PostImportCSVUMDtoOut,
-	PostImportXLSXUMDtoOut,
-	PostProfileUMDtoOut,
-	PostUploadFilesDtoOut,
-	PutProfileDtoOut,
-	PutProfileUMDtoOut,
-} from './dto-out.dto'
+	DeleteImageUserDtoOut,
+	DeleteUMDtoOut,
+	GetUMDtoOut,
+	PostImageUserDtoOut,
+	PostImportCsvUMDtoOut,
+	PostUMDtoOut,
+	PostValidateCsvUMDtoOut,
+	PutUMDtoOut,
+	SearchUMDtoOut,
+} from '@interface/dto/um/um.dto-out'
 import {
-	DeleteProfileDtoIn,
-	GetSearchUMDtoIn,
-	GetUmDtoIn,
-	PatchStatusDtoIn,
-	PostImportCSVUMDtoIn,
-	PostImportXLSXUMDtoIn,
-	PostProfileUMDtoIn,
-	PostUploadFilesDtoIn,
-	PutProfileDtoIn,
-	PutProfileUMDtoIn,
-} from './dto-in.dto'
+	DeleteImageUserDtoIn,
+	DeleteUMDtoIn,
+	GetUMDtoIn,
+	PostActiveUMDtoIn,
+	PostImageUserDtoIn,
+	PostUMDtoIn,
+	PutUMDtoIn,
+	SearchUMDtoIn,
+} from '@interface/dto/um/um.dto.in'
 
 const um = {
-	umSearch: async (payload: GetSearchUMDtoIn): Promise<ResponseDto<GetSearchUMDtoOut[]>> =>
-		await api.get(
-			`/um/search?keyword=${payload.keyword}&sortField=${payload.sortField}&sortOrder=${payload.sortOrder}&limit=${payload.limit}&offset=${payload.offset}&respLang=${payload.respLang}`,
-		),
-	getProfile: async (): Promise<ResponseDto<GetProfileDtoOut>> => await api.get('/profile'),
-	putProfile: async (payload: PutProfileDtoIn): Promise<ResponseDto<PutProfileDtoOut>> =>
-		await api.put('/profile', payload),
-	getUM: async (payload: GetUmDtoIn): Promise<ResponseDto<GetUmDtoOut>> => await api.get(`/um/${payload.userId}`),
-	deleteProfile: async (payload: DeleteProfileDtoIn): Promise<ResponseDto<DeleteProfileDtoOut>> =>
-		await api.delete(`/um/${payload.id}`),
-	putProfileUM: async (payload: PutProfileUMDtoIn): Promise<ResponseDto<PutProfileUMDtoOut>> =>
-		await api.put(`/um/${payload.id}`, payload),
-	postProfileUM: async (payload: PostProfileUMDtoIn): Promise<ResponseDto<PostProfileUMDtoOut>> =>
-		await api.post('/um', payload),
-	patchStatus: async (payload: PatchStatusDtoIn): Promise<ResponseDto<PatchStatusDtoOut>> =>
-		await api.patch(`/um/${payload.id}`, payload),
-	// change type res : blob
-	getTemplateCSVUM: async (): Promise<any> =>
-		await api.get('/um/import/template/csv', APIService.WebAPI, { responseType: 'blob' }),
-	// change type res : blob
-	getTemplateXLSXUM: async (): Promise<any> =>
-		await api.get('/um/import/template/xlsx', APIService.WebAPI, { responseType: 'blob' }),
-	postImportCSVUM: async (payload: PostImportCSVUMDtoIn): Promise<ResponseDto<PostImportCSVUMDtoOut[]>> =>
-		await api.post('/um/import/csv', payload.data),
-	postImportXLSXUM: async (payload: PostImportXLSXUMDtoIn): Promise<ResponseDto<PostImportXLSXUMDtoOut>> =>
-		await api.post('/um/import/xlsx', payload.data),
-	postUploadFiles: async (payload: PostUploadFilesDtoIn): Promise<ResponseDto<PostUploadFilesDtoOut>> => {
+	getSearchUM: async (payload: SearchUMDtoIn): Promise<ResponseDto<SearchUMDtoOut[]>> => {
+		const params = new URLSearchParams()
+
+		if (payload.region?.length !== 0) payload.region?.forEach((item) => params.append('region', item))
+		if (payload.role?.length !== 0) payload.role?.forEach((item) => params.append('role', item))
+		if (payload.position?.length !== 0) payload.position?.forEach((item) => params.append('position', item))
+		if (payload.keyword) params.append('keyword', payload.keyword)
+		if (payload.page !== undefined) params.append('page', payload.page.toString())
+		if (payload.limit !== undefined) params.append('limit', payload.limit.toString())
+		if (payload.orderBy) params.append('orderBy', payload.orderBy)
+		if (payload.order) params.append('order', payload.order)
+
+		return await api.get(`/um/search?${params}`)
+	},
+
+	getUM: async (payload: GetUMDtoIn): Promise<ResponseDto<GetUMDtoOut>> => await api.get(`/um/${payload.userId}`),
+	postUM: async (payload: PostUMDtoIn): Promise<ResponseDto<PostUMDtoOut>> => (await api.post('/um', payload)).data,
+	putUM: async (userId: string, payload: PutUMDtoIn): Promise<ResponseDto<PutUMDtoOut>> =>
+		(await api.put(`/um/${userId}`, payload)).data,
+	deleteUM: async (payload: DeleteUMDtoIn): Promise<ResponseDto<DeleteUMDtoOut>> =>
+		await api.delete(`/um/${payload.userId}`),
+	postImage: async (file: File, payload: PostImageUserDtoIn): Promise<ResponseDto<PostImageUserDtoOut>> => {
 		const formData = new FormData()
-		formData.append('file', payload.file)
-		return await api.post('/files/upload', formData, APIService.WebAPI, {
-			headers: {
-				'Content-Type': 'multipart/form-data',
-			},
-		})
+		formData.append('file', file)
+
+		return (
+			await api.post(`/um/img/${payload.userId}`, formData, APIService.WebAPI, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			})
+		).data
+	},
+	deleteImage: async (payload: DeleteImageUserDtoIn): Promise<ResponseDto<DeleteImageUserDtoOut>> =>
+		await api.delete(`/um/img/${payload.userId}`),
+
+	postActiveUM: async (payload: PostActiveUMDtoIn): Promise<ResponseDto<{}>> =>
+		(await api.post('/um/active', payload)).data,
+
+	postImportValidate: async (file: File): Promise<ResponseDto<PostValidateCsvUMDtoOut>> => {
+		const formData = new FormData()
+		formData.append('file', file)
+		return (
+			await api.post(`/um/validate/csv`, formData, APIService.WebAPI, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			})
+		).data
+	},
+
+	postImportData: async (file: File): Promise<ResponseDto<PostImportCsvUMDtoOut>> => {
+		const formData = new FormData()
+		formData.append('file', file)
+		return (
+			await api.post(`/um/import/csv`, formData, APIService.WebAPI, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			})
+		).data
 	},
 }
 

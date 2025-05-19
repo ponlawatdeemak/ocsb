@@ -2,22 +2,67 @@
 	"menu": {
 		"overview": "Overview",
 		"mapAnalyze": "Map",
-		"burntArea": "Analysis of Hotspots and Burnt Scar in the Area",
-		"cultivationArea": "Analysis of Sugarcane Cultivation Areas",
+		"burntArea": "Hotspot",
+		"plantingArea": "Planting",
 		"about": "About Us",
 		"glossary": "Glossary",
 		"setting": "Setting",
 		"userManagement": "User Management"
 	},
 
+	"tools": {
+		"compass": "Compass",
+		"zoom": "Zoom In / Zoom Out",
+		"basemap": "Base Map",
+		"extent": "Extent Location",
+		"current": "Current Location",
+		"measurement": "Measurement",
+		"export": "Map Export"
+	},
+
+	"measurement": {
+		"title": "Measurement",
+		"unitTitle": "Unit",
+		"lengthTitle": "Distance",
+		"areaTitle": "Area",
+		"line": {
+			"meters": "m",
+			"kilometers": "km"
+		},
+		"polygon": {
+			"squareMeters": "m²",
+			"squareKilometers": "km²"
+		}
+	},
+
+	"calendar": {
+		"dateBtn": "Date",
+		"monthBtn": "Month",
+		"lastSevenDayBtn": "Last 7 Days",
+		"lastThirtyDayBtn": "Last 30 Days",
+		"lastThreeMonthBtn": "Last 3 Months",
+		"selectedDate": "Selected Date:",
+		"prevYearBtn": "Previous Year",
+		"nextYearBtn": "Next Year",
+		"resetBtn": "Reset",
+		"confirmBtn": "Submit",
+		"currentDate": "Current Date",
+		"burntDate": "Burnt Area Date",
+		"errorMaxMonth": "Cannot select a time period exceeding 12 months"
+	},
+
 	"areaUnit": "Area Unit",
-	"areaRai": "Rai",
-	"areaPlot": "LandPlot",
+	"m2": "m²",
+	"km2": "km²",
+	"rai": "Rai",
+	"hexa": "ha",
 
 	"quantityUnit": "Quantity Unit",
 	"ton": "Ton",
-	"kilogram": "Kilogram",
-	"gram": "Gram",
+	"kg": "Kg",
+
+	"total": "Total",
+	"point": "Points",
 
 	"languages": "Languages",
 	"languagesTh": "ไทย",
@@ -25,10 +70,48 @@
 
 	"login": "Login",
 	"logout": "Logout",
+	"profile": "Profile",
 	"back": "Back",
 	"save": "Save",
+	"confirm": "Confirm",
+	"cancel": "Cancel",
+	"close": "Close",
+	"delete": "Delete",
+	"deleteMsg": "Are you sure you want to delete?",
+
+	"typing": "Typing.....",
+	"noData": "No Data",
 
 	"error": {
 		"somethingWrong": "Something went wrong. Please check the information again."
+	},
+
+	"required": "Please Enter ",
+	"requiredDate": "Please Enter Date",
+	"clear": "Clear",
+	"placeholder": {
+		"input": "Enter ",
+		"autocomplete": "Enter "
+	},
+
+	"area": "Area",
+	"month": "Month",
+	"year": "Year",
+	"quantity": "Quantity",
+	"region": "Region",
+	"currentRegion": "OCSB Region",
+
+	"processing": "Processing",
+	"submit": "Submit",
+	"and": "and",
+	"mapDisplayData": "Map Displaying Data on",
+	"date": "Date",
+	"location": {
+		"default": "An error occurred.",
+		"permissionDenied": "Permission denied. Location access is required for certain features.",
+		"positionUnavailable": "Location information is unavailable.",
+		"timeout": "The request to get user location timed out.",
+		"locationDenied": "Location access is now denied",
+		"locationBrowser": "Location access has been denied. Please enable location permissions in your browser settings to use this feature."
 	}
 }

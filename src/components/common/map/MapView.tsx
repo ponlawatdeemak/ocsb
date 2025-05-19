@@ -1,55 +1,36 @@
-import { useCallback, useMemo, useState } from 'react'
+import { memo, PropsWithChildren, useCallback, useMemo } from 'react'
 import classNames from 'classnames'
-import { BasemapType, MapInfoWindow, MapLayer, MapViewState } from './interface/map'
+import { BasemapType } from './interface/map'
 import MapLibre from './MapLibre'
-import { Paper } from '@mui/material'
-import { PropsWithChildren, useEffect } from 'react'
+import { CircularProgress } from '@mui/material'
 import useMapStore from './store/map'
 import { layerIdConfig } from '@/config/app.config'
 import { BASEMAP } from '@deck.gl/carto'
 import { IconLayer } from '@deck.gl/layers'
-import useResponsive from '@/hook/responsive'
 import { createGoogleStyle } from '@/utils/google'
 import MapTools from './tools'
 import { getPin } from '@/utils/pin'
+import Image from 'next/image'
 
 const CURRENT_LOCATION_ZOOM = 14
-const DEFAULT = {
-	viewState: {
-		longitude: 100,
-		latitude: 13,
-		zoom: 5,
-	},
-
-	basemap: BasemapType.CartoLight,
-}
 
 export interface MapViewProps extends PropsWithChildren {
-	className?: string
-	initialLayer?: MapLayer[]
-	legendSelectorLabel?: string
-	hiddenZoomButton?: boolean
-	hiddenFullscreenButton?: boolean
-	hiddenLayersButton?: boolean
-	hiddenCurrentLocationButton?: boolean
-	hiddenScaleControl?: boolean
+	mapId: string
+	loading?: boolean
+	isInteractive?: boolean
+	isPaddingGoogle?: boolean
+	isHideAttributionControl?: boolean
 }
 
-export default function MapView({
-	className = '',
-	initialLayer,
-	legendSelectorLabel,
-	hiddenZoomButton = false,
-	hiddenFullscreenButton = false,
-	hiddenLayersButton = false,
-	hiddenCurrentLocationButton = false,
-	hiddenScaleControl = true,
+export function MapView({
 	children,
-}: MapViewProps) {
-	const { getLayer, addLayer, removeLayer, setLayers, infoWindow, setInfoWindow, mapLibre } = useMapStore()
-
-	const [viewState, setViewState] = useState<MapViewState>(DEFAULT.viewState)
-	const [basemap, setBasemap] = useState(DEFAULT.basemap)
+	mapId,
+	loading,
+	isInteractive = true,
+	isPaddingGoogle = false,
+	isHideAttributionControl = false,
+}: Readonly<MapViewProps>) {
+	const { getLayer, addLayer, removeLayer, mapLibre, basemap, setBasemap } = useMapStore()
 
 	const mapStyle = useMemo(() => {
 		if (basemap === BasemapType.CartoLight) {
@@ -63,32 +44,18 @@ export default function MapView({
 		}
 	}, [basemap])
 
-	useEffect(() => {
-		return () => {
-			setInfoWindow(null)
-		}
-	}, [setInfoWindow])
-
-	useEffect(() => {
-		if (initialLayer && initialLayer.length) {
-			const layers = initialLayer.map((item) => item.layer)
-			setLayers(layers)
-		}
-	}, [setLayers, initialLayer])
-
-	const onViewStateChange = useCallback((viewState: MapViewState) => {
-		setViewState(viewState)
-	}, [])
-
-	const onBasemapChanged = useCallback((basemap: BasemapType) => {
-		setBasemap(basemap)
-	}, [])
+	const onBasemapChanged = useCallback(
+		(selectedBasemap: BasemapType) => {
+			setBasemap(selectedBasemap)
+		},
+		[setBasemap],
+	)
 
 	const onGetLocation = useCallback(
 		(coords: GeolocationCoordinates) => {
 			const layer = getLayer(layerIdConfig.toolCurrentLocation)
 			if (layer) {
-				removeLayer(layerIdConfig.toolCurrentLocation)
+				removeLayer(mapId, layerIdConfig.toolCurrentLocation)
 			} else {
 				const { latitude, longitude } = coords
 				const iconLayer = new IconLayer({
@@ -108,54 +75,51 @@ export default function MapView({
 					getSize: 40,
 					getColor: [255, 0, 0],
 				})
-				addLayer(iconLayer)
-				mapLibre?.flyTo({ center: [longitude, latitude], zoom: CURRENT_LOCATION_ZOOM, duration: 500 })
+				addLayer(mapId, iconLayer)
+				mapLibre[mapId]?.flyTo({ center: [longitude, latitude], zoom: CURRENT_LOCATION_ZOOM, duration: 3000 })
 			}
 		},
-		[getLayer, mapLibre, addLayer, removeLayer],
+		[getLayer, mapLibre, addLayer, removeLayer, mapId],
 	)
 
 	return (
-		<div className={classNames('relative flex flex-1 overflow-hidden', className)}>
+		<div className={classNames('relative flex flex-1 overflow-hidden')}>
+			{loading && (
+				<CircularProgress
+					size={16}
+					className={classNames('absolute right-[50px] top-[145px] z-20 md:right-16 md:top-3', {
+						'!text-[#fff]': basemap === BasemapType.Google || basemap === BasemapType.CartoDark,
+					})}
+				/>
+			)}
 			<MapTools
-				layerList={initialLayer}
+				mapId={mapId}
 				onBasemapChanged={onBasemapChanged}
 				onGetLocation={onGetLocation}
 				currentBaseMap={basemap}
-				legendSelectorLabel={legendSelectorLabel}
-				hiddenZoomButton={hiddenZoomButton}
-				hiddenFullscreenButton={hiddenFullscreenButton}
-				hiddenLayersButton={hiddenLayersButton}
-				hiddenCurrentLocationButton={hiddenCurrentLocationButton}
-				hiddenScaleControl={hiddenScaleControl}
 			/>
-			<MapLibre viewState={viewState} mapStyle={mapStyle} onViewStateChange={onViewStateChange} />
 
-			{infoWindow && (
-				<InfoWindow positon={infoWindow.positon} onClose={() => setInfoWindow(null)}>
-					{infoWindow.children}
-				</InfoWindow>
+			{basemap === BasemapType.Google && (
+				<Image
+					src={'/images/map/google_on_non_white_hdpi.png'}
+					width={59}
+					height={18}
+					className={classNames(
+						`absolute z-[9] md:bottom-3 ${isPaddingGoogle ? 'left-[calc(50%+38px)]' : 'left-[calc(50%-29.5px)]'} ${isHideAttributionControl ? 'bottom-2' : 'bottom-[52px]'}`,
+					)}
+					alt={`Google Logo`}
+				/>
 			)}
+			<MapLibre
+				mapId={mapId}
+				mapStyle={mapStyle}
+				isInteractive={isInteractive}
+				isHideAttributionControl={isHideAttributionControl}
+			/>
+
 			{children}
 		</div>
 	)
 }
 
-export interface InfoWindowProps extends MapInfoWindow, PropsWithChildren {
-	onClose?: () => void
-}
-
-const InfoWindow: React.FC<InfoWindowProps> = ({ children }) => {
-	const { isDesktop } = useResponsive()
-
-	return (
-		<Paper
-			className={classNames(
-				'absolute top-12 z-10 !rounded-[8px]',
-				isDesktop ? 'right-20' : 'left-[50%] -translate-x-1/2',
-			)}
-		>
-			{children}
-		</Paper>
-	)
-}
+export default memo(MapView)
