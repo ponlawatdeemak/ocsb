@@ -1,0 +1,34 @@
+{
+	"menu": {
+		"overview": "ภาพรวม",
+		"mapAnalyze": "แผนที่",
+		"burntArea": "การวิเคราะห์จุดความร้อน และร่องรอยการเผาไหม้ในพื้นที่",
+		"cultivationArea": "การวิเคราะห์พื้นที่ปลูกอ้อย",
+		"about": "เกี่ยวกับเรา",
+		"glossary": "อภิธานศัพท์",
+		"setting": "ตั้งค่า",
+		"userManagement": "จัดการผู้ใช้งาน"
+	},
+
+	"areaUnit": "หน่วยพื้นที่",
+	"areaRai": "ไร่",
+	"areaPlot": "แปลง",
+
+	"quantityUnit": "หน่วยปริมาณ",
+	"ton": "ตัน",
+	"kilogram": "กิโลกรัม",
+	"gram": "กรัม",
+
+	"languages": "ภาษา",
+	"languagesTh": "ไทย",
+	"languagesEn": "English",
+
+	"login": "เข้าสู่ระบบ",
+	"logout": "ออกจากระบบ",
+	"back": "ย้อนกลับ",
+	"save": "บันทึก",
+
+	"error": {
+		"somethingWrong": "เกิดข้อผิดพลาด กรุณาตรวจสอบข้อมูลอีกครั้ง"
+	}
+}

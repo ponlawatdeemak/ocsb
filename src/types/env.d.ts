@@ -1,0 +1,20 @@
+namespace NodeJS {
+	interface ProcessEnv {
+		WEB_HOSTNAME: string
+
+		NEXTAUTH_URL: string
+		NEXTAUTH_SECRET: string
+
+		NEXT_PUBLIC_API_HOSTNAME_MIS: string
+		NEXT_PUBLIC_API_KEY_MIS: string
+
+		NEXT_PUBLIC_API_HOSTNAME_GIS: string
+		NEXT_PUBLIC_API_KEY_GIS: string
+
+		NEXT_PUBLIC_API_HOSTNAME_TILE: string
+		NEXT_PUBLIC_API_KEY_TILE: string
+
+		GOOGLE_MAPS_API_KEY: string
+		GOOGLE_MAPS_API_MAP_ID: string
+	}
+}

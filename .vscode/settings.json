@@ -1,0 +1,10 @@
+{
+	"editor.formatOnSave": true,
+	"editor.detectIndentation": false,
+	// "editor.codeActionsOnSave": {
+	// 	"source.organizeImports": "explicit"
+	// }
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
+}
