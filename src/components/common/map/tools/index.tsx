@@ -18,6 +18,7 @@ import { NavigationOutlined } from '@mui/icons-material'
 import PolygonMeasure from './measurement/PolygonMeasure'
 import LineMeasure from './measurement/LineMeasure'
 import Image from 'next/image'
+import AlertSnackbar, { AlertInfoType } from '@/components/common/snackbar/AlertSnackbar'
 
 const basemapList: BaseMap[] = [
 	{ label: 'hybrid', value: BasemapType.Google, image: '/images/map/basemap_hybrid.png' },
@@ -49,6 +50,11 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 	const [showMeasure, setShowMeasure] = useState(false)
 	const [measureMode, setMeasureMode] = useState<MeasureMode | null>(null)
 	const [anchorMeasure, setAnchorMeasure] = useState<HTMLButtonElement | null>(null)
+	const [alertLocationInfo, setAlertLocationInfo] = useState<AlertInfoType>({
+		open: false,
+		severity: 'success',
+		message: '',
+	})
 
 	const map = useMemo(() => mapLibre[mapId], [mapLibre, mapId])
 
@@ -91,20 +97,74 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 		}
 	}, [map, mapId, getLayer, removeLayer])
 
-	const handleCurrentLocation = useCallback(() => {
+	const getLocation = useCallback(() => {
 		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				(position) => {
+			return navigator.geolocation.getCurrentPosition(
+				(position: GeolocationPosition) => {
 					onGetLocation?.(position.coords)
 				},
-				(error) => {
-					console.error('Error fetching location:', error)
+				(error: GeolocationPositionError) => {
+					let message = t('location.default')
+					switch (error.code) {
+						case error.PERMISSION_DENIED:
+							message = t('location.permissionDenied')
+							break
+						case error.POSITION_UNAVAILABLE:
+							message = t('location.positionUnavailable')
+							break
+						case error.TIMEOUT:
+							message = t('location.timeout')
+							break
+						default:
+							break
+					}
+
+					setAlertLocationInfo({ open: true, severity: 'error', message })
+				},
+				{
+					// enableHighAccuracy: false,
+					timeout: 10000,
+					maximumAge: 60000,
 				},
 			)
-		} else {
-			console.error('Geolocation is not supported by this browser.')
 		}
-	}, [onGetLocation])
+	}, [onGetLocation, t])
+
+	const handleGetLocation = useCallback(async () => {
+		// Permission API is implemented
+		navigator.permissions
+			.query({
+				name: 'geolocation',
+			})
+			.then((permission) => {
+				// is geolocation granted or prompt?
+				if (permission.state === 'granted' || permission.state === 'prompt') {
+					getLocation()
+				} else {
+					setAlertLocationInfo({
+						open: true,
+						severity: 'error',
+						message: t('location.locationBrowser'),
+					})
+				}
+
+				// Optional: listen for changes in permission state
+				permission.onchange = () => {
+					if (permission.state === 'granted') {
+						getLocation()
+					} else if (permission.state === 'denied') {
+						setAlertLocationInfo({
+							open: true,
+							severity: 'error',
+							message: t('location.locationDenied'),
+						})
+					}
+				}
+			})
+			.catch((error) => {
+				console.error('Permission query error: ', error)
+			})
+	}, [getLocation, t])
 
 	const handleChangeMode = useCallback(
 		(value: MeasureMode) => {
@@ -252,7 +312,7 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 					arrow
 				>
 					<Box className='flex !h-6 !w-6 overflow-hidden !rounded-[3px] !bg-white !shadow-none'>
-						<IconButton className='!h-6 !w-6 grow !rounded-none !p-1.5' onClick={handleCurrentLocation}>
+						<IconButton className='!h-6 !w-6 grow !rounded-none !p-1.5' onClick={handleGetLocation}>
 							<MapCurrentLocationIcon />
 						</IconButton>
 					</Box>
@@ -392,6 +452,10 @@ const MapTools: React.FC<MapToolsProps> = ({ mapId, onBasemapChanged, onGetLocat
 					}}
 				/>
 			)}
+			<AlertSnackbar
+				alertInfo={alertLocationInfo}
+				onClose={() => setAlertLocationInfo({ ...alertLocationInfo, open: false })}
+			/>
 		</>
 	)
 }

@@ -105,5 +105,13 @@
 	"submit": "Submit",
 	"and": "and",
 	"mapDisplayData": "Map Displaying Data on",
-	"date": "Date"
+	"date": "Date",
+	"location": {
+		"default": "An error occurred.",
+		"permissionDenied": "Permission denied. Location access is required for certain features.",
+		"positionUnavailable": "Location information is unavailable.",
+		"timeout": "The request to get user location timed out.",
+		"locationDenied": "Location access is now denied",
+		"locationBrowser": "Location access has been denied. Please enable location permissions in your browser settings to use this feature."
+	}
 }
