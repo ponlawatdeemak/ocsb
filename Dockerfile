@@ -1,4 +1,4 @@
-FROM node:22-alpine
+FROM node:22-alpine 
 
 ARG P_USER_NAME=app
 ARG P_UID=21001
@@ -12,14 +12,15 @@ RUN addgroup --gid ${P_UID} ${P_USER_NAME} && \
 WORKDIR ${HOME}
 USER ${P_UID}
 
-ADD --chown="21001:21001" package*.json ./
+COPY --chown=root:node --chmod=755 --from=builder package.json ./
+COPY --chown=root:node --chmod=755 --from=builder package-lock.json ./
 
-RUN npm ci --omit=dev && \
+RUN npm ci --ignore-scripts --omit=dev && \
     rm -rf package-lock.json .npmrc .npm
 
-ADD --chown="21001:21001" public ./public
-ADD --chown="21001:21001" .next ./.next
-ADD --chown="21001:21001" next.config.mjs ./
+COPY --chown=root:node --chmod=755 --from=builder public ./public
+COPY --chown=root:node --chmod=755 --from=builder .next ./.next
+COPY --chown=root:node --chmod=755 --from=builder next.config.mjs ./
 
 RUN rm -rf ./.next/cache || true
 
