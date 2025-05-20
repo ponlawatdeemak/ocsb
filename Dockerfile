@@ -33,7 +33,8 @@ RUN npm ci --ignore-scripts --omit=dev && \
     rm -rf ./.next/cache
     
 # Stage2: Build Image
-FROM 22-alpine AS runner
+USER node
+FROM node:22-alpine AS runner
 
 ENV NODE_ENV=production HOME=/app
     
