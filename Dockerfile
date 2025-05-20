@@ -33,20 +33,21 @@ RUN npm ci --ignore-scripts --omit=dev && \
     rm -rf ./.next/cache
     
 # Stage2: Build Image
-USER node
-FROM node:22-alpine AS runner
+FROM node:22-alpine AS runner 
+RUN addgroup --system appgroup && adduser --system --uid 1000 --ingroup appgroup appuser
 
 ENV NODE_ENV=production HOME=/app
     
 WORKDIR ${HOME}
 
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/package-lock.json ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/next-i18next.config.js ./
+COPY --chown=appuser:appgroup --from=builder /app/package.json ./
+COPY --chown=appuser:appgroup --from=builder /app/package-lock.json ./
+COPY --chown=appuser:appgroup --from=builder /app/public ./public
+COPY --chown=appuser:appgroup --from=builder /app/.next ./.next
+COPY --chown=appuser:appgroup --from=builder /app/next.config.js ./
+COPY --chown=appuser:appgroup --from=builder /app/next-i18next.config.js ./
 
+USER appuser
 
 RUN npm ci --ignore-scripts --omit=dev && \
     rm -rf package-lock.json
