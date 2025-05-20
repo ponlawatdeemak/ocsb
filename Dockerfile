@@ -7,7 +7,7 @@ WORKDIR ${HOME_DIR}
 COPY ./src ${HOME_DIR}/src
 COPY ./public ${HOME_DIR}/public
 COPY ./pages ${HOME_DIR}/pages
-COPY ./sugar-cane-interface ${HOME_DIR}/sugar-cane-interface
+COPY ./ocsb-interface ${HOME_DIR}/ocsb-interface
 COPY next.config.js ${HOME_DIR}/
 COPY package-lock.json ${HOME_DIR}/
 COPY package.json ${HOME_DIR}/
@@ -24,7 +24,7 @@ RUN apk update && \
     apk add git && \
     git submodule update --init
     
-WORKDIR ${HOME_DIR}/sugar-cane-interface
+WORKDIR ${HOME_DIR}/ocsb-interface
 RUN npm ci --ignore-scripts
 
 WORKDIR ${HOME_DIR}
@@ -33,7 +33,7 @@ RUN npm ci --ignore-scripts --omit=dev && \
     rm -rf ./.next/cache
     
 # Stage2: Build Image
-FROM builder AS runner
+FROM node:22-alpine AS runner
 
 ENV NODE_ENV=production HOME=/app
     
