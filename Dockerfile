@@ -34,18 +34,18 @@ RUN npm ci --ignore-scripts --omit=dev && \
     
 # Stage2: Build Image
 FROM node:22-alpine AS runner 
-RUN addgroup --system appgroup && adduser --system --uid 1000 --ingroup appgroup appuser
+RUN addgroup --system appgroup && adduser --system --uid 1001 --ingroup appgroup appuser
 
 ENV NODE_ENV=production HOME=/app
     
 WORKDIR ${HOME}
 
-COPY --chown=appuser:appgroup --from=builder /app/package.json ./
-COPY --chown=appuser:appgroup --from=builder /app/package-lock.json ./
-COPY --chown=appuser:appgroup --from=builder /app/public ./public
-COPY --chown=appuser:appgroup --from=builder /app/.next ./.next
-COPY --chown=appuser:appgroup --from=builder /app/next.config.js ./
-COPY --chown=appuser:appgroup --from=builder /app/next-i18next.config.js ./
+COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/package.json ./
+COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/package-lock.json ./
+COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/public ./public
+COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/.next ./.next
+COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/next.config.js ./
+COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/next-i18next.config.js ./
 
 USER appuser
 
