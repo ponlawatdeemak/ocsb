@@ -12,15 +12,15 @@ RUN addgroup --gid ${P_UID} ${P_USER_NAME} && \
 WORKDIR ${HOME}
 USER ${P_UID}
 
-COPY --chown=node:node --chmod=0644 package.json ./
-COPY --chown=node:node --chmod=0644 package-lock.json ./
+COPY --chown=root:node --chmod=755 package.json ./
+COPY --chown=root:node --chmod=755 package-lock.json ./
 
 RUN npm ci --ignore-scripts --omit=dev && \
     rm -rf package-lock.json .npmrc .npm
 
-COPY --chown=node:node --chmod=0644 public ./public
-COPY --chown=node:node --chmod=0644 .next ./.next
-COPY --chown=node:node --chmod=0644 next.config.js ./
+COPY --chown=root:node --chmod=755 public ./public
+COPY --chown=root:node --chmod=755 .next ./.next
+COPY --chown=root:node --chmod=755 next.config.js ./
 
 RUN rm -rf ./.next/cache || true
 
