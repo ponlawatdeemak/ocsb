@@ -34,7 +34,8 @@ RUN npm ci --ignore-scripts --omit=dev && \
     
 # Stage2: Build Image
 FROM node:22-alpine AS runner 
-RUN addgroup --system appgroup && adduser --system --uid 1001 --ingroup appgroup appuser
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 ENV NODE_ENV=production HOME=/app
     
@@ -47,10 +48,10 @@ COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/.next ./.next
 COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/next.config.js ./
 COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/next-i18next.config.js ./
 
-USER appuser
-
 RUN npm ci --ignore-scripts --omit=dev && \
     rm -rf package-lock.json
+
+USER appuser
 
 EXPOSE 3000
     
