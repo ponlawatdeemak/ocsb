@@ -41,12 +41,12 @@ ENV NODE_ENV=production HOME=/app
     
 WORKDIR ${HOME}
 
-COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/package.json ./
-COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/package-lock.json ./
-COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/public ./public
-COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/.next ./.next
-COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/next.config.js ./
-COPY --chown=appuser:appgroup --chmod=755 --from=builder /app/next-i18next.config.js ./
+COPY --chown=root:node --chmod=755 --from=builder /app/package.json ./
+COPY --chown=root:node --chmod=755 --from=builder /app/package-lock.json ./
+COPY --chown=root:node --chmod=755 --from=builder /app/public ./public
+COPY --chown=root:node --chmod=755 --from=builder /app/.next ./.next
+COPY --chown=root:node --chmod=755 --from=builder /app/next.config.js ./
+COPY --chown=root:node --chmod=755 --from=builder /app/next-i18next.config.js ./
 
 RUN npm ci --ignore-scripts --omit=dev && \
     rm -rf package-lock.json
