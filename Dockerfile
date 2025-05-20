@@ -15,6 +15,7 @@ COPY postcss.config.js ${HOME_DIR}/
 COPY tailwind.config.ts ${HOME_DIR}/
 COPY tsconfig.json ${HOME_DIR}/
 COPY next-i18next.config.js ${HOME_DIR}/
+COPY webapp.config.ts ${HOME_DIR}/
 COPY .gitmodules ${HOME_DIR}/
 COPY ./.git ${HOME_DIR}/.git
 
@@ -24,7 +25,7 @@ RUN apk update && \
     git submodule update --init
     
 WORKDIR ${HOME_DIR}/sugar-cane-interface
-RUN npm ci --ignore-scripts --omit=dev
+RUN npm ci --ignore-scripts
 
 WORKDIR ${HOME_DIR}
 RUN npm ci --ignore-scripts --omit=dev && \
